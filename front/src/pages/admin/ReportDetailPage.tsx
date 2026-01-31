@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
@@ -10,6 +10,7 @@ import { deleteEvent, deleteEventResponse } from "@/lib/api/events";
 import { deleteJourney, deleteJourneyResponse } from "@/lib/api/journeys";
 import { getReportDetail, updateReportStatus, type ReportDetail, type ReportStatus } from "@/lib/api/reports";
 import { updateUserBlocked } from "@/lib/api/users";
+import ActionMenu, { type ActionMenuItem } from "@/components/ui/ActionMenu";
 
 type ReportReason =
     | "SPAM"
@@ -105,6 +106,8 @@ export default function ReportDetailPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [actionError, setActionError] = useState("");
     const [blockModalOpen, setBlockModalOpen] = useState(false);
+    const [actionsOpen, setActionsOpen] = useState(false);
+    const actionsButtonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         if (stateReport) {
@@ -174,8 +177,7 @@ export default function ReportDetailPage() {
     const reportedUserLabel = report.reportedUser.username;
     const reportingUserLabel = report.reportingUser.username;
 
-    const handleStatusChange = (status: ReportStatus) => (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const handleStatusChange = (status: ReportStatus) => {
         setActionError("");
         updateReportStatus(report.id, status)
             .then(() => {
@@ -252,6 +254,84 @@ export default function ReportDetailPage() {
     const reportHeader = report.description?.trim()
         ? report.description.trim()
         : t("report.no.additional.details");
+
+    const wrapAction = (action: () => void | Promise<void>): (() => void) => () => {
+        setActionsOpen(false);
+        void action();
+    };
+
+    const actionItems: ActionMenuItem[] = [];
+
+    if (report.status === "PENDING") {
+        actionItems.push({
+            id: "start-review",
+            label: t("report.action.review"),
+            variant: "info",
+            onSelect: wrapAction(() => handleStatusChange("UNDER_REVIEW")),
+        });
+    }
+
+    if (report.status === "UNDER_REVIEW") {
+        if (report.journey && !report.journey.deleted) {
+            actionItems.push({
+                id: "delete-journey",
+                label: t("report.action.delete_journey"),
+                variant: "danger",
+                onSelect: wrapAction(() => handleDeleteContent("journey")),
+            });
+        }
+        if (report.event && !report.event.deleted) {
+            actionItems.push({
+                id: "delete-event",
+                label: t("report.action.delete_event"),
+                variant: "danger",
+                onSelect: wrapAction(() => handleDeleteContent("event")),
+            });
+        }
+        if (report.journeyResponse && !report.journeyResponse.deleted) {
+            actionItems.push({
+                id: "delete-journey-comment",
+                label: t("report.action.delete_journey_comment"),
+                variant: "danger",
+                onSelect: wrapAction(() => handleDeleteContent("journey-comment")),
+            });
+        }
+        if (report.eventResponse && !report.eventResponse.deleted) {
+            actionItems.push({
+                id: "delete-event-comment",
+                label: t("report.action.delete_event_comment"),
+                variant: "danger",
+                onSelect: wrapAction(() => handleDeleteContent("event-comment")),
+            });
+        }
+
+        actionItems.push({
+            id: "resolve",
+            label: t("report.action.resolve"),
+            variant: "success",
+            onSelect: wrapAction(() => handleStatusChange("RESOLVED")),
+        });
+
+        if (canDismiss) {
+            actionItems.push({
+                id: "dismiss",
+                label: t("report.action.dismiss"),
+                variant: "warning",
+                onSelect: wrapAction(() => handleStatusChange("DISMISSED")),
+            });
+        }
+    }
+
+    if (report.status === "UNDER_REVIEW" || report.status === "RESOLVED") {
+        actionItems.push({
+            id: "toggle-block",
+            label: report.reportedUser.blocked ? t("user.unblock") : t("user.block"),
+            variant: report.reportedUser.blocked ? "info" : "danger",
+            onSelect: wrapAction(() => setBlockModalOpen(true)),
+        });
+    }
+
+    const hasActions = actionItems.length > 0;
 
     return (
         <div className="report-detail-page">
@@ -453,84 +533,33 @@ export default function ReportDetailPage() {
 
                                 <div className="admin-actions">
                                     {actionError && <span className="warning-text">{actionError}</span>}
-                                    {report.status === "PENDING" && (
-                                        <form className="report-inline-form" onSubmit={handleStatusChange("UNDER_REVIEW")}>
-                                            <button type="submit" className="cta-button btn-dele">
-                                                {t("report.action.review")}
-                                            </button>
-                                        </form>
-                                    )}
-
-                                    {report.status === "UNDER_REVIEW" && (
-                                        <>
-                                            {report.journey && !report.journey.deleted && (
-                                                <button
-                                                    type="button"
-                                                    className="cta-button btn-dele"
-                                                    onClick={() => handleDeleteContent("journey")}
-                                                >
-                                                    {t("report.action.delete_journey")}
-                                                </button>
-                                            )}
-                                            {report.event && !report.event.deleted && (
-                                                <button
-                                                    type="button"
-                                                    className="cta-button btn-dele"
-                                                    onClick={() => handleDeleteContent("event")}
-                                                >
-                                                    {t("report.action.delete_event")}
-                                                </button>
-                                            )}
-                                            {report.journeyResponse && !report.journeyResponse.deleted && (
-                                                <button
-                                                    type="button"
-                                                    className="cta-button btn-dele"
-                                                    onClick={() => handleDeleteContent("journey-comment")}
-                                                >
-                                                    {t("report.action.delete_journey_comment")}
-                                                </button>
-                                            )}
-                                            {report.eventResponse && !report.eventResponse.deleted && (
-                                                <button
-                                                    type="button"
-                                                    className="cta-button btn-dele"
-                                                    onClick={() => handleDeleteContent("event-comment")}
-                                                >
-                                                    {t("report.action.delete_event_comment")}
-                                                </button>
-                                            )}
-                                        </>
-                                    )}
-
-                                    {(report.status === "UNDER_REVIEW" || report.status === "RESOLVED") && (
-                                        <button
-                                            type="button"
-                                            className={classNames(
-                                                "cta-button",
-                                                report.reportedUser.blocked ? "btn-primary" : "btn-danger"
-                                            )}
-                                            onClick={() => setBlockModalOpen(true)}
-                                        >
-                                            {report.reportedUser.blocked ? t("user.unblock") : t("user.block")}
-                                        </button>
-                                    )}
-
-                                    {report.status === "UNDER_REVIEW" && (
-                                        <>
-                                            <form className="report-inline-form" onSubmit={handleStatusChange("RESOLVED")}>
-                                                <button type="submit" className="cta-button btn-tertiary">
-                                                    {t("report.action.resolve")}
-                                                </button>
-                                            </form>
-                                            {canDismiss && (
-                                                <form className="report-inline-form" onSubmit={handleStatusChange("DISMISSED")}>
-                                                    <button type="submit" className="cta-button btn-primary">
-                                                        {t("report.action.dismiss")}
-                                                    </button>
-                                                </form>
-                                            )}
-                                        </>
-                                    )}
+                                    <button
+                                        type="button"
+                                        ref={actionsButtonRef}
+                                        className="admin-actions__trigger"
+                                        onClick={() => {
+                                            if (!hasActions) {
+                                                setActionsOpen(false);
+                                                return;
+                                            }
+                                            setActionsOpen((prev) => !prev);
+                                        }}
+                                        aria-haspopup="menu"
+                                        aria-expanded={actionsOpen && hasActions}
+                                        disabled={!hasActions}
+                                    >
+                                        {t("report.actions.manage")}
+                                        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                                            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                        </svg>
+                                    </button>
+                                    <ActionMenu
+                                        open={actionsOpen}
+                                        anchorRef={actionsButtonRef}
+                                        onClose={() => setActionsOpen(false)}
+                                        title={t("report.actions.menu")}
+                                        items={actionItems}
+                                    />
                                 </div>
                             </div>
                         </div>

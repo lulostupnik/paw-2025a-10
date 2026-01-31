@@ -1298,8 +1298,14 @@ h4 { font-size: 1.125rem; }
 .explore-page {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 3.75rem;
   padding-bottom: 4rem;
+}
+
+@media (min-width: 992px) {
+  .explore-page {
+    gap: 4.5rem;
+  }
 }
 
 .explore-hero {
@@ -1332,7 +1338,27 @@ h4 { font-size: 1.125rem; }
 .explore-section {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
+}
+
+.explore-section .featured-event-card:hover {
+  transform: translateY(0);
+}
+
+@supports not (gap: 1rem) {
+  .explore-page > * + * {
+    margin-top: 3.75rem;
+  }
+
+  @media (min-width: 992px) {
+    .explore-page > * + * {
+      margin-top: 4.5rem;
+    }
+  }
+
+  .explore-section > * + * {
+    margin-top: 2rem;
+  }
 }
 
 .explore-section__header {
@@ -2648,6 +2674,96 @@ textarea.input-control {
   font-size: 1rem;
 }
 
+.action-menu {
+  position: fixed;
+  min-width: 220px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  z-index: 2300;
+  padding: 0.5rem 0;
+}
+
+.action-menu__title {
+  margin: 0 0 0.35rem;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--color-gray-500);
+  letter-spacing: 0.05em;
+}
+
+.action-menu__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.action-menu__item {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  color: var(--color-gray-800);
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.action-menu__item:hover,
+.action-menu__item:focus-visible {
+  background: var(--color-gray-100);
+  outline: none;
+}
+
+.action-menu__item.is-info {
+  color: var(--color-primary);
+}
+
+.action-menu__item.is-success {
+  color: var(--color-success);
+}
+
+.action-menu__item.is-warning {
+  color: var(--color-warning);
+}
+
+.action-menu__item.is-danger {
+  color: var(--color-error);
+}
+
+.action-menu__item.is-info:hover,
+.action-menu__item.is-info:focus-visible {
+  background: rgba(94, 72, 232, 0.12);
+  color: var(--color-primary-dark);
+}
+
+.action-menu__item.is-success:hover,
+.action-menu__item.is-success:focus-visible {
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.action-menu__item.is-warning:hover,
+.action-menu__item.is-warning:focus-visible {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.action-menu__item.is-danger:hover,
+.action-menu__item.is-danger:focus-visible {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.action-menu__item.is-disabled,
+.action-menu__item:disabled {
+  color: var(--color-gray-400);
+  cursor: not-allowed;
+  background: transparent;
+}
+
 @media (max-width: 640px) {
   .filters-dropdown {
     padding: 1.25rem;
@@ -2940,6 +3056,34 @@ textarea.input-control {
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
+}
+
+.report-detail-page .admin-actions__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.65rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.report-detail-page .admin-actions__trigger:hover,
+.report-detail-page .admin-actions__trigger:focus-visible {
+  background: var(--color-primary-dark);
+  box-shadow: var(--shadow-soft);
+  outline: none;
+}
+
+.report-detail-page .admin-actions__trigger:disabled {
+  background: var(--color-gray-300);
+  color: var(--color-gray-500);
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .report-detail-page .report-inline-form {

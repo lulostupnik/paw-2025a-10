@@ -1,9 +1,10 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
-import { createInterest } from "@/lib/api/interests";
+import { createInterest, type InterestPayload } from "@/lib/api/interests";
 
 interface InterestFormState {
     name: string;
@@ -23,10 +24,10 @@ const formatTitleCase = (value: string) =>
 export default function InterestCreatePage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const [form, setForm] = useState(initialForm);
     const [touched, setTouched] = useState({ name: false });
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const [submitting, setSubmitting] = useState(false);
 
     const errors = useMemo(
         () => ({
@@ -35,21 +36,26 @@ export default function InterestCreatePage() {
         [form, t]
     );
 
+    const createInterestMutation = useMutation({
+        mutationFn: (payload: InterestPayload) => createInterest(payload),
+        onSuccess: (created) => {
+            queryClient.invalidateQueries({ queryKey: ["adminInterests"] });
+            navigate(`/interests/${created.id}`);
+        },
+        onError: (error) => {
+            console.error("Failed to create interest", error);
+            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+        },
+    });
+
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setTouched({ name: true });
         if (errors.name) {
             return;
         }
-        setSubmitting(true);
         setSubmitError(null);
-        createInterest({ name: form.name.trim() })
-            .then((created) => navigate(`/interests/${created.id}`))
-            .catch((error) => {
-                console.error("Failed to create interest", error);
-                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-            })
-            .finally(() => setSubmitting(false));
+        createInterestMutation.mutate({ name: form.name.trim() });
     };
 
     if (!isAdmin()) {
@@ -92,7 +98,7 @@ export default function InterestCreatePage() {
                             {touched.name && errors.name && <p className="error-message">{errors.name}</p>}
                         </div>
 
-                        <button type="submit" className="form-button" disabled={submitting}>
+                        <button type="submit" className="form-button" disabled={createInterestMutation.isPending}>
                             {t("createInterest.submit", { defaultValue: "Create Interest" })}
                         </button>
                     </form>
