@@ -5,7 +5,7 @@ import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Report;
 import ar.edu.itba.paw.models.exceptions.ReportNotFoundException;
-import ar.edu.itba.paw.webapp.auth.AccessHelper;
+import ar.edu.itba.paw.webapp.auth.AuthUtils;
 import ar.edu.itba.paw.webapp.dto.ReportDto;
 import ar.edu.itba.paw.webapp.form.CreateReportForm;
 import ar.edu.itba.paw.webapp.form.UpdateReportStatusForm;
@@ -27,9 +27,6 @@ public class ReportController {
 
     @Autowired
     ReportService reportService;
-
-    @Autowired
-    private AccessHelper accessHelper;
 
     @Context
     private UriInfo uriInfo;
@@ -64,7 +61,7 @@ public class ReportController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createReport(@Valid final CreateReportForm form) {
-        final Long userId = accessHelper.getCurrentUserId();
+        final Long userId = AuthUtils.getCurrentUserId();
 
         final Report report = reportService.createReport(form.getReportType(),userId,form.getTargetId(),form.getDescription(),form.getReason());
 
@@ -84,7 +81,7 @@ public class ReportController {
 
 
     @DELETE
-    @Path("/{id}/") //TODO: xq tiene / al final?
+    @Path("/{id}")
     public Response deleteReport(
             @PathParam("id") final long id
     ) {

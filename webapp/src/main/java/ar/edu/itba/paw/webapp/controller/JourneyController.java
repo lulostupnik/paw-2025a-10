@@ -11,7 +11,7 @@ import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
-import ar.edu.itba.paw.webapp.auth.AccessHelper;
+import ar.edu.itba.paw.webapp.auth.AuthUtils;
 import ar.edu.itba.paw.webapp.dto.JourneyDto;
 import ar.edu.itba.paw.webapp.dto.JourneyResponseDto;
 import ar.edu.itba.paw.webapp.dto.TipDto;
@@ -44,9 +44,6 @@ public class JourneyController {
     @Autowired
     private JourneyService journeyService;
 
-    @Autowired
-    private AccessHelper accessHelper;
-
     @Context
     private UriInfo uriInfo;
 
@@ -69,7 +66,7 @@ public class JourneyController {
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("8") int size
     ) {
-        final Long userId = accessHelper.getCurrentUserId();
+        final Long userId = AuthUtils.getCurrentUserId();
         final LocalDate startDate = DateUtils.parseDate(startDateStr);
         final LocalDate endDate = DateUtils.parseDate(endDateStr);
         final SortFieldJourney sortField = SortFieldJourney.from(sort);
@@ -110,7 +107,7 @@ public class JourneyController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createJourney(@Valid final CreateJourneyForm form) {
-        final Long userId = accessHelper.getCurrentUserId();
+        final Long userId = AuthUtils.getCurrentUserId();
 
         final Journey journey = journeyService.createJourney(
                 userId,
@@ -285,7 +282,7 @@ public class JourneyController {
             @PathParam("journeyId") final long journeyId,
             @Valid final CreateJourneyResponseForm form
     ) {
-        final Long userId = accessHelper.getCurrentUserId();
+        final Long userId = AuthUtils.getCurrentUserId();
         final JourneyResponse response = journeyService.createJourneyResponse(userId, journeyId, form.getMessage());
         return Response.created(UriUtils.getJourneyResponseUri(uriInfo, journeyId, response.getId()))
                 .entity(JourneyResponseDto.fromJourneyResponse(uriInfo, response))

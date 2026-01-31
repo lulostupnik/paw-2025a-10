@@ -4,7 +4,6 @@ import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.models.Tip;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import java.util.Objects;
@@ -22,20 +21,8 @@ public class AccessHelper {
         this.eventService = eventService;
     }
 
-    public Long getCurrentUserId() {
-        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            return null;
-        }
-        final Object principal = auth.getPrincipal();
-        if (principal instanceof PawUserDetails) {
-            return ((PawUserDetails) principal).getUserId();
-        }
-        return null;
-    }
-
     public boolean isCurrentUser(long userId) {
-        final Long currentUserId = getCurrentUserId();
+        final Long currentUserId = AuthUtils.getCurrentUserId();
         return currentUserId != null && currentUserId == userId;
     }
 
@@ -68,13 +55,13 @@ public class AccessHelper {
     }
 
     public boolean isUserEventAttendee(long eventId) {
-        Long userId = getCurrentUserId();
+        Long userId = AuthUtils.getCurrentUserId();
         if (userId == null) return false;
         return eventService.isUserEventAttendee(userId, eventId);
     }
 
     public boolean isUserRatingOwner(long eventId, long ratingId) {
-        Long userId = getCurrentUserId();
+        Long userId = AuthUtils.getCurrentUserId();
         if (userId == null) return false;
         return eventService.isRatingOwnedByUser(eventId, ratingId, userId);
     }

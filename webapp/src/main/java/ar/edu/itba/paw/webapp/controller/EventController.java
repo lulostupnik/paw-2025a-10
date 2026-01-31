@@ -8,7 +8,7 @@ import ar.edu.itba.paw.models.exceptions.EventAttendanceNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.RatingNotFoundException;
-import ar.edu.itba.paw.webapp.auth.AccessHelper;
+import ar.edu.itba.paw.webapp.auth.AuthUtils;
 import ar.edu.itba.paw.webapp.dto.EventAttendanceDto;
 import ar.edu.itba.paw.webapp.dto.EventDto;
 import ar.edu.itba.paw.webapp.dto.EventResponseDto;
@@ -43,9 +43,6 @@ public class EventController {
 
     @Autowired
     private EventService eventService;
-
-    @Autowired
-    private AccessHelper accessHelper;
 
     @Context
     private UriInfo uriInfo;
@@ -110,7 +107,7 @@ public class EventController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createEvent(@Valid final CreateEventForm form) {
-        final Long userId = accessHelper.getCurrentUserId();
+        final Long userId = AuthUtils.getCurrentUserId();
 
         final Event event = eventService.createEvent(
                 userId,
@@ -248,7 +245,7 @@ public class EventController {
             @PathParam("eventId") final long eventId,
             @Valid @NotNull final CreateEventResponseForm form
     ) {
-        final Long userId = accessHelper.getCurrentUserId();
+        final Long userId = AuthUtils.getCurrentUserId();
         final EventResponse response = eventService.createEventResponse(userId, eventId, form.getMessage());
         return Response.created(UriUtils.getEventResponseUri(uriInfo, eventId, response.getId()))
                 .entity(EventResponseDto.fromEventResponse(uriInfo, response))
@@ -288,15 +285,17 @@ public class EventController {
     @Path("/{eventId}/attendances")
     @Produces(MediaType.APPLICATION_JSON)
     public Response attendEvent(@PathParam("eventId") final long eventId) {
-        final Long userId = accessHelper.getCurrentUserId();
-        eventService.createEventAttendance(userId, eventId);
-        return Response.created(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId)).build();
+        final Long userId = AuthUtils.getCurrentUserId();
+        final EventAttendance attendance = eventService.createEventAttendance(userId, eventId);
+        return Response.created(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId))
+                .entity(EventAttendanceDto.fromEventAttendance(uriInfo, attendance))
+                .build();
     }
 
     @GET
     @Path("/{eventId}/attendance")
     public Response getCurrentUserAttendance(@PathParam("eventId") final long eventId) {
-        final Long userId = accessHelper.getCurrentUserId();
+        final Long userId = AuthUtils.getCurrentUserId();
         eventService.findEventAttendance(userId, eventId).orElseThrow(EventAttendanceNotFoundException::new);
         return Response.status(Response.Status.FOUND)
                 .location(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId))
@@ -319,7 +318,7 @@ public class EventController {
     @DELETE
     @Path("/{eventId}/attendance")
     public Response unattendEvent(@PathParam("eventId") final long eventId) {
-        final Long userId = accessHelper.getCurrentUserId();
+        final Long userId = AuthUtils.getCurrentUserId();
         return Response.temporaryRedirect(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId)).build(); // TODO: ¿tiene que retornar 404 si no existe o simplemente dejamos que el otro endpoint le tire el 404?
     }
 
@@ -368,7 +367,7 @@ public class EventController {
             @PathParam("eventId") final long eventId,
             @Valid final CreateRatingForm form
     ) {
-        final Long userId = accessHelper.getCurrentUserId();
+        final Long userId = AuthUtils.getCurrentUserId();
         final Rating rating = eventService.rateEvent(userId, eventId, form.getRating());
         return Response.created(UriUtils.getEventRatingUri(uriInfo, eventId, rating.getId()))
                 .entity(RatingDto.fromRating(uriInfo, rating))
@@ -384,7 +383,7 @@ public class EventController {
             @PathParam("ratingId") final long ratingId,
             @Valid final CreateRatingForm form
     ) {
-        final Long userId = accessHelper.getCurrentUserId();
+        final Long userId = AuthUtils.getCurrentUserId();
         final Rating rating = eventService.updateEventRating(userId, eventId, form.getRating());
         return Response.ok(RatingDto.fromRating(uriInfo, rating)).build();
     }
