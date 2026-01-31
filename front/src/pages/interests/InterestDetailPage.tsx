@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
@@ -13,7 +14,19 @@ export default function InterestDetailPage() {
     const { data: interest, isLoading, isError } = useAdminInterestDetailData({ id });
     const [modalOpen, setModalOpen] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
-    const [actionSubmitting, setActionSubmitting] = useState(false);
+    const queryClient = useQueryClient();
+
+    const deleteInterestMutation = useMutation({
+        mutationFn: (interestId: string) => deleteInterest(interestId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["adminInterests"] });
+            navigate("/admin/interests");
+        },
+        onError: (error) => {
+            console.error("Failed to delete interest", error);
+            setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+        },
+    });
 
     if (!isAdmin()) {
         return <ForbiddenPage />;
@@ -99,22 +112,14 @@ export default function InterestDetailPage() {
                             <button
                                 type="button"
                                 className="cta-button delete-button"
-                                disabled={actionSubmitting}
-                                onClick={async () => {
+                                disabled={deleteInterestMutation.isPending}
+                                onClick={() => {
                                     if (!id) {
                                         setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
                                         return;
                                     }
-                                    setActionSubmitting(true);
                                     setActionError(null);
-                                    try {
-                                        await deleteInterest(id);
-                                        navigate("/admin/interests");
-                                    } catch (error) {
-                                        console.error("Failed to delete interest", error);
-                                        setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-                                        setActionSubmitting(false);
-                                    }
+                                    deleteInterestMutation.mutate(id);
                                 }}
                             >
                                 {t("interest.delete.confirm")}

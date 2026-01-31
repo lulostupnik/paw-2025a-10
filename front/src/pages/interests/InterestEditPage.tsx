@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminInterestDetailData } from "@/hooks/useAdminDetailData";
-import { updateInterest } from "@/lib/api/interests";
+import { updateInterest, type InterestPayload } from "@/lib/api/interests";
 
 interface InterestFormState {
     name: string;
@@ -22,10 +23,10 @@ export default function InterestEditPage() {
     const navigate = useNavigate();
     const { id } = useParams();
     const { data: interest, isLoading, isError } = useAdminInterestDetailData({ id });
+    const queryClient = useQueryClient();
     const [form, setForm] = useState<InterestFormState>({ name: "" });
     const [touched, setTouched] = useState({ name: false });
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         if (!interest) {
@@ -51,16 +52,27 @@ export default function InterestEditPage() {
             setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
             return;
         }
-        setSubmitting(true);
         setSubmitError(null);
-        updateInterest(id, { name: form.name.trim() })
-            .then(() => navigate(`/interests/${id}`))
-            .catch((error) => {
-                console.error("Failed to update interest", error);
-                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-            })
-            .finally(() => setSubmitting(false));
+        updateInterestMutation.mutate({ id, payload: { name: form.name.trim() } });
     };
+
+    const updateInterestMutation = useMutation({
+        mutationFn: ({ id: interestId, payload }: { id: string; payload: InterestPayload }) =>
+            updateInterest(interestId, payload),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["adminInterests"] });
+            if (id) {
+                queryClient.invalidateQueries({ queryKey: ["adminInterestDetail", id] });
+                navigate(`/interests/${id}`);
+            } else {
+                navigate("/admin/interests");
+            }
+        },
+        onError: (error) => {
+            console.error("Failed to update interest", error);
+            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+        },
+    });
 
     if (!isAdmin()) {
         return <ForbiddenPage />;
@@ -113,7 +125,7 @@ export default function InterestEditPage() {
                             {touched.name && errors.name && <p className="error-message">{errors.name}</p>}
                         </div>
 
-                        <button type="submit" className="form-button" disabled={submitting}>
+                        <button type="submit" className="form-button" disabled={updateInterestMutation.isPending}>
                             {t("editInterest.submit", { defaultValue: "Update Interest" })}
                         </button>
                     </form>
