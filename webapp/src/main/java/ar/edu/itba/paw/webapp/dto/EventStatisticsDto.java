@@ -18,7 +18,8 @@ public class EventStatisticsDto {
     private int eventsOrganizerAttends;
     private String topCountry;
     private int topCountryCount;
-    private TotalParticipants totalParticipants;
+    private int totalParticipants;
+    private int maxParticipants;
     private URI selfUrl;
     private URI eventUrl;
 
@@ -42,7 +43,9 @@ public class EventStatisticsDto {
 
         dto.topCountry = country;
         dto.topCountryCount = countryCount;
-        dto.totalParticipants = TotalParticipants.fromEvent(event);
+        dto.totalParticipants = event.getAttendeesCount();
+        final Integer limit = event.getAttendeesLimit();
+        dto.maxParticipants = (limit == null || limit <= 0) ? 0 : limit;
         dto.selfUrl = UriUtils.getEventStatisticsUri(uriInfo, event.getId());
         dto.eventUrl = UriUtils.getEventUri(uriInfo, event.getId());
 
@@ -53,24 +56,8 @@ public class EventStatisticsDto {
     public int getEventsOrganizerAttends() { return eventsOrganizerAttends; }
     public String getTopCountry() { return topCountry; }
     public int getTopCountryCount() { return topCountryCount; }
-    public TotalParticipants getTotalParticipants() { return totalParticipants; }
+    public int getTotalParticipants() { return totalParticipants; }
+    public int getMaxParticipants() { return maxParticipants; }
     public URI getSelfUrl() { return selfUrl; }
     public URI getEventUrl() { return eventUrl; }
-
-    @XmlAccessorType(XmlAccessType.FIELD)
-    public static class TotalParticipants {
-        private int count;
-        private int maxParticipants;
-
-        private static TotalParticipants fromEvent(final Event event) {
-            final TotalParticipants dto = new TotalParticipants();
-            dto.count = event.getAttendeesCount();
-            final Integer limit = event.getAttendeesLimit();
-            dto.maxParticipants = (limit == null || limit <= 0) ? 0 : limit;
-            return dto;
-        }
-
-        public int getCount() { return count; }
-        public int getMaxParticipants() { return maxParticipants; }
-    }
 }

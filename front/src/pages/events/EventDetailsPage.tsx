@@ -191,8 +191,8 @@ export default function EventDetailPage() {
     const attendeesPageData = attendeesQuery.data ?? emptyPage();
     const commentsPageData = commentsQuery.data ?? emptyPage();
     const stats = statsQuery.data ?? null;
-    const statsParticipantsCount = stats?.totalParticipants?.count ?? attendeesCount;
-    const statsMaxParticipants = stats?.totalParticipants?.maxParticipants ?? (data?.attendeesLimit ?? 0);
+    const statsParticipantsCount = stats?.totalParticipants ?? attendeesCount;
+    const statsMaxParticipants = stats?.maxParticipants ?? (data?.attendeesLimit ?? 0);
     const topCountryLabel = stats ? `${stats.topCountry} (${stats.topCountryCount})` : "—";
     const createdEventsLabel = stats ? String(stats.eventsCreatedByOrganizer) : "—";
     const attendedEventsLabel = stats ? String(stats.eventsOrganizerAttends) : "—";

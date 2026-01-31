@@ -72,10 +72,8 @@ export interface EventStatistics {
     eventsOrganizerAttends: number;
     topCountry: string;
     topCountryCount: number;
-    totalParticipants: {
-        count: number;
-        maxParticipants: number;
-    };
+    totalParticipants: number;
+    maxParticipants: number;
     selfUrl?: string;
     eventUrl?: string;
 }
