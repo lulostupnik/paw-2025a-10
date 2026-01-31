@@ -8,7 +8,7 @@ import Pagination from "@/components/listing/Pagination";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
-import { attendEvent, createEventRating, createEventResponse, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
+import { attendEvent, createEventRating, createEventResponse, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import { getUserByUrl } from "@/lib/api/journeys";
@@ -177,8 +177,25 @@ export default function EventDetailPage() {
         enabled: Boolean(id),
         placeholderData: keepPreviousData,
     });
+    const statsQuery = useQuery({
+        queryKey: ["eventStatistics", id],
+        queryFn: async ({ signal }) => {
+            if (!id) {
+                throw new Error("missing-event-id");
+            }
+            return getEventStatistics(Number(id), signal);
+        },
+        enabled: Boolean(id),
+        placeholderData: keepPreviousData,
+    });
     const attendeesPageData = attendeesQuery.data ?? emptyPage();
     const commentsPageData = commentsQuery.data ?? emptyPage();
+    const stats = statsQuery.data ?? null;
+    const statsParticipantsCount = stats?.totalParticipants?.count ?? attendeesCount;
+    const statsMaxParticipants = stats?.totalParticipants?.maxParticipants ?? (data?.attendeesLimit ?? 0);
+    const topCountryLabel = stats ? `${stats.topCountry} (${stats.topCountryCount})` : "—";
+    const createdEventsLabel = stats ? String(stats.eventsCreatedByOrganizer) : "—";
+    const attendedEventsLabel = stats ? String(stats.eventsOrganizerAttends) : "—";
 
     const parsePageFromLink = (page: number | string) => {
         if (typeof page === "string") {
@@ -647,29 +664,35 @@ return (
                                                         <div className="statistics-list">
                                                             <div className="stat-item">
                                                                 <span className="stat-label">{t("event.stats.createdEvents")}</span>
-                                                                <span className="stat-value">6</span>
+                                                                <span className="stat-value">{createdEventsLabel}</span>
                                                             </div>
                                                             <div className="stat-item">
                                                                 <span className="stat-label">{t("event.stats.attendedEvents")}</span>
-                                                                <span className="stat-value">12</span>
+                                                                <span className="stat-value">{attendedEventsLabel}</span>
                                                             </div>
                                                             <div className="stat-item">
                                                                 <span className="stat-label">{t("event.stats.topCountry")}</span>
-                                                                <span className="stat-value">Argentina (18)</span>
+                                                                <span className="stat-value">{topCountryLabel}</span>
                                                             </div>
                                                             <div className="stat-item">
                                                                 <span className="stat-label">{t("event.stats.totalParticipants")}</span>
-                                                                {data.attendeesLimit ? (
+                                                                {statsMaxParticipants > 0 ? (
                                                                     <span className="stat-value">
-                                                                        ({attendeesCount} / {data.attendeesLimit})
+                                                                        ({statsParticipantsCount} / {statsMaxParticipants})
                                                                     </span>
                                                                 ) : (
                                                                     <span className="stat-value">
-                                                                        ({attendeesCount} / {t("event.noAttendeesLimit")})
+                                                                        ({statsParticipantsCount} / {t("event.noAttendeesLimit")})
                                                                     </span>
                                                                 )}
                                                             </div>
                                                         </div>
+                                                        {statsQuery.isLoading && (
+                                                            <p className="section__helper">{t("event.stats.loading", { defaultValue: "Loading statistics..." })}</p>
+                                                        )}
+                                                        {statsQuery.isError && (
+                                                            <p className="section__helper">{t("event.stats.error", { defaultValue: "We couldn't load statistics." })}</p>
+                                                        )}
                                                     </div>
                                                 </div>
 

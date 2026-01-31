@@ -66,3 +66,16 @@ export interface EventDetail {
     ratings: EventRating[];
     averageRating?: number | null;
 }
+
+export interface EventStatistics {
+    eventsCreatedByOrganizer: number;
+    eventsOrganizerAttends: number;
+    topCountry: string;
+    topCountryCount: number;
+    totalParticipants: {
+        count: number;
+        maxParticipants: number;
+    };
+    selfUrl?: string;
+    eventUrl?: string;
+}

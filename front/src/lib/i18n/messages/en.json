@@ -1533,6 +1533,8 @@
   "event.stats.attendedEvents": "Events the organizer attends",
   "event.stats.topCountry": "Top country",
   "event.stats.totalParticipants": "Total participants",
+  "event.stats.loading": "Loading statistics...",
+  "event.stats.error": "We couldn't load statistics. Please try again.",
   "editInterests.submit": "Update Interests",
   "editInterests.title": "Edit Interests",
   "editInterests.subtitle": "Update your interests",

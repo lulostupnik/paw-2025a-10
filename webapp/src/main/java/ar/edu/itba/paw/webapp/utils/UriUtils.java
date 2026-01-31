@@ -124,6 +124,11 @@ public final class UriUtils {
                 .path("ratings").path(String.valueOf(ratingId)).build();
     }
 
+    // Statistics (sub-resource of events)
+    public static URI getEventStatisticsUri(final UriInfo uriInfo, final long eventId) {
+        return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("statistics").build();
+    }
+
     // ==================== REPORTS ====================
 
     public static URI getReportsUri(final UriInfo uriInfo) {

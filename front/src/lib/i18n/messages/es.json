@@ -1370,6 +1370,8 @@
   "event.stats.attendedEvents": "Eventos a los que asiste el organizador",
   "event.stats.topCountry": "Pais con mayor asistencia",
   "event.stats.totalParticipants": "Total de participantes",
+  "event.stats.loading": "Cargando estadísticas...",
+  "event.stats.error": "No pudimos cargar las estadísticas. Por favor intenta de nuevo.",
   "editInterests.submit": "Actualizar Intereses",
   "editInterests.title": "Editar Intereses",
   "editInterests.subtitle": "Actualiza tus Intereses",
