@@ -47,10 +47,10 @@ export function getUsername(): string {
     return getStoredValue(USERNAME_KEY) || "user";
 }
 
-export function getUserId(): number {
+export function getUserId(): number | null {
     const raw = getStoredValue(USER_ID_KEY);
     const parsed = raw ? Number(raw) : NaN;
-    return Number.isFinite(parsed) ? parsed : 1;
+    return Number.isFinite(parsed) ? parsed : null;
 }
 
 export function getAuthToken(): string | null {

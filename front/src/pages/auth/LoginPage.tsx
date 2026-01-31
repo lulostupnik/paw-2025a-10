@@ -68,6 +68,10 @@ export default function LoginPage() {
                 nav("/blocked", { replace: true, state: { blockedEmail: normalizedEmail } });
                 return;
             }
+            if (isAxiosError(error) && error.response?.status === 403) {
+                nav("/not-verified", { replace: true });
+                return;
+            }
             setAuthError(t("login.error.description"));
         } finally {
             setSubmitting(false);

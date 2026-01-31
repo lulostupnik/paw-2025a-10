@@ -59,6 +59,7 @@ import EmailVerificationPage from "@/pages/auth/EmailVerificationPage";
 import PasswordResetPage from "@/pages/auth/PasswordResetPage";
 import PasswordResetConfirmationPage from "@/pages/auth/PasswordResetConfirmationPage";
 import BlockedAccountPage from "@/pages/auth/BlockedAccountPage";
+import NotVerifiedPage from "@/pages/auth/NotVerifiedPage";
 
 export const router = createBrowserRouter([
     {
@@ -81,6 +82,7 @@ export const router = createBrowserRouter([
             { path: "reset-password", element: <PasswordResetPage /> },
             { path: "password/reset/confirmation", element: <PasswordResetConfirmationPage /> },
             { path: "blocked", element: <BlockedAccountPage /> },
+            { path: "not-verified", element: <NotVerifiedPage /> },
             { path: "error/400", element: <BadRequestPage /> },
             { path: "error/403", element: <ForbiddenPage /> },
             { path: "error/405", element: <MethodNotAllowedPage /> },

@@ -196,6 +196,32 @@ export default function EventDetailPage() {
         setRatingValue(existingRating?.rating ?? 0);
     }, [data?.id, existingRating?.rating]);
 
+    useEffect(() => {
+        if (!actionMenuOpen && openCommentMenuId === null) {
+            return;
+        }
+        const handlePointerDown = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            if (target.closest("[data-event-menu]")) {
+                return;
+            }
+            setActionMenuOpen(false);
+            setOpenCommentMenuId(null);
+        };
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setActionMenuOpen(false);
+                setOpenCommentMenuId(null);
+            }
+        };
+        document.addEventListener("mousedown", handlePointerDown);
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("mousedown", handlePointerDown);
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [actionMenuOpen, openCommentMenuId]);
+
     if (isLoading) {
         return <div className="event-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
     }
@@ -338,7 +364,7 @@ return (
                                     <h1 className="event-title">{data.title}</h1>
 
                                     <div className="action-controls">
-                                        <div style={{ position: "relative", display: "inline-block" }}>
+                                <div style={{ position: "relative", display: "inline-block" }} data-event-menu>
                                             <button
                                                 type="button"
                                                 className="btn-action btn-menu"
@@ -766,7 +792,7 @@ return (
                                                                             <p className="message-date">{formatDateTime(response.dateTime, locale)}</p>
                                                                         </div>
                                                                     </div>
-                                                                    <div style={{ position: "relative", display: "inline-block" }}>
+                                                        <div style={{ position: "relative", display: "inline-block" }} data-event-menu>
                                                                         <button
                                                                             type="button"
                                                                             className="btn-action"
