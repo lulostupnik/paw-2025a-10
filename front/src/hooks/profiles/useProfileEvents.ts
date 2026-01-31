@@ -28,7 +28,11 @@ export const useProfileEvents = (profileId: string, params: ProfileEventsParams 
         queryFn: async ({ signal }) => {
             let resolvedId = profileId;
             if (!resolvedId || resolvedId === "me") {
-                resolvedId = getUserId().toString();
+                const userId = getUserId();
+                if (!userId) {
+                    throw new Error("missing-user-id");
+                }
+                resolvedId = userId.toString();
             }
             const today = getTodayIsoDate();
             const [createdEvents, attendingEvents, finishedEvents] = await Promise.all([

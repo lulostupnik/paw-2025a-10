@@ -22,7 +22,11 @@ export const useProfileInterests = (params?: ProfileInterestParams): UseProfileI
         queryFn: async ({ signal }) => {
             let resolvedId = params?.profileId;
             if (!resolvedId || resolvedId === "me") {
-                resolvedId = getUserId().toString();
+                const userId = getUserId();
+                if (!userId) {
+                    throw new Error("missing-user-id");
+                }
+                resolvedId = userId.toString();
             }
             const interests = await getUserInterests(resolvedId, params, signal);
             return interests;

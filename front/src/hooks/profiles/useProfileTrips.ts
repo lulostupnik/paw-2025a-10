@@ -32,7 +32,14 @@ export const useProfileTrips = (profileId: string, params: ProfileTripsParams = 
     const query = useQuery({
         queryKey: ["profileTrips", profileId, params],
         queryFn: async ({ signal }) => {
-            const resolvedId = profileId === "me" ? String(getUserId()) : profileId;
+            let resolvedId = profileId;
+            if (resolvedId === "me") {
+                const userId = getUserId();
+                if (!userId) {
+                    throw new Error("missing-user-id");
+                }
+                resolvedId = userId.toString();
+            }
             const user = await getProfileDetail(resolvedId, signal);
             const journeyId = parseIdFromUrl(user.journeyUrl);
             if (!journeyId) {

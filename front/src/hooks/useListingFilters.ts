@@ -38,7 +38,7 @@ const parseNumberParam = (value: string | null): number | null => {
 const parseFiltersFromParams = (params: URLSearchParams): ListingFiltersState => ({
     cityId: parseNumberParam(params.get("city")),
     cityName: params.get("cityName") ?? "",
-    interestId: parseNumberParam(params.get("interest")),
+    interestId: parseNumberParam(params.get("interests") ?? params.get("interest")),
     interestName: params.get("interestName") ?? "",
     afterDate: params.get("after") ?? "",
     beforeDate: params.get("before") ?? "",
@@ -56,7 +56,7 @@ const applyFiltersToParams = (source: URLSearchParams, next: ListingFiltersState
     const params = new URLSearchParams(source);
     setParam(params, "city", next.cityId ? String(next.cityId) : null);
     setParam(params, "cityName", next.cityId && next.cityName ? next.cityName : null);
-    setParam(params, "interest", next.interestId ? String(next.interestId) : null);
+    setParam(params, "interests", next.interestId ? String(next.interestId) : null);
     setParam(params, "interestName", next.interestId && next.interestName ? next.interestName : null);
     setParam(params, "after", next.afterDate || null);
     setParam(params, "before", next.beforeDate || null);

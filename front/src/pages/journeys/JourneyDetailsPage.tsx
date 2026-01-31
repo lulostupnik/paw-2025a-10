@@ -1,4 +1,4 @@
-import { useCallback, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
@@ -198,6 +198,34 @@ export default function JourneyDetailPage() {
     const tipsPageData = tipsQuery.data ?? emptyPage();
     const commentsPageData = commentsQuery.data ?? emptyPage();
 
+    useEffect(() => {
+        if (!actionMenuOpen && openCommentMenuId === null && openTipMenuId === null) {
+            return;
+        }
+        const handlePointerDown = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            if (target.closest("[data-journey-menu]")) {
+                return;
+            }
+            setActionMenuOpen(false);
+            setOpenCommentMenuId(null);
+            setOpenTipMenuId(null);
+        };
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setActionMenuOpen(false);
+                setOpenCommentMenuId(null);
+                setOpenTipMenuId(null);
+            }
+        };
+        document.addEventListener("mousedown", handlePointerDown);
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("mousedown", handlePointerDown);
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [actionMenuOpen, openCommentMenuId, openTipMenuId]);
+
     const parsePageFromLink = useCallback((page: number | string) => {
         if (typeof page === "string") {
             const url = new URL(page);
@@ -338,7 +366,7 @@ export default function JourneyDetailPage() {
                                 </p>
                             )}
                             <div className="journey-actions">
-                                <div style={{ position: "relative", display: "inline-block" }}>
+                                <div style={{ position: "relative", display: "inline-block" }} data-journey-menu>
                                     <button
                                         type="button"
                                         className="btn-action btn-menu"
@@ -714,7 +742,7 @@ export default function JourneyDetailPage() {
                                                                 <p className="tip-date">{formatDate(tip.dateTime, locale)}</p>
                                                             </div>
                                                             {isOwner && (
-                                                                <div style={{ position: "relative", display: "inline-block" }}>
+                                                                <div style={{ position: "relative", display: "inline-block" }} data-journey-menu>
                                                                     <button
                                                                         type="button"
                                                                         className="btn-action"
@@ -879,7 +907,7 @@ export default function JourneyDetailPage() {
                                                                 <p className="response-date">{formatDateTime(response.dateTime, locale)}</p>
                                                             </div>
                                                         </div>
-                                                        <div style={{ position: "relative", display: "inline-block" }}>
+                                                        <div style={{ position: "relative", display: "inline-block" }} data-journey-menu>
                                                             <button
                                                                 type="button"
                                                                 className="btn-action"
