@@ -46,6 +46,59 @@ public class UserInterestHibernateDaoTest {
     }
 
     @Test
+    public void testFindById(){
+        Optional<UserInterest> maybeInterest = interestDao.findById(USER_1_ID, INTEREST_1_ID);
+
+        assertNotNull(maybeInterest);
+        assertTrue(maybeInterest.isPresent());
+        assertEqualsUser(maybeInterest.get().getUser());
+        assertEqualsInterest(INTEREST_1, maybeInterest.get().getInterest());
+        assertEquals(USER_1_INTEREST_1_SCORE, maybeInterest.get().getScore());
+    }
+    @Test
+    public void testFindByIdNoInterest(){
+        Optional<UserInterest> maybeInterest = interestDao.findById(USER_3_ID, INTEREST_1_ID);
+
+        assertNotNull(maybeInterest);
+        assertTrue(maybeInterest.isEmpty());
+    }
+
+    @Test
+    public void testCreateUserInterest(){
+        interestDao.create(
+            USER_2_ID,
+            INTEREST_1_ID
+        );
+        em.flush();
+
+        assertEquals(
+            TOTAL_USER_INTERESTS + 1, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, USER_INTEREST_TABLE)
+        );
+        List<Interest> interests = jdbcTemplate.query(INTEREST_SELECT_BY_USER_ID,
+            INTEREST_ROW_MAPPER, USER_2_ID
+        );
+        assertNotNull(interests);
+        assertEquals(1, interests.size());
+        interests.forEach((i) ->
+            assertEqualsInterest(INTEREST_DATA.get(i.getId()), i)
+        );
+    }
+    @Test(expected = UserNotFoundException.class)
+    public void testCreateUserInterestWrongUser(){
+        interestDao.create(
+            12341234l,
+            INTEREST_1_ID
+        );
+        em.flush();
+    }
+    @Test(expected = InterestsNotFoundException.class)
+    public void testCreateUserInteressWrongInterest(){
+        interestDao.create(USER_1_ID, 32412341);
+        em.flush();
+    }
+
+    @Test
     public void testFindAllByUser(){
         List<UserInterest> interests = interestDao.findAllByUser(USER_1);
 

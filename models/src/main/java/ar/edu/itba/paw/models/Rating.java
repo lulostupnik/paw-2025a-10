@@ -38,6 +38,13 @@ public class Rating {
         this.event = event;
         this.rating = rating;
     }
+    
+    public Rating(long id, User user, Event event, double rating) {
+        this.id = id;
+        this.user = user;
+        this.event = event;
+        this.rating = rating;
+    }
 
     @Override
     public boolean equals(Object o) {

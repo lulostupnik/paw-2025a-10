@@ -31,6 +31,7 @@ import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.JourneyResponse;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.Rating;
 import ar.edu.itba.paw.models.Report;
 import ar.edu.itba.paw.models.Tip;
 import ar.edu.itba.paw.models.University;
@@ -304,7 +305,12 @@ class TestUtils {
     public static final double EVENT_1_RATING = 4.5;
     public static final int EVENT_1_RATING_COUNT = 2;
     public static final double EVENT_1_USER_1_RATING = 5;
-
+    public static final double EVENT_1_USER_2_RATING = 4;
+    public static final int RATING_1_ID = 1;
+    public static final int RATING_2_ID = 2;
+    public static final Rating RATING_1 = new Rating(RATING_1_ID, USER_1, EVENT_1, EVENT_1_USER_1_RATING);
+    public static final Rating RATING_2 = new Rating(RATING_2_ID, USER_2, EVENT_1, EVENT_1_USER_2_RATING);
+    public static final int TOTAL_RATINGS = 5;
     public static final int TOTAL_EVENTS_NOT_DELETED = 4;
     public static final int TOTAL_EVENTS_UPCOMING = 3;
     public static final int TOTAL_EVENT_ATTENDANCES = 5;
@@ -1054,6 +1060,15 @@ class TestUtils {
         assertEqualsJourney(expected.getJourney(), actual.getJourney());
         assertTrue(expected.getDateTime().plusMinutes(1).isAfter(actual.getDateTime()));
         assertTrue(expected.getDateTime().plusMinutes(-1).isBefore(actual.getDateTime()));
+    }
+
+    public static void assertEqualsRating(Rating expected, Rating actual){
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getRating(), actual.getRating(), 0.1);
+        assertEqualsEvent(expected.getEvent(), actual.getEvent());
+        assertEqualsUser(expected.getUser(), actual.getUser());
     }
 
     //INSERTERS

@@ -190,6 +190,29 @@ public class JourneyHibernateDaoTest {
     }
 
     @Test
+    public void testFindByUserId(){
+        Optional<Journey> maybeJourney = journeyDao.findByUserId(USER_1_ID);
+
+        assertNotNull(maybeJourney);
+        assertTrue(maybeJourney.isPresent());
+        assertEqualsJourney(maybeJourney.get());
+    }
+    @Test
+    public void testFindByUserIdNoJourney(){
+        Optional<Journey> maybeJourney = journeyDao.findByUserId(USER_3_ID);
+
+        assertNotNull(maybeJourney);
+        assertTrue(maybeJourney.isEmpty());
+    }
+    @Test
+    public void testFindByUserIdNoUser(){
+        Optional<Journey> maybeJourney = journeyDao.findByUserId(123412341);
+
+        assertNotNull(maybeJourney);
+        assertTrue(maybeJourney.isEmpty());
+    }
+
+    @Test
     public void testFindAllPage1(){
         Page<Journey> page1 = journeyDao.findAll(PAGE_1_SINGLE);
 
@@ -339,8 +362,6 @@ public class JourneyHibernateDaoTest {
         assertEqualsJourneyList(List.of(newJourney1, newJourney2, newJourney3, newJourney4, newJourney5), page1.getContent());
     }
 
-// TODO: arreglar, cambiaron los parametros: se agregó university creo.
-    /*
     @Test
     public void testFindAllWithFilters(){
         Page<Journey> page = journeyDao.search(
@@ -349,6 +370,7 @@ public class JourneyHibernateDaoTest {
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
             CITY_1_NAME,
+            UNIVERSITY_1_NAME,
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             INTEREST_1_NAME,
@@ -371,7 +393,8 @@ public class JourneyHibernateDaoTest {
             USER_1_ID,
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
-        null,
+            null,
+            null,
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             INTEREST_1_NAME,
@@ -394,6 +417,7 @@ public class JourneyHibernateDaoTest {
             null,
             SortFieldJourney.END_DATE,
             SortDirection.ASC,
+            null,
             null,
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
@@ -418,7 +442,8 @@ public class JourneyHibernateDaoTest {
             USER_1_ID,
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
-            CITY_1_NAME,
+            CITY_1_NAME, 
+            null,
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             null,
@@ -441,6 +466,7 @@ public class JourneyHibernateDaoTest {
             null,
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
+            "",
             "",
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
@@ -466,6 +492,7 @@ public class JourneyHibernateDaoTest {
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
             "",
+            "",
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             null,
@@ -490,6 +517,7 @@ public class JourneyHibernateDaoTest {
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
             "",
+            "",
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             "",
@@ -513,7 +541,8 @@ public class JourneyHibernateDaoTest {
             USER_1_ID,
             SortFieldJourney.START_DATE,
             SortDirection.DESC,
-            CITY_1_NAME,
+            null,
+            UNIVERSITY_1_NAME,
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             null,
@@ -540,6 +569,7 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             null,
+            null,
             false,
             false,
             false,
@@ -560,6 +590,7 @@ public class JourneyHibernateDaoTest {
             null,
             SortFieldJourney.START_DATE,
             SortDirection.DESC,
+            "",
             "",
             null,
             null,
@@ -589,6 +620,7 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             null,
+            null,
             false,
             false,
             false,
@@ -600,9 +632,55 @@ public class JourneyHibernateDaoTest {
         assertEquals(1, page.getCurrentPage());
         assertEquals(1, page.getTotalPages());
         assertEquals(1, page.getContent().size());
+        assertEqualsJourney(JOURNEY_2, page.getContent().get(0));
+    }
+    @Test
+    public void testFindAllWithFiltersUpcoming(){
+        Page<Journey> page = journeyDao.search(
+            USER_2_NAME,
+            null,
+            SortFieldJourney.START_DATE,
+            SortDirection.DESC,
+            null,
+            null,
+            null,
+            null,
+            null,
+            false,
+            true,
+            false,
+            PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
         assertEquals(1, page.getContent().size());
         assertEqualsJourney(JOURNEY_2, page.getContent().get(0));
     }
+    @Test
+    public void testFindAllWithFiltersPast(){
+        Page<Journey> page = journeyDao.search(
+            USER_2_NAME,
+            null,
+            SortFieldJourney.START_DATE,
+            SortDirection.DESC,
+            null,
+            null,
+            null,
+            null,
+            null,
+            false,
+            false,
+            true,
+            PAGE_1_BIG
+        );
 
-     */
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(0, page.getTotalPages());
+        assertEquals(0, page.getContent().size());
+    }
 }

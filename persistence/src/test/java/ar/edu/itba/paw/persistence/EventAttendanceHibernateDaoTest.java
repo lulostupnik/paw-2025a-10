@@ -1,6 +1,9 @@
 package ar.edu.itba.paw.persistence;
 
 import static org.junit.Assert.*;
+
+import java.util.Optional;
+
 import static ar.edu.itba.paw.persistence.TestUtils.*;
 
 import javax.persistence.EntityManager;
@@ -9,6 +12,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
+import ar.edu.itba.paw.models.EventAttendance;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
@@ -20,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.jdbc.JdbcTestUtils;
@@ -288,5 +293,46 @@ public class EventAttendanceHibernateDaoTest {
         int events = attendanceDao.countEventsAttendedByUser(12341234l);
 
         assertEquals(0, events);
+    }
+
+    @Test
+    public void testFindById(){
+        Optional<EventAttendance> attendance = attendanceDao.findById(USER_1_ID, EVENT_1_ID);
+
+        assertNotNull(attendance);
+        assertTrue(attendance.isPresent());
+        assertEqualsUser(USER_1);
+        assertEqualsEvent(EVENT_1);
+        assertNotNull(attendance.get().getId());
+    }
+    @Test
+    public void testFindByIdNotAttending(){
+        Optional<EventAttendance> attendance = attendanceDao.findById(USER_4_ID, EVENT_1_ID);
+
+        assertNotNull(attendance);
+        assertFalse(attendance.isPresent());
+    }
+
+    @Test
+    public void testFindByEventId(){
+        Page<EventAttendance> attendance = attendanceDao.findByEventId(EVENT_1_ID, PAGE_1_BIG);
+
+        assertNotNull(attendance);
+        assertEquals(PAGE_SIZE_BIG, attendance.getPageSize());
+        assertEquals(1, attendance.getCurrentPage());
+        assertEquals(1, attendance.getTotalPages());
+        assertEquals(EVENT_1_ATTENDEES, attendance.getTotalElements());
+        assertNotNull(attendance.getContent());
+        assertEquals(EVENT_1_ATTENDEES, attendance.getContent().size());
+    }
+    @Test
+    public void testFindByEventIdNoAttendance(){
+        Page<EventAttendance> attendance = attendanceDao.findByEventId(EVENT_3_ID, PAGE_1_BIG);
+
+        assertNotNull(attendance);
+        assertEquals(PAGE_SIZE_BIG, attendance.getPageSize());
+        assertEquals(1, attendance.getCurrentPage());
+        assertEquals(0, attendance.getTotalPages());
+        assertEquals(EVENT_3_ATTENDEES, attendance.getTotalElements());
     }
 }
