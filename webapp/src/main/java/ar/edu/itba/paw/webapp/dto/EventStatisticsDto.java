@@ -32,13 +32,9 @@ public class EventStatisticsDto {
 
         String country = statistics.getTopAttendeeCountry();
         int countryCount = statistics.getTopAttendeeCountryCount();
+
         if (country == null || country.isBlank()) {
-            if (event.getCity() != null && event.getCity().getCountry() != null) {
-                country = event.getCity().getCountry().getName();
-            } else {
-                country = "";
-            }
-            countryCount = event.getAttendeesCount();
+            country = "";
         }
 
         dto.topCountry = country;

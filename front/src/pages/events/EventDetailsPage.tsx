@@ -191,11 +191,15 @@ export default function EventDetailPage() {
     const attendeesPageData = attendeesQuery.data ?? emptyPage();
     const commentsPageData = commentsQuery.data ?? emptyPage();
     const stats = statsQuery.data ?? null;
-    const statsParticipantsCount = stats?.totalParticipants ?? attendeesCount;
-    const statsMaxParticipants = stats?.maxParticipants ?? (data?.attendeesLimit ?? 0);
-    const topCountryLabel = stats ? `${stats.topCountry} (${stats.topCountryCount})` : "—";
-    const createdEventsLabel = stats ? String(stats.eventsCreatedByOrganizer) : "—";
-    const attendedEventsLabel = stats ? String(stats.eventsOrganizerAttends) : "—";
+    const toSafeNumber = (value: unknown, fallback = 0) =>
+        typeof value === "number" && Number.isFinite(value) ? value : fallback;
+    const statsParticipantsCount = stats ? toSafeNumber(stats.totalParticipants, attendeesCount) : attendeesCount;
+    const statsMaxParticipants = stats ? toSafeNumber(stats.maxParticipants, data?.attendeesLimit ?? 0) : (data?.attendeesLimit ?? 0);
+    const topCountry = typeof stats?.topCountry === "string" ? stats.topCountry.trim() : "";
+    const topCountryCount = stats ? toSafeNumber(stats.topCountryCount) : 0;
+    const topCountryLabel = topCountry ? `${topCountry} (${topCountryCount})` : "—";
+    const createdEventsLabel = stats ? String(toSafeNumber(stats.eventsCreatedByOrganizer)) : "—";
+    const attendedEventsLabel = stats ? String(toSafeNumber(stats.eventsOrganizerAttends)) : "—";
 
     const parsePageFromLink = (page: number | string) => {
         if (typeof page === "string") {
