@@ -5,8 +5,10 @@ export interface UniversityDto {
     id: number;
     name: string;
     abbreviation: string;
-    selfUrl?: string | null;
-    cityUrl?: string | null;
+    links?: {
+        selfUrl?: string | null;
+        cityUrl?: string | null;
+    } | null;
 }
 
 export interface UniversityPayload {

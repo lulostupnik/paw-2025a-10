@@ -27,8 +27,8 @@ export const useAdminUserDetailData = (params?: AdminDetailParams) => {
             }
             const user = await getUserById(userId, signal);
             const [university, career] = await Promise.all([
-                getUniversityByUrl(user.universityUrl, signal),
-                getCareerByUrl(user.careerUrl, signal),
+                getUniversityByUrl(user.links?.universityUrl, signal),
+                getCareerByUrl(user.links?.careerUrl, signal),
             ]);
             return {
                 id: user.id,
@@ -39,7 +39,7 @@ export const useAdminUserDetailData = (params?: AdminDetailParams) => {
                 university: university ? { name: university.name } : null,
                 career: career ? { name: career.name } : null,
                 locale: null,
-                profilePictureUrl: user.profilePictureUrl ?? null,
+                profilePictureUrl: user.links?.profilePictureUrl ?? null,
                 blocked: user.active === false,
             } satisfies AdminUserDetail;
         },
@@ -58,7 +58,7 @@ export const useAdminUniversityDetailData = (params?: AdminDetailParams) => {
                 throw new Error("missing-university-id");
             }
             const university = await getUniversityById(universityId, signal);
-            const city = await getCityByUrl(university.cityUrl, signal);
+            const city = await getCityByUrl(university.links?.cityUrl, signal);
             return {
                 id: university.id,
                 name: university.name,

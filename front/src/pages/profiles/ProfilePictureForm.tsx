@@ -63,9 +63,9 @@ export default function ProfilePictureForm() {
                         <div className="profile-picture-section">
                             <div className="current-avatar-container">
                                 <div className="current-avatar" id="currentAvatar">
-                                    {previewUrl || profile.profilePictureUrl ? (
+                                    {previewUrl || profile.links?.profilePictureUrl ? (
                                         <img
-                                            src={previewUrl ?? profile.profilePictureUrl ?? ""}
+                                            src={previewUrl ?? profile.links?.profilePictureUrl ?? ""}
                                             alt={profile.username}
                                             className="avatar-image"
                                             id="avatarPreview"

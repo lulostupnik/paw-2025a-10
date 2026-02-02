@@ -105,7 +105,7 @@ export const useAdminUsers = ({
             const users = await listUsers(params, signal);
             const adminUsers = await Promise.all(
                 users.content.map(async (user: UserApi): Promise<AdminUser> => {
-                    const university = await getUniversityByUrl(user.universityUrl, signal);
+                    const university = await getUniversityByUrl(user.links?.universityUrl, signal);
                     return {
                         id: user.id,
                         firstname: user.firstname ?? "",
@@ -142,8 +142,8 @@ export const useAdminEvents = ({
             const adminEvents = await Promise.all(
                 events.content.map(async (event) => {
                     const [creator, city] = await Promise.all([
-                        getUserByUrl(event.creatorUrl, signal),
-                        getCityByUrl(event.cityUrl, signal),
+                        getUserByUrl(event.links?.creatorUrl, signal),
+                        getCityByUrl(event.links?.cityUrl, signal),
                     ]);
                     return {
                         id: event.id,
@@ -182,7 +182,7 @@ export const useAdminUniversities = ({
             const universities = await listUniversities(params, signal);
             const adminUniversities = await Promise.all(
                 universities.content.map(async (university) => {
-                    const city = await getCityByUrl(university.cityUrl, signal);
+                    const city = await getCityByUrl(university.links?.cityUrl, signal);
                     return {
                         id: university.id,
                         name: university.name,

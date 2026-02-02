@@ -2,15 +2,20 @@ import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import type { ProfileDetail, ProfileEditPayload, ProfileInterest, ProfileRatingStats, ProfileSummary } from "@/types/profile";
 import { getUniversityByUrl } from "./journeys";
 import { getUserId } from "../auth/auth";
-import { toPaged, type PageResult } from "@/types/pagination";
+import { mapPageList, toPaged, type PageResult } from "@/types/pagination";
 
 export interface RegisteredUser {
     id: number;
     username: string;
     email: string;
     role?: string;
-    profilePictureUrl?: string | null;
-    selfUrl?: string;
+    links?: {
+        selfUrl?: string | null;
+        profilePictureUrl?: string | null;
+        universityUrl?: string | null;
+        careerUrl?: string | null;
+        journeyUrl?: string | null;
+    } | null;
     active?: boolean;
 }
 
@@ -48,11 +53,19 @@ export interface UserApi {
     email?: string | null;
     firstname: string | null;
     lastname: string | null;
-    profilePictureUrl?: string | null;
-    universityUrl?: string | null;
-    careerUrl?: string | null;
-    journeyUrl?: string | null;
     active?: boolean | null;
+    links?: {
+        selfUrl?: string | null;
+        profilePictureUrl?: string | null;
+        universityUrl?: string | null;
+        careerUrl?: string | null;
+        journeyUrl?: string | null;
+    } | null;
+}
+
+interface UserInterestApi {
+    interestId: number;
+    interestName: string;
 }
 
 export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSignal): Promise<PageResult<UserApi>> => {
@@ -66,10 +79,7 @@ export const mapUserToProfileSummary = (user: UserApi): ProfileSummary => ({
     lastname: user.lastname ?? "",
     username: user.username ?? "",
     email: user.email ?? null,
-    profilePictureUrl: user.profilePictureUrl ?? null,
-    universityUrl: user.universityUrl ?? null,
-    careerUrl: user.careerUrl ?? null,
-    journeyUrl: user.journeyUrl ?? null,
+    links: user.links ?? null,
 });
 
 export const registerUser = async (payload: RegisterPayload, signal?: AbortSignal): Promise<RegisteredUser> => {
@@ -127,8 +137,13 @@ export const getUserRatingStats = async (userId: string | number, signal?: Abort
 }
 
 export const getUserInterests = async (userId: string | number, params: ListUserInterestParams = {}, signal?: AbortSignal): Promise<PageResult<ProfileInterest>> => {
-    const response = await apiClient.get<ProfileInterest[]>(`/users/${userId}/interests`, { params, signal });
-    return toPaged(response);
+    const response = await apiClient.get<UserInterestApi[]>(`/users/${userId}/interests`, { params, signal });
+    const page = toPaged(response);
+    const mapped = page.content.map((interest) => ({
+        id: interest.interestId,
+        name: interest.interestName ?? "",
+    }));
+    return mapPageList(page, mapped);
 }
 
 export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal) => {
@@ -142,8 +157,8 @@ export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal) 
 export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSignal): Promise<ProfileDetail> => {
     const [ratingStats, university, career] = await Promise.all([
         getUserRatingStats(user.id, signal),
-        getUniversityByUrl(user.universityUrl, signal),
-        getCareerByUrl(user.careerUrl, signal),
+        getUniversityByUrl(user.links?.universityUrl, signal),
+        getCareerByUrl(user.links?.careerUrl, signal),
     ]);
 
     return {
@@ -152,12 +167,9 @@ export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSign
         lastname: user.lastname,
         username: user.username,
         email: user.email ?? null,
-        universityUrl: user.universityUrl ?? null,
-        careerUrl: user.careerUrl ?? null,
-        journeyUrl: user.journeyUrl ?? null,
+        links: user.links ?? null,
         ratingStats: ratingStats,
         isMine: user.id == getUserId(),
-        profilePictureUrl: user.profilePictureUrl,
         career,
         university
     };

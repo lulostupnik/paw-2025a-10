@@ -4,7 +4,9 @@ import { toPaged, type PageResult } from "@/types/pagination";
 export interface InterestDto {
     id: number;
     name: string;
-    selfUrl?: string | null;
+    links?: {
+        selfUrl?: string | null;
+    } | null;
 }
 
 export interface InterestPayload {

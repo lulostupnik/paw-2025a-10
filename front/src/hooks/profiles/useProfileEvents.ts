@@ -10,6 +10,7 @@ export interface ProfileEventsParams {
     attendingPage?: number;
     finishedPage?: number;
     size?: number;
+    enabled?: boolean;
 }
 
 interface ProfileEventsResult {
@@ -23,6 +24,7 @@ interface ProfileEventsResult {
 }
 
 export const useProfileEvents = (profileId: string, params: ProfileEventsParams = {}): ProfileEventsResult => {
+    const enabled = params.enabled ?? true;
     const query = useQuery({
         queryKey: ["profileEvents", profileId, params],
         queryFn: async ({ signal }) => {
@@ -47,6 +49,7 @@ export const useProfileEvents = (profileId: string, params: ProfileEventsParams 
             };
         },
         placeholderData: keepPreviousData,
+        enabled,
     });
     return {
         created: query.data?.created ?? emptyPage(),

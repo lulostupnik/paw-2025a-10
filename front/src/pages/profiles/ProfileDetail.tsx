@@ -25,14 +25,20 @@ export default function ProfileDetail() {
     const page = Number(searchParams.get("page")) || 1;
     const pageSize = Number(searchParams.get("size")) || 6;
 
-    const { created, attending, finished } = activeTab === 'events' ? useProfileEvents(profileId, {
+    const profileEvents = useProfileEvents(profileId, {
         createdPage: page,
-        attendingPage : page,
-        finishedPage : page,
+        attendingPage: page,
+        finishedPage: page,
         size: pageSize,
-    }) : {created: null, attending: null, finished: null};
+        enabled: activeTab === "events",
+    });
 
-    const pagedInterests = activeTab === 'interests' ? useProfileInterests({profileId, page, size: pageSize}) : null;
+    const pagedInterests = useProfileInterests({
+        profileId,
+        page,
+        size: pageSize,
+        enabled: activeTab === "interests",
+    });
 
     const updateSearch = (updates: Record<string, string>) => {
         const next = new URLSearchParams(searchParams);
@@ -156,7 +162,7 @@ export default function ProfileDetail() {
                                 {activeTab === "interests" && (
                                     <ProfileInterestsTab
                                         isMine={profile.isMine}
-                                        page={pagedInterests?.data ?? emptyPage()}
+                                        page={pagedInterests.data ?? emptyPage()}
                                         onPageChange={handlePageChange}
                                     />
                                 )}
@@ -164,9 +170,9 @@ export default function ProfileDetail() {
                                     <ProfileEventsTab
                                         isMine={profile.isMine}
                                         activeTab={eventsTab}
-                                        created={created ?? emptyPage()}
-                                        attending={attending ?? emptyPage()}
-                                        finished={finished ?? emptyPage()}
+                                        created={profileEvents.created ?? emptyPage()}
+                                        attending={profileEvents.attending ?? emptyPage()}
+                                        finished={profileEvents.finished ?? emptyPage()}
                                         onTabChange={(nextTab) => updateSearch({ eventsTab: nextTab })}
                                         onCreatedPageChange={handlePageChange}
                                         onAttendingPageChange={handlePageChange}

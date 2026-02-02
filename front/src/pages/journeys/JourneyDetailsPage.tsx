@@ -38,7 +38,7 @@ const formatDateTime = (value: string, locale: string) => {
 
 const mapEventPageToJourneyEvents = async (page: PageResult<EventDto>, signal?: AbortSignal) => {
     const cities = await Promise.all(
-        page.content.map((event) => (event.cityUrl ? getCityByUrl(event.cityUrl, signal) : Promise.resolve(null)))
+        page.content.map((event) => (event.links?.cityUrl ? getCityByUrl(event.links.cityUrl, signal) : Promise.resolve(null)))
     );
     const mapped = page.content.map((event, index) => ({
         id: event.id,
@@ -47,7 +47,7 @@ const mapEventPageToJourneyEvents = async (page: PageResult<EventDto>, signal?: 
         date: event.date ?? "",
         time: event.time ?? null,
         city: cities[index]?.name ?? "—",
-        flyerImageUrl: event.flyerUrl ?? null,
+        flyerImageUrl: event.links?.flyerUrl ?? null,
     }));
     return mapPageList(page, mapped);
 };
@@ -56,12 +56,14 @@ interface JourneyResponseApi {
     id: number;
     message: string;
     dateTime: string;
-    authorUrl?: string | null;
+    links?: {
+        authorUrl?: string | null;
+    } | null;
 }
 
 const mapJourneyResponsesPage = async (page: PageResult<JourneyResponseApi>, signal?: AbortSignal) => {
     const users = await Promise.all(
-        page.content.map((response) => (response.authorUrl ? getUserByUrl(response.authorUrl, signal) : Promise.resolve(null)))
+        page.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal) : Promise.resolve(null)))
     );
     const mapped = page.content.map((response, index) => ({
         id: response.id,

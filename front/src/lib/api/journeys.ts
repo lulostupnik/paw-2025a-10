@@ -5,39 +5,50 @@ import { toPaged, type PageResult } from "@/types/pagination";
 interface UserApi {
     id: number;
     username: string;
-    selfUrl?: string | null;
     firstname?: string;
     lastname?: string;
-    profilePictureUrl?: string | null;
+    links?: {
+        selfUrl?: string | null;
+        profilePictureUrl?: string | null;
+    } | null;
 }
 
 interface UniversityApi {
     id: number;
     name: string;
     abbreviation?: string | null;
-    cityUrl?: string | null;
-    selfUrl?: string | null;
+    links?: {
+        cityUrl?: string | null;
+        selfUrl?: string | null;
+    } | null;
 }
 
 interface CityApi {
     id: number;
     name: string;
     country: string;
-    selfUrl?: string | null;
+    links?: {
+        selfUrl?: string | null;
+    } | null;
 }
 
 interface InterestApi {
     id: number;
     name: string;
-    selfUrl?: string | null;
+    links?: {
+        selfUrl?: string | null;
+    } | null;
 }
 
 interface JourneyResponseApi {
     id: number;
     message: string;
     dateTime: string;
-    authorUrl?: string | null;
-    selfUrl?: string | null;
+    links?: {
+        authorUrl?: string | null;
+        selfUrl?: string | null;
+        journeyUrl?: string | null;
+    } | null;
 }
 
 interface TipApi {
@@ -45,8 +56,10 @@ interface TipApi {
     title: string;
     content: string;
     dateTime: string;
-    selfUrl?: string | null;
-    journeyUrl?: string | null;
+    links?: {
+        selfUrl?: string | null;
+        journeyUrl?: string | null;
+    } | null;
 }
 
 const parseIdFromUrl = (url?: string | null) => {
@@ -207,10 +220,10 @@ export const deleteJourneyTip = async (journeyId: number, tipId: number, signal?
 
 export const resolveJourneySummary = async (journey: JourneySummary, signal?: AbortSignal): Promise<JourneySummary> => {
     const [user, university] = await Promise.all([
-        getUserByUrl(journey.userUrl, signal),
-        getUniversityByUrl(journey.destinationUniversityUrl, signal),
+        getUserByUrl(journey.links?.userUrl, signal),
+        getUniversityByUrl(journey.links?.destinationUniversityUrl, signal),
     ]);
-    const city = university?.cityUrl ? await getCityByUrl(university.cityUrl, signal) : null;
+    const city = university?.links?.cityUrl ? await getCityByUrl(university.links.cityUrl, signal) : null;
 
     return {
         ...journey,
@@ -224,12 +237,12 @@ export const resolveJourneySummary = async (journey: JourneySummary, signal?: Ab
 
 export const buildJourneyDetail = async (journey: JourneySummary, signal?: AbortSignal): Promise<JourneyDetail> => {
     const [user, university] = await Promise.all([
-        getUserByUrl(journey.userUrl, signal),
-        getUniversityByUrl(journey.destinationUniversityUrl, signal),
+        getUserByUrl(journey.links?.userUrl, signal),
+        getUniversityByUrl(journey.links?.destinationUniversityUrl, signal),
     ]);
-    const city = university?.cityUrl ? await getCityByUrl(university.cityUrl, signal) : null;
+    const city = university?.links?.cityUrl ? await getCityByUrl(university.links.cityUrl, signal) : null;
 
-    const userId = user?.id ?? parseIdFromUrl(journey.userUrl);
+    const userId = user?.id ?? parseIdFromUrl(journey.links?.userUrl);
     const [interests, responses, tips] = await Promise.all([
         userId ? getUserInterests(userId, signal) : Promise.resolve([]),
         getJourneyResponses(journey.id, { page: 1, size: 4 }, signal),
@@ -237,7 +250,7 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
     ]);
 
     const responseUsers = await Promise.all(
-        responses.content.map((response) => (response.authorUrl ? getUserByUrl(response.authorUrl, signal) : Promise.resolve(null)))
+        responses.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal) : Promise.resolve(null)))
     );
 
     const comments: JourneyComment[] = responses.content.map((response, index) => ({
@@ -254,11 +267,7 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
         description: journey.description,
         startDate: journey.startDate,
         endDate: journey.endDate,
-        selfUrl: journey.selfUrl ?? null,
-        userUrl: journey.userUrl ?? null,
-        destinationUniversityUrl: journey.destinationUniversityUrl ?? null,
-        tipsUrl: journey.tipsUrl ?? null,
-        responsesUrl: journey.responsesUrl ?? null,
+        links: journey.links ?? null,
         destinationUniversity: {
             name: university?.name ?? "—", // TODO: backend must provide destination university name.
             city: city?.name ?? "—", // TODO: backend must provide destination city name.

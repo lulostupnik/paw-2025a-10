@@ -8,11 +8,21 @@ interface ProfileTabsProps {
     activeTab: "info" | "interests" | "events";
 }
 
+const parseIdFromUrl = (url?: string | null) => {
+    if (!url) {
+        return null;
+    }
+    const match = url.match(/\/(\d+)(?:\/)?$/);
+    return match ? Number(match[1]) : null;
+};
+
 export default function ProfileTabs({ profile, activeTab }: ProfileTabsProps) {
     const { t } = useI18n();
     const location = useLocation();
     const returnPath = (location.state as { from?: string } | null)?.from;
     const linkState = returnPath ? { from: returnPath } : undefined;
+    const journeyId = parseIdFromUrl(profile.links?.journeyUrl);
+    const hasJourney = Boolean(journeyId);
 
     return (
         <div className="profile-tabs">
@@ -53,9 +63,9 @@ export default function ProfileTabs({ profile, activeTab }: ProfileTabsProps) {
                 <span className="tab-text">{t("profile.tab.events")}</span>
             </Link>
 
-            {profile.journey && !profile.journey.deleted && (
+            {!profile.isMine && hasJourney && (
                 <Link
-                    to={`/journeys/${profile.journey.id}`}
+                    to={`/journeys/${journeyId}`}
                     state={linkState}
                     className="btn-primary profile-tabs-right"
                 >
@@ -65,12 +75,20 @@ export default function ProfileTabs({ profile, activeTab }: ProfileTabsProps) {
                     <span className="tab-text">{t("profile.tab.journeys")}</span>
                 </Link>
             )}
-            {profile.isMine && (!profile.journey || profile.journey.deleted) && (
+            {profile.isMine && !hasJourney && (
                 <Link to="/journeys/create" className="btn-primary profile-tabs-right">
                     <svg xmlns="http://www.w3.org/2000/svg" className="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
                     </svg>
                     <span>{t("profile.create.journey")}</span>
+                </Link>
+            )}
+            {profile.isMine && hasJourney && (
+                <Link to={`/journeys/${journeyId}`} className="btn-primary profile-tabs-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="button-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                    </svg>
+                    <span>{t("journey.view.my")}</span>
                 </Link>
             )}
         </div>

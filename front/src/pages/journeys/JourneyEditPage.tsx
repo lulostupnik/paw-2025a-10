@@ -7,6 +7,7 @@ import { searchUniversities, type CatalogOption } from "@/lib/api/catalog";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { updateJourney } from "@/lib/api/journeys";
 import { useI18n } from "@/lib/i18n";
+import { getTodayIsoDate } from "@/lib/utils/date";
 
 interface JourneyFormState {
     startDate: string;
@@ -80,13 +81,18 @@ export default function JourneyEditPage() {
     const validate = useCallback(
         (state: JourneyFormState): JourneyErrors => {
             const nextErrors: JourneyErrors = {};
+            const today = getTodayIsoDate();
             if (!state.startDate) {
                 nextErrors.startDate = t("journey.create.validation.startDate");
+            } else if (state.startDate < today) {
+                nextErrors.startDate = t("FutureDate.createJourneyForm.startDate");
             }
             if (!state.endDate) {
                 nextErrors.endDate = t("journey.create.validation.endDate");
+            } else if (state.endDate < today) {
+                nextErrors.endDate = t("FutureDate.createJourneyForm.endDate");
             }
-            if (state.startDate && state.endDate && state.startDate >= state.endDate) {
+            if (!nextErrors.endDate && state.startDate && state.endDate && state.startDate >= state.endDate) {
                 nextErrors.endDate = t("journey.create.validation.range");
             }
             if (!state.destination) {
@@ -151,6 +157,10 @@ export default function JourneyEditPage() {
             navigate("/journeys");
         }
     };
+    const today = getTodayIsoDate();
+    const endDateMin = form.startDate
+        ? (addDays(form.startDate, 1) > today ? addDays(form.startDate, 1) : today)
+        : today;
 
     if (isLoading) {
         return <div className="journey-create-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
@@ -193,6 +203,7 @@ export default function JourneyEditPage() {
                                 onChange={handleDateChange("startDate")}
                                 onBlur={() => markTouched("startDate")}
                                 placeholder={t("common.date.placeholder")}
+                                min={today}
                             />
                             {touched.startDate && errors.startDate && (
                                 <p className="form-field__text form-field__text--error">{errors.startDate}</p>
@@ -210,7 +221,7 @@ export default function JourneyEditPage() {
                                 onChange={handleDateChange("endDate")}
                                 onBlur={() => markTouched("endDate")}
                                 placeholder={t("common.date.placeholder")}
-                                min={form.startDate ? addDays(form.startDate, 1) : undefined}
+                                min={endDateMin}
                             />
                             {touched.endDate && errors.endDate && (
                                 <p className="form-field__text form-field__text--error">{errors.endDate}</p>

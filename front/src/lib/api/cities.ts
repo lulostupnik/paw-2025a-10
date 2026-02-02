@@ -5,7 +5,9 @@ export interface CityDto {
     id: number;
     name: string;
     country?: string | null;
-    selfUrl?: string | null;
+    links?: {
+        selfUrl?: string | null;
+    } | null;
 }
 
 export interface CityPayload {

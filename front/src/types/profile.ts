@@ -1,16 +1,21 @@
 import type { ProfileEvent } from "@/types/event";
 import type { ProfileJourney } from "@/types/journey";
 
+export interface ProfileLinks {
+    selfUrl?: string | null;
+    profilePictureUrl?: string | null;
+    universityUrl?: string | null;
+    careerUrl?: string | null;
+    journeyUrl?: string | null;
+}
+
 export interface ProfileSummary {
     id: number;
     firstname: string;
     lastname: string;
     username: string;
     email?: string | null;
-    profilePictureUrl?: string | null;
-    universityUrl?: string | null;
-    careerUrl?: string | null;
-    journeyUrl?: string | null;
+    links?: ProfileLinks | null;
 }
 
 export interface ProfileDetail extends ProfileSummary {

@@ -24,8 +24,8 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         <div className="profile-header">
             <div className="profile-avatar-container">
                 <div className="profiles-avatar">
-                    {profile.profilePictureUrl ? (
-                        <img src={profile.profilePictureUrl} alt={profile.username} className="avatar-image" />
+                    {profile.links?.profilePictureUrl ? (
+                        <img src={profile.links.profilePictureUrl} alt={profile.username} className="avatar-image" />
                     ) : (
                         <div className="avatar-placeholder">{initials}</div>
                     )}
