@@ -165,8 +165,6 @@ public class EventServiceImpl implements EventService {
 
         String topAttendeeCountry = null;
         int topAttendeeCountryCount = 0;
-        boolean isAttending = false;
-        boolean isCreator = false;
         Event event;
 
 
@@ -188,7 +186,7 @@ public class EventServiceImpl implements EventService {
             topAttendeeCountryCount = maybeCountryAttendeeCount.get().getCount();
         }
 
-        return Optional.of(new EventWithStatistics(event, createdEventsCount, attendedEventsCount, topAttendeeCountry, topAttendeeCountryCount, isAttending, isCreator));
+        return Optional.of(new EventWithStatistics(event, createdEventsCount, attendedEventsCount, topAttendeeCountry, topAttendeeCountryCount));
     }
 
 
