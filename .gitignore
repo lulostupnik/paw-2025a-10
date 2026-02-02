@@ -68,3 +68,4 @@ webapp/src/main/resources/logback.xml
 # Build artifacts
 out/
 out/**
+*.md
