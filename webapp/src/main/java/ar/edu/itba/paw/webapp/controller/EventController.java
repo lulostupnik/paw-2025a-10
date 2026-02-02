@@ -110,7 +110,7 @@ public class EventController {
     @Path("/{eventId}/statistics")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEventStatistics(@PathParam("eventId") final long eventId) {
-        final EventWithStatistics statistics = eventService.findEventWithStatistics(null, eventId)
+        final EventWithStatistics statistics = eventService.findEventWithStatistics(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId));
         return Response.ok(EventStatisticsDto.fromEventWithStatistics(uriInfo, statistics)).build();
     }

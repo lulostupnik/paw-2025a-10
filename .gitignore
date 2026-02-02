@@ -64,3 +64,7 @@ Thumbs.db
 *.pg_dump
 /services/src/main/resources/email.properties
 webapp/src/main/resources/logback.xml
+
+# Build artifacts
+out/
+out/**

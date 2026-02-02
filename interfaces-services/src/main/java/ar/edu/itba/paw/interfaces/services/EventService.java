@@ -31,7 +31,7 @@ public interface EventService {
 
     Optional<Event> findEventById(long id);
 
-    Optional<EventWithStatistics> findEventWithStatistics(User user, long eventId);
+    Optional<EventWithStatistics> findEventWithStatistics(long eventId);
 
     Page<Event> searchEvents(String search, PageParams pageParams);
     Page<Event> findEvents(long userId, PageParams pageParams);
@@ -82,7 +82,7 @@ public interface EventService {
     int countEventsCreatedByUser(long userId);
     int countEventsAttendedByUser(long userId);
 
-    Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
+    //Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
 
     Optional<Image> getEventFlyer(long eventId);
     void updateEventFlyer(long eventId, byte[] flyer);

@@ -160,7 +160,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Optional<EventWithStatistics> findEventWithStatistics(final User user, final long eventId) {
+    public Optional<EventWithStatistics> findEventWithStatistics(final long eventId) {
         LOGGER.debug("Getting event with statistics by id {}", eventId);
 
         String topAttendeeCountry = null;
@@ -169,24 +169,13 @@ public class EventServiceImpl implements EventService {
         boolean isCreator = false;
         Event event;
 
-        if(user == null){
-            Optional<Event> maybeEvent = eventDao.findById(eventId);
-            if(maybeEvent.isEmpty()){
-                LOGGER.warn("Event not found {}", eventId);
-                return Optional.empty();
-            }
-            event = maybeEvent.get();
-        } else {
-            Optional<EventWithUserInfo> maybeEventWithUserInfo = findEventWithUserInfo(user.getId(), eventId);
-            if(maybeEventWithUserInfo.isEmpty()){
-                LOGGER.warn("Event not found {}", eventId);
-                return Optional.empty();
-            }
 
-            event = maybeEventWithUserInfo.get().getEvent();
-            isAttending = maybeEventWithUserInfo.get().isAttending();
-            isCreator = maybeEventWithUserInfo.get().isCreator();
+        Optional<Event> maybeEvent = eventDao.findById(eventId);
+        if(maybeEvent.isEmpty()){
+            LOGGER.warn("Event not found {}", eventId);
+            return Optional.empty();
         }
+        event = maybeEvent.get();
 
         int createdEventsCount = eventDao.countEventsCreatedByUser(event.getUser().getId());
         int attendedEventsCount = eventAttendanceDao.countEventsAttendedByUser(event.getUser().getId());
@@ -586,7 +575,7 @@ public class EventServiceImpl implements EventService {
         return maybeResponse;
     }
 
-
+/*
     @Override
     @Transactional(readOnly = true)
     public Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId) {
@@ -608,7 +597,7 @@ public class EventServiceImpl implements EventService {
         }), event);
 
         return Optional.of(new EventWithUserInfo(event, isAttending, isCreator));
-    }
+    }*/
 
     @Override
     public Page<Event> findCreatedByJourney(final Journey journey, final PageParams pageParams){
