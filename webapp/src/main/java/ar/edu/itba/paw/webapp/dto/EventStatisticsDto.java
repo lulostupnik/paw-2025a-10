@@ -34,6 +34,7 @@ public class EventStatisticsDto {
         int countryCount = statistics.getTopAttendeeCountryCount();
 
         if (country == null || country.isBlank()) {
+            //@TODO creo que tienen que ser consistentes los campos entonces pongo esto
             country = "";
         }
 
