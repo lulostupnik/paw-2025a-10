@@ -20,9 +20,7 @@ public class JourneyResponseDto {
     private String message;
     private LocalDateTime dateTime;
 
-    private URI selfUrl;
-    private URI journeyUrl;
-    private URI authorUrl;
+    private Links links;
 
     public static JourneyResponseDto fromJourneyResponse(final UriInfo uriInfo, final JourneyResponse response) {
         final JourneyResponseDto dto = new JourneyResponseDto();
@@ -30,9 +28,11 @@ public class JourneyResponseDto {
         dto.message = response.getMessage();
         dto.dateTime = response.getDateTime();
 
-        dto.journeyUrl = UriUtils.getJourneyUri(uriInfo, response.getJourney().getId());
-        dto.selfUrl = UriUtils.getJourneyResponseUri(uriInfo, response.getJourney().getId(), response.getId());
-        dto.authorUrl = UriUtils.getUserUri(uriInfo, response.getUser().getId());
+        final Links links = new Links();
+        links.journeyUrl = UriUtils.getJourneyUri(uriInfo, response.getJourney().getId());
+        links.selfUrl = UriUtils.getJourneyResponseUri(uriInfo, response.getJourney().getId(), response.getId());
+        links.authorUrl = UriUtils.getUserUri(uriInfo, response.getUser().getId());
+        dto.links = links;
 
         return dto;
     }
@@ -44,7 +44,16 @@ public class JourneyResponseDto {
     public long getId() { return id; }
     public String getMessage() { return message; }
     public LocalDateTime getDateTime() { return dateTime; }
-    public URI getSelfUrl() { return selfUrl; }
-    public URI getJourneyUrl() { return journeyUrl; }
-    public URI getAuthorUrl() { return authorUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+        private URI journeyUrl;
+        private URI authorUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+        public URI getJourneyUrl() { return journeyUrl; }
+        public URI getAuthorUrl() { return authorUrl; }
+    }
 }

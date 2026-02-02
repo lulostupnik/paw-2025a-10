@@ -20,9 +20,7 @@ public class EventResponseDto {
     private String message;
     private LocalDateTime dateTime;
 
-    private URI selfUrl;
-    private URI eventUrl;
-    private URI authorUrl;
+    private Links links;
 
     public static EventResponseDto fromEventResponse(final UriInfo uriInfo, final EventResponse response) {
         final EventResponseDto dto = new EventResponseDto();
@@ -30,9 +28,11 @@ public class EventResponseDto {
         dto.message = response.getMessage();
         dto.dateTime = response.getDateTime();
 
-        dto.eventUrl = UriUtils.getEventUri(uriInfo, response.getEvent().getId());
-        dto.selfUrl = UriUtils.getEventResponseUri(uriInfo, response.getEvent().getId(), response.getId());
-        dto.authorUrl = UriUtils.getUserUri(uriInfo, response.getUser().getId());
+        final Links links = new Links();
+        links.eventUrl = UriUtils.getEventUri(uriInfo, response.getEvent().getId());
+        links.selfUrl = UriUtils.getEventResponseUri(uriInfo, response.getEvent().getId(), response.getId());
+        links.authorUrl = UriUtils.getUserUri(uriInfo, response.getUser().getId());
+        dto.links = links;
 
         return dto;
     }
@@ -44,7 +44,16 @@ public class EventResponseDto {
     public long getId() { return id; }
     public String getMessage() { return message; }
     public LocalDateTime getDateTime() { return dateTime; }
-    public URI getSelfUrl() { return selfUrl; }
-    public URI getEventUrl() { return eventUrl; }
-    public URI getAuthorUrl() { return authorUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+        private URI eventUrl;
+        private URI authorUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+        public URI getEventUrl() { return eventUrl; }
+        public URI getAuthorUrl() { return authorUrl; }
+    }
 }

@@ -21,11 +21,7 @@ public class JourneyDto {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private URI selfUrl;
-    private URI userUrl;
-    private URI destinationUniversityUrl;
-    private URI tipsUrl;
-    private URI responsesUrl;
+    private Links links;
 
     public static JourneyDto fromJourney(final UriInfo uriInfo, final Journey journey) {
         final JourneyDto dto = new JourneyDto();
@@ -34,11 +30,13 @@ public class JourneyDto {
         dto.startDate = journey.getStartDate();
         dto.endDate = journey.getEndDate();
 
-        dto.selfUrl = UriUtils.getJourneyUri(uriInfo, journey.getId());
-        dto.userUrl = UriUtils.getUserUri(uriInfo, journey.getUser().getId());
-        dto.destinationUniversityUrl = UriUtils.getUniversityUri(uriInfo, journey.getDestinationUniversity().getId()); // TODO: revisar
-        dto.tipsUrl = UriUtils.getJourneyTipsUri(uriInfo, journey.getId());
-        dto.responsesUrl = UriUtils.getJourneyResponsesUri(uriInfo, journey.getId());
+        final Links links = new Links();
+        links.selfUrl = UriUtils.getJourneyUri(uriInfo, journey.getId());
+        links.userUrl = UriUtils.getUserUri(uriInfo, journey.getUser().getId());
+        links.destinationUniversityUrl = UriUtils.getUniversityUri(uriInfo, journey.getDestinationUniversity().getId()); // TODO: revisar
+        links.tipsUrl = UriUtils.getJourneyTipsUri(uriInfo, journey.getId());
+        links.responsesUrl = UriUtils.getJourneyResponsesUri(uriInfo, journey.getId());
+        dto.links = links;
 
         return dto;
     }
@@ -51,9 +49,20 @@ public class JourneyDto {
     public String getDescription() { return description; }
     public LocalDate getStartDate() { return startDate; }
     public LocalDate getEndDate() { return endDate; }
-    public URI getSelfUrl() { return selfUrl; }
-    public URI getUserUrl() { return userUrl; }
-    public URI getDestinationUniversityUrl() { return destinationUniversityUrl; }
-    public URI getTipsUrl() { return tipsUrl; }
-    public URI getResponsesUrl() { return responsesUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+        private URI userUrl;
+        private URI destinationUniversityUrl;
+        private URI tipsUrl;
+        private URI responsesUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+        public URI getUserUrl() { return userUrl; }
+        public URI getDestinationUniversityUrl() { return destinationUniversityUrl; }
+        public URI getTipsUrl() { return tipsUrl; }
+        public URI getResponsesUrl() { return responsesUrl; }
+    }
 }

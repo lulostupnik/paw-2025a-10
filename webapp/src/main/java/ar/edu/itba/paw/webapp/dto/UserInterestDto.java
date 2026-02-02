@@ -19,18 +19,18 @@ public class UserInterestDto {
     private String interestName; // TODO: esta bien que este acá además de en /interests?
     private int score;
 
-    private URI userUrl;
-    private URI interestUrl;
-    private URI selfUrl;
+    private Links links;
 
     public static UserInterestDto fromUserInterest(final UriInfo uriInfo, final UserInterest userInterest) {
         final UserInterestDto dto = new UserInterestDto();
         dto.interestId = userInterest.getInterest().getId();
         dto.interestName = userInterest.getInterest().getName();
         dto.score = userInterest.getScore();
-        dto.userUrl = UriUtils.getUserUri(uriInfo, userInterest.getUser().getId());
-        dto.interestUrl = UriUtils.getInterestUri(uriInfo, userInterest.getInterest().getId());
-        dto.selfUrl = UriUtils.getUserInterestUri(uriInfo, userInterest.getUser().getId(), userInterest.getInterest().getId());
+        final Links links = new Links();
+        links.userUrl = UriUtils.getUserUri(uriInfo, userInterest.getUser().getId());
+        links.interestUrl = UriUtils.getInterestUri(uriInfo, userInterest.getInterest().getId());
+        links.selfUrl = UriUtils.getUserInterestUri(uriInfo, userInterest.getUser().getId(), userInterest.getInterest().getId());
+        dto.links = links;
         return dto;
     }
 
@@ -50,15 +50,16 @@ public class UserInterestDto {
         return score;
     }
 
-    public URI getUserUrl() {
-        return userUrl;
-    }
+    public Links getLinks() { return links; }
 
-    public URI getInterestUrl() {
-        return interestUrl;
-    }
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI userUrl;
+        private URI interestUrl;
+        private URI selfUrl;
 
-    public URI getSelfUrl() {
-        return selfUrl;
+        public URI getUserUrl() { return userUrl; }
+        public URI getInterestUrl() { return interestUrl; }
+        public URI getSelfUrl() { return selfUrl; }
     }
 }

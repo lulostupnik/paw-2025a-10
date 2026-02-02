@@ -20,18 +20,18 @@ public class RatingDto {
     private long id;
     private double rating;
 
-    private URI selfUrl;
-    private URI eventUrl;
-    private URI userUrl;
+    private Links links;
 
     public static RatingDto fromRating(final UriInfo uriInfo, final Rating rating) {
         final RatingDto dto = new RatingDto();
         dto.id = rating.getId();
         dto.rating = rating.getRating();
 
-        dto.eventUrl = UriUtils.getEventUri(uriInfo, rating.getEvent().getId());
-        dto.selfUrl = UriUtils.getEventRatingUri(uriInfo, rating.getEvent().getId(), rating.getId());
-        dto.userUrl = UriUtils.getUserUri(uriInfo, rating.getUser().getId());
+        final Links links = new Links();
+        links.eventUrl = UriUtils.getEventUri(uriInfo, rating.getEvent().getId());
+        links.selfUrl = UriUtils.getEventRatingUri(uriInfo, rating.getEvent().getId(), rating.getId());
+        links.userUrl = UriUtils.getUserUri(uriInfo, rating.getUser().getId());
+        dto.links = links;
 
         return dto;
     }
@@ -42,7 +42,16 @@ public class RatingDto {
 
     public long getId() { return id; }
     public double getRating() { return rating; }
-    public URI getSelfUrl() { return selfUrl; }
-    public URI getEventUrl() { return eventUrl; }
-    public URI getUserUrl() { return userUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+        private URI eventUrl;
+        private URI userUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+        public URI getEventUrl() { return eventUrl; }
+        public URI getUserUrl() { return userUrl; }
+    }
 }

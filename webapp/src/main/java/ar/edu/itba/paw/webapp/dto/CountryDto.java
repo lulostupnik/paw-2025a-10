@@ -19,14 +19,16 @@ public class CountryDto {
     private String name;
     private String code;
 
-    private URI selfUrl;
+    private Links links;
 
     public static CountryDto fromCountry(final UriInfo uriInfo, final Country country) {
         final CountryDto dto = new CountryDto();
         dto.id = country.getId();
         dto.name = country.getName();
         dto.code = country.getCode();
-        dto.selfUrl = UriUtils.getCountryUri(uriInfo, country.getId());
+        final Links links = new Links();
+        links.selfUrl = UriUtils.getCountryUri(uriInfo, country.getId());
+        dto.links = links;
         return dto;
     }
 
@@ -37,5 +39,12 @@ public class CountryDto {
     public long getId() { return id; }
     public String getName() { return name; }
     public String getCode() { return code; }
-    public URI getSelfUrl() { return selfUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+    }
 }

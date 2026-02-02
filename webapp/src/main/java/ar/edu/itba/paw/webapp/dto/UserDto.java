@@ -21,14 +21,9 @@ public class UserDto {
     private String email;
     private String role;
     private Boolean isActive; // TODO: ¿Esto está bien tenerlo acá? ¿Es necesario?
-    private URI profilePictureUrl;
+    private Links links;
     private String firstname;
     private String lastname;
-
-    private URI selfUrl;
-    private URI careerUrl;
-    private URI universityUrl;
-    private URI journeyUrl;
 
 
     public static UserDto fromUser(final UriInfo uriInfo, final User user) {
@@ -40,15 +35,17 @@ public class UserDto {
         dto.lastname = user.getLastname();
         dto.role = user.getRole().toString().replaceAll("^ROLE_", "").toLowerCase();
         dto.isActive = ! user.isBlocked() && user.isValidated();
-        dto.profilePictureUrl = user.getProfilePictureId() != null
+        final Links links = new Links();
+        links.profilePictureUrl = user.getProfilePictureId() != null
                 ? UriUtils.getUserProfilePictureUri(uriInfo, user.getId())
                 : null;
         // dto.preferredLanguage = user.getPreferredLanguage();
-        dto.careerUrl = UriUtils.getCareerUri(uriInfo, user.getCareer().getId());
-        dto.universityUrl = UriUtils.getUniversityUri(uriInfo, user.getUniversity().getId());
+        links.careerUrl = UriUtils.getCareerUri(uriInfo, user.getCareer().getId());
+        links.universityUrl = UriUtils.getUniversityUri(uriInfo, user.getUniversity().getId());
         if(user.getJourney() != null)
-            dto.journeyUrl = UriUtils.getJourneyUri(uriInfo, user.getJourney().getId());
-        dto.selfUrl = UriUtils.getUserUri(uriInfo, user.getId());
+            links.journeyUrl = UriUtils.getJourneyUri(uriInfo, user.getJourney().getId());
+        links.selfUrl = UriUtils.getUserUri(uriInfo, user.getId());
+        dto.links = links;
 
         return dto;
     }
@@ -56,24 +53,8 @@ public class UserDto {
         return users.stream().map(user -> fromUser(uriInfo, user)).toList();
     }
 
-    public URI getSelfUrl() {
-        return selfUrl;
-    }
-
-    public URI getProfilePictureUrl() {
-        return profilePictureUrl;
-    }
-
-    public URI getJourneyUrl() {
-        return journeyUrl;
-    }    
-    
-    public URI getCareerUrl() {
-        return careerUrl;
-    }    
-    
-    public URI getUniversityUrl() {
-        return universityUrl;
+    public Links getLinks() {
+        return links;
     }
     public Boolean getActive() {
         return isActive;
@@ -101,5 +82,20 @@ public class UserDto {
 
     public long getId() {
         return id;
+    }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+        private URI careerUrl;
+        private URI universityUrl;
+        private URI journeyUrl;
+        private URI profilePictureUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+        public URI getCareerUrl() { return careerUrl; }
+        public URI getUniversityUrl() { return universityUrl; }
+        public URI getJourneyUrl() { return journeyUrl; }
+        public URI getProfilePictureUrl() { return profilePictureUrl; }
     }
 }

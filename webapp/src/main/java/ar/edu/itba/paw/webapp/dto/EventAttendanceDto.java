@@ -16,15 +16,15 @@ import java.util.List;
 public class EventAttendanceDto {
     // TODO: El DTO puede estar "vacío"? O deberíamos poner acá userId y eventId o algo por el estilo?
 
-    private URI userUrl;
-    private URI eventUrl;
-    private URI selfUrl;
+    private Links links;
 
     public static EventAttendanceDto fromEventAttendance(final UriInfo uriInfo, final EventAttendance attendance) {
         final EventAttendanceDto dto = new EventAttendanceDto();
-        dto.userUrl = UriUtils.getUserUri(uriInfo, attendance.getUser().getId());
-        dto.eventUrl = UriUtils.getEventUri(uriInfo, attendance.getEvent().getId());
-        dto.selfUrl = UriUtils.getEventAttendanceUri(uriInfo, attendance.getEvent().getId(), attendance.getUser().getId());
+        final Links links = new Links();
+        links.userUrl = UriUtils.getUserUri(uriInfo, attendance.getUser().getId());
+        links.eventUrl = UriUtils.getEventUri(uriInfo, attendance.getEvent().getId());
+        links.selfUrl = UriUtils.getEventAttendanceUri(uriInfo, attendance.getEvent().getId(), attendance.getUser().getId());
+        dto.links = links;
         return dto;
     }
 
@@ -32,15 +32,16 @@ public class EventAttendanceDto {
         return attendances.stream().map(a -> fromEventAttendance(uriInfo, a)).toList();
     }
 
-    public URI getUserUrl() {
-        return userUrl;
-    }
+    public Links getLinks() { return links; }
 
-    public URI getEventUrl() {
-        return eventUrl;
-    }
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI userUrl;
+        private URI eventUrl;
+        private URI selfUrl;
 
-    public URI getSelfUrl() {
-        return selfUrl;
+        public URI getUserUrl() { return userUrl; }
+        public URI getEventUrl() { return eventUrl; }
+        public URI getSelfUrl() { return selfUrl; }
     }
 }
