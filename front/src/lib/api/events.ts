@@ -23,6 +23,7 @@ export interface EventDto {
     responsesUrl?: string;
     attendancesUrl?: string;
     ratingsUrl?: string;
+    statisticsUrl?: string;
 }
 
 export interface EventSummary {
@@ -66,6 +67,17 @@ interface UserApi {
     lastname: string | null;
 }
 
+export interface EventStatisticsDto {
+    eventsCreatedByOrganizer: number;
+    eventsOrganizerAttends: number;
+    topCountry: string;
+    topCountryCount: number;
+    totalParticipants: number;
+    maxParticipants: number;
+    selfUrl?: string;
+    eventUrl?: string;
+}
+
 export interface FetchEventsParams {
     destination?: string;
     interest?: string;
@@ -94,6 +106,11 @@ export async function fetchEvents(params: FetchEventsParams = {}, signal?: Abort
 
 export const getEventById = async (id: number | string, signal?: AbortSignal) => {
     const response = await apiClient.get<EventDto>(`/events/${id}`, { signal });
+    return response.data;
+};
+
+export const getEventStatistics = async (eventId: number | string, signal?: AbortSignal) => {
+    const response = await apiClient.get<EventStatisticsDto>(`/events/${eventId}/statistics`, { signal });
     return response.data;
 };
 

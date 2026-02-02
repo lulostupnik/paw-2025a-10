@@ -81,7 +81,7 @@ public class EventServiceImplTest {
     private static final int STATISTICS_ATTENDED_EVENTS_COUNT = 2;
     private static final int STATISTICS_ATTENDEE_COUNTRY_COUNT = 2;
     private static final String STATISTICS_ATTENDEE_COUNTRY = "cuntry";
-    private static final EventWithStatistics EVENT_WITH_STATISTICS = new EventWithStatistics(EVENT, STATISTICS_CREATED_EVENTS_COUNT, STATISTICS_ATTENDED_EVENTS_COUNT, STATISTICS_ATTENDEE_COUNTRY, STATISTICS_ATTENDEE_COUNTRY_COUNT, true, true);
+    private static final EventWithStatistics EVENT_WITH_STATISTICS = new EventWithStatistics(EVENT, STATISTICS_CREATED_EVENTS_COUNT, STATISTICS_ATTENDED_EVENTS_COUNT, STATISTICS_ATTENDEE_COUNTRY, STATISTICS_ATTENDEE_COUNTRY_COUNT);
     private static final CountryAttendeeCount COUNTRY_ATTENDEE_COUNT = new CountryAttendeeCount(COUNTRY_NAME, STATISTICS_ATTENDEE_COUNTRY_COUNT);
     private static final double RATING_VALUE = 5.0;
 
@@ -264,12 +264,6 @@ public class EventServiceImplTest {
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-        when(
-            attendanceDao.exists(eq(USER), eq(EVENT))
-        ).thenReturn(true);
-        when(
             eventDao.countEventsCreatedByUser(eq(USER_ID))
         ).thenReturn(STATISTICS_CREATED_EVENTS_COUNT);
         when(
@@ -279,45 +273,10 @@ public class EventServiceImplTest {
             eventDao.findTopAttendeeCountry(eq(EVENT_ID))
         ).thenReturn(Optional.of(COUNTRY_ATTENDEE_COUNT));
 
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
+        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(EVENT_ID);
 
         assertNotNull(event);
         assertTrue(event.isPresent());
-        assertEquals(EVENT_WITH_STATISTICS.isCreator(), event.get().isCreator());
-        assertEquals(EVENT_WITH_STATISTICS.isAttending(), event.get().isAttending());
-        assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
-        assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
-        assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
-        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountry(), event.get().getTopAttendeeCountry());
-        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountryCount(), event.get().getTopAttendeeCountryCount());
-    }
-    @Test
-    public void testFindEventWithStatisticsNotCreated(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        when(
-            userService.findUserById(eq(USER_2_ID))
-        ).thenReturn(Optional.of(USER_2));
-        when(
-            attendanceDao.exists(eq(USER_2), eq(EVENT))
-        ).thenReturn(true);
-        when(
-            eventDao.countEventsCreatedByUser(eq(USER_ID))
-        ).thenReturn(STATISTICS_CREATED_EVENTS_COUNT);
-        when(
-            attendanceDao.countEventsAttendedByUser(eq(USER_ID))
-        ).thenReturn(STATISTICS_ATTENDED_EVENTS_COUNT);
-        when(
-            eventDao.findTopAttendeeCountry(eq(EVENT_ID))
-        ).thenReturn(Optional.of(COUNTRY_ATTENDEE_COUNT));
-
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER_2, EVENT_ID);
-
-        assertNotNull(event);
-        assertTrue(event.isPresent());
-        assertFalse(event.get().isCreator());
-        assertEquals(EVENT_WITH_STATISTICS.isAttending(), event.get().isAttending());
         assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
         assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
         assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
@@ -330,12 +289,6 @@ public class EventServiceImplTest {
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-        when(
-            attendanceDao.exists(eq(USER), eq(EVENT))
-        ).thenReturn(true);
-        when(
             eventDao.countEventsCreatedByUser(eq(USER_ID))
         ).thenReturn(STATISTICS_CREATED_EVENTS_COUNT);
         when(
@@ -345,7 +298,7 @@ public class EventServiceImplTest {
             eventDao.findTopAttendeeCountry(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
+        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(EVENT_ID);
 
         assertNotNull(event);
         assertTrue(event.isPresent());
@@ -353,41 +306,6 @@ public class EventServiceImplTest {
         assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
         assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
         assertNull(event.get().getTopAttendeeCountry());
-    }
-
-    @Test
-    public void testFindEventWithStatisticsNotAttending(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-        when(
-            attendanceDao.exists(eq(USER), eq(EVENT))
-        ).thenReturn(false);
-
-        eventService.findEventWithStatistics(USER, EVENT_ID);
-
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
-
-        assertNotNull(event);
-        assertTrue(event.isPresent());
-        assertEquals(0, event.get().getAttendedEventsCount());
-        assertEquals(0, event.get().getCreatedEventsCount());
-        assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
-        assertNull(event.get().getTopAttendeeCountry());
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testFindEventWithStatisticsUserNotFound(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.empty());
-
-        eventService.findEventWithStatistics(USER, EVENT_ID);
     }
     @Test
     public void testFindEventWithStatisticsEventNotFound(){
@@ -395,71 +313,7 @@ public class EventServiceImplTest {
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(USER, EVENT_ID);
-
-        assertNotNull(event);
-        assertFalse(event.isPresent());
-    }
-    @Test
-    public void testFindEventWithStatisticsMissingUser(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        when(
-            eventDao.countEventsCreatedByUser(eq(USER_ID))
-        ).thenReturn(STATISTICS_CREATED_EVENTS_COUNT);
-        when(
-            attendanceDao.countEventsAttendedByUser(eq(USER_ID))
-        ).thenReturn(STATISTICS_ATTENDED_EVENTS_COUNT);
-        when(
-            eventDao.findTopAttendeeCountry(eq(EVENT_ID))
-        ).thenReturn(Optional.of(COUNTRY_ATTENDEE_COUNT));
-
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(null, EVENT_ID);
-
-        assertNotNull(event);
-        assertTrue(event.isPresent());
-        assertFalse(event.get().isAttending());
-        assertFalse(event.get().isCreator());
-        assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
-        assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
-        assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
-        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountry(), event.get().getTopAttendeeCountry());
-        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountryCount(), event.get().getTopAttendeeCountryCount());
-    }
-    @Test
-    public void testFindEventWithStatisticsMissingUserNoTopCountry(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
-        when(
-            eventDao.countEventsCreatedByUser(eq(USER_ID))
-        ).thenReturn(STATISTICS_CREATED_EVENTS_COUNT);
-        when(
-            attendanceDao.countEventsAttendedByUser(eq(USER_ID))
-        ).thenReturn(STATISTICS_ATTENDED_EVENTS_COUNT);
-        when(
-            eventDao.findTopAttendeeCountry(eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(null, EVENT_ID);
-
-        assertNotNull(event);
-        assertTrue(event.isPresent());
-        assertFalse(event.get().isAttending());
-        assertFalse(event.get().isCreator());
-        assertEquals(EVENT_WITH_STATISTICS.getAttendedEventsCount(), event.get().getAttendedEventsCount());
-        assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
-        assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
-        assertNull(event.get().getTopAttendeeCountry());
-    }
-    @Test
-    public void testFindEventWithStatisticsMissingUserNoEvent(){
-        when(
-            eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-
-        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(null, EVENT_ID);
+        Optional<EventWithStatistics> event = eventService.findEventWithStatistics(EVENT_ID);
 
         assertNotNull(event);
         assertFalse(event.isPresent());

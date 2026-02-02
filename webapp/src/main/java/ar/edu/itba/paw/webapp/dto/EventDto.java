@@ -36,6 +36,7 @@ public class EventDto {
     private URI responsesUrl;
     private URI attendancesUrl; // TODO: revisar
     private URI ratingsUrl;
+    private URI statisticsUrl;
 
     public static EventDto fromEvent(final UriInfo uriInfo, final Event event) {
         final EventDto dto = new EventDto();
@@ -58,6 +59,7 @@ public class EventDto {
         dto.responsesUrl = UriUtils.getEventResponsesUri(uriInfo, event.getId());
         dto.attendancesUrl = UriUtils.getEventAttendancesUri(uriInfo, event.getId());
         dto.ratingsUrl = UriUtils.getEventRatingsUri(uriInfo, event.getId());
+        dto.statisticsUrl = UriUtils.getEventStatisticsUri(uriInfo, event.getId());
 
         return dto;
     }
@@ -84,4 +86,5 @@ public class EventDto {
     public URI getResponsesUrl() { return responsesUrl; }
     public URI getAttendancesUrl() { return attendancesUrl; }
     public URI getRatingsUrl() { return ratingsUrl; }
+    public URI getStatisticsUrl() { return statisticsUrl; }
 }

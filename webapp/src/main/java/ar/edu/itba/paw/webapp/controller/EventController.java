@@ -12,6 +12,7 @@ import ar.edu.itba.paw.webapp.auth.AuthUtils;
 import ar.edu.itba.paw.webapp.dto.EventAttendanceDto;
 import ar.edu.itba.paw.webapp.dto.EventDto;
 import ar.edu.itba.paw.webapp.dto.EventResponseDto;
+import ar.edu.itba.paw.webapp.dto.EventStatisticsDto;
 import ar.edu.itba.paw.webapp.dto.RatingDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.models.Image;
@@ -101,6 +102,17 @@ public class EventController {
     public Response getEventById(@Context Request req, @PathParam("id") final long id) {
         final Event event = eventService.findEventById(id).orElseThrow(() -> new EventNotFoundException(id));
         return CacheUtils.withEtag(req, event, () -> EventDto.fromEvent(uriInfo, event));
+    }
+
+    // ==================== EVENT STATISTICS ====================
+
+    @GET
+    @Path("/{eventId}/statistics")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEventStatistics(@PathParam("eventId") final long eventId) {
+        final EventWithStatistics statistics = eventService.findEventWithStatistics(eventId)
+                .orElseThrow(() -> new EventNotFoundException(eventId));
+        return Response.ok(EventStatisticsDto.fromEventWithStatistics(uriInfo, statistics)).build();
     }
 
     @POST
