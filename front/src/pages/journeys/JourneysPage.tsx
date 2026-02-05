@@ -14,8 +14,17 @@ import { useJourneys } from "@/hooks/useJourneys";
 import { useUrlSyncedListingFilters, type ListingFiltersState } from "@/hooks/useListingFilters";
 import { isLoggedIn } from "@/lib/auth/auth";
 import Pagination from "@/components/listing/Pagination";
+import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 
 const DEFAULT_SORT = "journey-start-asc";
+
+const parseIdFromUrl = (url?: string | null) => {
+    if (!url) {
+        return null;
+    }
+    const match = url.match(/\/(\d+)(?:\/)?$/);
+    return match ? Number(match[1]) : null;
+};
 
 export default function JourneysListPage() {
     const { t } = useI18n();
@@ -23,6 +32,9 @@ export default function JourneysListPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const gate = useAuthGate();
     const logged = isLoggedIn();
+    const { data: profile } = useProfileDetail({ profileId: "me", enabled: logged });
+    const journeyId = parseIdFromUrl(profile?.links?.journeyUrl);
+    const hasJourney = Boolean(journeyId);
     const initialSearch = searchParams.get("search") ?? "";
     const initialTabParam = searchParams.get("tab") ?? "all";
     const initialTab = logged || initialTabParam !== "myDestination" ? initialTabParam : "all";
@@ -136,7 +148,7 @@ export default function JourneysListPage() {
     });
 
     const handleCreate = () => {
-        gate.runOrPrompt(() => nav("/journeys/create"));
+        gate.runOrPrompt(() => nav(journeyId ? `/journeys/${journeyId}` : "/journeys/create"));
     };
 
     const handleApplyFilters = useCallback(
@@ -229,7 +241,7 @@ export default function JourneysListPage() {
                     activeTab={activeTab}
                     onTabChange={handleTabChange}
                     toolbarButtons={toolbarButtons}
-                    createLabel={t("journeys.create")}
+                    createLabel={hasJourney ? t("journey.view.my") : t("journeys.create")}
                     onCreate={handleCreate}
                 >
                     {loading && <ListingSkeletonGrid count={12} />}
@@ -245,7 +257,7 @@ export default function JourneysListPage() {
                             action={
                                 <div className="listing-cta__actions">
                                     <Button type="button" variant="primary" size="sm" onClick={handleCreate}>
-                                        {t("journey.create.button")}
+                                        {hasJourney ? t("journey.view.my") : t("journey.create.button")}
                                     </Button>
                                 </div>
                             }

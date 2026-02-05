@@ -18,13 +18,15 @@ public class InterestDto {
     private long id;
     private String name;
 
-    private URI selfUrl;
+    private Links links;
 
     public static InterestDto fromInterest(final UriInfo uriInfo, final Interest interest) {
         final InterestDto dto = new InterestDto();
         dto.id = interest.getId();
         dto.name = interest.getName();
-        dto.selfUrl = UriUtils.getInterestUri(uriInfo, interest.getId());
+        final Links links = new Links();
+        links.selfUrl = UriUtils.getInterestUri(uriInfo, interest.getId());
+        dto.links = links;
         return dto;
     }
 
@@ -34,5 +36,12 @@ public class InterestDto {
 
     public long getId() { return id; }
     public String getName() { return name; }
-    public URI getSelfUrl() { return selfUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+    }
 }

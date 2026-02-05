@@ -19,16 +19,17 @@ public class UniversityDto {
     private String name;
     private String abbreviation;
 
-    private URI selfUrl;
-    private URI cityUrl;
+    private Links links;
 
     public static UniversityDto fromUniversity(final UriInfo uriInfo, final University university) {
         final UniversityDto dto = new UniversityDto();
         dto.id = university.getId();
         dto.name = university.getName();
         dto.abbreviation = university.getAbbreviation();
-        dto.selfUrl = UriUtils.getUniversityUri(uriInfo, university.getId());
-        dto.cityUrl = UriUtils.getCityUri(uriInfo, university.getCity().getId());
+        final Links links = new Links();
+        links.selfUrl = UriUtils.getUniversityUri(uriInfo, university.getId());
+        links.cityUrl = UriUtils.getCityUri(uriInfo, university.getCity().getId());
+        dto.links = links;
         return dto;
     }
 
@@ -40,6 +41,14 @@ public class UniversityDto {
     public long getId() { return id; }
     public String getName() { return name; }
     public String getAbbreviation() { return abbreviation; }
-    public URI getSelfUrl() { return selfUrl; }
-    public URI getCityUrl() { return cityUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+        private URI cityUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+        public URI getCityUrl() { return cityUrl; }
+    }
 }

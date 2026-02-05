@@ -20,8 +20,7 @@ public class EventStatisticsDto {
     private int topCountryCount;
     private int totalParticipants;
     private int maxParticipants;
-    private URI selfUrl;
-    private URI eventUrl;
+    private Links links;
 
     public static EventStatisticsDto fromEventWithStatistics(final UriInfo uriInfo, final EventWithStatistics statistics) {
         final EventStatisticsDto dto = new EventStatisticsDto();
@@ -43,8 +42,10 @@ public class EventStatisticsDto {
         dto.totalParticipants = event.getAttendeesCount();
         final Integer limit = event.getAttendeesLimit();
         dto.maxParticipants = (limit == null || limit <= 0) ? 0 : limit;
-        dto.selfUrl = UriUtils.getEventStatisticsUri(uriInfo, event.getId());
-        dto.eventUrl = UriUtils.getEventUri(uriInfo, event.getId());
+        final Links links = new Links();
+        links.selfUrl = UriUtils.getEventStatisticsUri(uriInfo, event.getId());
+        links.eventUrl = UriUtils.getEventUri(uriInfo, event.getId());
+        dto.links = links;
 
         return dto;
     }
@@ -55,6 +56,14 @@ public class EventStatisticsDto {
     public int getTopCountryCount() { return topCountryCount; }
     public int getTotalParticipants() { return totalParticipants; }
     public int getMaxParticipants() { return maxParticipants; }
-    public URI getSelfUrl() { return selfUrl; }
-    public URI getEventUrl() { return eventUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+        private URI eventUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+        public URI getEventUrl() { return eventUrl; }
+    }
 }

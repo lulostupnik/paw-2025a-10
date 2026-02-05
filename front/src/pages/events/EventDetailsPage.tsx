@@ -72,7 +72,9 @@ interface EventResponseApi {
     id: number;
     message: string;
     dateTime: string;
-    authorUrl?: string | null;
+    links?: {
+        authorUrl?: string | null;
+    } | null;
 }
 
 interface EventAttendeeApi {
@@ -81,7 +83,9 @@ interface EventAttendeeApi {
     firstname?: string | null;
     lastname?: string | null;
     email?: string | null;
-    profilePictureUrl?: string | null;
+    links?: {
+        profilePictureUrl?: string | null;
+    } | null;
 }
 
 const mapEventAttendeesPage = (page: PageResult<EventAttendeeApi>) => {
@@ -90,14 +94,14 @@ const mapEventAttendeesPage = (page: PageResult<EventAttendeeApi>) => {
         firstname: attendee.firstname ?? attendee.username ?? "—",
         lastname: attendee.lastname ?? "",
         email: attendee.email ?? "",
-        profilePictureUrl: attendee.profilePictureUrl ?? null,
+        profilePictureUrl: attendee.links?.profilePictureUrl ?? null,
     }));
     return mapPageList(page, mapped);
 };
 
 const mapEventResponsesPage = async (page: PageResult<EventResponseApi>, signal?: AbortSignal) => {
     const users = await Promise.all(
-        page.content.map((response) => (response.authorUrl ? getUserByUrl(response.authorUrl, signal) : Promise.resolve(null)))
+        page.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal) : Promise.resolve(null)))
     );
     const mapped = page.content.map((response, index) => ({
         id: response.id,

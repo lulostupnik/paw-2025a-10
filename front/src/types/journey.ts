@@ -4,16 +4,20 @@ export interface ProfileJourney {
     deleted?: boolean;
 }
 
-export interface JourneySummary {
-    id: number;
-    description: string;
-    startDate: string;
-    endDate: string;
+export interface JourneyLinks {
     selfUrl?: string | null;
     userUrl?: string | null;
     destinationUniversityUrl?: string | null;
     tipsUrl?: string | null;
     responsesUrl?: string | null;
+}
+
+export interface JourneySummary {
+    id: number;
+    description: string;
+    startDate: string;
+    endDate: string;
+    links?: JourneyLinks | null;
     city?: string;
     country?: string;
     university?: string;
@@ -62,11 +66,7 @@ export interface JourneyDetail {
     description: string;
     startDate: string;
     endDate: string;
-    selfUrl?: string | null;
-    userUrl?: string | null;
-    destinationUniversityUrl?: string | null;
-    tipsUrl?: string | null;
-    responsesUrl?: string | null;
+    links?: JourneyLinks | null;
     destinationUniversity?: {
         name?: string;
         city?: string;

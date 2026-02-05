@@ -74,6 +74,8 @@ export interface EventStatistics {
     topCountryCount: number;
     totalParticipants: number;
     maxParticipants: number;
-    selfUrl?: string;
-    eventUrl?: string;
+    links?: {
+        selfUrl?: string;
+        eventUrl?: string;
+    } | null;
 }

@@ -29,14 +29,7 @@ public class EventDto {
     private boolean isFull;
     private boolean isFuture;
 
-    private URI selfUrl;
-    private URI creatorUrl;
-    private URI cityUrl;
-    private URI flyerUrl;
-    private URI responsesUrl;
-    private URI attendancesUrl; // TODO: revisar
-    private URI ratingsUrl;
-    private URI statisticsUrl;
+    private Links links;
 
     public static EventDto fromEvent(final UriInfo uriInfo, final Event event) {
         final EventDto dto = new EventDto();
@@ -52,14 +45,16 @@ public class EventDto {
         dto.isFull = event.getFull();
         dto.isFuture = event.getIsFuture();
 
-        dto.selfUrl = UriUtils.getEventUri(uriInfo, event.getId());
-        dto.creatorUrl = UriUtils.getUserUri(uriInfo, event.getUser().getId());
-        dto.cityUrl = UriUtils.getCityUri(uriInfo, event.getCity().getId());
-        dto.flyerUrl = event.getFlyerImageId() != null ? UriUtils.getEventFlyerUri(uriInfo, event.getId()) : null;
-        dto.responsesUrl = UriUtils.getEventResponsesUri(uriInfo, event.getId());
-        dto.attendancesUrl = UriUtils.getEventAttendancesUri(uriInfo, event.getId());
-        dto.ratingsUrl = UriUtils.getEventRatingsUri(uriInfo, event.getId());
-        dto.statisticsUrl = UriUtils.getEventStatisticsUri(uriInfo, event.getId());
+        final Links links = new Links();
+        links.selfUrl = UriUtils.getEventUri(uriInfo, event.getId());
+        links.creatorUrl = UriUtils.getUserUri(uriInfo, event.getUser().getId());
+        links.cityUrl = UriUtils.getCityUri(uriInfo, event.getCity().getId());
+        links.flyerUrl = event.getFlyerImageId() != null ? UriUtils.getEventFlyerUri(uriInfo, event.getId()) : null;
+        links.responsesUrl = UriUtils.getEventResponsesUri(uriInfo, event.getId());
+        links.attendancesUrl = UriUtils.getEventAttendancesUri(uriInfo, event.getId());
+        links.ratingsUrl = UriUtils.getEventRatingsUri(uriInfo, event.getId());
+        links.statisticsUrl = UriUtils.getEventStatisticsUri(uriInfo, event.getId());
+        dto.links = links;
 
         return dto;
     }
@@ -79,12 +74,26 @@ public class EventDto {
     public Double getRating() { return rating; }
     public boolean isFull() { return isFull; }
     public boolean isFuture() { return isFuture; }
-    public URI getSelfUrl() { return selfUrl; }
-    public URI getCreatorUrl() { return creatorUrl; }
-    public URI getCityUrl() { return cityUrl; }
-    public URI getFlyerUrl() { return flyerUrl; }
-    public URI getResponsesUrl() { return responsesUrl; }
-    public URI getAttendancesUrl() { return attendancesUrl; }
-    public URI getRatingsUrl() { return ratingsUrl; }
-    public URI getStatisticsUrl() { return statisticsUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+        private URI creatorUrl;
+        private URI cityUrl;
+        private URI flyerUrl;
+        private URI responsesUrl;
+        private URI attendancesUrl; // TODO: revisar
+        private URI ratingsUrl;
+        private URI statisticsUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+        public URI getCreatorUrl() { return creatorUrl; }
+        public URI getCityUrl() { return cityUrl; }
+        public URI getFlyerUrl() { return flyerUrl; }
+        public URI getResponsesUrl() { return responsesUrl; }
+        public URI getAttendancesUrl() { return attendancesUrl; }
+        public URI getRatingsUrl() { return ratingsUrl; }
+        public URI getStatisticsUrl() { return statisticsUrl; }
+    }
 }

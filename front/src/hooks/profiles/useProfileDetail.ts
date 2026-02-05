@@ -12,10 +12,11 @@ interface UseProfileDetailResult {
     refetch: () => void;
 }
 
-type ProfileDetailParams = { profileId?: string } | string | undefined;
+type ProfileDetailParams = { profileId?: string; enabled?: boolean } | string | undefined;
 
 export const useProfileDetail = (params?: ProfileDetailParams): UseProfileDetailResult => {
     const profileId = typeof params === "string" ? params : params?.profileId;
+    const enabled = typeof params === "string" ? true : params?.enabled ?? true;
 
     const query = useQuery({
         queryKey: ["profileDetail", profileId],
@@ -32,7 +33,7 @@ export const useProfileDetail = (params?: ProfileDetailParams): UseProfileDetail
             return buildProfileDetail(user);
         },
         placeholderData: keepPreviousData,
-        enabled: true,
+        enabled,
     });
 
     const status = (query.error as { response?: { status?: number } } | undefined)?.response?.status;

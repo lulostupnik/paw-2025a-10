@@ -23,13 +23,7 @@ public class ReportDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private URI selfUrl;
-    private URI reportedUserUrl;
-    private URI reportingUserUrl;
-    private URI journeyUrl;
-    private URI eventUrl;
-    private URI journeyResponseUrl;
-    private URI eventResponseUrl;
+    private Links links;
 
     public static ReportDto fromReport(final UriInfo uriInfo, final Report report) {
         final ReportDto dto = new ReportDto();
@@ -40,27 +34,29 @@ public class ReportDto {
         dto.createdAt = report.getCreatedAt();
         dto.updatedAt = report.getUpdatedAt();
 
-        dto.selfUrl = UriUtils.getReportUri(uriInfo, report.getId());
-        dto.reportedUserUrl = UriUtils.getUserUri(uriInfo, report.getReportedUser().getId());
-        dto.reportingUserUrl = UriUtils.getUserUri(uriInfo, report.getReportingUser().getId());
+        final Links links = new Links();
+        links.selfUrl = UriUtils.getReportUri(uriInfo, report.getId());
+        links.reportedUserUrl = UriUtils.getUserUri(uriInfo, report.getReportedUser().getId());
+        links.reportingUserUrl = UriUtils.getUserUri(uriInfo, report.getReportingUser().getId());
 
         // TODO: revisar. ¿No deberían ser else if en realidad?
         if (report.getJourney() != null) {
-            dto.journeyUrl = UriUtils.getJourneyUri(uriInfo, report.getJourney().getId());
+            links.journeyUrl = UriUtils.getJourneyUri(uriInfo, report.getJourney().getId());
         }
         if (report.getEvent() != null) {
-            dto.eventUrl = UriUtils.getEventUri(uriInfo, report.getEvent().getId());
+            links.eventUrl = UriUtils.getEventUri(uriInfo, report.getEvent().getId());
         }
         if (report.getJourneyResponse() != null) {
-            dto.journeyResponseUrl = UriUtils.getJourneyResponseUri(uriInfo,
+            links.journeyResponseUrl = UriUtils.getJourneyResponseUri(uriInfo,
                     report.getJourneyResponse().getJourney().getId(),
                     report.getJourneyResponse().getId());
         }
         if (report.getEventResponse() != null) {
-            dto.eventResponseUrl = UriUtils.getEventResponseUri(uriInfo,
+            links.eventResponseUrl = UriUtils.getEventResponseUri(uriInfo,
                     report.getEventResponse().getEvent().getId(),
                     report.getEventResponse().getId());
         }
+        dto.links = links;
 
         return dto;
     }
@@ -75,11 +71,24 @@ public class ReportDto {
     public String getStatus() { return status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public URI getSelfUrl() { return selfUrl; }
-    public URI getReportedUserUrl() { return reportedUserUrl; }
-    public URI getReportingUserUrl() { return reportingUserUrl; }
-    public URI getJourneyUrl() { return journeyUrl; }
-    public URI getEventUrl() { return eventUrl; }
-    public URI getJourneyResponseUrl() { return journeyResponseUrl; }
-    public URI getEventResponseUrl() { return eventResponseUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+        private URI reportedUserUrl;
+        private URI reportingUserUrl;
+        private URI journeyUrl;
+        private URI eventUrl;
+        private URI journeyResponseUrl;
+        private URI eventResponseUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+        public URI getReportedUserUrl() { return reportedUserUrl; }
+        public URI getReportingUserUrl() { return reportingUserUrl; }
+        public URI getJourneyUrl() { return journeyUrl; }
+        public URI getEventUrl() { return eventUrl; }
+        public URI getJourneyResponseUrl() { return journeyResponseUrl; }
+        public URI getEventResponseUrl() { return eventResponseUrl; }
+    }
 }

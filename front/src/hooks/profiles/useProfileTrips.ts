@@ -41,7 +41,7 @@ export const useProfileTrips = (profileId: string, params: ProfileTripsParams = 
                 resolvedId = userId.toString();
             }
             const user = await getProfileDetail(resolvedId, signal);
-            const journeyId = parseIdFromUrl(user.journeyUrl);
+            const journeyId = parseIdFromUrl(user.links?.journeyUrl);
             if (!journeyId) {
                 return undefined;
             }

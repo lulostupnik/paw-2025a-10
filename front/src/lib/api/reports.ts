@@ -35,13 +35,15 @@ export interface ReportDto {
     status: ReportStatus;
     createdAt?: string | null;
     updatedAt?: string | null;
-    selfUrl?: string | null;
-    reportedUserUrl?: string | null;
-    reportingUserUrl?: string | null;
-    journeyUrl?: string | null;
-    eventUrl?: string | null;
-    journeyResponseUrl?: string | null;
-    eventResponseUrl?: string | null;
+    links?: {
+        selfUrl?: string | null;
+        reportedUserUrl?: string | null;
+        reportingUserUrl?: string | null;
+        journeyUrl?: string | null;
+        eventUrl?: string | null;
+        journeyResponseUrl?: string | null;
+        eventResponseUrl?: string | null;
+    } | null;
 }
 
 interface UserDto {
@@ -50,23 +52,31 @@ interface UserDto {
     email?: string | null;
     isActive?: boolean | null;
     active?: boolean | null;
-    selfUrl?: string | null;
     firstname: string;
     lastname: string;
+    links?: {
+        selfUrl?: string | null;
+    } | null;
 }
 
 interface JourneyResponseDto {
     id: number;
     message: string;
     dateTime?: string | null;
-    journeyUrl?: string | null;
+    links?: {
+        journeyUrl?: string | null;
+        selfUrl?: string | null;
+    } | null;
 }
 
 interface EventResponseDto {
     id: number;
     message: string;
     dateTime?: string | null;
-    eventUrl?: string | null;
+    links?: {
+        eventUrl?: string | null;
+        selfUrl?: string | null;
+    } | null;
 }
 
 export interface ReportUser {
@@ -165,16 +175,16 @@ const mapUser = (user: UserDto | null): ReportUser => ({
 });
 
 const resolveContentType = (report: ReportDto): ReportListItem["contentType"] => {
-    if (report.journeyUrl) {
+    if (report.links?.journeyUrl) {
         return "journey";
     }
-    if (report.eventUrl) {
+    if (report.links?.eventUrl) {
         return "event";
     }
-    if (report.journeyResponseUrl) {
+    if (report.links?.journeyResponseUrl) {
         return "journeyResponse";
     }
-    if (report.eventResponseUrl) {
+    if (report.links?.eventResponseUrl) {
         return "eventResponse";
     }
     return "unknown";
@@ -201,8 +211,8 @@ export const deleteReport = async (id: number, signal?: AbortSignal) => {
 
 export const resolveReportListItem = async (report: ReportDto, signal?: AbortSignal): Promise<ReportListItem> => {
     const [reportedUser, reportingUser] = await Promise.all([
-        fetchByUrl<UserDto>(report.reportedUserUrl, signal),
-        fetchByUrl<UserDto>(report.reportingUserUrl, signal),
+        fetchByUrl<UserDto>(report.links?.reportedUserUrl, signal),
+        fetchByUrl<UserDto>(report.links?.reportingUserUrl, signal),
     ]);
 
     return {
@@ -220,29 +230,33 @@ export const resolveReportListItem = async (report: ReportDto, signal?: AbortSig
 export const getReportDetail = async (id: number, signal?: AbortSignal): Promise<ReportDetail> => {
     const report = await getReportById(id, signal);
     const [reportedUser, reportingUser] = await Promise.all([
-        fetchByUrl<UserDto>(report.reportedUserUrl, signal),
-        fetchByUrl<UserDto>(report.reportingUserUrl, signal),
+        fetchByUrl<UserDto>(report.links?.reportedUserUrl, signal),
+        fetchByUrl<UserDto>(report.links?.reportingUserUrl, signal),
     ]);
 
-    const journeyId = parseIdFromUrl(report.journeyUrl);
-    const eventId = parseIdFromUrl(report.eventUrl);
+    const journeyId = parseIdFromUrl(report.links?.journeyUrl);
+    const eventId = parseIdFromUrl(report.links?.eventUrl);
 
     const [journeyData, eventData, journeyResponseData, eventResponseData] = await Promise.all([
-        journeyId ? getJourneyById(journeyId, signal) : report.journeyUrl ? fetchByUrl<JourneySummary>(report.journeyUrl, signal) : null,
-        eventId ? getEventById(eventId, signal) : report.eventUrl ? fetchByUrl<EventDto>(report.eventUrl, signal) : null,
-        fetchByUrl<JourneyResponseDto>(report.journeyResponseUrl, signal),
-        fetchByUrl<EventResponseDto>(report.eventResponseUrl, signal),
+        journeyId
+            ? getJourneyById(journeyId, signal)
+            : report.links?.journeyUrl
+              ? fetchByUrl<JourneySummary>(report.links.journeyUrl, signal)
+              : null,
+        eventId ? getEventById(eventId, signal) : report.links?.eventUrl ? fetchByUrl<EventDto>(report.links.eventUrl, signal) : null,
+        fetchByUrl<JourneyResponseDto>(report.links?.journeyResponseUrl, signal),
+        fetchByUrl<EventResponseDto>(report.links?.eventResponseUrl, signal),
     ]);
 
-    const journeyResponseJourney = journeyResponseData?.journeyUrl
-        ? await fetchByUrl<JourneySummary>(journeyResponseData.journeyUrl, signal)
+    const journeyResponseJourney = journeyResponseData?.links?.journeyUrl
+        ? await fetchByUrl<JourneySummary>(journeyResponseData.links.journeyUrl, signal)
         : null;
-    const journeyResponseOwner = journeyResponseJourney?.userUrl
-        ? await fetchByUrl<UserDto>(journeyResponseJourney.userUrl, signal)
+    const journeyResponseOwner = journeyResponseJourney?.links?.userUrl
+        ? await fetchByUrl<UserDto>(journeyResponseJourney.links.userUrl, signal)
         : null;
 
-    const eventResponseEvent = eventResponseData?.eventUrl
-        ? await fetchByUrl<EventDto>(eventResponseData.eventUrl, signal)
+    const eventResponseEvent = eventResponseData?.links?.eventUrl
+        ? await fetchByUrl<EventDto>(eventResponseData.links.eventUrl, signal)
         : null;
 
     return {
@@ -278,7 +292,7 @@ export const getReportDetail = async (id: number, signal?: AbortSignal): Promise
                   dateTime: journeyResponseData.dateTime ?? null,
                   deleted: false,
                   journey: {
-                      id: parseIdFromUrl(journeyResponseData.journeyUrl) ?? 0,
+                      id: parseIdFromUrl(journeyResponseData.links?.journeyUrl) ?? 0,
                       user: { username: journeyResponseOwner?.username ?? "—" },
                   },
               }
@@ -290,7 +304,7 @@ export const getReportDetail = async (id: number, signal?: AbortSignal): Promise
                   dateTime: eventResponseData.dateTime ?? null,
                   deleted: false,
                   event: {
-                      id: parseIdFromUrl(eventResponseData.eventUrl) ?? 0,
+                      id: parseIdFromUrl(eventResponseData.links?.eventUrl) ?? 0,
                       title: eventResponseEvent?.title ?? "—",
                   },
               }

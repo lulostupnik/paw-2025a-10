@@ -21,8 +21,7 @@ public class TipDto {
     private String content;
     private LocalDateTime dateTime;
 
-    private URI selfUrl;
-    private URI journeyUrl;
+    private Links links;
 
     public static TipDto fromTip(final UriInfo uriInfo, final Tip tip) {
         final TipDto dto = new TipDto();
@@ -31,8 +30,10 @@ public class TipDto {
         dto.content = tip.getContent();
         dto.dateTime = tip.getDateTime();
 
-        dto.journeyUrl = UriUtils.getJourneyUri(uriInfo, tip.getJourney().getId());
-        dto.selfUrl = UriUtils.getJourneyTipUri(uriInfo, tip.getJourney().getId(), tip.getId());
+        final Links links = new Links();
+        links.journeyUrl = UriUtils.getJourneyUri(uriInfo, tip.getJourney().getId());
+        links.selfUrl = UriUtils.getJourneyTipUri(uriInfo, tip.getJourney().getId(), tip.getId());
+        dto.links = links;
 
         return dto;
     }
@@ -45,6 +46,14 @@ public class TipDto {
     public String getTitle() { return title; }
     public String getContent() { return content; }
     public LocalDateTime getDateTime() { return dateTime; }
-    public URI getSelfUrl() { return selfUrl; }
-    public URI getJourneyUrl() { return journeyUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+        private URI journeyUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+        public URI getJourneyUrl() { return journeyUrl; }
+    }
 }

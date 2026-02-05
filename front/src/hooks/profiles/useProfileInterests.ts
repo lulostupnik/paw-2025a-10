@@ -13,10 +13,10 @@ interface UseProfileInterestResult {
     refetch: () => void;
 }
 
-type ProfileInterestParams = { profileId: string, page: number, size: number, url?: string }
+type ProfileInterestParams = { profileId: string, page: number, size: number, url?: string, enabled?: boolean }
 
 export const useProfileInterests = (params?: ProfileInterestParams): UseProfileInterestResult => {
-    
+    const enabled = params?.enabled ?? true;
     const query = useQuery({
         queryKey: ["profileInterests", params],
         queryFn: async ({ signal }) => {
@@ -31,7 +31,8 @@ export const useProfileInterests = (params?: ProfileInterestParams): UseProfileI
             const interests = await getUserInterests(resolvedId, params, signal);
             return interests;
         },
-        placeholderData: keepPreviousData
+        placeholderData: keepPreviousData,
+        enabled,
     });
 
     const status = (query.error as { response?: { status?: number } } | undefined)?.response?.status;

@@ -18,13 +18,15 @@ public class CareerDto {
     private long id;
     private String name;
 
-    private URI selfUrl;
+    private Links links;
 
     public static CareerDto fromCareer(final UriInfo uriInfo, final Career career) {
         final CareerDto dto = new CareerDto();
         dto.id = career.getId();
         dto.name = career.getName();
-        dto.selfUrl = UriUtils.getCareerUri(uriInfo, career.getId());
+        final Links links = new Links();
+        links.selfUrl = UriUtils.getCareerUri(uriInfo, career.getId());
+        dto.links = links;
         return dto;
     }
 
@@ -34,5 +36,12 @@ public class CareerDto {
 
     public long getId() { return id; }
     public String getName() { return name; }
-    public URI getSelfUrl() { return selfUrl; }
+    public Links getLinks() { return links; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+    }
 }

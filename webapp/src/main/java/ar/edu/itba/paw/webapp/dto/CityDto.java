@@ -19,7 +19,7 @@ public class CityDto {
     private String name;
     private String country; // TODO: revisar ¿esto o la URI?
 
-    private URI selfUrl;
+    private Links links;
     // private URI countryUrl;
 
     public static CityDto fromCity(final UriInfo uriInfo, final City city) {
@@ -27,7 +27,9 @@ public class CityDto {
         dto.id = city.getId();
         dto.name = city.getName();
         dto.country = city.getCountry().getName();
-        dto.selfUrl = UriUtils.getCityUri(uriInfo, city.getId());
+        final Links links = new Links();
+        links.selfUrl = UriUtils.getCityUri(uriInfo, city.getId());
+        dto.links = links;
         // dto.countryUrl = UriUtils.getCountryUri(uriInfo, city.getCountry().getId());
         return dto;
     }
@@ -39,6 +41,13 @@ public class CityDto {
 
     public long getId() { return id; }
     public String getName() { return name; }
-    public URI getSelfUrl() { return selfUrl; }
+    public Links getLinks() { return links; }
     // public URI getCountryUrl() { return countryUrl; }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Links {
+        private URI selfUrl;
+
+        public URI getSelfUrl() { return selfUrl; }
+    }
 }

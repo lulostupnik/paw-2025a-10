@@ -3,6 +3,17 @@ import { getCityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment, EventDetail, EventRating, ProfileEvent } from "@/types/event";
 import { toPaged, type PageResult } from "@/types/pagination";
 
+interface EventLinks {
+    selfUrl?: string | null;
+    creatorUrl?: string | null;
+    cityUrl?: string | null;
+    flyerUrl?: string | null;
+    responsesUrl?: string | null;
+    attendancesUrl?: string | null;
+    ratingsUrl?: string | null;
+    statisticsUrl?: string | null;
+}
+
 
 export interface EventDto {
     id: number;
@@ -16,14 +27,7 @@ export interface EventDto {
     rating?: number | null;
     isFull?: boolean;
     isFuture?: boolean;
-    selfUrl?: string;
-    creatorUrl?: string;
-    cityUrl?: string;
-    flyerUrl?: string;
-    responsesUrl?: string;
-    attendancesUrl?: string;
-    ratingsUrl?: string;
-    statisticsUrl?: string;
+    links?: EventLinks | null;
 }
 
 export interface EventSummary {
@@ -45,26 +49,32 @@ interface EventResponseApi {
     id: number;
     message: string;
     dateTime: string;
-    authorUrl?: string | null;
-    selfUrl?: string | null;
-    eventUrl?: string | null;
+    links?: {
+        authorUrl?: string | null;
+        selfUrl?: string | null;
+        eventUrl?: string | null;
+    } | null;
 }
 
 interface RatingApi {
     id: number;
     rating: number;
-    userUrl?: string | null;
-    selfUrl?: string | null;
-    eventUrl?: string | null;
+    links?: {
+        userUrl?: string | null;
+        selfUrl?: string | null;
+        eventUrl?: string | null;
+    } | null;
 }
 
 interface UserApi {
     id: number;
     username: string;
     email?: string | null;
-    profilePictureUrl?: string | null;
     firstname: string | null;
     lastname: string | null;
+    links?: {
+        profilePictureUrl?: string | null;
+    } | null;
 }
 
 export interface EventStatisticsDto {
@@ -74,8 +84,10 @@ export interface EventStatisticsDto {
     topCountryCount: number;
     totalParticipants: number;
     maxParticipants: number;
-    selfUrl?: string;
-    eventUrl?: string;
+    links?: {
+        selfUrl?: string;
+        eventUrl?: string;
+    } | null;
 }
 
 export interface FetchEventsParams {
@@ -152,16 +164,16 @@ export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     attendeesCount: typeof dto.attendeesCount === "number" ? dto.attendeesCount : undefined,
     isFull: dto.isFull ?? false,
     isFuture: dto.isFuture ?? false,
-    flyerUrl: dto.flyerUrl ?? undefined,
-    imageUrl: dto.flyerUrl ?? undefined,
+    flyerUrl: dto.links?.flyerUrl ?? undefined,
+    imageUrl: dto.links?.flyerUrl ?? undefined,
 });
 
 export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal): Promise<ProfileEvent[]> => {
     const results = await Promise.all(
         events.map(async (event) => {
             const [city, user] = await Promise.all([
-                getCityByUrl(event.cityUrl, signal),
-                getUserByUrl(event.creatorUrl, signal),
+                getCityByUrl(event.links?.cityUrl, signal),
+                getUserByUrl(event.links?.creatorUrl, signal),
             ]);
             return {
                 id: event.id,
@@ -171,7 +183,7 @@ export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal
                 attendeesLimit: typeof event.attendeesLimit === "number" ? event.attendeesLimit : undefined,
                 attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : undefined,
                 isFull: event.isFull ?? false,
-                flyerImageUrl: event.flyerUrl ?? undefined,
+                flyerImageUrl: event.links?.flyerUrl ?? undefined,
                 city: { name: city?.name ?? "" },
                 user: {
                     id: user?.id ?? 0,
@@ -187,8 +199,8 @@ export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal
 
 export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): Promise<EventDetail> => {
     const [creator, city, responses, attendees, ratings] = await Promise.all([
-        event.creatorUrl ? getUserByUrl(event.creatorUrl, signal) : Promise.resolve(null),
-        event.cityUrl ? getCityByUrl(event.cityUrl, signal) : Promise.resolve(null),
+        event.links?.creatorUrl ? getUserByUrl(event.links.creatorUrl, signal) : Promise.resolve(null),
+        event.links?.cityUrl ? getCityByUrl(event.links.cityUrl, signal) : Promise.resolve(null),
         listEventResponses(event.id, { page: 1, size: 10 }, signal),
         listEventAttendees(event.id, { page: 1, size: 10 }, signal),
         listEventRatings(event.id, { page: 1, size: 10 }, signal),
@@ -196,12 +208,12 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
 
     const responseUsers = await Promise.all(
         responses.content.map((response) =>
-            response.authorUrl ? getUserByUrl(normalizeApiPath(response.authorUrl), signal) : Promise.resolve(null)
+            response.links?.authorUrl ? getUserByUrl(normalizeApiPath(response.links.authorUrl), signal) : Promise.resolve(null)
         )
     );
     const ratingUsers = await Promise.all(
         ratings.content.map((rating) =>
-            rating.userUrl ? getUserByUrl(normalizeApiPath(rating.userUrl), signal) : Promise.resolve(null)
+            rating.links?.userUrl ? getUserByUrl(normalizeApiPath(rating.links.userUrl), signal) : Promise.resolve(null)
         )
     );
 
@@ -219,7 +231,7 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
         firstname: attendee.username ?? "—",
         lastname: "",
         email: attendee.email ?? "",
-        profilePictureUrl: attendee.profilePictureUrl ?? null,
+        profilePictureUrl: attendee.links?.profilePictureUrl ?? null,
     }));
 
     const ratingsList: EventRating[] = ratings.content.map((rating, index) => ({
@@ -243,7 +255,7 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
         date: event.date ?? "",
         time: event.time ?? null,
         address: event.address ?? null,
-        flyerImageUrl: event.flyerUrl ?? null,
+        flyerImageUrl: event.links?.flyerUrl ?? null,
         attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : attendeesList.length,
         attendeesLimit: event.attendeesLimit ?? null,
         isFuture: event.isFuture ?? false,
@@ -252,7 +264,7 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
             firstname: creator?.username ?? "—",
             lastname: "",
             username: creator?.username ?? "—",
-            profilePictureUrl: creator?.profilePictureUrl ?? null,
+            profilePictureUrl: creator?.links?.profilePictureUrl ?? null,
             university: null,
             career: null,
         },
