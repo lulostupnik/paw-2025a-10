@@ -55,8 +55,7 @@ public class ReportServiceImpl implements ReportService {
                 case EVENT_RESPONSE -> createReportForEventResponse(reportingUser, targetId, description, reason);
             };
         }
-        //TODO:No se que devolver
-        return null;
+        throw new UserNotFoundException(reportingUserId);
 
     }
 

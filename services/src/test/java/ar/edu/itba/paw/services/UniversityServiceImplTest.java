@@ -20,7 +20,7 @@ import ar.edu.itba.paw.interfaces.persistence.UniversityDao;
 import ar.edu.itba.paw.interfaces.services.CityService;
 import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
+import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
 import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -61,7 +61,7 @@ public class UniversityServiceImplTest {
         assertNotNull(uni);
         assertEquals(UNI_1, uni);
     }
-    @Test(expected = CityNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testCreateUniversityCityNotFound(){
         when(
             cityService.findCityByName(eq(CITY_NAME))
@@ -155,12 +155,83 @@ public class UniversityServiceImplTest {
 
         uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
     }
-    @Test(expected = CityNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testUpdateUniversityCityNotFound(){
         when(
             cityService.findCityByName(eq(CITY_NAME))
         ).thenReturn(Optional.empty());
 
         uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
+    }
+
+    @Test
+    public void testPatchUniversity(){
+        University uni = new University(ID_1, null, null, null);
+        when(
+            uniDao.findById(eq(ID_1))
+        ).thenReturn(Optional.of(uni));
+        when(
+            cityService.findCityByName(eq(CITY_NAME))
+        ).thenReturn(Optional.of(CITY));
+
+        University university = uniService.patchUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
+
+        assertNotNull(university);
+        assertEquals(ABBREVIATION, university.getAbbreviation());
+        assertEquals(CITY_NAME, university.getCity().getName());
+        assertEquals(NAME, university.getName());
+    }
+    @Test
+    public void testPatchUniversityNoPatches(){
+        University uni = new University(ID_1, NAME, ABBREVIATION, CITY);
+        when(
+            uniDao.findById(eq(ID_1))
+        ).thenReturn(Optional.of(uni));
+
+        University university = uniService.patchUniversity(ID_1, null, null, null);
+
+        assertNotNull(university);
+        assertEquals(ABBREVIATION, university.getAbbreviation());
+        assertEquals(CITY_NAME, university.getCity().getName());
+        assertEquals(NAME, university.getName());
+    }
+    @Test(expected = InvalidReferenceException.class)
+    public void testPatchUniversityMissingCity(){
+        University uni = new University(ID_1, null, null, null);
+        when(
+            uniDao.findById(eq(ID_1))
+        ).thenReturn(Optional.of(uni));
+        when(
+            cityService.findCityByName(eq(CITY_NAME))
+        ).thenReturn(Optional.empty());
+
+        uniService.patchUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
+    }
+    @Test(expected = UniversityNotFoundException.class)
+    public void testPatchUniversityMissingUni(){
+        when(
+            uniDao.findById(eq(ID_1))
+        ).thenReturn(Optional.empty());
+
+        uniService.patchUniversity(ID_1, NAME, ABBREVIATION, CITY_NAME);
+    }
+
+    @Test
+    public void testDeleteUniversity(){
+        University uni = new University(ID_1, null, null, null);
+        when(uniDao.findById(eq(ID_1))).thenReturn(Optional.of(uni));
+
+        uniService.deleteUniversity(ID_1);
+
+        assertTrue(uni.isDeleted());
+    }
+    @Test
+    public void testDeleteUniversityNotFound(){
+        University uni = new University(ID_1, null, null, null);
+        when(uniDao.findById(eq(ID_1))).thenReturn(Optional.empty());
+
+        uniService.deleteUniversity(ID_1);
+
+        assertFalse(uni.isDeleted());
     }
 }

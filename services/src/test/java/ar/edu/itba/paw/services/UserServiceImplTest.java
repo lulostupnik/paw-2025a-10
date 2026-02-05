@@ -1,7 +1,12 @@
 package ar.edu.itba.paw.services;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,9 +35,8 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
+import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
 import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
-import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 
@@ -62,6 +66,7 @@ public class UserServiceImplTest {
     private static final Interest INTEREST = new Interest(INTEREST_ID, "name");
     private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, true);
     private static final User USER_NOT_VALIDATED = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, false);
+    private static final User USER_NO_PICTURE = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, null, LOCALE, false, false);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     private static final String TOKEN_VALUE = "null";
     private static final LocalDateTime TOKEN_EXPIRATION = LocalDateTime.now();
@@ -99,9 +104,6 @@ public class UserServiceImplTest {
             careerService.findCareerByName(eq(CAREER.getName()))
         ).thenReturn(Optional.of(CAREER));
         when(
-            imageService.createImage(eq(IMAGE.getData()))
-        ).thenReturn(IMAGE.getId());
-        when(
             passwordEncoder.encode(eq(PASSWORD))
         ).thenReturn(PASSWORD);
         when(
@@ -112,7 +114,7 @@ public class UserServiceImplTest {
                 eq(LASTNAME), 
                 eq(UNIVERSITY), 
                 eq(CAREER), 
-                eq(IMAGE.getId()), 
+                eq(null), 
                 eq(PASSWORD), 
                 eq(LOCALE), 
                 any(Boolean.class)
@@ -138,7 +140,7 @@ public class UserServiceImplTest {
         assertNotNull(user);
         assertEquals(USER, user);
     }
-    @Test(expected = CareerNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testCreateUserMissingCareer(){
         when(
             universityService.findByName(eq(UNIVERSITY.getName()))
@@ -160,7 +162,7 @@ public class UserServiceImplTest {
             LOCALE
         );
     }
-    @Test(expected = UniversityNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testCreateUserMissingUniversity(){
         when(
             universityService.findByName(eq(UNIVERSITY.getName()))
@@ -205,13 +207,15 @@ public class UserServiceImplTest {
 
         assertTrue(user.isValidated());
     }
-    @Test(expected = UserValidatedException.class)
+    @Test()
     public void testVerifyUserAlreadyValidated(){
         when(
             tokenService.getByToken(eq(TOKEN_VALUE))
         ).thenReturn(Optional.of(new Token(USER, TOKEN_VALUE, TOKEN_EXPIRATION)));
 
-        userService.verifyUser(TOKEN_VALUE);
+        User user = userService.verifyUser(TOKEN_VALUE);
+
+        assertNotNull(user);
     }
     @Test(expected = InvalidTokenException.class)
     public void testVerifyUserTokenNotFound(){
@@ -302,39 +306,25 @@ public class UserServiceImplTest {
         assertTrue(exists);
     }
 
-//    @Test
-//    public void testFindUsersQuery(){
-//        when(
-//            userDao.search(eq(USERNAME), any(PageParams.class))
-//        ).thenReturn(USER_PAGE);
-//
-//        Page<User> users = userService.findUsers(USERNAME, PAGE_1_DEFAULT);
-//
-//        assertNotNull(users);
-//        assertEquals(USER_PAGE, users);
-//    }
-//    @Test
-//    public void testFindUsersEmptyQuery(){
-//        when(
-//            userDao.findAll(any(PageParams.class))
-//        ).thenReturn(USER_PAGE);
-//
-//        Page<User> users = userService.findUsers("", PAGE_1_DEFAULT);
-//
-//        assertNotNull(users);
-//        assertEquals(USER_PAGE, users);
-//    }
-//    @Test
-//    public void testFindUsersMissingQuery(){
-//        when(
-//            userDao.findAll(any(PageParams.class))
-//        ).thenReturn(USER_PAGE);
-//
-//        Page<User> users = userService.findUsers(null, PAGE_1_DEFAULT);
-//
-//        assertNotNull(users);
-//        assertEquals(USER_PAGE, users);
-//    }
+    @Test
+    public void testFindUsersQuery(){
+        when(
+            userDao.findUsers(
+                eq(USERNAME), 
+                any(PageParams.class),
+                eq(null),
+                eq(UNI_ID),
+                eq(CAREER_ID),
+                eq(INTEREST_ID),
+                eq(false)
+            )
+        ).thenReturn(USER_PAGE);
+
+        Page<User> users = userService.findUsers(USERNAME, PAGE_1_DEFAULT, null, UNI_ID, CAREER_ID, INTEREST_ID, false);
+
+        assertNotNull(users);
+        assertEquals(USER_PAGE, users);
+    }
 
     @Test
     public void testBlockUser(){
@@ -343,7 +333,7 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(newUser));
 
-        userService.blockUser(USER_ID);
+        userService.setBlockedStatus(USER_ID, true);
 
         assertTrue(newUser.isBlocked());
     }
@@ -353,7 +343,7 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        userService.blockUser(USER_ID);
+        userService.setBlockedStatus(USER_ID, true);
     }
 
     @Test
@@ -364,7 +354,7 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(newUser));
 
-        userService.unblockUser(USER_ID);
+        userService.setBlockedStatus(USER_ID, false);
 
         assertFalse(newUser.isBlocked());
     }
@@ -374,7 +364,7 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        userService.unblockUser(USER_ID);
+        userService.setBlockedStatus(USER_ID, false);
     }
 
     @Test
@@ -507,7 +497,7 @@ public class UserServiceImplTest {
         assertEquals(UNI_NAME, u.getUniversity().getName());
         assertEquals(CAREER_NAME, u.getCareer().getName());
     }
-    @Test(expected = CareerNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testUpdateUserMissingCareer(){
         User u = new User(
             USER_ID, 
@@ -541,7 +531,7 @@ public class UserServiceImplTest {
             CAREER_NAME
         );
     }
-    @Test(expected = UniversityNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testUpdateUserMissingUni(){
         User u = new User(
             USER_ID, 
@@ -589,6 +579,149 @@ public class UserServiceImplTest {
     }
 
     @Test
+    public void testPatchUser(){
+        User u = new User(
+            USER_ID, 
+            EMAIL, 
+            GARBAGE, 
+            GARBAGE, 
+            GARBAGE, 
+            null, 
+            null, 
+            IMAGE_ID, 
+            LOCALE, 
+            false, 
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            universityService.findByName(eq(UNI_NAME))
+        ).thenReturn(Optional.of(UNIVERSITY));
+        when(
+            careerService.findCareerByName(eq(CAREER_NAME))
+        ).thenReturn(Optional.of(CAREER));
+
+        userService.patchUser(
+            USER_ID, 
+            USERNAME, 
+            FIRSTNAME, 
+            LASTNAME, 
+            UNI_NAME, 
+            CAREER_NAME
+        );
+
+        assertEquals(USERNAME, u.getUsername());
+        assertEquals(FIRSTNAME, u.getFirstname());
+        assertEquals(LASTNAME, u.getLastname());
+        assertEquals(UNI_NAME, u.getUniversity().getName());
+        assertEquals(CAREER_NAME, u.getCareer().getName());
+    }
+    @Test(expected = InvalidReferenceException.class)
+    public void testPatchUserMissingCareer(){
+        User u = new User(
+            USER_ID, 
+            EMAIL, 
+            GARBAGE, 
+            GARBAGE, 
+            GARBAGE, 
+            null, 
+            null, 
+            IMAGE_ID, 
+            LOCALE, 
+            false, 
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            careerService.findCareerByName(eq(CAREER_NAME))
+        ).thenReturn(Optional.empty());
+
+        userService.patchUser(
+            USER_ID, 
+            null, 
+            null, 
+            null, 
+            null, 
+            CAREER_NAME
+        );
+    }
+    @Test(expected = InvalidReferenceException.class)
+    public void testPatchUserMissingUni(){
+        User u = new User(
+            USER_ID, 
+            EMAIL, 
+            GARBAGE, 
+            GARBAGE, 
+            GARBAGE, 
+            null, 
+            null, 
+            IMAGE_ID, 
+            LOCALE, 
+            false, 
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            universityService.findByName(eq(UNI_NAME))
+        ).thenReturn(Optional.empty());
+
+        userService.patchUser(
+            USER_ID, 
+            null, 
+            null, 
+            null, 
+            UNI_NAME, 
+            null
+        );
+    }
+    @Test
+    public void testPatchUserNoUpdates(){
+        User u = new User(
+            USER_ID, 
+            EMAIL, 
+            USERNAME, 
+            FIRSTNAME, 
+            LASTNAME, 
+            UNIVERSITY, 
+            CAREER, 
+            IMAGE_ID, 
+            LOCALE, 
+            false, 
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+
+        userService.patchUser(
+            USER_ID, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null
+        );
+
+        assertEquals(USERNAME, u.getUsername());
+        assertEquals(FIRSTNAME, u.getFirstname());
+        assertEquals(LASTNAME, u.getLastname());
+        assertEquals(UNI_NAME, u.getUniversity().getName());
+        assertEquals(CAREER_NAME, u.getCareer().getName());
+    }
+    @Test(expected = UserNotFoundException.class)
+    public void testPatchUserMissingUser(){
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.empty());
+
+        userService.patchUser(USER_ID, USERNAME, FIRSTNAME, LASTNAME, EMAIL, CAREER_NAME);
+    }
+
+    @Test
     public void testUpdateProfilePicture(){
         User u = new User(
             USER_ID, 
@@ -612,7 +745,7 @@ public class UserServiceImplTest {
 
         userService.updateProfilePicture(USER_ID, new byte[0]);
 
-        // assertEquals(NEW_IMAGE_ID, u.getProfilePictureId()); // no tengo ni idea porque dejo de funcionar esto
+        assertEquals(NEW_IMAGE_ID, u.getProfilePictureId().longValue());
     }
     @Test(expected = UserNotFoundException.class)
     public void testUpdateProfilePictureUserNotFound(){
@@ -622,4 +755,53 @@ public class UserServiceImplTest {
 
         userService.updateProfilePicture(USER_ID, new byte[0]);
     }   
+
+    @Test
+    public void testGetProfilePicture(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            imageService.findImage(eq(IMAGE_ID))
+        ).thenReturn(Optional.of(IMAGE));
+        
+        Optional<Image> maybeImage = userService.getProfilePicture(USER_ID);
+
+        assertNotNull(maybeImage);
+        assertTrue(maybeImage.isPresent());
+        assertEquals(IMAGE_ID, maybeImage.get().getId().longValue());
+    }
+    @Test
+    public void testGetProfilePictureMissingPicture(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            imageService.findImage(eq(IMAGE_ID))
+        ).thenReturn(Optional.empty());
+        
+        Optional<Image> maybeImage = userService.getProfilePicture(USER_ID);
+
+        assertNotNull(maybeImage);
+        assertTrue(maybeImage.isEmpty());
+    }
+    @Test
+    public void testGetProfilePictureNoPicture(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER_NO_PICTURE));
+        
+        Optional<Image> maybeImage = userService.getProfilePicture(USER_ID);
+
+        assertNotNull(maybeImage);
+        assertTrue(maybeImage.isEmpty());
+    }
+    @Test(expected=UserNotFoundException.class)
+    public void testGetProfilePictureMissingUser(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        userService.getProfilePicture(USER_ID);
+    }
 }

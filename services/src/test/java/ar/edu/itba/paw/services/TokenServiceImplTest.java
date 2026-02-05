@@ -65,6 +65,27 @@ public class TokenServiceImplTest {
         assertEquals(newToken, token);
     }  
     @Test
+    public void testUserControlTokenUserHasTokenWithoutExpiration(){
+        User newUser = new User(
+            TOKEN_VALUE, 
+            TOKEN_VALUE, 
+            TOKEN_VALUE, 
+            TOKEN_VALUE, 
+            null, 
+            null, 
+            TOKEN_ID, 
+            null, 
+            false
+        );
+        Token newToken = new Token(newUser, TOKEN_VALUE, null);
+        newUser.setToken(newToken);
+
+        Token token = tokenService.userTokenControl(newUser);
+
+        assertNotNull(token);
+        assertEquals(newToken, token);
+    }  
+    @Test
     public void testUserControlTokenUserHasTokenExpired(){
         User newUser = new User(
             TOKEN_VALUE, 
@@ -110,6 +131,13 @@ public class TokenServiceImplTest {
     public void testCheckTokenValidityInvalid() {
         when(tokenDao.findByToken(eq(TOKEN_VALUE)))
                 .thenReturn(Optional.empty());
+
+        tokenService.checkTokenValidity(TOKEN_VALUE);
+    }
+    @Test(expected = InvalidTokenException.class)
+    public void testCheckTokenValidityExpired() {
+        when(tokenDao.findByToken(eq(TOKEN_VALUE)))
+                .thenReturn(Optional.of(new Token(USER, TOKEN_VALUE, LocalDateTime.now().minusDays(10))));
 
         tokenService.checkTokenValidity(TOKEN_VALUE);
     }
