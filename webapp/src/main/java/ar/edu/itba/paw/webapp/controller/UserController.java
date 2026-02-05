@@ -226,7 +226,7 @@ public class UserController {
         final Optional<Double> attendedRating = us.findAverageRatingForAttendedEvents(userId);
         // TODO: Get total ratings count (might need to add to UserService)
 
-        return Response.ok(UserRatingDto.fromRatings(createdRating.orElse(null),attendedRating.orElse(null) )).build();
+        return Response.ok(UserRatingDto.fromRatings(uriInfo, userId, createdRating.orElse(null), attendedRating.orElse(null))).build();
     }
 
 
