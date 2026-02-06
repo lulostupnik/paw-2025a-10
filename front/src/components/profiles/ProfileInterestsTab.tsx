@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import Pagination from "@/components/listing/Pagination";
 import type { ProfileInterest } from "@/types/profile";
@@ -16,6 +16,8 @@ export default function ProfileInterestsTab({
     onPageChange,
 }: ProfileInterestsTabProps) {
     const { t } = useI18n();
+    const location = useLocation();
+    const returnState = { from: `${location.pathname}${location.search}` };
 
     return (
         <div className="profile-section active" id="interests-section">
@@ -45,7 +47,7 @@ export default function ProfileInterestsTab({
 
                             {isMine && (
                                 <div className="action-buttons">
-                                    <Link to="/profiles/me/interests/edit" className="btn-primary">
+                                    <Link to="/profiles/me/interests/edit" className="btn-primary" state={returnState}>
                                         {t("profile.edit.interests")}
                                     </Link>
                                 </div>
@@ -62,7 +64,7 @@ export default function ProfileInterestsTab({
 
                             {isMine && (
                                 <div className="action-buttons">
-                                    <Link to="/profiles/me/interests/edit" className="btn-primary">
+                                    <Link to="/profiles/me/interests/edit" className="btn-primary" state={returnState}>
                                         {t("profile.add.interests")}
                                     </Link>
                                 </div>

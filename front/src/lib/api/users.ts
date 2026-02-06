@@ -68,6 +68,15 @@ interface UserInterestApi {
     interestName: string;
 }
 
+interface UserRatingApi {
+    attendedEventsRating?: number | null;
+    hostedEventsRating?: number | null;
+    links?: {
+        selfUrl?: string | null;
+        userUrl?: string | null;
+    } | null;
+}
+
 export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSignal): Promise<PageResult<UserApi>> => {
     const response = await apiClient.get<UserApi[]>("/users", { params, signal });
     return toPaged(response);
@@ -132,8 +141,12 @@ export const getProfileDetail = async (id: string | number, signal?: AbortSignal
 }
 
 export const getUserRatingStats = async (userId: string | number, signal?: AbortSignal): Promise<ProfileRatingStats> => {
-    const response = await apiClient.get<ProfileRatingStats>(`/users/${userId}/rating`, { signal });
-    return response.data
+    const response = await apiClient.get<UserRatingApi>(`/users/${userId}/rating`, { signal });
+    const data = response.data ?? {};
+    return {
+        averageCreatedEventsRating: data.hostedEventsRating ?? null,
+        averageAttendedEventsRating: data.attendedEventsRating ?? null,
+    };
 }
 
 export const getUserInterests = async (userId: string | number, params: ListUserInterestParams = {}, signal?: AbortSignal): Promise<PageResult<ProfileInterest>> => {
@@ -145,6 +158,25 @@ export const getUserInterests = async (userId: string | number, params: ListUser
     }));
     return mapPageList(page, mapped);
 }
+
+export const addUserInterest = async (userId: string | number, interestId: number, signal?: AbortSignal) => {
+    await apiClient.post(`/users/${userId}/interests`, { interestId }, { signal });
+};
+
+export const removeUserInterest = async (userId: string | number, interestId: number, signal?: AbortSignal) => {
+    await apiClient.delete(`/users/${userId}/interests/${interestId}`, { signal });
+};
+
+export const listAllUserInterests = async (userId: string | number, signal?: AbortSignal) => {
+    const pageSize = 200;
+    const firstPage = await getUserInterests(userId, { page: 1, size: pageSize }, signal);
+    const all = [...firstPage.content];
+    for (let page = 2; page <= firstPage.totalPages; page += 1) {
+        const nextPage = await getUserInterests(userId, { page, size: pageSize }, signal);
+        all.push(...nextPage.content);
+    }
+    return all;
+};
 
 export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal) => {
     if (!url) {

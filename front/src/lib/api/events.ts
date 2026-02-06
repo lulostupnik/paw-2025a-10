@@ -1,7 +1,7 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { getCityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment, EventDetail, EventRating, ProfileEvent } from "@/types/event";
-import { toPaged, type PageResult } from "@/types/pagination";
+import { mapPageList, toPaged, type PageResult } from "@/types/pagination";
 
 interface EventLinks {
     selfUrl?: string | null;
@@ -51,6 +51,14 @@ interface EventResponseApi {
     dateTime: string;
     links?: {
         authorUrl?: string | null;
+        selfUrl?: string | null;
+        eventUrl?: string | null;
+    } | null;
+}
+
+interface EventAttendanceApi {
+    links?: {
+        userUrl?: string | null;
         selfUrl?: string | null;
         eventUrl?: string | null;
     } | null;
@@ -139,9 +147,25 @@ export const listEventAttendees = async (
     eventId: number,
     params: { page?: number; size?: number } = {},
     signal?: AbortSignal
-): Promise<PageResult<UserApi>> => {
-    const response = await apiClient.get<UserApi[]>(`/events/${eventId}/attendances`, { params, signal });
-    return toPaged(response);
+): Promise<PageResult<EventAttendee>> => {
+    const response = await apiClient.get<EventAttendanceApi[]>(`/events/${eventId}/attendances`, { params, signal });
+    const page = toPaged(response);
+    const users = await Promise.all(
+        page.content.map((attendance) =>
+            attendance.links?.userUrl ? getUserByUrl(attendance.links.userUrl, signal) : Promise.resolve(null)
+        )
+    );
+    const mapped = page.content.map((attendance, index) => {
+        const user = users[index];
+        return {
+            id: user?.id ?? 0,
+            firstname: user?.firstname ?? user?.username ?? "—",
+            lastname: user?.lastname ?? "",
+            email: user?.email ?? "",
+            profilePictureUrl: user?.links?.profilePictureUrl ?? null,
+        };
+    });
+    return mapPageList(page, mapped);
 };
 
 export const listEventRatings = async (
@@ -226,13 +250,7 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
         },
     }));
 
-    const attendeesList: EventAttendee[] = attendees.content.map((attendee) => ({
-        id: attendee.id,
-        firstname: attendee.username ?? "—",
-        lastname: "",
-        email: attendee.email ?? "",
-        profilePictureUrl: attendee.links?.profilePictureUrl ?? null,
-    }));
+    const attendeesList: EventAttendee[] = attendees.content;
 
     const ratingsList: EventRating[] = ratings.content.map((rating, index) => ({
         id: rating.id,
@@ -331,8 +349,13 @@ export const attendEvent = async (eventId: number, signal?: AbortSignal) => {
     return response.data;
 };
 
-export const unattendEvent = async (eventId: number, signal?: AbortSignal) => {
-    await apiClient.delete(`/events/${eventId}/attendances`, { signal });
+export const getEventAttendance = async (eventId: number, userId: number, signal?: AbortSignal) => {
+    const response = await apiClient.get(`/events/${eventId}/attendances/${userId}`, { signal });
+    return response.data;
+};
+
+export const unattendEvent = async (eventId: number, userId: number, signal?: AbortSignal) => {
+    await apiClient.delete(`/events/${eventId}/attendances/${userId}`, { signal });
 };
 
 export const updateEventFlyer = async (eventId: number, flyer: File, signal?: AbortSignal) => {

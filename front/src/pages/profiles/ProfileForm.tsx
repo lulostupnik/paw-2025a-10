@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import SingleSelectAutocomplete from "@/components/profiles/SingleSelectAutocomplete";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { listCareers } from "@/lib/api/careers";
 import { listUniversities } from "@/lib/api/universities";
 import { emptyPage } from "@/types/pagination";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface ProfileFormState {
     firstName: string;
@@ -18,6 +19,9 @@ interface ProfileFormState {
 export default function ProfileForm() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const location = useLocation();
+    const { showToast } = useToast();
+    const queryClient = useQueryClient();
     const { profileId = "me" } = useParams();
     const { data: profile, isLoading, isError } = useProfileDetail(profileId);
     const { updateProfile, isLoading: isSaving } = useProfileUpsert();
@@ -90,9 +94,11 @@ export default function ProfileForm() {
                 originUniversity: selectedUniversity?.name,
                 career: selectedCareer?.name,
             });
-            if (profile) {
-                navigate(`/profiles/${profile.id}/info`, { replace: true });
-            }
+            const returnPath = (location.state as { from?: string } | null)?.from;
+            const fallbackPath = profile ? `/profiles/${profile.id}/info` : "/profiles/me/info";
+            showToast(t("profile.toast.updated", { defaultValue: "Profile updated successfully." }), { variant: "success" });
+            queryClient.invalidateQueries({ queryKey: ["profileDetail"] });
+            navigate(returnPath ?? fallbackPath, { replace: true });
         } catch (err) {
             setSubmitError(
                 err instanceof Error

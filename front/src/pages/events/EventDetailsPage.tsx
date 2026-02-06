@@ -8,9 +8,9 @@ import Pagination from "@/components/listing/Pagination";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
-import { attendEvent, createEventRating, createEventResponse, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
+import { attendEvent, createEventRating, createEventResponse, getEventAttendance, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
 import { useAuthGate } from "@/hooks/useAuthGate";
-import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
+import { emptyPage, type PageResult } from "@/types/pagination";
 import { getUserByUrl } from "@/lib/api/journeys";
 
 const formatDate = (value: string, locale: string) => {
@@ -77,28 +77,6 @@ interface EventResponseApi {
     } | null;
 }
 
-interface EventAttendeeApi {
-    id: number;
-    username?: string | null;
-    firstname?: string | null;
-    lastname?: string | null;
-    email?: string | null;
-    links?: {
-        profilePictureUrl?: string | null;
-    } | null;
-}
-
-const mapEventAttendeesPage = (page: PageResult<EventAttendeeApi>) => {
-    const mapped = page.content.map((attendee) => ({
-        id: attendee.id,
-        firstname: attendee.firstname ?? attendee.username ?? "—",
-        lastname: attendee.lastname ?? "",
-        email: attendee.email ?? "",
-        profilePictureUrl: attendee.links?.profilePictureUrl ?? null,
-    }));
-    return mapPageList(page, mapped);
-};
-
 const mapEventResponsesPage = async (page: PageResult<EventResponseApi>, signal?: AbortSignal) => {
     const users = await Promise.all(
         page.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal) : Promise.resolve(null)))
@@ -132,6 +110,7 @@ export default function EventDetailPage() {
     const [attendSubmitting, setAttendSubmitting] = useState(false);
     const [attendError, setAttendError] = useState<string | null>(null);
     const [ratingValue, setRatingValue] = useState<number>(0);
+    const [hoverRating, setHoverRating] = useState<number | null>(null);
     const [ratingSubmitting, setRatingSubmitting] = useState(false);
     const [ratingError, setRatingError] = useState<string | null>(null);
     const [replyMessage, setReplyMessage] = useState("");
@@ -143,10 +122,27 @@ export default function EventDetailPage() {
     const username = getUsername();
     const isOwner = data?.user?.id === userId;
     const admin = isAdmin();
-    const isAttendingFromData = useMemo(
-        () => data?.attendees?.some((attendee) => attendee.id === userId) ?? false,
-        [data?.attendees, userId]
-    );
+    const attendanceQuery = useQuery({
+        queryKey: ["eventAttendance", id, userId],
+        queryFn: async ({ signal }) => {
+            if (!id || !userId) {
+                return false;
+            }
+            try {
+                await getEventAttendance(Number(id), userId, signal);
+                return true;
+            } catch (error) {
+                const status = (error as { response?: { status?: number } } | undefined)?.response?.status;
+                if (status === 404) {
+                    return false;
+                }
+                throw error;
+            }
+        },
+        enabled: Boolean(id && userId),
+        placeholderData: keepPreviousData,
+    });
+    const isAttendingFromData = attendanceQuery.data ?? false;
     const isAttending = attendingOverride ?? isAttendingFromData;
     const attendeesCount = attendeesCountOverride ?? (data?.attendeesCount ?? 0);
     const isFull = data?.attendeesLimit ? attendeesCount >= data.attendeesLimit : false;
@@ -164,7 +160,7 @@ export default function EventDetailPage() {
                 return Promise.resolve(emptyPage());
             }
             const page = await listEventAttendees(Number(id), { page: attendeesPage, size: attendeesPageSize }, signal);
-            return mapEventAttendeesPage(page as PageResult<EventAttendeeApi>);
+            return page;
         },
         enabled: Boolean(id),
         placeholderData: keepPreviousData,
@@ -204,6 +200,53 @@ export default function EventDetailPage() {
     const topCountryLabel = topCountry ? `${topCountry} (${topCountryCount})` : "—";
     const createdEventsLabel = stats ? String(toSafeNumber(stats.eventsCreatedByOrganizer)) : "—";
     const attendedEventsLabel = stats ? String(toSafeNumber(stats.eventsOrganizerAttends)) : "—";
+
+    const refreshEventViews = () => {
+        if (!id) {
+            return;
+        }
+        queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
+        queryClient.invalidateQueries({ queryKey: ["eventAttendees", id] });
+        queryClient.invalidateQueries({ queryKey: ["eventStatistics", id] });
+        queryClient.invalidateQueries({ queryKey: ["eventAttendance", id, userId] });
+    };
+
+    const resolveAttendanceError = (error: unknown, action: "attend" | "unattend") => {
+        const response = (error as { response?: { status?: number; data?: { message?: string } } } | undefined)?.response;
+        const status = response?.status;
+        const rawMessage = response?.data?.message ?? "";
+        const message = rawMessage.toLowerCase();
+
+        if (message) {
+            if (message.includes("already attending")) {
+                return t("event.attend.error.already");
+            }
+            if (message.includes("is full")) {
+                return t("event.attend.error.full");
+            }
+            if (message.includes("not in the future")) {
+                return t("event.attend.error.notFuture");
+            }
+            if (message.includes("attendance") && message.includes("not found")) {
+                return t("event.unattend.error.notAttending");
+            }
+        }
+
+        if (status === 401) {
+            return action === "attend" ? t("event.attend.error.unauthorized") : t("event.unattend.error.unauthorized");
+        }
+        if (status === 403) {
+            return action === "attend" ? t("event.attend.error.forbidden") : t("event.unattend.error.forbidden");
+        }
+        if (status === 404 && action === "unattend") {
+            return t("event.unattend.error.notAttending");
+        }
+        if (status === 409 && action === "attend") {
+            return t("event.attend.error.conflict");
+        }
+
+        return action === "attend" ? t("event.attend.error.generic") : t("event.unattend.error.generic");
+    };
 
     const parsePageFromLink = (page: number | string) => {
         if (typeof page === "string") {
@@ -269,41 +312,48 @@ export default function EventDetailPage() {
     };
 
     const handleAttend = async () => {
-        if (!id || attendSubmitting) {
-            return;
-        }
-        setAttendSubmitting(true);
-        setAttendError(null);
-        try {
-            await attendEvent(Number(id));
-            setAttendingOverride(true);
-            setAttendeesCountOverride((prev) => (prev ?? data.attendeesCount) + 1);
-            queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
-        } catch (error) {
-            console.error("Failed to attend event", error);
-            setAttendError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-        } finally {
-            setAttendSubmitting(false);
-        }
+        gate.runOrPrompt(async () => {
+            if (!id || attendSubmitting) {
+                return;
+            }
+            setAttendSubmitting(true);
+            setAttendError(null);
+            try {
+                await attendEvent(Number(id));
+                setAttendingOverride(true);
+                setAttendeesCountOverride((prev) => (prev ?? data.attendeesCount) + 1);
+                refreshEventViews();
+            } catch (error) {
+                console.error("Failed to attend event", error);
+                setAttendError(resolveAttendanceError(error, "attend"));
+            } finally {
+                setAttendSubmitting(false);
+            }
+        });
     };
 
     const handleUnattend = async () => {
-        if (!id || attendSubmitting) {
-            return;
-        }
-        setAttendSubmitting(true);
-        setAttendError(null);
-        try {
-            await unattendEvent(Number(id));
-            setAttendingOverride(false);
-            setAttendeesCountOverride((prev) => Math.max(0, (prev ?? data.attendeesCount) - 1));
-            queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
-        } catch (error) {
-            console.error("Failed to unattend event", error);
-            setAttendError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-        } finally {
-            setAttendSubmitting(false);
-        }
+        gate.runOrPrompt(async () => {
+            if (!id || attendSubmitting) {
+                return;
+            }
+            setAttendSubmitting(true);
+            setAttendError(null);
+            try {
+                if (!userId) {
+                    throw new Error("missing-user-id");
+                }
+                await unattendEvent(Number(id), userId);
+                setAttendingOverride(false);
+                setAttendeesCountOverride((prev) => Math.max(0, (prev ?? data.attendeesCount) - 1));
+                refreshEventViews();
+            } catch (error) {
+                console.error("Failed to unattend event", error);
+                setAttendError(resolveAttendanceError(error, "unattend"));
+            } finally {
+                setAttendSubmitting(false);
+            }
+        });
     };
 
     const handleRatingSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -444,7 +494,14 @@ return (
                                                                 cursor: "pointer",
                                                                 fontSize: "14px",
                                                             }}
-                                                            onClick={isAttending ? handleUnattend : handleAttend}
+                                                            onClick={() => {
+                                                                setActionMenuOpen(false);
+                                                                if (isAttending) {
+                                                                    handleUnattend();
+                                                                } else {
+                                                                    handleAttend();
+                                                                }
+                                                            }}
                                                             disabled={attendSubmitting}
                                                         >
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -470,6 +527,7 @@ return (
                                                     {isOwner && (
                                                         <Link
                                                             to={`/events/${id}/update`}
+                                                            onClick={() => setActionMenuOpen(false)}
                                                             style={{
                                                                 color: "#333",
                                                                 padding: "12px 16px",
@@ -489,7 +547,10 @@ return (
                                                     {!isOwner && (
                                                         <Link
                                                             to={`/reports/events/${id}/create`}
-                                                            onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
+                                                            onClick={() => {
+                                                                setActionMenuOpen(false);
+                                                                pushToNavigationStack(`${location.pathname}${location.search}`);
+                                                            }}
                                                             style={{
                                                                 color: "#333",
                                                                 padding: "12px 16px",
@@ -510,6 +571,7 @@ return (
                                                     {(isOwner || admin) && (
                                                         <Link
                                                             to={`/events/${id}/delete`}
+                                                            onClick={() => setActionMenuOpen(false)}
                                                             style={{
                                                                 color: "#333",
                                                                 padding: "12px 16px",
@@ -1013,17 +1075,27 @@ return (
                                                             <form className="rating-form" onSubmit={handleRatingSubmit}>
                                                                 <div className="rating-input-container">
                                                                     <label className="rating-label">{t("event.rating.yourRating")}</label>
-                                                                    <div className="star-rating-input">
+                                                                    <div
+                                                                        className="star-rating-input"
+                                                                        onMouseLeave={() => setHoverRating(null)}
+                                                                    >
                                                                         {Array.from({ length: 5 }, (_, index) => {
                                                                             const value = index + 1;
+                                                                            const isActive = (hoverRating ?? ratingValue) >= value;
                                                                             return (
-                                                                                <label key={value} className="star-label">
+                                                                                <label
+                                                                                    key={value}
+                                                                                    className={`star-label${isActive ? " active" : ""}`}
+                                                                                    onMouseEnter={() => setHoverRating(value)}
+                                                                                >
                                                                                     <input
                                                                                         type="radio"
                                                                                         name="rating"
                                                                                         value={value}
                                                                                         checked={ratingValue === value}
                                                                                         onChange={() => setRatingValue(value)}
+                                                                                        onFocus={() => setHoverRating(value)}
+                                                                                        onBlur={() => setHoverRating(null)}
                                                                                     />
                                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
                                                                                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>

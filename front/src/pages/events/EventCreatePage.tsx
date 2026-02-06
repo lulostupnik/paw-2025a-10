@@ -56,6 +56,117 @@ export default function EventCreatePage() {
     const [cityQuery, setCityQuery] = useState("");
     const [submitError, setSubmitError] = useState<string | null>(null);
 
+    const resolveSubmitError = useCallback(
+        (error: unknown) => {
+            const response = (error as { response?: { status?: number; data?: { message?: string; errors?: { field?: string; message?: string }[] } } | null })?.response;
+            const data = response?.data;
+            const firstFieldError = data?.errors?.find((item) => item?.field || item?.message);
+            if (firstFieldError) {
+                const field = firstFieldError.field ?? "";
+                const message = firstFieldError.message?.toLowerCase() ?? "";
+                if (field === "city") {
+                    if (message.includes("must not be null") || message.includes("must not be empty")) {
+                        return t("event.create.validation.city");
+                    }
+                    if (message.includes("between") || message.includes("size")) {
+                        return t("event.create.validation.cityLength");
+                    }
+                    return t("event.create.validation.cityInvalid");
+                }
+                if (field === "date") {
+                    if (message.includes("must not be null") || message.includes("must not be empty")) {
+                        return t("event.create.validation.date");
+                    }
+                    if (message.includes("future")) {
+                        return t("event.create.validation.dateFuture");
+                    }
+                    return t("event.create.validation.dateInvalid");
+                }
+                if (field === "title") {
+                    if (message.includes("must not be null") || message.includes("must not be empty")) {
+                        return t("event.create.validation.name");
+                    }
+                    if (message.includes("between") || message.includes("size")) {
+                        return t("event.create.validation.nameLength");
+                    }
+                    return t("event.create.validation.nameInvalid");
+                }
+                if (field === "description") {
+                    if (message.includes("between")) {
+                        return t("event.create.validation.descriptionLength");
+                    }
+                    if (message.includes("must not be null") || message.includes("must not be empty")) {
+                        return t("event.create.validation.description");
+                    }
+                    return t("event.create.validation.descriptionInvalid");
+                }
+                if (field === "address") {
+                    if (message.includes("between") || message.includes("size")) {
+                        return t("event.create.validation.addressLength");
+                    }
+                    return t("event.create.validation.addressInvalid");
+                }
+                if (field === "time") {
+                    return t("event.create.validation.timeInvalid");
+                }
+                if (field === "attendeesLimit") {
+                    if (message.includes("less than or equal to") || message.includes("max")) {
+                        return t("event.create.validation.limitMax");
+                    }
+                    if (message.includes("greater than or equal to") || message.includes("min")) {
+                        return t("event.create.validation.limitMin");
+                    }
+                    return t("event.create.validation.limitInvalid");
+                }
+            }
+
+            const serverMessage = data?.message;
+            if (serverMessage) {
+                const normalized = serverMessage.toLowerCase();
+                if (normalized.includes("city does not exist")) {
+                    return t("event.create.validation.cityInvalid");
+                }
+                if (normalized.includes("date must be in the future")) {
+                    return t("event.create.validation.dateFuture");
+                }
+                if (normalized.includes("invalid date format")) {
+                    return t("event.create.validation.dateInvalid");
+                }
+                if (normalized.includes("size must be between 0 and 50")) {
+                    return t("event.create.validation.nameLength");
+                }
+                if (normalized.includes("size must be between 2 and 2047")) {
+                    return t("event.create.validation.descriptionLength");
+                }
+                if (normalized.includes("size must be between 0 and 255")) {
+                    return t("event.create.validation.addressLength");
+                }
+                if (normalized.includes("size must be between 0 and 100")) {
+                    return t("event.create.validation.cityLength");
+                }
+                if (normalized.includes("must be less than or equal to 1000")) {
+                    return t("event.create.validation.limitMax");
+                }
+                if (normalized.includes("must be greater than or equal to 1")) {
+                    return t("event.create.validation.limitMin");
+                }
+                return t("event.create.error.withReason", { values: { 0: serverMessage } });
+            }
+
+            switch (response?.status) {
+                case 401:
+                    return t("event.create.error.unauthorized");
+                case 403:
+                    return t("event.create.error.forbidden");
+                case 409:
+                    return t("event.create.error.conflict");
+                default:
+                    return t("event.create.error.generic");
+            }
+        },
+        [t]
+    );
+
     const markTouched = useCallback((field: FormField) => {
         setTouched((prev) => ({ ...prev, [field]: true }));
     }, []);
@@ -198,7 +309,7 @@ export default function EventCreatePage() {
             navigate(`/events/${eventResponse.id}`);
         } catch (error) {
             console.error("Failed to create event", error);
-            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            setSubmitError(resolveSubmitError(error));
         } finally {
             setSubmitting(false);
         }

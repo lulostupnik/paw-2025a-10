@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import type { ProfileEditPayload, ProfilePasswordPayload, ProfilePicturePayload } from "@/types/profile";
 import { getUserId } from "@/lib/auth/auth";
-import { updateUserPassword, updateUserProfile, updateUserProfilePicture } from "@/lib/api/users";
+import { addUserInterest, listAllUserInterests, removeUserInterest, updateUserPassword, updateUserProfile, updateUserProfilePicture } from "@/lib/api/users";
 
 interface UseProfileUpsertResult {
     isLoading: boolean;
@@ -72,9 +72,19 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
     const updateInterests = useCallback(
         async (interestIds: number[]) =>
             runMutation(async () => {
-                // TODO: Implement user interests update once backend supports add/remove in bulk.
-                console.warn("TODO: update user interests", interestIds);
-                throw new Error("profile-interests-not-implemented");
+                const userId = getUserId();
+                if (!userId) {
+                    throw new Error("missing-user-id");
+                }
+                const current = await listAllUserInterests(userId);
+                const currentIds = new Set(current.map((interest) => interest.id));
+                const nextIds = new Set(interestIds);
+                const toAdd = [...nextIds].filter((id) => !currentIds.has(id));
+                const toRemove = [...currentIds].filter((id) => !nextIds.has(id));
+                await Promise.all([
+                    ...toAdd.map((id) => addUserInterest(userId, id)),
+                    ...toRemove.map((id) => removeUserInterest(userId, id)),
+                ]);
             }),
         [runMutation]
     );

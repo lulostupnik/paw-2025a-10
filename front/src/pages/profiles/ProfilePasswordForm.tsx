@@ -1,8 +1,9 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import { classNames } from "@/lib/utils/classNames";
+import { useToast } from "@/components/ui/ToastProvider";
 
 const getStrengthScore = (password: string) => {
     if (!password) {
@@ -37,6 +38,9 @@ const getStrengthLabel = (score: number, t: (key: string, options?: { defaultVal
 
 export default function ProfilePasswordForm() {
     const { t } = useI18n();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { showToast } = useToast();
     const { updatePassword, isLoading } = useProfileUpsert();
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -55,6 +59,9 @@ export default function ProfilePasswordForm() {
             return;
         }
         await updatePassword({ password, confirmPassword });
+        const returnPath = (location.state as { from?: string } | null)?.from;
+        showToast(t("profile.toast.passwordUpdated", { defaultValue: "Password updated successfully." }), { variant: "success" });
+        navigate(returnPath ?? "/profiles/me/info", { replace: true });
     };
 
     return (
