@@ -122,6 +122,7 @@ export default function EventDetailPage() {
     const username = getUsername();
     const isOwner = data?.user?.id === userId;
     const admin = isAdmin();
+    const canViewAttendees = isOwner;
     const attendanceQuery = useQuery({
         queryKey: ["eventAttendance", id, userId],
         queryFn: async ({ signal }) => {
@@ -162,7 +163,7 @@ export default function EventDetailPage() {
             const page = await listEventAttendees(Number(id), { page: attendeesPage, size: attendeesPageSize }, signal);
             return page;
         },
-        enabled: Boolean(id),
+        enabled: Boolean(id && canViewAttendees),
         placeholderData: keepPreviousData,
     });
     const commentsQuery = useQuery({
@@ -188,7 +189,7 @@ export default function EventDetailPage() {
         enabled: Boolean(id),
         placeholderData: keepPreviousData,
     });
-    const attendeesPageData = attendeesQuery.data ?? emptyPage();
+    const attendeesPageData = canViewAttendees ? (attendeesQuery.data ?? emptyPage()) : emptyPage();
     const commentsPageData = commentsQuery.data ?? emptyPage();
     const stats = statsQuery.data ?? null;
     const toSafeNumber = (value: unknown, fallback = 0) =>
@@ -792,57 +793,63 @@ return (
                                                     </div>
                                                 </div>
 
-                                                <div id="attendees-list" className="attendees-grid">
-                                                    {attendeesQuery.isLoading ? (
-                                                        <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
-                                                    ) : attendeesPageData.content.length === 0 ? (
-                                                        <div className="empty-state">
-                                                            <div className="empty-icon">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                                                    <circle cx="9" cy="7" r="4"></circle>
-                                                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                                                </svg>
-                                                            </div>
-                                                            <p className="empty-message">{t("event.no.attendees")}</p>
-                                                        </div>
-                                                    ) : (
-                                                        attendeesPageData.content.map((attendee) => (
-                                                            <div key={attendee.id} className="attendee-card">
-                                                                <div className="attendee-avatar">
-                                                                    {attendee.profilePictureUrl ? (
-                                                                        <img src={attendee.profilePictureUrl} alt="Profile" className="detail-avatar-img" />
-                                                                    ) : (
-                                                                        <div className="avatar-placeholder">
-                                                                            {attendee.firstname[0]}
-                                                                            {attendee.lastname[0]}
+                                                {canViewAttendees && (
+                                                    <>
+                                                        <div id="attendees-list" className="attendees-grid">
+                                                            {attendeesQuery.isLoading ? (
+                                                                <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                                            ) : attendeesQuery.isError ? (
+                                                                <p className="section__helper">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
+                                                            ) : attendeesPageData.content.length === 0 ? (
+                                                                <div className="empty-state">
+                                                                    <div className="empty-icon">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                                                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                                            <circle cx="9" cy="7" r="4"></circle>
+                                                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                                                        </svg>
+                                                                    </div>
+                                                                    <p className="empty-message">{t("event.no.attendees")}</p>
+                                                                </div>
+                                                            ) : (
+                                                                attendeesPageData.content.map((attendee) => (
+                                                                    <div key={attendee.id} className="attendee-card">
+                                                                        <div className="attendee-avatar">
+                                                                            {attendee.profilePictureUrl ? (
+                                                                                <img src={attendee.profilePictureUrl} alt="Profile" className="detail-avatar-img" />
+                                                                            ) : (
+                                                                                <div className="avatar-placeholder">
+                                                                                    {attendee.firstname[0]}
+                                                                                    {attendee.lastname[0]}
+                                                                                </div>
+                                                                            )}
                                                                         </div>
-                                                                    )}
-                                                                </div>
-                                                                <div className="attendee-info">
-                                                                    <h3 className="attendee-name">
-                                                                        {attendee.firstname} {attendee.lastname}
-                                                                    </h3>
-                                                                    <p className="attendee-email">{attendee.email}</p>
-                                                                </div>
-                                                            </div>
-                                                        ))
-                                                    )}
-                                                </div>
+                                                                        <div className="attendee-info">
+                                                                            <h3 className="attendee-name">
+                                                                                {attendee.firstname} {attendee.lastname}
+                                                                            </h3>
+                                                                            <p className="attendee-email">{attendee.email}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            )}
+                                                        </div>
 
-                                                <Pagination
-                                                    totalPages={attendeesPageData.totalPages}
-                                                    currentPage={attendeesPageData.currentPage}
-                                                    pageSize={attendeesPageData.pageSize}
-                                                    nextPage={attendeesPageData.next}
-                                                    prevPage={attendeesPageData.prev}
-                                                    firstPage={attendeesPageData.first}
-                                                    lastPage={attendeesPageData.last}
-                                                    onPageChange={(page) => setAttendeesPage(parsePageFromLink(page))}
-                                                    previousLabel={t("pagination.prev")}
-                                                    nextLabel={t("pagination.next")}
-                                                />
+                                                        <Pagination
+                                                            totalPages={attendeesPageData.totalPages}
+                                                            currentPage={attendeesPageData.currentPage}
+                                                            pageSize={attendeesPageData.pageSize}
+                                                            nextPage={attendeesPageData.next}
+                                                            prevPage={attendeesPageData.prev}
+                                                            firstPage={attendeesPageData.first}
+                                                            lastPage={attendeesPageData.last}
+                                                            onPageChange={(page) => setAttendeesPage(parsePageFromLink(page))}
+                                                            previousLabel={t("pagination.prev")}
+                                                            nextLabel={t("pagination.next")}
+                                                        />
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     )}

@@ -148,7 +148,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 // Event attendance (específicos ANTES de la regla general)
                 .antMatchers(HttpMethod.GET, "/api/events/*/attendance").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/attendance").access("isAuthenticated()")
-                .antMatchers(HttpMethod.GET, "/api/events/*/attendances/*").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/events/{eventId}/attendances").access("@accessHelper.isUserEventOwner(#eventId)")
+                .antMatchers(HttpMethod.GET, "/api/events/{eventId}/attendances/{userId}").access("@accessHelper.isUserEventOwner(#eventId)")
                 .antMatchers(HttpMethod.POST, "/api/events/*/attendances").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/attendances/*").access("isAuthenticated()")
 

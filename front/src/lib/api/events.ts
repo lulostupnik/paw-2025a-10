@@ -1,7 +1,7 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { getCityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment, EventDetail, EventRating, ProfileEvent } from "@/types/event";
-import { mapPageList, toPaged, type PageResult } from "@/types/pagination";
+import { emptyPage, mapPageList, toPaged, type PageResult } from "@/types/pagination";
 
 interface EventLinks {
     selfUrl?: string | null;
@@ -222,11 +222,23 @@ export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal
 };
 
 export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): Promise<EventDetail> => {
+    const listAttendeesSafe = async () => {
+        try {
+            return await listEventAttendees(event.id, { page: 1, size: 10 }, signal);
+        } catch (error) {
+            const status = (error as { response?: { status?: number } } | undefined)?.response?.status;
+            if (status === 401 || status === 403) {
+                return emptyPage<EventAttendee>();
+            }
+            throw error;
+        }
+    };
+
     const [creator, city, responses, attendees, ratings] = await Promise.all([
         event.links?.creatorUrl ? getUserByUrl(event.links.creatorUrl, signal) : Promise.resolve(null),
         event.links?.cityUrl ? getCityByUrl(event.links.cityUrl, signal) : Promise.resolve(null),
         listEventResponses(event.id, { page: 1, size: 10 }, signal),
-        listEventAttendees(event.id, { page: 1, size: 10 }, signal),
+        listAttendeesSafe(),
         listEventRatings(event.id, { page: 1, size: 10 }, signal),
     ]);
 
