@@ -179,6 +179,7 @@ export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayl
         {
             signal,
             headers: { Authorization: `Basic ${basic}` },
-        }
+            _skipAuthStore: true,
+        } as unknown as Parameters<typeof apiClient.put>[2]
     );
 }

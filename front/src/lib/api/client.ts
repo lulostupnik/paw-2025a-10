@@ -47,7 +47,11 @@ export const apiClient = axios.create({
     withCredentials: true,
 });
 
-type RetriableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean; _useRefreshToken?: boolean };
+type RetriableRequestConfig = InternalAxiosRequestConfig & {
+    _retry?: boolean;
+    _useRefreshToken?: boolean;
+    _skipAuthStore?: boolean;
+};
 
 function getHeaderValue(headers: AxiosResponse["headers"] | undefined, name: string): string | undefined {
     if (!headers) {
@@ -103,7 +107,10 @@ apiClient.interceptors.request.use((config) => {
 
 apiClient.interceptors.response.use(
     (response) => {
-        storeTokensFromHeaders(response.headers);
+        const config = response.config as RetriableRequestConfig | undefined;
+        if (!config?._skipAuthStore) {
+            storeTokensFromHeaders(response.headers);
+        }
         return response;
     },
     async (error: AxiosError) => {
