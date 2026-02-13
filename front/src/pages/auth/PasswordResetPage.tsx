@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import StatusCard from "@/components/ui/StatusCard";
-import { resetPassword } from "@/lib/api/auth";
+import { resetPasswordWithToken } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
 import { SUPPORT_EMAIL } from "@/lib/utils/support";
@@ -65,10 +65,11 @@ export default function PasswordResetPage() {
     const navigate = useNavigate();
     const [params] = useSearchParams();
     const token = params.get("token") ?? "";
+    const email = params.get("email") ?? "";
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [touched, setTouched] = useState({ password: false, confirmPassword: false });
-    const [status, setStatus] = useState<ResetStatus>(() => (token ? "form" : "invalid"));
+    const [status, setStatus] = useState<ResetStatus>(() => (token && email ? "form" : "invalid"));
     const [serverError, setServerError] = useState("");
     const passwordStrength = useMemo(() => evaluatePassword(password), [password]);
 
@@ -77,21 +78,16 @@ export default function PasswordResetPage() {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setTouched({ password: true, confirmPassword: true });
-        if (!token || !password || !confirmPassword || !passwordsMatch) {
+        if (!token || !email || !password || !confirmPassword || !passwordsMatch) {
             return;
         }
         setStatus("submitting");
         setServerError("");
         try {
-            await resetPassword({ token, password, confirmPassword });
+            await resetPasswordWithToken({ token, email, password, confirmPassword });
             navigate("/password/reset/confirmation?status=success");
         } catch (error) {
             const nextStatus = mapResetError(error);
-            if (nextStatus === "error" && error instanceof Error && error.message === "reset-password-not-implemented") {
-                setStatus("form");
-                setServerError(t("admin.dashboard.error", { defaultValue: "TODO: reset password endpoint pendiente." }));
-                return;
-            }
             setStatus(nextStatus);
             if (nextStatus === "error") {
                 setServerError(t("password.confirmation.error.title", { defaultValue: "There was an error." }));

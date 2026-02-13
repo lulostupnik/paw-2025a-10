@@ -1,5 +1,6 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { setAuthTokens, setSession } from "@/lib/auth/auth";
+import { listUsers } from "@/lib/api/users";
 
 export interface LoginCredentials {
     email: string;
@@ -147,4 +148,37 @@ export interface PasswordResetPayload {
 
 export async function resetPassword(payload: PasswordResetPayload): Promise<void> {
     await apiClient.post("/users", payload, {headers: {'Content-Type': 'application/vnd.gotogether.passwordReset.v1+json'}});
+}
+
+export interface PasswordResetWithTokenPayload {
+    email: string;
+    token: string;
+    password: string;
+    confirmPassword: string;
+}
+
+export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayload, signal?: AbortSignal): Promise<void> {
+    const normalizedEmail = payload.email.trim().toLowerCase();
+    if (!normalizedEmail) {
+        throw new Error("missing-email");
+    }
+    if (payload.password !== payload.confirmPassword) {
+        throw new Error("password-mismatch");
+    }
+
+    const usersPage = await listUsers({ search: normalizedEmail, page: 1, size: 10 }, signal);
+    const matchedUser = usersPage.content.find((user) => user.email?.trim().toLowerCase() === normalizedEmail);
+    if (!matchedUser) {
+        throw new Error("user-not-found");
+    }
+
+    const basic = encodeBasicCredentials({ email: normalizedEmail, password: payload.token });
+    await apiClient.put(
+        `/users/${matchedUser.id}/password`,
+        { password: payload.password },
+        {
+            signal,
+            headers: { Authorization: `Basic ${basic}` },
+        }
+    );
 }

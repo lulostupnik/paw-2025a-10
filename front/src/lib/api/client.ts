@@ -90,7 +90,11 @@ apiClient.interceptors.request.use((config) => {
     }
 
     const token = getAuthToken();
-    if (token) {
+    const hasAuthHeader =
+        config.headers &&
+        (Object.prototype.hasOwnProperty.call(config.headers, "Authorization") ||
+            Object.prototype.hasOwnProperty.call(config.headers, "authorization"));
+    if (token && !hasAuthHeader) {
         config.headers = config.headers ?? {};
         config.headers.Authorization = `Bearer ${token}`;
     }

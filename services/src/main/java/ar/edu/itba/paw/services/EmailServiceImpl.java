@@ -281,6 +281,7 @@ public class EmailServiceImpl implements EmailService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("firstName", user.getUsername());
         variables.put("resetToken", token);
+        variables.put("email", user.getEmail());
         variables.put("baseUrl", baseUrl);
 
 
@@ -316,4 +317,3 @@ public class EmailServiceImpl implements EmailService {
 
 
 }
-
