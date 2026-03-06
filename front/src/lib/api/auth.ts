@@ -1,6 +1,5 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { setAuthTokens, setSession } from "@/lib/auth/auth";
-import { listUsers } from "@/lib/api/users";
 
 export interface LoginCredentials {
     email: string;
@@ -158,27 +157,44 @@ export interface PasswordResetWithTokenPayload {
 }
 
 export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayload, signal?: AbortSignal): Promise<void> {
-    const normalizedEmail = payload.email.trim().toLowerCase();
-    if (!normalizedEmail) {
+    const email = payload.email.trim();
+    if (!email) {
         throw new Error("missing-email");
     }
     if (payload.password !== payload.confirmPassword) {
         throw new Error("password-mismatch");
     }
-
-    const usersPage = await listUsers({ search: normalizedEmail, page: 1, size: 10 }, signal);
-    const matchedUser = usersPage.content.find((user) => user.email?.trim().toLowerCase() === normalizedEmail);
-    if (!matchedUser) {
-        throw new Error("user-not-found");
+    const normalizedToken = payload.token.trim().replace(/\s+/g, "+");
+    if (!normalizedToken) {
+        throw new Error("missing-token");
     }
 
-    const basic = encodeBasicCredentials({ email: normalizedEmail, password: payload.token });
-    await apiClient.put(
-        `/users/${matchedUser.id}/password`,
-        { password: payload.password },
+    const basic = encodeBasicCredentials({ email, password: normalizedToken });
+    const loginResponse = await apiClient.head(
+        "/",
         {
             signal,
             headers: { Authorization: `Basic ${basic}` },
+            _skipAuthStore: true,
+        } as unknown as Parameters<typeof apiClient.head>[1]
+    );
+
+    const authToken = getHeaderValue(loginResponse.headers, "x-gotogether-authtoken");
+    if (!authToken) {
+        throw new Error("token-auth-missing-auth-token");
+    }
+    const jwtPayload = decodeJwtPayload(authToken);
+    const selfUrl = jwtPayload?.selfUrl;
+    if (!selfUrl) {
+        throw new Error("token-auth-missing-self-url");
+    }
+
+    await apiClient.put(
+        `${normalizeApiPath(selfUrl)}/password`,
+        { password: payload.password },
+        {
+            signal,
+            headers: { Authorization: `Bearer ${authToken}` },
             _skipAuthStore: true,
         } as unknown as Parameters<typeof apiClient.put>[2]
     );

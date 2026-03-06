@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { isAxiosError } from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
@@ -10,6 +10,7 @@ import { SUPPORT_EMAIL } from "@/lib/utils/support";
 
 type ResetStatus = "form" | "submitting" | "expired" | "invalid" | "blocked" | "error";
 type PasswordStrengthStatus = "empty" | "very-weak" | "weak" | "medium" | "strong";
+const RESET_EMAIL_STORAGE_KEY = "forgot_password_email";
 
 interface PasswordStrength {
     level: number;
@@ -54,7 +55,7 @@ const mapResetError = (error: unknown): ResetStatus => {
     if (status === 423 || message.includes("block")) {
         return "blocked";
     }
-    if (status === 400 || status === 404 || message.includes("invalid")) {
+    if (status === 401 || status === 400 || status === 404 || message.includes("invalid")) {
         return "invalid";
     }
     return "error";
@@ -64,27 +65,74 @@ export default function PasswordResetPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
     const [params] = useSearchParams();
-    const token = params.get("token") ?? "";
-    const email = params.get("email") ?? "";
+    const token = (params.get("token") ?? params.get("amp;token") ?? "").trim();
+    const emailFromQuery = (params.get("email") ?? params.get("amp;email") ?? "").trim();
+    const emailFromStorage = useMemo(() => {
+        if (typeof window === "undefined") {
+            return "";
+        }
+        try {
+            return (window.sessionStorage.getItem(RESET_EMAIL_STORAGE_KEY) ?? "").trim();
+        } catch {
+            return "";
+        }
+    }, []);
+    const email = emailFromQuery || emailFromStorage;
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [touched, setTouched] = useState({ password: false, confirmPassword: false });
     const [status, setStatus] = useState<ResetStatus>(() => (token && email ? "form" : "invalid"));
     const [serverError, setServerError] = useState("");
     const passwordStrength = useMemo(() => evaluatePassword(password), [password]);
+    const passwordError = useMemo(() => {
+        if (!password) {
+            return t("register.validation.password.required");
+        }
+        if (password.length < 8) {
+            return t("register.password.requirements");
+        }
+        return "";
+    }, [password, t]);
+    const confirmPasswordError = useMemo(() => {
+        if (!confirmPassword) {
+            return t("register.validation.confirmPassword.required");
+        }
+        if (password !== confirmPassword) {
+            return t("register.validation.confirmPassword.match");
+        }
+        return "";
+    }, [confirmPassword, password, t]);
+
+    useEffect(() => {
+        if (!emailFromQuery || typeof window === "undefined") {
+            return;
+        }
+        try {
+            window.sessionStorage.setItem(RESET_EMAIL_STORAGE_KEY, emailFromQuery);
+        } catch {
+            // Ignore storage errors.
+        }
+    }, [emailFromQuery]);
 
     const passwordsMatch = password && confirmPassword ? password === confirmPassword : true;
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setTouched({ password: true, confirmPassword: true });
-        if (!token || !email || !password || !confirmPassword || !passwordsMatch) {
+        if (!token || !email || passwordError || confirmPasswordError || !passwordsMatch) {
             return;
         }
         setStatus("submitting");
         setServerError("");
         try {
             await resetPasswordWithToken({ token, email, password, confirmPassword });
+            if (typeof window !== "undefined") {
+                try {
+                    window.sessionStorage.removeItem(RESET_EMAIL_STORAGE_KEY);
+                } catch {
+                    // Ignore storage errors.
+                }
+            }
             navigate("/password/reset/confirmation?status=success");
         } catch (error) {
             const nextStatus = mapResetError(error);
@@ -211,13 +259,16 @@ export default function PasswordResetPage() {
                         <input
                             id="password"
                             type="password"
-                            className={classNames("form-input input-control required", touched.password && !password && "error")}
+                            className={classNames("form-input input-control required", touched.password && passwordError && "error")}
                             placeholder="••••••••"
                             value={password}
                             onChange={(event) => setPassword(event.target.value)}
                             onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
                         />
                     </div>
+                    {touched.password && passwordError && (
+                        <p className="form-field__text form-field__text--error">{passwordError}</p>
+                    )}
                     <div className={classNames("password-strength", passwordStrength.class)}>
                         <div className="password-strength__header">
                             <span>{t("register.password.strength.label")}</span>
@@ -249,7 +300,7 @@ export default function PasswordResetPage() {
                             type="password"
                             className={classNames(
                                 "form-input required input-control",
-                                touched.confirmPassword && (!confirmPassword || !passwordsMatch) && "error"
+                                touched.confirmPassword && confirmPasswordError && "error"
                             )}
                             placeholder="••••••••"
                             value={confirmPassword}
@@ -257,6 +308,9 @@ export default function PasswordResetPage() {
                             onBlur={() => setTouched((prev) => ({ ...prev, confirmPassword: true }))}
                         />
                     </div>
+                    {touched.confirmPassword && confirmPasswordError && (
+                        <p className="form-field__text form-field__text--error">{confirmPasswordError}</p>
+                    )}
                     <div className={classNames("password-match-message", passwordsMatch ? "match" : "mismatch")}>
                         {confirmPassword &&
                             (passwordsMatch

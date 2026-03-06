@@ -9,6 +9,7 @@ import { classNames } from "@/lib/utils/classNames";
 import { SUPPORT_EMAIL } from "@/lib/utils/support";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const RESET_EMAIL_STORAGE_KEY = "forgot_password_email";
 
 type SubmitState = "idle" | "success";
 
@@ -68,6 +69,13 @@ export default function ForgotPasswordPage() {
             const normalizedEmail = email.trim();
             await requestPasswordReset({ email: normalizedEmail });
             setSubmittedEmail(normalizedEmail);
+            if (typeof window !== "undefined") {
+                try {
+                    window.sessionStorage.setItem(RESET_EMAIL_STORAGE_KEY, normalizedEmail);
+                } catch {
+                    // Ignore storage errors.
+                }
+            }
             setStatus("success");
         } catch (error) {
             switch (mapForgotPasswordError(error)) {
