@@ -1,19 +1,34 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
-import { createJourneyTip } from "@/lib/api/journeys";
+import { createJourneyTip, listJourneyTips } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
 export default function JourneyTipCreatePage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { journeyId } = useParams();
+    const [searchParams] = useSearchParams();
+    const tipsPage = searchParams.get("tipsPage");
     const { data, isLoading, isError } = useJourneyDetailData({ journeyId });
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
+
+    const invalidateJourneyTipData = async (id: string | number) => {
+        await Promise.all([
+            queryClient.invalidateQueries({
+                predicate: (query) => query.queryKey[0] === "journeyTips" && String(query.queryKey[1]) === String(id),
+            }),
+            queryClient.invalidateQueries({
+                predicate: (query) => query.queryKey[0] === "journeyDetail" && String(query.queryKey[1]) === String(id),
+            }),
+        ]);
+    };
 
     const handleBack = () => {
         const previous = popFromNavigationStack();
@@ -22,7 +37,7 @@ export default function JourneyTipCreatePage() {
             return;
         }
         if (journeyId) {
-            navigate(`/journeys/${journeyId}`);
+            navigate(tipsPage ? `/journeys/${journeyId}?tipsPage=${tipsPage}` : `/journeys/${journeyId}`);
             return;
         }
         navigate("/journeys");
@@ -42,7 +57,16 @@ export default function JourneyTipCreatePage() {
             setSubmitting(true);
             setSubmitError(null);
             await createJourneyTip(Number(journeyId), { title: title.trim(), content: content.trim() });
-            navigate(`/journeys/${journeyId}`);
+            await invalidateJourneyTipData(journeyId);
+            let destination = `/journeys/${journeyId}`;
+            try {
+                const tips = await listJourneyTips(Number(journeyId), { page: 1, size: 10 });
+                const lastPage = Math.max(1, tips.totalPages);
+                destination = `/journeys/${journeyId}?tipsPage=${lastPage}`;
+            } catch (tipListError) {
+                console.warn("Failed to resolve last tips page after tip creation", tipListError);
+            }
+            navigate(destination);
         } catch (err) {
             console.error("Failed to create tip", err);
             setSubmitError(t("journey.edit.error", { defaultValue: "No se pudo crear el consejo." }));

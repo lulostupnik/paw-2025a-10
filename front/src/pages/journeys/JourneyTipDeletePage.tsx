@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
-import { deleteJourneyTip } from "@/lib/api/journeys";
+import { deleteJourneyTip, getJourneyTip, listJourneyTips } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
 const formatDate = (value: string, locale: string) => {
@@ -16,23 +17,67 @@ const formatDate = (value: string, locale: string) => {
 export default function JourneyTipDeletePage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { tipId } = useParams();
     const [searchParams] = useSearchParams();
     const journeyId = searchParams.get("journeyId");
+    const tipsPage = searchParams.get("tipsPage");
     const { data, isLoading, isError } = useJourneyDetailData({ journeyId: journeyId ?? undefined });
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
-    const tip = useMemo(() => {
+    const clearJourneyTipData = async (id: string | number) => {
+        await queryClient.cancelQueries({
+            predicate: (query) =>
+                (query.queryKey[0] === "journeyTips" || query.queryKey[0] === "journeyTip") &&
+                String(query.queryKey[1]) === String(id),
+        });
+        queryClient.removeQueries({
+            predicate: (query) => query.queryKey[0] === "journeyTips" && String(query.queryKey[1]) === String(id),
+        });
+        queryClient.removeQueries({
+            predicate: (query) => query.queryKey[0] === "journeyTip" && String(query.queryKey[1]) === String(id),
+        });
+        await queryClient.invalidateQueries({
+            predicate: (query) => query.queryKey[0] === "journeyDetail" && String(query.queryKey[1]) === String(id),
+        });
+    };
+
+    const parsedTipId = useMemo(() => {
         if (!tipId) {
             return null;
         }
         const parsed = Number(tipId);
-        if (!Number.isFinite(parsed)) {
+        return Number.isFinite(parsed) ? parsed : null;
+    }, [tipId]);
+
+    const parsedJourneyId = useMemo(() => {
+        if (!journeyId) {
             return null;
         }
-        return data?.tips?.find((item) => item.id === parsed) ?? null;
-    }, [data?.tips, tipId]);
+        const parsed = Number(journeyId);
+        return Number.isFinite(parsed) ? parsed : null;
+    }, [journeyId]);
+
+    const fallbackTip = useMemo(() => {
+        if (parsedTipId == null) {
+            return null;
+        }
+        return data?.tips?.find((item) => item.id === parsedTipId) ?? null;
+    }, [data?.tips, parsedTipId]);
+
+    const tipQuery = useQuery({
+        queryKey: ["journeyTip", parsedJourneyId, parsedTipId],
+        queryFn: ({ signal }) => {
+            if (parsedJourneyId == null || parsedTipId == null) {
+                throw new Error("missing-identifiers");
+            }
+            return getJourneyTip(parsedJourneyId, parsedTipId, signal);
+        },
+        enabled: parsedJourneyId != null && parsedTipId != null,
+    });
+
+    const tip = tipQuery.data ?? fallbackTip;
 
     const handleBack = () => {
         const previous = popFromNavigationStack();
@@ -41,7 +86,7 @@ export default function JourneyTipDeletePage() {
             return;
         }
         if (journeyId) {
-            navigate(`/journeys/${journeyId}`);
+            navigate(tipsPage ? `/journeys/${journeyId}?tipsPage=${tipsPage}` : `/journeys/${journeyId}`);
             return;
         }
         navigate("/journeys");
@@ -56,7 +101,21 @@ export default function JourneyTipDeletePage() {
             setSubmitting(true);
             setSubmitError(null);
             await deleteJourneyTip(Number(journeyId), Number(tipId));
-            navigate(`/journeys/${journeyId}`);
+            await clearJourneyTipData(journeyId);
+
+            let destinationPage = Number(tipsPage ?? "1");
+            if (!Number.isFinite(destinationPage) || destinationPage < 1) {
+                destinationPage = 1;
+            }
+            try {
+                const refreshedTips = await listJourneyTips(Number(journeyId), { page: 1, size: 10 });
+                const lastPage = Math.max(1, refreshedTips.totalPages || 1);
+                destinationPage = Math.min(destinationPage, lastPage);
+            } catch (tipListError) {
+                console.warn("Failed to resolve destination page after tip delete", tipListError);
+            }
+
+            navigate(destinationPage > 1 ? `/journeys/${journeyId}?tipsPage=${destinationPage}` : `/journeys/${journeyId}`);
         } catch (err) {
             console.error("Failed to delete tip", err);
             setSubmitError(t("tip.deleteWarning", { defaultValue: "No se pudo eliminar el consejo." }));

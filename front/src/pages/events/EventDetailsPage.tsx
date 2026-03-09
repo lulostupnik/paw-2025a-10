@@ -10,7 +10,7 @@ import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { attendEvent, createEventRating, createEventResponse, getEventAttendance, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
 import { useAuthGate } from "@/hooks/useAuthGate";
-import { emptyPage, type PageResult } from "@/types/pagination";
+import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import { getUserByUrl } from "@/lib/api/journeys";
 
 const formatDate = (value: string, locale: string) => {
@@ -251,11 +251,33 @@ export default function EventDetailPage() {
 
     const parsePageFromLink = (page: number | string) => {
         if (typeof page === "string") {
-            const url = new URL(page);
+            const url = new URL(
+                page,
+                typeof window !== "undefined" ? window.location.origin : "http://localhost"
+            );
             return Number(url.searchParams.get("page") ?? "1");
         }
         return page;
     };
+
+    useEffect(() => {
+        if (commentsQuery.isLoading || commentsQuery.isFetching) {
+            return;
+        }
+        if (commentsPageData.content.length === 0 && commentsPageData.totalElements > 0 && commentsPage > 1) {
+            const fallbackPage = Math.max(1, Math.min(commentsPage - 1, commentsPageData.totalPages || commentsPage - 1));
+            if (fallbackPage !== commentsPage) {
+                setCommentsPage(fallbackPage);
+            }
+        }
+    }, [
+        commentsQuery.isLoading,
+        commentsQuery.isFetching,
+        commentsPageData.content.length,
+        commentsPageData.totalElements,
+        commentsPageData.totalPages,
+        commentsPage,
+    ]);
 
     useEffect(() => {
         setAttendingOverride(null);
@@ -404,7 +426,20 @@ export default function EventDetailPage() {
                 await createEventResponse(Number(id), { message: replyMessage.trim() });
                 setReplyMessage("");
                 setReplySuccess(t("replyEvent.success", { defaultValue: "Message successfully sent!" }));
-                queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
+                const refreshedCommentsPage = await listEventResponses(
+                    Number(id),
+                    { page: 1, size: commentsPageSize }
+                );
+                const targetCommentsPage = Math.max(1, refreshedCommentsPage.totalPages || 1);
+                setCommentsPage(targetCommentsPage);
+                await Promise.all([
+                    queryClient.invalidateQueries({
+                        predicate: (query) =>
+                            query.queryKey[0] === "eventComments" &&
+                            String(query.queryKey[1]) === String(id),
+                    }),
+                    queryClient.invalidateQueries({ queryKey: ["eventDetail", id] }),
+                ]);
             } catch (error) {
                 console.error("Failed to submit event response", error);
                 setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
@@ -720,7 +755,7 @@ return (
                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                         </svg>
                                         <span>{t("event.chat")}</span>
-                                        <span className="count">({commentsPageData.content.length})</span>
+                                        <span className="count">({commentsPageData.totalElements})</span>
                                     </button>
                                     {!data.isFuture && (
                                         <button
@@ -863,7 +898,7 @@ return (
                                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                                         </svg>
                                                         {t("event.responses")}
-                                                        <span className="count">({commentsPageData.content.length})</span>
+                                                        <span className="count">({commentsPageData.totalElements})</span>
                                                     </h2>
                                                 </div>
 

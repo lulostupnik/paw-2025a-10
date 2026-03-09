@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
@@ -80,6 +80,7 @@ export default function JourneyDetailPage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
     const location = useLocation();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { id } = useParams();
     const queryClient = useQueryClient();
     const gate = useAuthGate();
@@ -93,7 +94,10 @@ export default function JourneyDetailPage() {
     const [eventsSubtab, setEventsSubtab] = useState<"created" | "attending">("created");
     const [createdEventsPage, setCreatedEventsPage] = useState(1);
     const [attendingEventsPage, setAttendingEventsPage] = useState(1);
-    const [tipsPage, setTipsPage] = useState(1);
+    const [tipsPage, setTipsPage] = useState(() => {
+        const raw = Number(searchParams.get("tipsPage") ?? "1");
+        return Number.isFinite(raw) && raw > 0 ? raw : 1;
+    });
     const [commentsPage, setCommentsPage] = useState(1);
     const [replyMessage, setReplyMessage] = useState("");
     const [replyError, setReplyError] = useState<string | null>(null);
@@ -201,6 +205,62 @@ export default function JourneyDetailPage() {
     const commentsPageData = commentsQuery.data ?? emptyPage();
 
     useEffect(() => {
+        const raw = Number(searchParams.get("tipsPage") ?? "1");
+        const nextPage = Number.isFinite(raw) && raw > 0 ? raw : 1;
+        if (nextPage !== tipsPage) {
+            setTipsPage(nextPage);
+        }
+    }, [searchParams, tipsPage]);
+
+    useEffect(() => {
+        if (tipsQuery.isLoading || tipsQuery.isFetching) {
+            return;
+        }
+        if (tipsPageData.content.length === 0 && tipsPageData.totalElements > 0 && tipsPage > 1) {
+            const fallbackPage = Math.max(1, Math.min(tipsPage - 1, tipsPageData.totalPages || tipsPage - 1));
+            if (fallbackPage === tipsPage) {
+                return;
+            }
+            setTipsPage(fallbackPage);
+            const nextParams = new URLSearchParams(searchParams);
+            if (fallbackPage > 1) {
+                nextParams.set("tipsPage", String(fallbackPage));
+            } else {
+                nextParams.delete("tipsPage");
+            }
+            setSearchParams(nextParams, { replace: true });
+        }
+    }, [
+        tipsQuery.isLoading,
+        tipsQuery.isFetching,
+        tipsPageData.content.length,
+        tipsPageData.totalElements,
+        tipsPageData.totalPages,
+        tipsPage,
+        searchParams,
+        setSearchParams,
+    ]);
+
+    useEffect(() => {
+        if (commentsQuery.isLoading || commentsQuery.isFetching) {
+            return;
+        }
+        if (commentsPageData.content.length === 0 && commentsPageData.totalElements > 0 && commentsPage > 1) {
+            const fallbackPage = Math.max(1, Math.min(commentsPage - 1, commentsPageData.totalPages || commentsPage - 1));
+            if (fallbackPage !== commentsPage) {
+                setCommentsPage(fallbackPage);
+            }
+        }
+    }, [
+        commentsQuery.isLoading,
+        commentsQuery.isFetching,
+        commentsPageData.content.length,
+        commentsPageData.totalElements,
+        commentsPageData.totalPages,
+        commentsPage,
+    ]);
+
+    useEffect(() => {
         if (!actionMenuOpen && openCommentMenuId === null && openTipMenuId === null) {
             return;
         }
@@ -230,7 +290,7 @@ export default function JourneyDetailPage() {
 
     const parsePageFromLink = useCallback((page: number | string) => {
         if (typeof page === "string") {
-            const url = new URL(page);
+            const url = new URL(page, window.location.origin);
             return Number(url.searchParams.get("page") ?? "1");
         }
         return page;
@@ -259,9 +319,17 @@ export default function JourneyDetailPage() {
 
     const handleTipsPageChange = useCallback(
         (page: number | string) => {
-            setTipsPage(parsePageFromLink(page));
+            const parsedPage = parsePageFromLink(page);
+            setTipsPage(parsedPage);
+            const nextParams = new URLSearchParams(searchParams);
+            if (parsedPage > 1) {
+                nextParams.set("tipsPage", String(parsedPage));
+            } else {
+                nextParams.delete("tipsPage");
+            }
+            setSearchParams(nextParams, { replace: true });
         },
-        [parsePageFromLink]
+        [parsePageFromLink, searchParams, setSearchParams]
     );
 
     const handleCommentsPageChange = useCallback(
@@ -330,8 +398,21 @@ export default function JourneyDetailPage() {
                 await createJourneyResponse(Number(id), { message: replyMessage.trim() });
                 setReplyMessage("");
                 setReplySuccess(t("replyJourney.success"));
+                const refreshedCommentsPage = await getJourneyResponses(
+                    Number(id),
+                    { page: 1, size: commentsPageSize }
+                );
+                const targetCommentsPage = Math.max(1, refreshedCommentsPage.totalPages || 1);
+                setCommentsPage(targetCommentsPage);
+                await Promise.all([
+                    queryClient.invalidateQueries({
+                        predicate: (query) =>
+                            query.queryKey[0] === "journeyComments" &&
+                            String(query.queryKey[1]) === String(id),
+                    }),
+                    queryClient.invalidateQueries({ queryKey: ["journeyDetail", id] }),
+                ]);
                 refetch();
-                queryClient.invalidateQueries({ queryKey: ["journeyDetail", id] });
             } catch (err) {
                 console.error("Failed to submit journey response", err);
                 setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
@@ -716,7 +797,7 @@ export default function JourneyDetailPage() {
                                             <path d="M22 4H12a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h9l1 1V6a2 2 0 0 0-2-2z"></path>
                                         </svg>
                                         {t("journey.detail.tips")}
-                                        <span className="count">({tipsPageData.content.length})</span>
+                                        <span className="count">({tipsPageData.totalElements})</span>
                                     </h2>
                                 </div>
                                 <div className="section-content">
@@ -780,7 +861,7 @@ export default function JourneyDetailPage() {
                                                                             }}
                                                                         >
                                                                             <Link
-                                                                                to={`/journeys/tips/${tip.id}/update?journeyId=${id}`}
+                                                                                to={`/journeys/tips/${tip.id}/update?journeyId=${id}&tipsPage=${tipsPage}`}
                                                                                 style={{
                                                                                     color: "#333",
                                                                                     padding: "10px 14px",
@@ -798,7 +879,7 @@ export default function JourneyDetailPage() {
                                                                                 <span>{t("tip.edit")}</span>
                                                                             </Link>
                                                                             <Link
-                                                                                to={`/journeys/tips/${tip.id}/delete?journeyId=${id}`}
+                                                                                to={`/journeys/tips/${tip.id}/delete?journeyId=${id}&tipsPage=${tipsPage}`}
                                                                                 style={{
                                                                                     color: "#333",
                                                                                     padding: "10px 14px",
@@ -843,7 +924,7 @@ export default function JourneyDetailPage() {
 
                                     {isOwner && (
                                         <div className="add-tip-button-container">
-                                            <Link to={`/journeys/${id}/tips/create`} className="btn-primary btn-with-icon">
+                                            <Link to={`/journeys/${id}/tips/create?tipsPage=${tipsPage}`} className="btn-primary btn-with-icon">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" className="btn-icon" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                     <path d="M12 5v14"></path>
                                                     <path d="M5 12h14"></path>
@@ -862,7 +943,7 @@ export default function JourneyDetailPage() {
                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                         </svg>
                                         {t("journey.detail.responses")}
-                                        <span className="count">({commentsPageData.content.length})</span>
+                                        <span className="count">({commentsPageData.totalElements})</span>
                                     </h2>
                                     <button
                                         type="button"

@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
-import { updateJourneyTip } from "@/lib/api/journeys";
+import { getJourneyTip, updateJourneyTip } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
 export default function JourneyTipEditPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { tipId } = useParams();
     const [searchParams] = useSearchParams();
     const journeyId = searchParams.get("journeyId");
+    const tipsPage = searchParams.get("tipsPage");
     const { data, isLoading, isError } = useJourneyDetailData({ journeyId: journeyId ?? undefined });
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
@@ -18,16 +21,52 @@ export default function JourneyTipEditPage() {
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [seeded, setSeeded] = useState(false);
 
-    const tip = useMemo(() => {
+    const invalidateJourneyTipData = async (id: string | number) => {
+        await Promise.all([
+            queryClient.invalidateQueries({
+                predicate: (query) => query.queryKey[0] === "journeyTips" && String(query.queryKey[1]) === String(id),
+            }),
+            queryClient.invalidateQueries({
+                predicate: (query) => query.queryKey[0] === "journeyDetail" && String(query.queryKey[1]) === String(id),
+            }),
+        ]);
+    };
+
+    const parsedTipId = useMemo(() => {
         if (!tipId) {
             return null;
         }
         const parsed = Number(tipId);
-        if (!Number.isFinite(parsed)) {
+        return Number.isFinite(parsed) ? parsed : null;
+    }, [tipId]);
+
+    const parsedJourneyId = useMemo(() => {
+        if (!journeyId) {
             return null;
         }
-        return data?.tips?.find((item) => item.id === parsed) ?? null;
-    }, [data?.tips, tipId]);
+        const parsed = Number(journeyId);
+        return Number.isFinite(parsed) ? parsed : null;
+    }, [journeyId]);
+
+    const fallbackTip = useMemo(() => {
+        if (parsedTipId == null) {
+            return null;
+        }
+        return data?.tips?.find((item) => item.id === parsedTipId) ?? null;
+    }, [data?.tips, parsedTipId]);
+
+    const tipQuery = useQuery({
+        queryKey: ["journeyTip", parsedJourneyId, parsedTipId],
+        queryFn: ({ signal }) => {
+            if (parsedJourneyId == null || parsedTipId == null) {
+                throw new Error("missing-identifiers");
+            }
+            return getJourneyTip(parsedJourneyId, parsedTipId, signal);
+        },
+        enabled: parsedJourneyId != null && parsedTipId != null,
+    });
+
+    const tip = tipQuery.data ?? fallbackTip;
 
     useEffect(() => {
         if (!tip || seeded) {
@@ -45,7 +84,7 @@ export default function JourneyTipEditPage() {
             return;
         }
         if (journeyId) {
-            navigate(`/journeys/${journeyId}`);
+            navigate(tipsPage ? `/journeys/${journeyId}?tipsPage=${tipsPage}` : `/journeys/${journeyId}`);
             return;
         }
         navigate("/journeys");
@@ -68,7 +107,8 @@ export default function JourneyTipEditPage() {
                 title: title.trim(),
                 content: content.trim(),
             });
-            navigate(`/journeys/${journeyId}`);
+            await invalidateJourneyTipData(journeyId);
+            navigate(tipsPage ? `/journeys/${journeyId}?tipsPage=${tipsPage}` : `/journeys/${journeyId}`);
         } catch (err) {
             console.error("Failed to update tip", err);
             setSubmitError(t("journey.edit.error", { defaultValue: "No se pudo actualizar el consejo." }));
