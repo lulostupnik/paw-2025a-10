@@ -11,6 +11,7 @@ import ar.edu.itba.paw.models.Page;
 
 public class PagingUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(PagingUtils.class);
+    private static final String TOTAL_COUNT_HEADER = "X-Total-Count";
 
     public static <T> ResponseBuilder insertPaginationLinks(ResponseBuilder responseBuilder, UriInfo uriInfo, Page<T> page){
         UriBuilder uriBuilder = uriInfo.getRequestUriBuilder().replaceQueryParam("page", "{page}");
@@ -21,6 +22,7 @@ public class PagingUtils {
             responseBuilder.link(uriBuilder.build( page.getCurrentPage() - 1), "prev");
         responseBuilder.link(uriBuilder.build(1), "first");
         responseBuilder.link(uriBuilder.build(page.getTotalPages()), "last");
+        responseBuilder.header(TOTAL_COUNT_HEADER, page.getTotalElements());
         
         return responseBuilder;
     }

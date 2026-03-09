@@ -227,7 +227,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setExposedHeaders(Arrays.asList("X-GoTogether-AuthToken", "X-GoTogether-RefreshToken", "WWW-Authenticate", "ETag", "Content-Disposition", "Location", "Link"));
+        configuration.setExposedHeaders(Arrays.asList("X-GoTogether-AuthToken", "X-GoTogether-RefreshToken", "WWW-Authenticate", "ETag", "Content-Disposition", "Location", "Link", "X-Total-Count"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(TimeUnit.HOURS.toSeconds(1));
 
