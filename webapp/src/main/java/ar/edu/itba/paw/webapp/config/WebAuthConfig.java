@@ -4,6 +4,7 @@ package ar.edu.itba.paw.webapp.config;
 import ar.edu.itba.paw.webapp.auth.*;
 import ar.edu.itba.paw.webapp.auth.filters.AuthAnywhereFilter;
 import ar.edu.itba.paw.webapp.auth.filters.JwtFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.Resource;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.http.HttpMethod;
@@ -28,9 +30,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.context.MessageSource;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -50,6 +55,12 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private AuthAnywhereFilter authAnywhereFilter;
+
+    @Autowired
+    private MessageSource messageSource;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebAuthConfig.class);
 
@@ -197,6 +208,21 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint((request, response, ex) -> {
                     // response.addHeader("WWW-Authenticate", "Basic realm=\"GoTogether\"");
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+                })
+
+                .accessDeniedHandler((request, response, ex) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    String message;
+                    try {
+                        message = messageSource.getMessage("error.accessDenied", null, "Access denied. You do not have the necessary permissions.", LocaleContextHolder.getLocale());
+                    } catch (Exception e) {
+                        message = "Access denied. You do not have the necessary permissions.";
+                    }
+                    Map<String, String> errorResponse = new HashMap<>();
+                    errorResponse.put("message", message);
+                    objectMapper.writeValue(response.getWriter(), errorResponse);
                 })
 
                 // Disable client-side cache handling
