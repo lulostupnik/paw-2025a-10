@@ -35,7 +35,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
     const descriptionError = useMemo(() => {
         const trimmed = description.trim();
         if (!trimmed) {
-            return t("report.description.required", { defaultValue: "Please add details for the report." });
+            return t("report.description.required");
         }
         if (trimmed.length > MAX_DESCRIPTION_LENGTH) {
             return t("report.description.too_long");
@@ -170,10 +170,10 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
                             onBlur={() => setTouched(true)}
                             placeholder={t("report.description.placeholder")}
                         />
-                        <div className="form-field__text">
+                        <div className="form-field__text report-description-meta">
                             <span>{t("report.description.help")}</span>
-                            <span>
-                                {description.trim().length}/{MAX_DESCRIPTION_LENGTH}
+                            <span className="report-description-meta__count" aria-live="polite">
+                                {description.length}/{MAX_DESCRIPTION_LENGTH}
                             </span>
                         </div>
                         {touched && descriptionError && (

@@ -1671,6 +1671,7 @@
   "form.optional": "optional",
   "report.reason.required": "Please select a reason for reporting",
   "report.reason.invalid": "Invalid reason selected",
+  "report.description.required": "Please add details for the report.",
   "report.description.too_long": "Description cannot exceed 500 characters",
   "report.already_reported": "You have already reported this content",
   "report.success": "Thank you for your report. Our moderation team will review it shortly.",

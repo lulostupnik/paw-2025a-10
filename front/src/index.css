@@ -1962,6 +1962,19 @@ textarea.input-control {
   color: var(--color-gray-500);
 }
 
+.report-description-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.report-description-meta__count {
+  flex-shrink: 0;
+  text-align: right;
+}
+
 .form-field__text--error {
   color: var(--color-error);
 }
