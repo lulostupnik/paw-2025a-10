@@ -7,6 +7,7 @@ import JourneyCard from "@/components/journeys/JourneyCard";
 import ListingSkeletonGrid from "@/components/listing/ListingSkeletonGrid";
 import { useEvents } from "@/hooks/useEvents";
 import { useJourneys } from "@/hooks/useJourneys";
+import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useI18n } from "@/lib/i18n";
 import { getUserId } from "@/lib/auth/auth";
 
@@ -60,6 +61,8 @@ export default function ExplorePage() {
     const navigate = useNavigate();
     const { t } = useI18n();
     const currentUserId = getUserId();
+    const { data: profile, isLoading: profileLoading } = useProfileDetail({ profileId: "me", enabled: Boolean(currentUserId) });
+    const ownJourneyId = parseIdFromUrl(profile?.links?.journeyUrl);
     const { journeys, loading: journeysLoading, error: journeysError } = useJourneys({
         page: 1,
         size: currentUserId ? 5 : 4,
@@ -157,9 +160,15 @@ export default function ExplorePage() {
                     <EmptyState
                         title={t("dashboard.no.journeys")}
                         action={
-                            <Button type="button" variant="primary" onClick={() => navigate("/journeys/create")}>
-                                {t("dashboard.create.journey")}
-                            </Button>
+                            !profileLoading ? (
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    onClick={() => navigate(ownJourneyId ? `/journeys/${ownJourneyId}` : "/journeys/create")}
+                                >
+                                    {t(ownJourneyId ? "journey.view.my" : "dashboard.create.journey")}
+                                </Button>
+                            ) : undefined
                         }
                         className="explore-empty"
                     />
