@@ -45,21 +45,32 @@ export default function CatalogAutocompleteField({
             return;
         }
         const controller = new AbortController();
+        let isActive = true;
         const handle = window.setTimeout(() => {
-            const trimmed = query.trim();
-            if (!trimmed) {
-                setOptions([]);
-                setLoading(false);
-                return;
-            }
             setLoading(true);
-            fetcher(trimmed, controller.signal)
-                .then((result) => setOptions(result))
-                .catch(() => setOptions([]))
-                .finally(() => setLoading(false));
+            fetcher(query.trim(), controller.signal)
+                .then((result) => {
+                    if (!isActive) {
+                        return;
+                    }
+                    setOptions(result);
+                })
+                .catch(() => {
+                    if (!isActive || controller.signal.aborted) {
+                        return;
+                    }
+                    setOptions([]);
+                })
+                .finally(() => {
+                    if (!isActive) {
+                        return;
+                    }
+                    setLoading(false);
+                });
         }, 250);
 
         return () => {
+            isActive = false;
             controller.abort();
             window.clearTimeout(handle);
         };
@@ -168,7 +179,7 @@ export default function CatalogAutocompleteField({
             </div>
             <div className={classNames("autocomplete-panel", open && "is-open")} role="listbox" aria-label={label}>
                 {loading && <p className="autocomplete-status">{loadingText}</p>}
-                {!loading && options.length === 0 && query.trim() && (
+                {!loading && open && options.length === 0 && (
                     <p className="autocomplete-status">{emptyText}</p>
                 )}
                 {!loading &&

@@ -6,6 +6,8 @@ import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { createJourneyTip, listJourneyTips } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
+const TIPS_PAGE_SIZE = 4;
+
 export default function JourneyTipCreatePage() {
     const { t } = useI18n();
     const navigate = useNavigate();
@@ -60,9 +62,9 @@ export default function JourneyTipCreatePage() {
             await invalidateJourneyTipData(journeyId);
             let destination = `/journeys/${journeyId}`;
             try {
-                const tips = await listJourneyTips(Number(journeyId), { page: 1, size: 10 });
+                const tips = await listJourneyTips(Number(journeyId), { page: 1, size: TIPS_PAGE_SIZE });
                 const lastPage = Math.max(1, tips.totalPages);
-                destination = `/journeys/${journeyId}?tipsPage=${lastPage}`;
+                destination = lastPage > 1 ? `/journeys/${journeyId}?tipsPage=${lastPage}` : `/journeys/${journeyId}`;
             } catch (tipListError) {
                 console.warn("Failed to resolve last tips page after tip creation", tipListError);
             }

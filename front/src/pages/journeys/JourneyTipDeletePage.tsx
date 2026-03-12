@@ -6,6 +6,8 @@ import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { deleteJourneyTip, getJourneyTip, listJourneyTips } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
+const TIPS_PAGE_SIZE = 4;
+
 const formatDate = (value: string, locale: string) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {
@@ -108,7 +110,7 @@ export default function JourneyTipDeletePage() {
                 destinationPage = 1;
             }
             try {
-                const refreshedTips = await listJourneyTips(Number(journeyId), { page: 1, size: 10 });
+                const refreshedTips = await listJourneyTips(Number(journeyId), { page: 1, size: TIPS_PAGE_SIZE });
                 const lastPage = Math.max(1, refreshedTips.totalPages || 1);
                 destinationPage = Math.min(destinationPage, lastPage);
             } catch (tipListError) {

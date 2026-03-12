@@ -1,9 +1,17 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
-import { deleteJourneyResponse } from "@/lib/api/journeys";
+import { deleteJourneyResponse, getJourneyResponse, getJourneyResponses, getUserByUrl } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+
+const COMMENTS_PAGE_SIZE = 4;
+
+const parsePageParam = (value: string | null) => {
+    const parsed = Number(value ?? "1");
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+};
 
 const formatDateTime = (value: string, locale: string) => {
     const date = new Date(value);
@@ -22,24 +30,79 @@ const formatDateTime = (value: string, locale: string) => {
 export default function JourneyReplyDeletePage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { responseId } = useParams();
     const [searchParams] = useSearchParams();
     const journeyId = searchParams.get("journeyId");
+    const commentsPage = parsePageParam(searchParams.get("commentsPage"));
     const { data, isLoading, isError } = useJourneyDetailData({ journeyId: journeyId ?? undefined });
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
-    const response = useMemo(() => {
+    const parsedResponseId = useMemo(() => {
         if (!responseId) {
             return null;
         }
         const parsed = Number(responseId);
-        if (!Number.isFinite(parsed)) {
+        return Number.isFinite(parsed) ? parsed : null;
+    }, [responseId]);
+
+    const parsedJourneyId = useMemo(() => {
+        if (!journeyId) {
             return null;
         }
-        return data?.comments?.find((comment) => comment.id === parsed) ?? null;
-    }, [data?.comments, responseId]);
+        const parsed = Number(journeyId);
+        return Number.isFinite(parsed) ? parsed : null;
+    }, [journeyId]);
+
+    const fallbackResponse = useMemo(() => {
+        if (parsedResponseId == null) {
+            return null;
+        }
+        return data?.comments?.find((comment) => comment.id === parsedResponseId) ?? null;
+    }, [data?.comments, parsedResponseId]);
+
+    const responseQuery = useQuery({
+        queryKey: ["journeyResponse", parsedJourneyId, parsedResponseId],
+        queryFn: async ({ signal }) => {
+            if (parsedJourneyId == null || parsedResponseId == null) {
+                throw new Error("missing-identifiers");
+            }
+            const response = await getJourneyResponse(parsedJourneyId, parsedResponseId, signal);
+            const user = response.links?.authorUrl ? await getUserByUrl(response.links.authorUrl, signal) : null;
+            return {
+                id: response.id,
+                message: response.message,
+                dateTime: response.dateTime,
+                user: {
+                    username: user?.username ?? fallbackResponse?.user.username ?? "—",
+                },
+            };
+        },
+        enabled: parsedJourneyId != null && parsedResponseId != null,
+    });
+
+    const response = responseQuery.data ?? fallbackResponse;
+
+    const clearJourneyResponseData = async (id: string | number) => {
+        await queryClient.cancelQueries({
+            predicate: (query) =>
+                (query.queryKey[0] === "journeyComments" ||
+                    query.queryKey[0] === "journeyDetail" ||
+                    query.queryKey[0] === "journeyResponse") &&
+                String(query.queryKey[1]) === String(id),
+        });
+        queryClient.removeQueries({
+            predicate: (query) => query.queryKey[0] === "journeyComments" && String(query.queryKey[1]) === String(id),
+        });
+        queryClient.removeQueries({
+            predicate: (query) => query.queryKey[0] === "journeyResponse" && String(query.queryKey[1]) === String(id),
+        });
+        await queryClient.invalidateQueries({
+            predicate: (query) => query.queryKey[0] === "journeyDetail" && String(query.queryKey[1]) === String(id),
+        });
+    };
 
     const handleBack = () => {
         const previous = popFromNavigationStack();
@@ -48,31 +111,44 @@ export default function JourneyReplyDeletePage() {
             return;
         }
         if (journeyId) {
-            navigate(`/journeys/${journeyId}`);
+            navigate(commentsPage > 1 ? `/journeys/${journeyId}?commentsPage=${commentsPage}` : `/journeys/${journeyId}`);
             return;
         }
         navigate("/journeys");
     };
 
     const handleSubmit = async () => {
-        if (!journeyId || !responseId) {
+        if (parsedJourneyId == null || parsedResponseId == null) {
             setSubmitError(t("journey.edit.error", { defaultValue: "Missing identifiers." }));
-            return;
-        }
-        const parsedResponseId = Number(responseId);
-        if (!Number.isFinite(parsedResponseId)) {
-            setSubmitError(t("journey.edit.error", { defaultValue: "Invalid response id." }));
             return;
         }
         try {
             setSubmitting(true);
             setSubmitError(null);
             await deleteJourneyResponse(
-                Number(journeyId),
+                parsedJourneyId,
                 parsedResponseId,
                 message.trim() ? { message: message.trim() } : undefined
             );
-            navigate(`/journeys/${journeyId}`);
+            await clearJourneyResponseData(parsedJourneyId);
+
+            let destinationPage = commentsPage;
+            try {
+                const refreshedResponses = await getJourneyResponses(parsedJourneyId, {
+                    page: 1,
+                    size: COMMENTS_PAGE_SIZE,
+                });
+                const lastPage = Math.max(1, refreshedResponses.totalPages || 1);
+                destinationPage = Math.min(destinationPage, lastPage);
+            } catch (responsesError) {
+                console.warn("Failed to resolve destination page after journey reply delete", responsesError);
+            }
+
+            navigate(
+                destinationPage > 1
+                    ? `/journeys/${parsedJourneyId}?commentsPage=${destinationPage}`
+                    : `/journeys/${parsedJourneyId}`
+            );
         } catch (err) {
             console.error("Failed to delete journey response", err);
             setSubmitError(t("journeyResponse.deleteWarning", { defaultValue: "Error al eliminar el comentario." }));

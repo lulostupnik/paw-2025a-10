@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import EmptyState from "@/components/EmptyState";
@@ -7,6 +8,15 @@ import ListingSkeletonGrid from "@/components/listing/ListingSkeletonGrid";
 import { useEvents } from "@/hooks/useEvents";
 import { useJourneys } from "@/hooks/useJourneys";
 import { useI18n } from "@/lib/i18n";
+import { getUserId } from "@/lib/auth/auth";
+
+const parseIdFromUrl = (url?: string | null) => {
+    if (!url) {
+        return null;
+    }
+    const match = url.match(/\/(\d+)(?:\/)?$/);
+    return match ? Number(match[1]) : null;
+};
 
 interface ActionIconProps {
     name: "plus" | "calendar" | "map" | "sparkles";
@@ -49,8 +59,24 @@ function ActionIcon({ name }: ActionIconProps) {
 export default function ExplorePage() {
     const navigate = useNavigate();
     const { t } = useI18n();
-    const { journeys, loading: journeysLoading, error: journeysError } = useJourneys({ page: 1, size: 4 });
+    const currentUserId = getUserId();
+    const { journeys, loading: journeysLoading, error: journeysError } = useJourneys({
+        page: 1,
+        size: currentUserId ? 5 : 4,
+    });
     const { events, loading: eventsLoading, error: eventsError } = useEvents({ page: 1, size: 6 });
+    const visibleJourneys = useMemo(
+        () =>
+            journeys.content
+                .filter((journey) => {
+                    if (!currentUserId) {
+                        return true;
+                    }
+                    return parseIdFromUrl(journey.links?.userUrl) !== currentUserId;
+                })
+                .slice(0, 4),
+        [currentUserId, journeys.content]
+    );
 
     const quickActions = [
         {
@@ -122,12 +148,12 @@ export default function ExplorePage() {
                     </Button>
                 </div>
                 {journeysLoading && <ListingSkeletonGrid count={4} />}
-                {!journeysLoading && journeysError && journeys.content.length === 0 ? (
+                {!journeysLoading && journeysError && visibleJourneys.length === 0 ? (
                     <EmptyState
                         title={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}
                         className="explore-empty"
                     />
-                ) : journeys.content.length === 0 ? (
+                ) : visibleJourneys.length === 0 ? (
                     <EmptyState
                         title={t("dashboard.no.journeys")}
                         action={
@@ -139,7 +165,7 @@ export default function ExplorePage() {
                     />
                 ) : (
                     <div className="listing-grid">
-                        {journeys.content.map((journey) => (
+                        {visibleJourneys.map((journey) => (
                             <JourneyCard key={journey.id} journey={journey} />
                         ))}
                     </div>

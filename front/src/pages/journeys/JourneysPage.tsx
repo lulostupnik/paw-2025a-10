@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ListingLayout from "@/components/listing/ListingLayout";
 import JourneyCard from "@/components/journeys/JourneyCard";
@@ -35,20 +35,18 @@ export default function JourneysListPage() {
     const { data: profile } = useProfileDetail({ profileId: "me", enabled: logged });
     const journeyId = parseIdFromUrl(profile?.links?.journeyUrl);
     const hasJourney = Boolean(journeyId);
-    const initialSearch = searchParams.get("search") ?? "";
-    const initialTabParam = searchParams.get("tab") ?? "all";
-    const initialTab = logged || initialTabParam !== "myDestination" ? initialTabParam : "all";
-    const initialSortParam = searchParams.get("sort") ?? DEFAULT_SORT;
-    const initialSort = ["journey-start-asc", "journey-start-desc", "journey-end-asc", "journey-end-desc"].includes(initialSortParam)
-        ? initialSortParam
-        : DEFAULT_SORT;
-    const [search, setSearch] = useState(initialSearch);
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [sortOpen, setSortOpen] = useState(false);
     const filtersButtonRef = useRef<HTMLButtonElement>(null);
     const sortButtonRef = useRef<HTMLButtonElement>(null);
     const { filters, applyFilters, resetFilters } = useUrlSyncedListingFilters();
-    const [selectedSort, setSelectedSort] = useState(initialSort);
+    const tabParam = searchParams.get("tab") ?? "all";
+    const activeTab = logged || tabParam !== "myDestination" ? tabParam : "all";
+    const sortParam = searchParams.get("sort") ?? DEFAULT_SORT;
+    const selectedSort = ["journey-start-asc", "journey-start-desc", "journey-end-asc", "journey-end-desc"].includes(sortParam)
+        ? sortParam
+        : DEFAULT_SORT;
+    const appliedSearch = (searchParams.get("search") ?? "").trim();
     const journeyTabs = useMemo(() => {
         const tabs = [
             { id: "all", label: t("journey.tabs.all") },
@@ -110,27 +108,6 @@ export default function JourneysListPage() {
         ],
         [openFilters, t, toggleSort]
     );
-    const [activeTab, setActiveTab] = useState(initialTab);
-
-    useEffect(() => {
-        const nextSearch = searchParams.get("search") ?? "";
-        const nextTabParam = searchParams.get("tab") ?? "all";
-        const nextTab = logged || nextTabParam !== "myDestination" ? nextTabParam : "all";
-        const nextSortParam = searchParams.get("sort") ?? DEFAULT_SORT;
-        const nextSort = ["journey-start-asc", "journey-start-desc", "journey-end-asc", "journey-end-desc"].includes(nextSortParam)
-            ? nextSortParam
-            : DEFAULT_SORT;
-        if (nextSearch !== search) {
-            setSearch(nextSearch);
-        }
-        if (nextTab !== activeTab) {
-            setActiveTab(nextTab);
-        }
-        if (nextSort !== selectedSort) {
-            setSelectedSort(nextSort);
-        }
-    }, [activeTab, logged, search, searchParams, selectedSort]);
-
     const { journeys, loading, error } = useJourneys({
         destination: filters.cityName || undefined,
         startDate: filters.afterDate || undefined,
@@ -140,7 +117,7 @@ export default function JourneysListPage() {
         past: activeTab === "past",
         ongoing: activeTab === "ongoing",
         myDestination: logged && activeTab === "myDestination",
-        search: search || undefined,
+        search: appliedSearch || undefined,
         sort: selectedSort.includes("start") ? "start_date" : "end_date",
         direction: selectedSort.endsWith("desc") ? "desc" : "asc",
         page: parseInt(searchParams.get("page") ?? "1"),
@@ -164,7 +141,6 @@ export default function JourneysListPage() {
     }, [resetFilters]);
 
     const handleSortSelect = useCallback((id: string) => {
-        setSelectedSort(id);
         closeSort();
         setSearchParams((prev) => {
             const next = new URLSearchParams(prev);
@@ -179,7 +155,6 @@ export default function JourneysListPage() {
 
     const handleTabChange = useCallback(
         (tab: string) => {
-            setActiveTab(tab);
             setSearchParams((prev) => {
                 const next = new URLSearchParams(prev);
                 if (tab === "all") {
@@ -203,6 +178,7 @@ export default function JourneysListPage() {
                 } else {
                     next.delete("search");
                 }
+                next.delete("page");
                 return next;
             }, { replace: true });
         },
@@ -213,7 +189,7 @@ export default function JourneysListPage() {
         (page: number | string) => {
             if (typeof(page) === 'string'){
                 const url = new URL(page);
-                setSearchParams((prev) => {
+                setSearchParams(() => {
                     return url.searchParams
                 }, {replace: true})
             } else {
@@ -234,8 +210,8 @@ export default function JourneysListPage() {
                     title={t("journeys.page.title")}
                     searchPlaceholder={t("journeys.search.placeholder")}
                     searchAriaLabel={t("journeys.search.placeholder")}
-                    searchValue={search}
-                    onSearchChange={setSearch}
+                    searchDefaultValue={appliedSearch}
+                    searchResetKey={appliedSearch}
                     onSearchSubmit={handleSearchSubmit}
                     tabs={journeyTabs}
                     activeTab={activeTab}

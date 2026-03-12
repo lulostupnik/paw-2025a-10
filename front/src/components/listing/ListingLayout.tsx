@@ -16,8 +16,10 @@ interface ListingLayoutProps {
     title: string;
     searchPlaceholder: string;
     searchAriaLabel?: string;
-    searchValue: string;
-    onSearchChange: (value: string) => void;
+    searchValue?: string;
+    searchDefaultValue?: string;
+    searchResetKey?: string;
+    onSearchChange?: (value: string) => void;
     onSearchSubmit?: (value: string) => void;
     tabs: TabOption[];
     activeTab: string;
@@ -32,6 +34,8 @@ export default function ListingLayout({
     title,
     searchPlaceholder,
     searchValue,
+    searchDefaultValue,
+    searchResetKey,
     searchAriaLabel,
     onSearchChange,
     onSearchSubmit,
@@ -49,13 +53,24 @@ export default function ListingLayout({
                 <div className="listing-header__row">
                     <h1 className="listing-title">{title}</h1>
                     <div className="listing-toolbar">
-                        <SearchBar
-                            value={searchValue}
-                            placeholder={searchPlaceholder}
-                            onChange={onSearchChange}
-                            onSubmit={onSearchSubmit}
-                            ariaLabel={searchAriaLabel}
-                        />
+                        {typeof searchValue === "string" ? (
+                            <SearchBar
+                                value={searchValue}
+                                placeholder={searchPlaceholder}
+                                onChange={onSearchChange ?? (() => undefined)}
+                                onSubmit={onSearchSubmit}
+                                ariaLabel={searchAriaLabel}
+                            />
+                        ) : (
+                            <SearchBar
+                                key={searchResetKey}
+                                defaultValue={searchDefaultValue}
+                                placeholder={searchPlaceholder}
+                                onChange={onSearchChange}
+                                onSubmit={onSearchSubmit}
+                                ariaLabel={searchAriaLabel}
+                            />
+                        )}
                         <div className="listing-toolbar__actions">
                             {toolbarButtons?.map((button) => (
                                 <ToolbarButton

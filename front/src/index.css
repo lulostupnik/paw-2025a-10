@@ -4687,6 +4687,14 @@ textarea.input-control {
   border-top: 1px solid var(--color-border);
 }
 
+.journey-detail-page .add-tip-button-container .btn {
+  text-decoration: none;
+}
+
+.journey-detail-page .add-tip-button-container .btn:hover {
+  text-decoration: none;
+}
+
 .journey-tip-form-page .journey-info-card,
 .journey-tip-form-page .tip-info-card {
   background: var(--color-white);

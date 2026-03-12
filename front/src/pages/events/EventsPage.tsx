@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ListingLayout from "@/components/listing/ListingLayout";
 import EmptyState from "@/components/EmptyState";
@@ -58,19 +58,16 @@ export default function EventsListPage() {
     const logged = isLoggedIn();
     const userId = logged ? getUserId() : null;
     const today = getTodayIsoDate();
-    const initialSearch = searchParams.get("search") ?? "";
-    const initialTabParam = searchParams.get("tab") ?? "all";
-    const initialTab = logged || initialTabParam !== "attending" ? initialTabParam : "all";
-    const initialSortParam = searchParams.get("sort") ?? DEFAULT_SORT;
-    const initialSort = SORT_IDS.has(initialSortParam) ? initialSortParam : DEFAULT_SORT;
-    const [search, setSearch] = useState(initialSearch);
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [sortOpen, setSortOpen] = useState(false);
     const filtersButtonRef = useRef<HTMLButtonElement>(null);
     const sortButtonRef = useRef<HTMLButtonElement>(null);
     const { filters, applyFilters, resetFilters } = useUrlSyncedListingFilters();
-    const [selectedSort, setSelectedSort] = useState(initialSort);
-    const initialPage = searchParams.get("page") ?? "1";
+    const tabParam = searchParams.get("tab") ?? "all";
+    const activeTab = logged || tabParam !== "attending" ? tabParam : "all";
+    const sortParam = searchParams.get("sort") ?? DEFAULT_SORT;
+    const selectedSort = SORT_IDS.has(sortParam) ? sortParam : DEFAULT_SORT;
+    const appliedSearch = (searchParams.get("search") ?? "").trim();
 
     const eventSortOptions = useMemo(
         () => [
@@ -136,26 +133,6 @@ export default function EventsListPage() {
         ],
         [openFilters, t, toggleSort]
     );
-    const [activeTab, setActiveTab] = useState(initialTab);
-
-    useEffect(() => {
-        const nextSearch = searchParams.get("search") ?? "";
-        const nextTabParam = searchParams.get("tab") ?? "all";
-        const nextTab = logged || nextTabParam !== "attending" ? nextTabParam : "all";
-        const nextSortParam = searchParams.get("sort") ?? DEFAULT_SORT;
-        const nextSort = SORT_IDS.has(nextSortParam) ? nextSortParam : DEFAULT_SORT;
-        if (nextSearch !== search) {
-            setSearch(nextSearch);
-        }
-        if (nextTab !== activeTab) {
-            setActiveTab(nextTab);
-        }
-        if (nextSort !== selectedSort) {
-            setSelectedSort(nextSort);
-        }
-    }, [activeTab, logged, search, searchParams, selectedSort]);
-
-    const normalizedSearch = search.trim();
     const sortParams = useMemo(() => mapSortParams(selectedSort), [selectedSort]);
     const tabParams = useMemo(() => mapTabParams(activeTab, userId, today), [activeTab, today, userId]);
     const eventQueryParams = useMemo<FetchEventsParams>(() => {
@@ -165,8 +142,8 @@ export default function EventsListPage() {
             ...sortParams,
             ...tabParams,
         };
-        if (normalizedSearch) {
-            params.search = normalizedSearch;
+        if (appliedSearch) {
+            params.search = appliedSearch;
         }
         if (filters.cityName) {
             params.destination = filters.cityName;
@@ -187,7 +164,7 @@ export default function EventsListPage() {
             params.beforeDate = effectiveBefore;
         }
         return params;
-    }, [filters.afterDate, filters.beforeDate, filters.cityName, filters.interestName, normalizedSearch, sortParams, tabParams, searchParams]);
+    }, [appliedSearch, filters.afterDate, filters.beforeDate, filters.cityName, filters.interestName, sortParams, tabParams, searchParams]);
 
     const { events, loading, error } = useEvents(eventQueryParams);
 
@@ -209,7 +186,6 @@ export default function EventsListPage() {
 
     const handleSortSelect = useCallback(
         (id: string) => {
-            setSelectedSort(id);
             closeSort();
             setSearchParams((prev) => {
                 const next = new URLSearchParams(prev);
@@ -226,7 +202,6 @@ export default function EventsListPage() {
 
     const handleTabChange = useCallback(
         (tab: string) => {
-            setActiveTab(tab);
             setSearchParams((prev) => {
                 const next = new URLSearchParams(prev);
                 if (tab === "all") {
@@ -250,6 +225,7 @@ export default function EventsListPage() {
                 } else {
                     next.delete("search");
                 }
+                next.delete("page");
                 return next;
             }, { replace: true });
         },
@@ -260,7 +236,7 @@ export default function EventsListPage() {
         (page: number | string) => {
             if (typeof(page) === 'string'){
                 const url = new URL(page);
-                setSearchParams((prev) => {
+                setSearchParams(() => {
                     return url.searchParams
                 }, {replace: true})
             } else {
@@ -286,8 +262,8 @@ export default function EventsListPage() {
                     title={t("events.page.title")}
                     searchPlaceholder={t("events.search.placeholder")}
                     searchAriaLabel={t("events.search.placeholder")}
-                    searchValue={search}
-                    onSearchChange={setSearch}
+                    searchDefaultValue={appliedSearch}
+                    searchResetKey={appliedSearch}
                     onSearchSubmit={handleSearchSubmit}
                     tabs={eventTabs}
                     activeTab={activeTab}

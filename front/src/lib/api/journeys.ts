@@ -168,6 +168,11 @@ export const getJourneyResponses = async (
     return toPaged(response);
 };
 
+export const getJourneyResponse = async (journeyId: number, responseId: number, signal?: AbortSignal) => {
+    const response = await apiClient.get<JourneyResponseApi>(`/journeys/${journeyId}/responses/${responseId}`, { signal });
+    return response.data;
+};
+
 export const createJourneyResponse = async (journeyId: number, payload: { message: string }, signal?: AbortSignal) => {
     const response = await apiClient.post<JourneyResponseApi>(`/journeys/${journeyId}/responses`, payload, { signal });
     return response.data;
@@ -246,7 +251,7 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
     const [interests, responses, tips] = await Promise.all([
         userId ? getUserInterests(userId, signal) : Promise.resolve([]),
         getJourneyResponses(journey.id, { page: 1, size: 4 }, signal),
-        listJourneyTips(journey.id, { page: 1, size: 10 }, signal),
+        listJourneyTips(journey.id, { page: 1, size: 4 }, signal),
     ]);
 
     const responseUsers = await Promise.all(

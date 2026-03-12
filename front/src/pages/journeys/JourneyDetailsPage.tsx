@@ -14,6 +14,16 @@ import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navig
 import { useAuthGate } from "@/hooks/useAuthGate";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 
+const TIPS_PAGE_PARAM = "tipsPage";
+const COMMENTS_PAGE_PARAM = "commentsPage";
+const TIPS_PAGE_SIZE = 4;
+const COMMENTS_PAGE_SIZE = 4;
+
+const parsePageParam = (value: string | null) => {
+    const raw = Number(value ?? "1");
+    return Number.isFinite(raw) && raw > 0 ? raw : 1;
+};
+
 const formatDate = (value: string, locale: string) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {
@@ -94,11 +104,8 @@ export default function JourneyDetailPage() {
     const [eventsSubtab, setEventsSubtab] = useState<"created" | "attending">("created");
     const [createdEventsPage, setCreatedEventsPage] = useState(1);
     const [attendingEventsPage, setAttendingEventsPage] = useState(1);
-    const [tipsPage, setTipsPage] = useState(() => {
-        const raw = Number(searchParams.get("tipsPage") ?? "1");
-        return Number.isFinite(raw) && raw > 0 ? raw : 1;
-    });
-    const [commentsPage, setCommentsPage] = useState(1);
+    const [tipsPage, setTipsPage] = useState(() => parsePageParam(searchParams.get(TIPS_PAGE_PARAM)));
+    const [commentsPage, setCommentsPage] = useState(() => parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM)));
     const [replyMessage, setReplyMessage] = useState("");
     const [replyError, setReplyError] = useState<string | null>(null);
     const [replySubmitting, setReplySubmitting] = useState(false);
@@ -108,8 +115,8 @@ export default function JourneyDetailPage() {
     const admin = isAdmin();
 
     const interestsPageSize = 8;
-    const tipsPageSize = 10;
-    const commentsPageSize = 4;
+    const tipsPageSize = TIPS_PAGE_SIZE;
+    const commentsPageSize = COMMENTS_PAGE_SIZE;
     const eventsPageSize = 6;
     const journeyOwnerId = data?.user?.id ?? null;
 
@@ -204,13 +211,28 @@ export default function JourneyDetailPage() {
     const tipsPageData = tipsQuery.data ?? emptyPage();
     const commentsPageData = commentsQuery.data ?? emptyPage();
 
+    const updatePageParam = useCallback(
+        (paramName: string, page: number) => {
+            const nextParams = new URLSearchParams(searchParams);
+            if (page > 1) {
+                nextParams.set(paramName, String(page));
+            } else {
+                nextParams.delete(paramName);
+            }
+            setSearchParams(nextParams, { replace: true });
+        },
+        [searchParams, setSearchParams]
+    );
+
     useEffect(() => {
-        const raw = Number(searchParams.get("tipsPage") ?? "1");
-        const nextPage = Number.isFinite(raw) && raw > 0 ? raw : 1;
-        if (nextPage !== tipsPage) {
-            setTipsPage(nextPage);
-        }
-    }, [searchParams, tipsPage]);
+        const nextPage = parsePageParam(searchParams.get(TIPS_PAGE_PARAM));
+        setTipsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
+    }, [searchParams]);
+
+    useEffect(() => {
+        const nextPage = parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM));
+        setCommentsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
+    }, [searchParams]);
 
     useEffect(() => {
         if (tipsQuery.isLoading || tipsQuery.isFetching) {
@@ -222,13 +244,7 @@ export default function JourneyDetailPage() {
                 return;
             }
             setTipsPage(fallbackPage);
-            const nextParams = new URLSearchParams(searchParams);
-            if (fallbackPage > 1) {
-                nextParams.set("tipsPage", String(fallbackPage));
-            } else {
-                nextParams.delete("tipsPage");
-            }
-            setSearchParams(nextParams, { replace: true });
+            updatePageParam(TIPS_PAGE_PARAM, fallbackPage);
         }
     }, [
         tipsQuery.isLoading,
@@ -237,8 +253,7 @@ export default function JourneyDetailPage() {
         tipsPageData.totalElements,
         tipsPageData.totalPages,
         tipsPage,
-        searchParams,
-        setSearchParams,
+        updatePageParam,
     ]);
 
     useEffect(() => {
@@ -249,6 +264,7 @@ export default function JourneyDetailPage() {
             const fallbackPage = Math.max(1, Math.min(commentsPage - 1, commentsPageData.totalPages || commentsPage - 1));
             if (fallbackPage !== commentsPage) {
                 setCommentsPage(fallbackPage);
+                updatePageParam(COMMENTS_PAGE_PARAM, fallbackPage);
             }
         }
     }, [
@@ -258,6 +274,7 @@ export default function JourneyDetailPage() {
         commentsPageData.totalElements,
         commentsPageData.totalPages,
         commentsPage,
+        updatePageParam,
     ]);
 
     useEffect(() => {
@@ -321,22 +338,18 @@ export default function JourneyDetailPage() {
         (page: number | string) => {
             const parsedPage = parsePageFromLink(page);
             setTipsPage(parsedPage);
-            const nextParams = new URLSearchParams(searchParams);
-            if (parsedPage > 1) {
-                nextParams.set("tipsPage", String(parsedPage));
-            } else {
-                nextParams.delete("tipsPage");
-            }
-            setSearchParams(nextParams, { replace: true });
+            updatePageParam(TIPS_PAGE_PARAM, parsedPage);
         },
-        [parsePageFromLink, searchParams, setSearchParams]
+        [parsePageFromLink, updatePageParam]
     );
 
     const handleCommentsPageChange = useCallback(
         (page: number | string) => {
-            setCommentsPage(parsePageFromLink(page));
+            const parsedPage = parsePageFromLink(page);
+            setCommentsPage(parsedPage);
+            updatePageParam(COMMENTS_PAGE_PARAM, parsedPage);
         },
-        [parsePageFromLink]
+        [parsePageFromLink, updatePageParam]
     );
 
     if (isLoading) {
@@ -380,6 +393,39 @@ export default function JourneyDetailPage() {
         navigate("/journeys");
     };
 
+    const currentJourneyLocation = `${location.pathname}${location.search}`;
+
+    const handleCreateTip = () => {
+        if (!id) {
+            return;
+        }
+        pushToNavigationStack(currentJourneyLocation);
+        const nextParams = new URLSearchParams();
+        if (tipsPage > 1) {
+            nextParams.set(TIPS_PAGE_PARAM, String(tipsPage));
+        }
+        navigate(`/journeys/${id}/tips/create${nextParams.toString() ? `?${nextParams.toString()}` : ""}`);
+    };
+
+    const handleReportComment = (responseId: number) => {
+        pushToNavigationStack(currentJourneyLocation);
+        setOpenCommentMenuId(null);
+        navigate(`/reports/journey-responses/${responseId}/create`);
+    };
+
+    const handleDeleteComment = (responseId: number) => {
+        if (!id) {
+            return;
+        }
+        pushToNavigationStack(currentJourneyLocation);
+        setOpenCommentMenuId(null);
+        const nextParams = new URLSearchParams({ journeyId: id });
+        if (commentsPage > 1) {
+            nextParams.set(COMMENTS_PAGE_PARAM, String(commentsPage));
+        }
+        navigate(`/journeys/reply/${responseId}/delete?${nextParams.toString()}`);
+    };
+
     const handleReplySubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         gate.runOrPrompt(async () => {
@@ -404,6 +450,7 @@ export default function JourneyDetailPage() {
                 );
                 const targetCommentsPage = Math.max(1, refreshedCommentsPage.totalPages || 1);
                 setCommentsPage(targetCommentsPage);
+                updatePageParam(COMMENTS_PAGE_PARAM, targetCommentsPage);
                 await Promise.all([
                     queryClient.invalidateQueries({
                         predicate: (query) =>
@@ -924,13 +971,13 @@ export default function JourneyDetailPage() {
 
                                     {isOwner && (
                                         <div className="add-tip-button-container">
-                                            <Link to={`/journeys/${id}/tips/create?tipsPage=${tipsPage}`} className="btn-primary btn-with-icon">
+                                            <button type="button" className="btn btn-primary" onClick={handleCreateTip}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" className="btn-icon" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                     <path d="M12 5v14"></path>
                                                     <path d="M5 12h14"></path>
                                                 </svg>
                                                 <span>{t("journey.tip.add")}</span>
-                                            </Link>
+                                            </button>
                                         </div>
                                     )}
                                 </div>
@@ -1027,31 +1074,10 @@ export default function JourneyDetailPage() {
                                                                         padding: "6px 0",
                                                                     }}
                                                                 >
-                                                                    {(!isOwner || admin) && (
-                                                                            <Link
-                                                                                to={`/reports/journey-responses/${response.id}/create`}
-                                                                                onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
-                                                                                style={{
-                                                                                    color: "#333",
-                                                                                    padding: "10px 14px",
-                                                                                    textDecoration: "none",
-                                                                                display: "flex",
-                                                                                alignItems: "center",
-                                                                                gap: "10px",
-                                                                                fontSize: "13px",
-                                                                            }}
-                                                                        >
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                                <path d="M12 9v4"></path>
-                                                                                <path d="M12 17h.01"></path>
-                                                                                <circle cx="12" cy="12" r="10"></circle>
-                                                                            </svg>
-                                                                            <span>{t("comment.report")}</span>
-                                                                        </Link>
-                                                                    )}
-                                                                    {admin && (
-                                                                        <Link
-                                                                            to={`/journeys/reply/${response.id}/delete?journeyId=${id}`}
+                                                                    {
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleReportComment(response.id)}
                                                                             style={{
                                                                                 color: "#333",
                                                                                 padding: "10px 14px",
@@ -1060,6 +1086,36 @@ export default function JourneyDetailPage() {
                                                                                 alignItems: "center",
                                                                                 gap: "10px",
                                                                                 fontSize: "13px",
+                                                                                width: "100%",
+                                                                                border: "none",
+                                                                                background: "transparent",
+                                                                                cursor: "pointer",
+                                                                            }}
+                                                                        >
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                                <path d="M12 9v4"></path>
+                                                                                <path d="M12 17h.01"></path>
+                                                                                <circle cx="12" cy="12" r="10"></circle>
+                                                                            </svg>
+                                                                            <span>{t("comment.report")}</span>
+                                                                        </button>
+                                                                    }
+                                                                    {admin && (
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleDeleteComment(response.id)}
+                                                                            style={{
+                                                                                color: "#333",
+                                                                                padding: "10px 14px",
+                                                                                textDecoration: "none",
+                                                                                display: "flex",
+                                                                                alignItems: "center",
+                                                                                gap: "10px",
+                                                                                fontSize: "13px",
+                                                                                width: "100%",
+                                                                                border: "none",
+                                                                                background: "transparent",
+                                                                                cursor: "pointer",
                                                                             }}
                                                                         >
                                                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1067,7 +1123,7 @@ export default function JourneyDetailPage() {
                                                                                 <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
                                                                             </svg>
                                                                             <span>{t("comment.delete")}</span>
-                                                                        </Link>
+                                                                        </button>
                                                                     )}
                                                                 </div>
                                                             )}
