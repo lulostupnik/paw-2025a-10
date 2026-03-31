@@ -454,55 +454,65 @@ export default function EventEditPage() {
                         />
                     </div>
 
-                    <div
-                        className={classNames("file-uploader", dragging && "file-uploader--dragging", touched.flyer && errors.flyer && "file-uploader--error")}
-                        onDragOver={(event) => {
-                            event.preventDefault();
-                            setDragging(true);
-                        }}
-                        onDragLeave={(event) => {
-                            event.preventDefault();
-                            setDragging(false);
-                        }}
-                        onDrop={(event) => {
-                            event.preventDefault();
-                            setDragging(false);
-                            handleFileSelection(event.dataTransfer.files);
-                        }}
-                    >
+                    <div className="form-field">
+                        <label className="input-label" htmlFor="field-flyer">
+                            {t("event.flyer.title")}
+                        </label>
+                        <div
+                            className={classNames(
+                                "upload-dropzone",
+                                dragging && "is-dragging",
+                                touched.flyer && errors.flyer && "has-error"
+                            )}
+                            onDragOver={(event) => {
+                                event.preventDefault();
+                                setDragging(true);
+                            }}
+                            onDragLeave={(event) => {
+                                event.preventDefault();
+                                setDragging(false);
+                            }}
+                            onDrop={(event) => {
+                                event.preventDefault();
+                                setDragging(false);
+                                handleFileSelection(event.dataTransfer.files);
+                            }}
+                            onClick={() => fileInputRef.current?.click()}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    fileInputRef.current?.click();
+                                }
+                            }}
+                        >
+                            {activeFlyerPreviewUrl ? (
+                                <div className="upload-preview">
+                                    <img src={activeFlyerPreviewUrl} alt={t("event.flyer.alt")} />
+                                    <div>
+                                        {form.flyer ? <p>{form.flyer.name}</p> : null}
+                                        <p className="upload-hint">{t("event.create.flyer.change")}</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="upload-placeholder">
+                                    <UploadIcon />
+                                    <p>{t("event.create.flyer.placeholder")}</p>
+                                    <p className="upload-hint">{t("event.create.flyer.helper")}</p>
+                                </div>
+                            )}
+                        </div>
                         <input
+                            id="field-flyer"
                             ref={fileInputRef}
                             type="file"
                             accept={ACCEPTED_EXTENSIONS.join(",")}
-                            hidden
+                            style={{ display: "none" }}
                             onChange={(event) => handleFileSelection(event.target.files)}
+                            onBlur={() => markTouched("flyer")}
                         />
-                        <div className="file-uploader__body">
-                            <div>
-                                <p className="file-uploader__title">{t("event.flyer.title")}</p>
-                                <p className="file-uploader__subtitle">{t("event.flyer.edit.hint")}</p>
-                            </div>
-                        </div>
-                        <div className="file-uploader__actions">
-                            <Button type="button" variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
-                                {form.flyer ? t("event.create.flyer.change") : t("event.create.flyer.label")}
-                            </Button>
-                            {currentFlyerPreviewUrl && !form.flyer && (
-                                <span className="file-uploader__filename">{t("event.edit.flyer.current", { defaultValue: "Current flyer" })}</span>
-                            )}
-                            {form.flyer && <span className="file-uploader__filename">{form.flyer.name}</span>}
-                        </div>
-                        {activeFlyerPreviewUrl ? (
-                            <div className="file-uploader__preview">
-                                <img
-                                    src={activeFlyerPreviewUrl}
-                                    alt={t("event.flyer.alt")}
-                                    className="file-preview-image"
-                                />
-                            </div>
-                        ) : (
-                            <p className="file-uploader__subtitle">{t("event.flyer.none")}</p>
-                        )}
+                        <p className="upload-hint">{t("event.flyer.edit.hint")}</p>
                         {touched.flyer && errors.flyer && (
                             <p className="form-field__text form-field__text--error">{errors.flyer}</p>
                         )}
@@ -523,3 +533,15 @@ export default function EventEditPage() {
         </div>
     );
 }
+
+const UploadIcon = () => (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
+        <path
+            d="M16 31v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+        <path d="M24 29V8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="m15 18 9-9 9 9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
