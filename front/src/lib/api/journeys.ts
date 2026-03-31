@@ -5,11 +5,14 @@ import { toPaged, type PageResult } from "@/types/pagination";
 interface UserApi {
     id: number;
     username: string;
-    firstname?: string;
-    lastname?: string;
+    email?: string | null;
+    firstname?: string | null;
+    lastname?: string | null;
     links?: {
         selfUrl?: string | null;
         profilePictureUrl?: string | null;
+        universityUrl?: string | null;
+        careerUrl?: string | null;
     } | null;
 }
 
@@ -34,6 +37,13 @@ interface CityApi {
 
 interface InterestApi {
     id: number;
+    name: string;
+    links?: {
+        selfUrl?: string | null;
+    } | null;
+}
+
+interface CareerApi {
     name: string;
     links?: {
         selfUrl?: string | null;
@@ -71,7 +81,8 @@ const parseIdFromUrl = (url?: string | null) => {
 };
 
 export interface FetchJourneysParams {
-    destination?: string;
+    city?: string;
+    university?: string;
     startDate?: string;
     endDate?: string;
     interest?: string;
@@ -148,6 +159,14 @@ export const getCityByUrl = async (url?: string | null, signal?: AbortSignal) =>
         return null;
     }
     const response = await apiClient.get<CityApi>(normalizeApiPath(url), { signal });
+    return response.data;
+};
+
+export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal) => {
+    if (!url) {
+        return null;
+    }
+    const response = await apiClient.get<CareerApi>(normalizeApiPath(url), { signal });
     return response.data;
 };
 
@@ -236,7 +255,7 @@ export const resolveJourneySummary = async (journey: JourneySummary, signal?: Ab
         university: university?.name ?? journey.university,
         city: city?.name ?? journey.city,
         country: city?.country ?? journey.country,
-        profilePictureUrl: journey.profilePictureUrl ?? null, // TODO: fetch profile picture id/url from user details endpoint.
+        profilePictureUrl: user?.links?.profilePictureUrl ?? journey.profilePictureUrl ?? null,
     };
 };
 
@@ -245,7 +264,11 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
         getUserByUrl(journey.links?.userUrl, signal),
         getUniversityByUrl(journey.links?.destinationUniversityUrl, signal),
     ]);
-    const city = university?.links?.cityUrl ? await getCityByUrl(university.links.cityUrl, signal) : null;
+    const [city, creatorUniversity, creatorCareer] = await Promise.all([
+        university?.links?.cityUrl ? getCityByUrl(university.links.cityUrl, signal) : Promise.resolve(null),
+        user?.links?.universityUrl ? getUniversityByUrl(user.links.universityUrl, signal) : Promise.resolve(null),
+        user?.links?.careerUrl ? getCareerByUrl(user.links.careerUrl, signal) : Promise.resolve(null),
+    ]);
 
     const userId = user?.id ?? parseIdFromUrl(journey.links?.userUrl);
     const [interests, responses, tips] = await Promise.all([
@@ -263,7 +286,7 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
         message: response.message,
         dateTime: response.dateTime,
         user: {
-            username: responseUsers[index]?.username ?? "—", // TODO: backend must provide response author data (firstname/lastname if needed).
+            username: responseUsers[index]?.username ?? "—",
         },
     }));
 
@@ -274,15 +297,17 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
         endDate: journey.endDate,
         links: journey.links ?? null,
         destinationUniversity: {
-            name: university?.name ?? "—", // TODO: backend must provide destination university name.
-            city: city?.name ?? "—", // TODO: backend must provide destination city name.
+            name: university?.name ?? "—",
+            city: city?.name ?? "—",
         },
         user: {
             id: user?.id ?? 0,
-            firstname: user?.username ?? "—", // TODO: fetch full user details (firstname) endpoint.
-            lastname: "", // TODO: fetch full user details (lastname) endpoint.
+            firstname: user?.firstname ?? user?.username ?? "—",
+            lastname: user?.lastname ?? "",
             username: user?.username ?? "—",
-            profilePictureUrl: journey.profilePictureUrl ?? null, // TODO: backend must provide profile picture id/url endpoint.
+            profilePictureUrl: user?.links?.profilePictureUrl ?? journey.profilePictureUrl ?? null,
+            university: creatorUniversity ? { name: creatorUniversity.name } : null,
+            career: creatorCareer ? { name: creatorCareer.name } : null,
         },
         interests: interests.map((interest) => interest.name),
         events: [],

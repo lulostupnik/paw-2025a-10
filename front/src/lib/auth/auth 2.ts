@@ -16,7 +16,7 @@ export function getUserId(): number {
     return Number.isFinite(parsed) ? parsed : 1;
 }
 
-export function loginFake(opts?: { admin?: boolean }) {
+export function loginFake(_opts?: { admin?: boolean }) {
     localStorage.setItem("token", "dev-token");
     localStorage.setItem("username", "username");
     localStorage.setItem("role", "ADMIN");

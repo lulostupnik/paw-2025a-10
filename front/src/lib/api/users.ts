@@ -40,6 +40,9 @@ export interface ListUsersParams {
     page?: number;
     size?: number;
     blocked?: boolean;
+    university?: number;
+    career?: number;
+    interest?: number;
 }
 
 export interface ListUserInterestParams {

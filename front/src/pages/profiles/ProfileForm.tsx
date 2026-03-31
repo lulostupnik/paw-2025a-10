@@ -9,6 +9,7 @@ import { listCareers } from "@/lib/api/careers";
 import { listUniversities } from "@/lib/api/universities";
 import { emptyPage } from "@/types/pagination";
 import { useToast } from "@/components/ui/ToastProvider";
+import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 interface ProfileFormState {
     firstName: string;
@@ -94,7 +95,7 @@ export default function ProfileForm() {
                 originUniversity: selectedUniversity?.name,
                 career: selectedCareer?.name,
             });
-            const returnPath = (location.state as { from?: string } | null)?.from;
+            const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
             const fallbackPath = profile ? `/profiles/${profile.id}/info` : "/profiles/me/info";
             showToast(t("profile.toast.updated", { defaultValue: "Profile updated successfully." }), { variant: "success" });
             queryClient.invalidateQueries({ queryKey: ["profileDetail"] });

@@ -4,19 +4,27 @@ import { useSearchParams } from "react-router-dom";
 export interface ListingFiltersState {
     cityId: number | null;
     cityName: string;
+    universityId: number | null;
+    universityName: string;
     interestId: number | null;
     interestName: string;
     afterDate: string;
     beforeDate: string;
+    minRating: number | null;
+    hasCapacity: boolean;
 }
 
 export const EMPTY_LISTING_FILTERS: ListingFiltersState = {
     cityId: null,
     cityName: "",
+    universityId: null,
+    universityName: "",
     interestId: null,
     interestName: "",
     afterDate: "",
     beforeDate: "",
+    minRating: null,
+    hasCapacity: false,
 };
 
 export interface ListingFiltersController {
@@ -38,10 +46,14 @@ const parseNumberParam = (value: string | null): number | null => {
 const parseFiltersFromParams = (params: URLSearchParams): ListingFiltersState => ({
     cityId: parseNumberParam(params.get("city")),
     cityName: params.get("cityName") ?? "",
+    universityId: parseNumberParam(params.get("university")),
+    universityName: params.get("universityName") ?? "",
     interestId: parseNumberParam(params.get("interests") ?? params.get("interest")),
     interestName: params.get("interestName") ?? "",
     afterDate: params.get("after") ?? "",
     beforeDate: params.get("before") ?? "",
+    minRating: parseNumberParam(params.get("minRating")),
+    hasCapacity: params.get("hasCapacity") === "true",
 });
 
 const setParam = (params: URLSearchParams, key: string, value: string | null) => {
@@ -56,20 +68,28 @@ const applyFiltersToParams = (source: URLSearchParams, next: ListingFiltersState
     const params = new URLSearchParams(source);
     setParam(params, "city", next.cityId ? String(next.cityId) : null);
     setParam(params, "cityName", next.cityId && next.cityName ? next.cityName : null);
+    setParam(params, "university", next.universityId ? String(next.universityId) : null);
+    setParam(params, "universityName", next.universityId && next.universityName ? next.universityName : null);
     setParam(params, "interests", next.interestId ? String(next.interestId) : null);
     setParam(params, "interestName", next.interestId && next.interestName ? next.interestName : null);
     setParam(params, "after", next.afterDate || null);
     setParam(params, "before", next.beforeDate || null);
+    setParam(params, "minRating", next.minRating ? String(next.minRating) : null);
+    setParam(params, "hasCapacity", next.hasCapacity ? "true" : null);
     return params;
 };
 
 const areFiltersEqual = (a: ListingFiltersState, b: ListingFiltersState) =>
     a.cityId === b.cityId &&
     a.cityName === b.cityName &&
+    a.universityId === b.universityId &&
+    a.universityName === b.universityName &&
     a.interestId === b.interestId &&
     a.interestName === b.interestName &&
     a.afterDate === b.afterDate &&
-    a.beforeDate === b.beforeDate;
+    a.beforeDate === b.beforeDate &&
+    a.minRating === b.minRating &&
+    a.hasCapacity === b.hasCapacity;
 
 export function useListingFilters(initial?: Partial<ListingFiltersState>): ListingFiltersController {
     const [filters, setFilters] = useState<ListingFiltersState>(() => ({ ...EMPTY_LISTING_FILTERS, ...initial }));
@@ -112,6 +132,9 @@ export function useUrlSyncedListingFilters(): ListingFiltersController {
 
 export const isListingFiltersEmpty = (filters: ListingFiltersState) =>
     !filters.cityId &&
+    !filters.universityId &&
     !filters.interestId &&
     !filters.afterDate &&
-    !filters.beforeDate;
+    !filters.beforeDate &&
+    !filters.minRating &&
+    !filters.hasCapacity;

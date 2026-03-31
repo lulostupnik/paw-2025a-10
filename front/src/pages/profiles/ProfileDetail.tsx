@@ -10,6 +10,7 @@ import ProfileInterestsTab from "@/components/profiles/ProfileInterestsTab";
 import ProfileEventsTab from "@/components/profiles/ProfileEventsTab";
 import { useProfileInterests } from "@/hooks/profiles/useProfileInterests";
 import { emptyPage } from "@/types/pagination";
+import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 export default function ProfileDetail() {
     const { t } = useI18n();
@@ -17,7 +18,7 @@ export default function ProfileDetail() {
     const location = useLocation();
     const { profileId = "me", tab } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
-    const { data: profile, isLoading, isError } = useProfileDetail({profileId});
+    const { data: profile, isLoading, isError } = useProfileDetail({ profileId });
 
     const activeTab = tab === "interests" || tab === "events" ? tab : "info";
     const rawEventsTab = searchParams.get("eventsTab");
@@ -53,8 +54,8 @@ export default function ProfileDetail() {
     };
 
     const returnPathKey = `profile:return:${profileId}`;
-    const fromState = (location.state as { from?: string } | null)?.from;
-    const returnPath = fromState ?? sessionStorage.getItem(returnPathKey);
+    const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
+    const returnPath = fromState ?? sanitizeInternalPath(sessionStorage.getItem(returnPathKey));
 
     useEffect(() => {
         if (fromState) {
@@ -72,17 +73,15 @@ export default function ProfileDetail() {
 
     const handlePageChange = useCallback(
         (page: number | string) => {
-            if (typeof(page) === 'string'){
+            if (typeof page === "string") {
                 const url = new URL(page);
-                setSearchParams((prev) => {
-                    return url.searchParams
-                }, {replace: true})
+                setSearchParams(() => url.searchParams, { replace: true });
             } else {
                 setSearchParams((prev) => {
                     const next = new URLSearchParams(prev);
-                    next.set("page", page.toString())
-                    return next
-                }, {replace: true})
+                    next.set("page", page.toString());
+                    return next;
+                }, { replace: true });
             }
         },
         [setSearchParams]

@@ -109,7 +109,8 @@ export default function JourneysListPage() {
         [openFilters, t, toggleSort]
     );
     const { journeys, loading, error } = useJourneys({
-        destination: filters.cityName || undefined,
+        city: filters.cityName || undefined,
+        university: filters.universityName || undefined,
         startDate: filters.afterDate || undefined,
         endDate: filters.beforeDate || undefined,
         interest: filters.interestName || undefined,

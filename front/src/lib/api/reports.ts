@@ -206,7 +206,7 @@ export const updateReportStatus = async (id: number, status: ReportStatus, signa
 };
 
 export const deleteReport = async (id: number, signal?: AbortSignal) => {
-    await apiClient.delete(`/reports/${id}/`, { signal });
+    await apiClient.delete(`/reports/${id}`, { signal });
 };
 
 export const resolveReportListItem = async (report: ReportDto, signal?: AbortSignal): Promise<ReportListItem> => {

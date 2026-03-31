@@ -95,9 +95,27 @@ export const useAdminUsers = ({
     search = "",
     page = 1,
     pageSize = 10,
-    url = undefined
-}: AdminTabParams = {}): AdminTabResult<AdminUser> => {
-    const { params } = useAdminListParams({ search, page, pageSize, url });
+    url = undefined,
+    blocked,
+    university,
+    career,
+    interest,
+}: AdminTabParams & { blocked?: boolean; university?: number; career?: number; interest?: number } = {}): AdminTabResult<AdminUser> => {
+    const safePage = Math.max(1, page);
+    const safePageSize = Math.max(1, pageSize);
+    const params = useMemo(
+        () => ({
+            search: search.trim() || undefined,
+            page: safePage,
+            size: safePageSize,
+            url,
+            blocked,
+            university,
+            career,
+            interest,
+        }),
+        [blocked, career, interest, page, safePage, safePageSize, search, university, url]
+    );
 
     const query = useQuery({
         queryKey: ["adminUsers", params],

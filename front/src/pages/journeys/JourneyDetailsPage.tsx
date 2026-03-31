@@ -13,6 +13,8 @@ import { getUserInterests } from "@/lib/api/users";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
+import type { JourneyComment, JourneyEvent, JourneyTip } from "@/types/journey";
+import type { ProfileInterest } from "@/types/profile";
 
 const TIPS_PAGE_PARAM = "tipsPage";
 const COMMENTS_PAGE_PARAM = "commentsPage";
@@ -46,7 +48,7 @@ const formatDateTime = (value: string, locale: string) => {
     }).format(date);
 };
 
-const mapEventPageToJourneyEvents = async (page: PageResult<EventDto>, signal?: AbortSignal) => {
+const mapEventPageToJourneyEvents = async (page: PageResult<EventDto>, signal?: AbortSignal): Promise<PageResult<JourneyEvent>> => {
     const cities = await Promise.all(
         page.content.map((event) => (event.links?.cityUrl ? getCityByUrl(event.links.cityUrl, signal) : Promise.resolve(null)))
     );
@@ -71,7 +73,7 @@ interface JourneyResponseApi {
     } | null;
 }
 
-const mapJourneyResponsesPage = async (page: PageResult<JourneyResponseApi>, signal?: AbortSignal) => {
+const mapJourneyResponsesPage = async (page: PageResult<JourneyResponseApi>, signal?: AbortSignal): Promise<PageResult<JourneyComment>> => {
     const users = await Promise.all(
         page.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal) : Promise.resolve(null)))
     );
@@ -120,11 +122,11 @@ export default function JourneyDetailPage() {
     const eventsPageSize = 6;
     const journeyOwnerId = data?.user?.id ?? null;
 
-    const interestsQuery = useQuery({
+    const interestsQuery = useQuery<PageResult<ProfileInterest>>({
         queryKey: ["journeyInterests", journeyOwnerId, interestsPage],
         queryFn: ({ signal }) => {
             if (!journeyOwnerId) {
-                return Promise.resolve(emptyPage());
+                return Promise.resolve(emptyPage<ProfileInterest>());
             }
             return getUserInterests(journeyOwnerId, { page: interestsPage, size: interestsPageSize }, signal);
         },
@@ -132,11 +134,11 @@ export default function JourneyDetailPage() {
         placeholderData: keepPreviousData,
     });
 
-    const tipsQuery = useQuery({
+    const tipsQuery = useQuery<PageResult<JourneyTip>>({
         queryKey: ["journeyTips", id, tipsPage],
         queryFn: ({ signal }) => {
             if (!id) {
-                return Promise.resolve(emptyPage());
+                return Promise.resolve(emptyPage<JourneyTip>());
             }
             return listJourneyTips(Number(id), { page: tipsPage, size: tipsPageSize }, signal);
         },
@@ -144,24 +146,24 @@ export default function JourneyDetailPage() {
         placeholderData: keepPreviousData,
     });
 
-    const commentsQuery = useQuery({
+    const commentsQuery = useQuery<PageResult<JourneyComment>>({
         queryKey: ["journeyComments", id, commentsPage],
         queryFn: async ({ signal }) => {
             if (!id) {
-                return Promise.resolve(emptyPage());
+                return Promise.resolve(emptyPage<JourneyComment>());
             }
             const page = await getJourneyResponses(Number(id), { page: commentsPage, size: commentsPageSize }, signal);
-            return mapJourneyResponsesPage(page as PageResult<JourneyResponseApi>, signal);
+            return mapJourneyResponsesPage(page, signal);
         },
         enabled: Boolean(id),
         placeholderData: keepPreviousData,
     });
 
-    const createdEventsQuery = useQuery({
+    const createdEventsQuery = useQuery<PageResult<JourneyEvent>>({
         queryKey: ["journeyEvents", "created", journeyOwnerId, data?.startDate, data?.endDate, createdEventsPage],
         queryFn: async ({ signal }) => {
             if (!journeyOwnerId || !data?.startDate || !data?.endDate) {
-                return emptyPage();
+                return emptyPage<JourneyEvent>();
             }
             const page = await fetchEvents(
                 {
@@ -179,11 +181,11 @@ export default function JourneyDetailPage() {
         placeholderData: keepPreviousData,
     });
 
-    const attendingEventsQuery = useQuery({
+    const attendingEventsQuery = useQuery<PageResult<JourneyEvent>>({
         queryKey: ["journeyEvents", "attending", journeyOwnerId, data?.startDate, data?.endDate, attendingEventsPage],
         queryFn: async ({ signal }) => {
             if (!journeyOwnerId || !data?.startDate || !data?.endDate) {
-                return emptyPage();
+                return emptyPage<JourneyEvent>();
             }
             const page = await fetchEvents(
                 {
@@ -203,13 +205,13 @@ export default function JourneyDetailPage() {
 
     const activeEventsPage =
         eventsSubtab === "created"
-            ? createdEventsQuery.data ?? emptyPage()
-            : attendingEventsQuery.data ?? emptyPage();
+            ? createdEventsQuery.data ?? emptyPage<JourneyEvent>()
+            : attendingEventsQuery.data ?? emptyPage<JourneyEvent>();
     const eventsLoading = eventsSubtab === "created" ? createdEventsQuery.isLoading : attendingEventsQuery.isLoading;
 
-    const interestsPageData = interestsQuery.data ?? emptyPage();
-    const tipsPageData = tipsQuery.data ?? emptyPage();
-    const commentsPageData = commentsQuery.data ?? emptyPage();
+    const interestsPageData = interestsQuery.data ?? emptyPage<ProfileInterest>();
+    const tipsPageData = tipsQuery.data ?? emptyPage<JourneyTip>();
+    const commentsPageData = commentsQuery.data ?? emptyPage<JourneyComment>();
 
     const updatePageParam = useCallback(
         (paramName: string, page: number) => {

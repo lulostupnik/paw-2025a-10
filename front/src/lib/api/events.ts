@@ -1,5 +1,5 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
-import { getCityByUrl, getUserByUrl } from "@/lib/api/journeys";
+import { getCareerByUrl, getCityByUrl, getUniversityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment, EventDetail, EventRating, ProfileEvent } from "@/types/event";
 import { emptyPage, mapPageList, toPaged, type PageResult } from "@/types/pagination";
 
@@ -74,17 +74,6 @@ interface RatingApi {
     } | null;
 }
 
-interface UserApi {
-    id: number;
-    username: string;
-    email?: string | null;
-    firstname: string | null;
-    lastname: string | null;
-    links?: {
-        profilePictureUrl?: string | null;
-    } | null;
-}
-
 export interface EventStatisticsDto {
     eventsCreatedByOrganizer: number;
     eventsOrganizerAttends: number;
@@ -155,7 +144,7 @@ export const listEventAttendees = async (
             attendance.links?.userUrl ? getUserByUrl(attendance.links.userUrl, signal) : Promise.resolve(null)
         )
     );
-    const mapped = page.content.map((attendance, index) => {
+    const mapped = page.content.map((_, index) => {
         const user = users[index];
         return {
             id: user?.id ?? 0,
@@ -241,6 +230,10 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
         listAttendeesSafe(),
         listEventRatings(event.id, { page: 1, size: 10 }, signal),
     ]);
+    const [creatorUniversity, creatorCareer] = await Promise.all([
+        creator?.links?.universityUrl ? getUniversityByUrl(creator.links.universityUrl, signal) : Promise.resolve(null),
+        creator?.links?.careerUrl ? getCareerByUrl(creator.links.careerUrl, signal) : Promise.resolve(null),
+    ]);
 
     const responseUsers = await Promise.all(
         responses.content.map((response) =>
@@ -291,12 +284,12 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
         isFuture: event.isFuture ?? false,
         user: {
             id: creator?.id ?? 0,
-            firstname: creator?.username ?? "—",
-            lastname: "",
+            firstname: creator?.firstname ?? creator?.username ?? "—",
+            lastname: creator?.lastname ?? "",
             username: creator?.username ?? "—",
             profilePictureUrl: creator?.links?.profilePictureUrl ?? null,
-            university: null,
-            career: null,
+            university: creatorUniversity ? { name: creatorUniversity.name } : null,
+            career: creatorCareer ? { name: creatorCareer.name } : null,
         },
         comments,
         attendees: attendeesList,
@@ -394,4 +387,8 @@ export const updateEventRating = async (
 ) => {
     const response = await apiClient.put(`/events/${eventId}/ratings/${ratingId}`, payload, { signal });
     return response.data;
+};
+
+export const deleteEventRating = async (eventId: number, ratingId: number, signal?: AbortSignal) => {
+    await apiClient.delete(`/events/${eventId}/ratings/${ratingId}`, { signal });
 };

@@ -8,10 +8,11 @@ import Pagination from "@/components/listing/Pagination";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
-import { attendEvent, createEventRating, createEventResponse, getEventAttendance, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
+import { attendEvent, createEventRating, createEventResponse, deleteEventRating, getEventAttendance, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import { getUserByUrl } from "@/lib/api/journeys";
+import type { EventAttendee, EventComment } from "@/types/event";
 
 const formatDate = (value: string, locale: string) => {
     const date = new Date(value);
@@ -77,7 +78,7 @@ interface EventResponseApi {
     } | null;
 }
 
-const mapEventResponsesPage = async (page: PageResult<EventResponseApi>, signal?: AbortSignal) => {
+const mapEventResponsesPage = async (page: PageResult<EventResponseApi>, signal?: AbortSignal): Promise<PageResult<EventComment>> => {
     const users = await Promise.all(
         page.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal) : Promise.resolve(null)))
     );
@@ -154,26 +155,25 @@ export default function EventDetailPage() {
 
     const attendeesPageSize = 6;
     const commentsPageSize = 4;
-    const attendeesQuery = useQuery({
+    const attendeesQuery = useQuery<PageResult<EventAttendee>>({
         queryKey: ["eventAttendees", id, attendeesPage],
         queryFn: async ({ signal }) => {
             if (!id) {
-                return Promise.resolve(emptyPage());
+                return emptyPage<EventAttendee>();
             }
-            const page = await listEventAttendees(Number(id), { page: attendeesPage, size: attendeesPageSize }, signal);
-            return page;
+            return listEventAttendees(Number(id), { page: attendeesPage, size: attendeesPageSize }, signal);
         },
         enabled: Boolean(id && canViewAttendees),
         placeholderData: keepPreviousData,
     });
-    const commentsQuery = useQuery({
+    const commentsQuery = useQuery<PageResult<EventComment>>({
         queryKey: ["eventComments", id, commentsPage],
         queryFn: async ({ signal }) => {
             if (!id) {
-                return Promise.resolve(emptyPage());
+                return emptyPage<EventComment>();
             }
             const page = await listEventResponses(Number(id), { page: commentsPage, size: commentsPageSize }, signal);
-            return mapEventResponsesPage(page as PageResult<EventResponseApi>, signal);
+            return mapEventResponsesPage(page, signal);
         },
         enabled: Boolean(id),
         placeholderData: keepPreviousData,
@@ -189,8 +189,8 @@ export default function EventDetailPage() {
         enabled: Boolean(id),
         placeholderData: keepPreviousData,
     });
-    const attendeesPageData = canViewAttendees ? (attendeesQuery.data ?? emptyPage()) : emptyPage();
-    const commentsPageData = commentsQuery.data ?? emptyPage();
+    const attendeesPageData = canViewAttendees ? (attendeesQuery.data ?? emptyPage<EventAttendee>()) : emptyPage<EventAttendee>();
+    const commentsPageData = commentsQuery.data ?? emptyPage<EventComment>();
     const stats = statsQuery.data ?? null;
     const toSafeNumber = (value: unknown, fallback = 0) =>
         typeof value === "number" && Number.isFinite(value) ? value : fallback;
@@ -402,6 +402,27 @@ export default function EventDetailPage() {
             } catch (error) {
                 console.error("Failed to submit rating", error);
                 setRatingError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            } finally {
+                setRatingSubmitting(false);
+            }
+        });
+    };
+
+    const handleRatingDelete = () => {
+        gate.runOrPrompt(async () => {
+            if (!id || !existingRating?.id) {
+                return;
+            }
+            setRatingSubmitting(true);
+            setRatingError(null);
+            try {
+                await deleteEventRating(Number(id), existingRating.id);
+                setRatingValue(0);
+                setHoverRating(null);
+                await queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
+            } catch (error) {
+                console.error("Failed to delete rating", error);
+                setRatingError(t("event.rating.delete.error", { defaultValue: "We couldn't remove your rating." }));
             } finally {
                 setRatingSubmitting(false);
             }
@@ -1158,6 +1179,16 @@ return (
                                                                     <button type="submit" className="btn btn-primary" disabled={ratingSubmitting}>
                                                                         {existingRating ? t("event.rating.update.submit") : t("event.rating.submit")}
                                                                     </button>
+                                                                    {existingRating && (
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn-secondary"
+                                                                            onClick={handleRatingDelete}
+                                                                            disabled={ratingSubmitting}
+                                                                        >
+                                                                            {t("event.rating.delete", { defaultValue: "Remove Rating" })}
+                                                                        </button>
+                                                                    )}
                                                                 </div>
                                                             </form>
                                                         </div>

@@ -22,7 +22,7 @@ import {
     useAdminUniversities,
     useAdminUsers,
 } from "@/hooks/admin/useAdminTabData";
-import type { AdminDashboardTab } from "@/types/admin";
+import { EMPTY_ADMIN_USER_FILTERS, type AdminDashboardTab, type AdminUserFilters } from "@/types/admin";
 import plusIcon from "@/assets/icons/plus.svg";
 import blockIcon from "@/assets/icons/block.svg";
 import unblockIcon from "@/assets/icons/unblock.svg";
@@ -45,6 +45,21 @@ const parsePositiveInt = (value: string | null, fallback: number) => {
     return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 };
 
+const parseOptionalInt = (value: string | null): number | null => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+};
+
+const parseOptionalBoolean = (value: string | null): boolean | null => {
+    if (value === "true") {
+        return true;
+    }
+    if (value === "false") {
+        return false;
+    }
+    return null;
+};
+
 const getTabParam = (value?: string | null): AdminDashboardTab => {
     if (value && ADMIN_TAB_SET.has(value as AdminDashboardTab)) {
         return value as AdminDashboardTab;
@@ -64,6 +79,15 @@ export default function AdminPage() {
     const searchQuery = searchParams.get("search") ?? "";
     const page = parsePositiveInt(searchParams.get("page"), 1);
     const pageSize = parsePositiveInt(searchParams.get("pageSize"), 10);
+    const userFilters: AdminUserFilters = {
+        blocked: parseOptionalBoolean(searchParams.get("blocked")),
+        universityId: parseOptionalInt(searchParams.get("university")),
+        universityName: searchParams.get("universityName") ?? "",
+        careerId: parseOptionalInt(searchParams.get("career")),
+        careerName: searchParams.get("careerName") ?? "",
+        interestId: parseOptionalInt(searchParams.get("interest")),
+        interestName: searchParams.get("interestName") ?? "",
+    };
 
     useEffect(() => {
         setSearchValue(searchQuery);
@@ -93,9 +117,33 @@ export default function AdminPage() {
     const buildParams = (nextSearch: string, nextPage: number) => {
         const nextParams = new URLSearchParams(searchParams);
         nextParams.delete("tab");
-        nextParams.set("search", nextSearch);
+        if (nextSearch) {
+            nextParams.set("search", nextSearch);
+        } else {
+            nextParams.delete("search");
+        }
         nextParams.set("page", String(nextPage));
         nextParams.set("pageSize", String(pageSize));
+        return nextParams;
+    };
+
+    const buildUserFilterParams = (filters: AdminUserFilters) => {
+        const nextParams = buildParams(searchQuery, 1);
+        const setParam = (key: string, value: string | null) => {
+            if (value) {
+                nextParams.set(key, value);
+            } else {
+                nextParams.delete(key);
+            }
+        };
+
+        setParam("blocked", filters.blocked === null ? null : String(filters.blocked));
+        setParam("university", filters.universityId ? String(filters.universityId) : null);
+        setParam("universityName", filters.universityId && filters.universityName ? filters.universityName : null);
+        setParam("career", filters.careerId ? String(filters.careerId) : null);
+        setParam("careerName", filters.careerId && filters.careerName ? filters.careerName : null);
+        setParam("interest", filters.interestId ? String(filters.interestId) : null);
+        setParam("interestName", filters.interestId && filters.interestName ? filters.interestName : null);
         return nextParams;
     };
 
@@ -158,6 +206,9 @@ export default function AdminPage() {
                             onPageChange={handlePageChange}
                             blockIconSrc={blockIcon}
                             unblockIconSrc={unblockIcon}
+                            filters={userFilters}
+                            onApplyFilters={(nextFilters) => setSearchParams(buildUserFilterParams(nextFilters))}
+                            onResetFilters={() => setSearchParams(buildUserFilterParams(EMPTY_ADMIN_USER_FILTERS))}
                         />
                     )}
 
@@ -286,8 +337,25 @@ function AdminUsersTabContainer({
     onPageChange,
     blockIconSrc,
     unblockIconSrc,
-}: AdminTabContainerProps & { blockIconSrc: string; unblockIconSrc: string }) {
-    const { data, isLoading, isError, refetch } = useAdminUsers({ search: searchQuery, page, pageSize });
+    filters,
+    onApplyFilters,
+    onResetFilters,
+}: AdminTabContainerProps & {
+    blockIconSrc: string;
+    unblockIconSrc: string;
+    filters: AdminUserFilters;
+    onApplyFilters: (filters: AdminUserFilters) => void;
+    onResetFilters: () => void;
+}) {
+    const { data, isLoading, isError, refetch } = useAdminUsers({
+        search: searchQuery,
+        page,
+        pageSize,
+        blocked: filters.blocked ?? undefined,
+        university: filters.universityId ?? undefined,
+        career: filters.careerId ?? undefined,
+        interest: filters.interestId ?? undefined,
+    });
 
     return (
         <UsersTab
@@ -301,6 +369,9 @@ function AdminUsersTabContainer({
             blockIconSrc={blockIconSrc}
             unblockIconSrc={unblockIconSrc}
             onRefresh={refetch}
+            filters={filters}
+            onApplyFilters={onApplyFilters}
+            onResetFilters={onResetFilters}
         />
     );
 }

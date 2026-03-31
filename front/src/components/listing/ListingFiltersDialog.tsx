@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Button from "@/components/ui/Button";
 import { classNames } from "@/lib/utils/classNames";
 import { useI18n } from "@/lib/i18n";
-import { searchCities, searchInterests, type CatalogOption, type CatalogSearchFn } from "@/lib/api/catalog";
+import { searchCities, searchInterests, searchUniversities, type CatalogOption, type CatalogSearchFn } from "@/lib/api/catalog";
 import type { ListingFiltersState } from "@/hooks/useListingFilters";
 import { EMPTY_LISTING_FILTERS } from "@/hooks/useListingFilters";
 
@@ -42,6 +42,19 @@ interface DateFieldProps {
     min?: string;
     helperText?: string;
     error?: string;
+}
+
+interface SelectFieldProps {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+    options: Array<{ value: string; label: string }>;
+}
+
+interface CheckboxFieldProps {
+    label: string;
+    checked: boolean;
+    onChange: (checked: boolean) => void;
 }
 
 const CalendarIcon = () => (
@@ -193,6 +206,10 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
                 beforeLabel: t("event.filter.beforeDate"),
                 interestLabel: t("event.filter.interest"),
                 interestPlaceholder: t("event.filter.interest.placeholder"),
+                universityLabel: t("university.detail.title", { defaultValue: "University" }),
+                universityPlaceholder: t("event.university.hint", { defaultValue: "Search for a university..." }),
+                minRatingLabel: t("event.filter.minRating", { defaultValue: "Minimum rating" }),
+                capacityLabel: t("event.filter.hasCapacity", { defaultValue: "Only show events with available spots" }),
                 applyLabel: t("event.filter.button"),
                 resetLabel: t("event.filter.reset"),
                 closeLabel: t("event.filter.close"),
@@ -206,6 +223,10 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
             beforeLabel: t("journey.filter.endDate"),
             interestLabel: t("journey.filter.interest"),
             interestPlaceholder: t("journey.filter.interest.placeholder"),
+            universityLabel: t("journey.filters.university", { defaultValue: "University" }),
+            universityPlaceholder: t("journey.university.search", { defaultValue: "Search for a university..." }),
+            minRatingLabel: "",
+            capacityLabel: "",
             applyLabel: t("journey.filter.button"),
             resetLabel: t("journey.filter.reset"),
             closeLabel: t("journey.filter.close"),
@@ -219,7 +240,16 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
     const changeLabel = t("register.autocomplete.change");
 
     const cityOption = draft.cityId && draft.cityName ? { id: draft.cityId, name: draft.cityName } : null;
+    const universityOption = draft.universityId && draft.universityName ? { id: draft.universityId, name: draft.universityName } : null;
     const interestOption = draft.interestId && draft.interestName ? { id: draft.interestId, name: draft.interestName } : null;
+    const minRatingOptions = [
+        { value: "", label: t("listing.filters.any", { defaultValue: "Any" }) },
+        { value: "5", label: "5+" },
+        { value: "4", label: "4+" },
+        { value: "3", label: "3+" },
+        { value: "2", label: "2+" },
+        { value: "1", label: "1+" },
+    ];
 
     const hasDateConflict = Boolean(draft.afterDate && draft.beforeDate && draft.afterDate > draft.beforeDate);
     const dateErrorMessage = hasDateConflict
@@ -257,10 +287,32 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
         }));
     };
 
+    const handleUniversityChange = (option: CatalogOption | null) => {
+        setDraft((prev) => ({
+            ...prev,
+            universityId: option?.id ?? null,
+            universityName: option?.name ?? "",
+        }));
+    };
+
     const handleDateChange = (field: "afterDate" | "beforeDate") => (value: string) => {
         setDraft((prev) => ({
             ...prev,
             [field]: value,
+        }));
+    };
+
+    const handleMinRatingChange = (value: string) => {
+        setDraft((prev) => ({
+            ...prev,
+            minRating: value ? Number(value) : null,
+        }));
+    };
+
+    const handleHasCapacityChange = (checked: boolean) => {
+        setDraft((prev) => ({
+            ...prev,
+            hasCapacity: checked,
         }));
     };
 
@@ -308,6 +360,18 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
                         toggleLabel={toggleLabel}
                         changeLabel={changeLabel}
                     />
+                    <CatalogSelectField
+                        label={labels.universityLabel}
+                        placeholder={labels.universityPlaceholder}
+                        value={universityOption}
+                        onChange={handleUniversityChange}
+                        fetcher={searchUniversities}
+                        catalogKey={`${mode}-university`}
+                        loadingLabel={loadingLabel}
+                        emptyLabel={emptyLabel}
+                        toggleLabel={toggleLabel}
+                        changeLabel={changeLabel}
+                    />
                     <DateField
                         label={labels.afterLabel}
                         placeholder="dd / mm / yyyy"
@@ -337,6 +401,21 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
                         toggleLabel={toggleLabel}
                         changeLabel={changeLabel}
                     />
+                    {mode === "events" && (
+                        <>
+                            <SelectField
+                                label={labels.minRatingLabel}
+                                value={draft.minRating ? String(draft.minRating) : ""}
+                                onChange={handleMinRatingChange}
+                                options={minRatingOptions}
+                            />
+                            <CheckboxField
+                                label={labels.capacityLabel}
+                                checked={draft.hasCapacity}
+                                onChange={handleHasCapacityChange}
+                            />
+                        </>
+                    )}
                 </div>
 
                 <div className="filters-actions">
@@ -534,6 +613,44 @@ function DateField({ label, value, onChange, placeholder, max, min, helperText, 
                     {error}
                 </p>
             )}
+        </div>
+    );
+}
+
+function SelectField({ label, value, onChange, options }: SelectFieldProps) {
+    const inputId = useId();
+    return (
+        <div className="form-field filters-field">
+            <label className="form-field__label" htmlFor={inputId}>
+                {label}
+            </label>
+            <select id={inputId} className="input-control" value={value} onChange={(event) => onChange(event.target.value)}>
+                {options.map((option) => (
+                    <option key={option.value || "empty"} value={option.value}>
+                        {option.label}
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
+}
+
+function CheckboxField({ label, checked, onChange }: CheckboxFieldProps) {
+    const inputId = useId();
+    return (
+        <div className="form-field filters-field">
+            <label className="form-field__label" htmlFor={inputId}>
+                {label}
+            </label>
+            <label className="selected-option" htmlFor={inputId}>
+                <span className="selected-option__value">{checked ? "On" : "Off"}</span>
+                <input
+                    id={inputId}
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(event) => onChange(event.target.checked)}
+                />
+            </label>
         </div>
     );
 }

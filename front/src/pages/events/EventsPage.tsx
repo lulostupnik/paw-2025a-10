@@ -148,8 +148,17 @@ export default function EventsListPage() {
         if (filters.cityName) {
             params.destination = filters.cityName;
         }
+        if (filters.universityName) {
+            params.university = filters.universityName;
+        }
         if (filters.interestName) {
             params.interest = filters.interestName;
+        }
+        if (filters.minRating) {
+            params.minRating = filters.minRating;
+        }
+        if (filters.hasCapacity) {
+            params.hasCapacity = true;
         }
         const filterAfter = filters.afterDate || undefined;
         const filterBefore = filters.beforeDate || undefined;
@@ -164,7 +173,7 @@ export default function EventsListPage() {
             params.beforeDate = effectiveBefore;
         }
         return params;
-    }, [appliedSearch, filters.afterDate, filters.beforeDate, filters.cityName, filters.interestName, sortParams, tabParams, searchParams]);
+    }, [appliedSearch, filters.afterDate, filters.beforeDate, filters.cityName, filters.hasCapacity, filters.interestName, filters.minRating, filters.universityName, sortParams, tabParams, searchParams]);
 
     const { events, loading, error } = useEvents(eventQueryParams);
 

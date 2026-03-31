@@ -8,6 +8,7 @@ import { classNames } from "@/lib/utils/classNames";
 import { useQueryClient } from "@tanstack/react-query";
 import { searchInterests, type CatalogOption, type CatalogSearchFn } from "@/lib/api/catalog";
 import { useToast } from "@/components/ui/ToastProvider";
+import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 interface MultiSelectFieldProps {
     label: string;
@@ -197,7 +198,7 @@ export default function ProfileInterestsEdit() {
         try {
             setSubmitError(null);
             await updateInterests(selected.map((interest) => interest.id));
-            const returnPath = (location.state as { from?: string } | null)?.from;
+            const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
             showToast(t("profile.toast.interestsUpdated", { defaultValue: "Interests updated successfully." }), { variant: "success" });
             queryClient.invalidateQueries({ queryKey: ["profileInterests"] });
             setIsDirty(false);

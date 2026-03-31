@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
+import { INTERNAL_PATH_FALLBACK, sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 interface LoginRequiredModalProps {
     open: boolean;
@@ -11,7 +12,8 @@ export default function LoginRequiredModal({ open, onClose, nextPath }: LoginReq
     const nav = useNavigate();
     if (!open) return null;
 
-    const next = nextPath ? `?next=${encodeURIComponent(nextPath)}` : "";
+    const safeNextPath = sanitizeInternalPath(nextPath, INTERNAL_PATH_FALLBACK) ?? INTERNAL_PATH_FALLBACK;
+    const next = safeNextPath ? `?next=${encodeURIComponent(safeNextPath)}` : "";
 
     return (
         <div className="modal-overlay" role="presentation" onClick={onClose}>

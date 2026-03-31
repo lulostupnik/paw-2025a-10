@@ -1683,7 +1683,7 @@
   "report.delete.confirm.warning": "Esta acción no se puede deshacer. Todos los datos del reporte serán eliminados permanentemente.",
   "report.delete.cancel": "Cancelar",
   "report.delete.confirm": "Eliminar Reporte",
-  "admin.manage.reports": "Reportes",
+  "admin.manage.reports": "ADMIN",
   "admin.search.reports": "Buscar reportes...",
   "admin.column.reportedUser": "Usuario Reportado",
   "admin.column.reportingUser": "Usuario que Reporta",

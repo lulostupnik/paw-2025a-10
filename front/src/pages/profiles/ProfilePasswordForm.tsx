@@ -4,6 +4,7 @@ import { useI18n } from "@/lib/i18n";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import { classNames } from "@/lib/utils/classNames";
 import { useToast } from "@/components/ui/ToastProvider";
+import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 const getStrengthScore = (password: string) => {
     if (!password) {
@@ -59,7 +60,7 @@ export default function ProfilePasswordForm() {
             return;
         }
         await updatePassword({ password, confirmPassword });
-        const returnPath = (location.state as { from?: string } | null)?.from;
+        const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
         showToast(t("profile.toast.passwordUpdated", { defaultValue: "Password updated successfully." }), { variant: "success" });
         navigate(returnPath ?? "/profiles/me/info", { replace: true });
     };

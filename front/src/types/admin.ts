@@ -29,6 +29,26 @@ export interface AdminUser {
     blocked: boolean;
 }
 
+export interface AdminUserFilters {
+    blocked: boolean | null;
+    universityId: number | null;
+    universityName: string;
+    careerId: number | null;
+    careerName: string;
+    interestId: number | null;
+    interestName: string;
+}
+
+export const EMPTY_ADMIN_USER_FILTERS: AdminUserFilters = {
+    blocked: null,
+    universityId: null,
+    universityName: "",
+    careerId: null,
+    careerName: "",
+    interestId: null,
+    interestName: "",
+};
+
 export interface AdminEvent {
     id: number;
     title: string;

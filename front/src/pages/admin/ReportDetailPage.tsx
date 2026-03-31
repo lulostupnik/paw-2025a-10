@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
@@ -8,7 +8,7 @@ import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import ErrorState from "@/components/ErrorState";
 import { deleteEvent, deleteEventResponse } from "@/lib/api/events";
 import { deleteJourney, deleteJourneyResponse } from "@/lib/api/journeys";
-import { getReportDetail, updateReportStatus, type ReportDetail, type ReportStatus } from "@/lib/api/reports";
+import { deleteReport, getReportDetail, updateReportStatus, type ReportDetail, type ReportStatus } from "@/lib/api/reports";
 import { updateUserBlocked } from "@/lib/api/users";
 import ActionMenu, { type ActionMenuItem } from "@/components/ui/ActionMenu";
 
@@ -97,6 +97,7 @@ const getContentBadge = (report: ReportDetail, t: (key: string, options?: { defa
 
 export default function ReportDetailPage() {
     const { t, locale } = useI18n();
+    const navigate = useNavigate();
     const { id } = useParams();
     const location = useLocation();
     const queryClient = useQueryClient();
@@ -106,6 +107,7 @@ export default function ReportDetailPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [actionError, setActionError] = useState("");
     const [blockModalOpen, setBlockModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [actionsOpen, setActionsOpen] = useState(false);
     const actionsButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -251,6 +253,24 @@ export default function ReportDetailPage() {
             });
     };
 
+    const handleDeleteReport = async () => {
+        if (!report) {
+            return;
+        }
+
+        setActionError("");
+        try {
+            await deleteReport(report.id);
+            setDeleteModalOpen(false);
+            queryClient.invalidateQueries({ queryKey: ["reports"] });
+            queryClient.invalidateQueries({ queryKey: ["report", report.id] });
+            navigate(REPORTS_LIST_PATH, { replace: true });
+        } catch (error) {
+            console.error("Failed to delete report", error);
+            setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+        }
+    };
+
     const reportHeader = report.description?.trim()
         ? report.description.trim()
         : t("report.no.additional.details");
@@ -330,6 +350,13 @@ export default function ReportDetailPage() {
             onSelect: wrapAction(() => setBlockModalOpen(true)),
         });
     }
+
+    actionItems.push({
+        id: "delete-report",
+        label: t("report.detail.delete"),
+        variant: "danger",
+        onSelect: wrapAction(() => setDeleteModalOpen(true)),
+    });
 
     const hasActions = actionItems.length > 0;
 
@@ -617,6 +644,43 @@ export default function ReportDetailPage() {
                                 onClick={handleBlockUser}
                             >
                                 {report.reportedUser.blocked ? t("user.unblock.confirm") : t("user.block.confirm")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {deleteModalOpen && (
+                <div className="modal" role="presentation" onClick={() => setDeleteModalOpen(false)}>
+                    <div
+                        className="modal-content"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="deleteReportModalTitle"
+                        aria-describedby="deleteReportModalMessage"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <div className="modal-header">
+                            <h2 id="deleteReportModalTitle">{t("report.delete.confirm.title")}</h2>
+                            <button
+                                type="button"
+                                className="close-modal"
+                                aria-label="Close"
+                                onClick={() => setDeleteModalOpen(false)}
+                            >
+                                &times;
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <p id="deleteReportModalMessage">{t("report.delete.confirm.message")}</p>
+                            <p className="warning-text">{t("report.delete.confirm.warning")}</p>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="cta-button secondary" onClick={() => setDeleteModalOpen(false)}>
+                                {t("report.delete.cancel")}
+                            </button>
+                            <button type="button" className="cta-button btn-danger" onClick={handleDeleteReport}>
+                                {t("report.delete.confirm")}
                             </button>
                         </div>
                     </div>

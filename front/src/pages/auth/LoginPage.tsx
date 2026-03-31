@@ -6,10 +6,11 @@ import Button from "@/components/ui/Button";
 import { login } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
+import { INTERNAL_PATH_FALLBACK, sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 function getNext(search: string) {
     const params = new URLSearchParams(search);
-    return params.get("next") || "/explore";
+    return sanitizeInternalPath(params.get("next"), INTERNAL_PATH_FALLBACK) ?? INTERNAL_PATH_FALLBACK;
 }
 
 interface LoginFormData {

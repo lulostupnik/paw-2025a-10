@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { registerUser, type RegisterPayload, type RegisteredUser } from "@/lib/api/users";
+import { INTERNAL_PATH_FALLBACK, sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 export interface UseRegisterResult {
     register: (payload: RegisterPayload) => Promise<RegisteredUser>;
@@ -12,16 +13,12 @@ export interface UseRegisterResult {
     reset: () => void;
 }
 
-const normalizeNextPath = (raw: string | null): string => {
-    if (!raw || raw.trim().length === 0) {
-        return "/explore";
-    }
-    return raw.startsWith("/") ? raw : `/${raw}`;
-};
-
 export function useRegister(): UseRegisterResult {
     const [searchParams] = useSearchParams();
-    const nextPath = useMemo(() => normalizeNextPath(searchParams.get("next")), [searchParams]);
+    const nextPath = useMemo(
+        () => sanitizeInternalPath(searchParams.get("next"), INTERNAL_PATH_FALLBACK) ?? INTERNAL_PATH_FALLBACK,
+        [searchParams]
+    );
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);

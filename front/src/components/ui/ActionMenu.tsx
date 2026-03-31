@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { classNames } from "@/lib/utils/classNames";
 
 export interface ActionMenuItem {
@@ -12,7 +12,7 @@ export interface ActionMenuItem {
 
 interface ActionMenuProps {
     open: boolean;
-    anchorRef: React.RefObject<HTMLElement>;
+    anchorRef: RefObject<HTMLElement | null>;
     onClose: () => void;
     title?: string;
     items: ActionMenuItem[];
