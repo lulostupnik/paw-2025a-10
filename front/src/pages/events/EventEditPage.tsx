@@ -10,7 +10,6 @@ import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField
 import { useI18n } from "@/lib/i18n";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { updateEvent, updateEventFlyer } from "@/lib/api/events";
-import { apiClient, normalizeApiPath } from "@/lib/api/client";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -61,8 +60,6 @@ export default function EventEditPage() {
     const [cityQuery, setCityQuery] = useState("");
     const [seeded, setSeeded] = useState(false);
     const [flyerPreviewUrl, setFlyerPreviewUrl] = useState<string | null>(null);
-    const [currentFlyerPreviewUrl, setCurrentFlyerPreviewUrl] = useState<string | null>(null);
-    const activeFlyerPreviewUrl = flyerPreviewUrl ?? currentFlyerPreviewUrl;
 
     useEffect(() => {
         if (seeded || !data) {
@@ -94,49 +91,6 @@ export default function EventEditPage() {
         setFlyerPreviewUrl(nextUrl);
         return () => URL.revokeObjectURL(nextUrl);
     }, [form.flyer]);
-
-    useEffect(() => {
-        if (!data?.flyerImageUrl || form.flyer) {
-            setCurrentFlyerPreviewUrl(null);
-            return;
-        }
-
-        const controller = new AbortController();
-        let objectUrl: string | null = null;
-
-        apiClient
-            .get<ArrayBuffer>(normalizeApiPath(data.flyerImageUrl), {
-                signal: controller.signal,
-                responseType: "arraybuffer",
-                headers: { Accept: "image/jpeg, image/png, image/webp, */*" },
-            })
-            .then((response) => {
-                const contentTypeHeader = response.headers["content-type"];
-                const contentType = Array.isArray(contentTypeHeader) ? contentTypeHeader[0] : contentTypeHeader;
-                if (!contentType || !contentType.toLowerCase().startsWith("image/")) {
-                    setCurrentFlyerPreviewUrl(null);
-                    return;
-                }
-                objectUrl = URL.createObjectURL(
-                    new Blob([response.data], { type: contentType })
-                );
-                setCurrentFlyerPreviewUrl(objectUrl);
-            })
-            .catch((error) => {
-                if (controller.signal.aborted) {
-                    return;
-                }
-                console.error("Failed to load current flyer preview", error);
-                setCurrentFlyerPreviewUrl(null);
-            });
-
-        return () => {
-            controller.abort();
-            if (objectUrl) {
-                URL.revokeObjectURL(objectUrl);
-            }
-        };
-    }, [data?.flyerImageUrl, form.flyer]);
 
     const markTouched = useCallback((field: FormField) => {
         setTouched((prev) => ({ ...prev, [field]: true }));
@@ -456,7 +410,7 @@ export default function EventEditPage() {
 
                     <div className="form-field">
                         <label className="input-label" htmlFor="field-flyer">
-                            {t("event.flyer.title")}
+                            {t("event.edit.flyer.label", { defaultValue: "Upload Flyer" })}
                         </label>
                         <div
                             className={classNames(
@@ -487,11 +441,11 @@ export default function EventEditPage() {
                                 }
                             }}
                         >
-                            {activeFlyerPreviewUrl ? (
+                            {form.flyer ? (
                                 <div className="upload-preview">
-                                    <img src={activeFlyerPreviewUrl} alt={t("event.flyer.alt")} />
+                                    <img src={flyerPreviewUrl ?? ""} alt={t("event.flyer.alt")} />
                                     <div>
-                                        {form.flyer ? <p>{form.flyer.name}</p> : null}
+                                        <p>{form.flyer.name}</p>
                                         <p className="upload-hint">{t("event.create.flyer.change")}</p>
                                     </div>
                                 </div>
