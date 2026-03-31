@@ -10,6 +10,7 @@ import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField
 import { useI18n } from "@/lib/i18n";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { updateEvent, updateEventFlyer } from "@/lib/api/events";
+import { apiClient, normalizeApiPath } from "@/lib/api/client";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -59,6 +60,9 @@ export default function EventEditPage() {
     const [dragging, setDragging] = useState(false);
     const [cityQuery, setCityQuery] = useState("");
     const [seeded, setSeeded] = useState(false);
+    const [flyerPreviewUrl, setFlyerPreviewUrl] = useState<string | null>(null);
+    const [currentFlyerPreviewUrl, setCurrentFlyerPreviewUrl] = useState<string | null>(null);
+    const activeFlyerPreviewUrl = flyerPreviewUrl ?? currentFlyerPreviewUrl;
 
     useEffect(() => {
         if (seeded || !data) {
@@ -80,6 +84,59 @@ export default function EventEditPage() {
         setCityQuery(data.city?.name ?? "");
         setSeeded(true);
     }, [data, seeded]);
+
+    useEffect(() => {
+        if (!form.flyer) {
+            setFlyerPreviewUrl(null);
+            return;
+        }
+        const nextUrl = URL.createObjectURL(form.flyer);
+        setFlyerPreviewUrl(nextUrl);
+        return () => URL.revokeObjectURL(nextUrl);
+    }, [form.flyer]);
+
+    useEffect(() => {
+        if (!data?.flyerImageUrl || form.flyer) {
+            setCurrentFlyerPreviewUrl(null);
+            return;
+        }
+
+        const controller = new AbortController();
+        let objectUrl: string | null = null;
+
+        apiClient
+            .get<ArrayBuffer>(normalizeApiPath(data.flyerImageUrl), {
+                signal: controller.signal,
+                responseType: "arraybuffer",
+                headers: { Accept: "image/jpeg, image/png, image/webp, */*" },
+            })
+            .then((response) => {
+                const contentTypeHeader = response.headers["content-type"];
+                const contentType = Array.isArray(contentTypeHeader) ? contentTypeHeader[0] : contentTypeHeader;
+                if (!contentType || !contentType.toLowerCase().startsWith("image/")) {
+                    setCurrentFlyerPreviewUrl(null);
+                    return;
+                }
+                objectUrl = URL.createObjectURL(
+                    new Blob([response.data], { type: contentType })
+                );
+                setCurrentFlyerPreviewUrl(objectUrl);
+            })
+            .catch((error) => {
+                if (controller.signal.aborted) {
+                    return;
+                }
+                console.error("Failed to load current flyer preview", error);
+                setCurrentFlyerPreviewUrl(null);
+            });
+
+        return () => {
+            controller.abort();
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+        };
+    }, [data?.flyerImageUrl, form.flyer]);
 
     const markTouched = useCallback((field: FormField) => {
         setTouched((prev) => ({ ...prev, [field]: true }));
@@ -342,7 +399,7 @@ export default function EventEditPage() {
                         </div>
 
                         <Checkbox
-                            label={t("event.create.allday.label")}
+                            label={t("event.create.allDay")}
                             checked={form.allDay}
                             onChange={(event) => handleAllDayToggle(event.target.checked)}
                         />
@@ -382,7 +439,7 @@ export default function EventEditPage() {
                                     {t("event.create.limit.label")} <span className="required-indicator" aria-hidden="true">*</span>
                                 </span>
                             }
-                            placeholder={t("event.create.limit.placeholder")}
+                            placeholder={t("event.create.limit.placeholder", { defaultValue: "Enter attendee limit" })}
                             value={form.participantLimit}
                             onChange={handleLimitChange}
                             onBlur={() => markTouched("participantLimit")}
@@ -391,7 +448,7 @@ export default function EventEditPage() {
                         />
 
                         <Checkbox
-                            label={t("event.create.limit.unlimited")}
+                            label={t("event.create.unlimited")}
                             checked={form.unlimited}
                             onChange={(event) => handleUnlimitedToggle(event.target.checked)}
                         />
@@ -421,27 +478,31 @@ export default function EventEditPage() {
                             onChange={(event) => handleFileSelection(event.target.files)}
                         />
                         <div className="file-uploader__body">
-                            <div className="file-uploader__icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                                    <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2 1.586-1.586a2 2 0 012.828 0L20 14" />
-                                    <path d="M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    <path d="M12 8h.01" />
-                                </svg>
-                            </div>
                             <div>
-                                <p className="file-uploader__title">{t("event.create.flyer.title")}</p>
-                                <p className="file-uploader__subtitle">{t("event.create.flyer.subtitle")}</p>
+                                <p className="file-uploader__title">{t("event.flyer.title")}</p>
+                                <p className="file-uploader__subtitle">{t("event.flyer.edit.hint")}</p>
                             </div>
                         </div>
                         <div className="file-uploader__actions">
                             <Button type="button" variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
-                                {t("event.create.flyer.button")}
+                                {form.flyer ? t("event.create.flyer.change") : t("event.create.flyer.label")}
                             </Button>
-                            {data.flyerImageUrl && !form.flyer && (
-                                <span className="file-uploader__filename">{t("event.edit.flyer.current", { defaultValue: "Flyer actual" })}</span>
+                            {currentFlyerPreviewUrl && !form.flyer && (
+                                <span className="file-uploader__filename">{t("event.edit.flyer.current", { defaultValue: "Current flyer" })}</span>
                             )}
                             {form.flyer && <span className="file-uploader__filename">{form.flyer.name}</span>}
                         </div>
+                        {activeFlyerPreviewUrl ? (
+                            <div className="file-uploader__preview">
+                                <img
+                                    src={activeFlyerPreviewUrl}
+                                    alt={t("event.flyer.alt")}
+                                    className="file-preview-image"
+                                />
+                            </div>
+                        ) : (
+                            <p className="file-uploader__subtitle">{t("event.flyer.none")}</p>
+                        )}
                         {touched.flyer && errors.flyer && (
                             <p className="form-field__text form-field__text--error">{errors.flyer}</p>
                         )}
