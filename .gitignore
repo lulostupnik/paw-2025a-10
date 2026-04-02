@@ -69,3 +69,4 @@ webapp/src/main/resources/logback.xml
 out/
 out/**
 *.md
+front/*.md
