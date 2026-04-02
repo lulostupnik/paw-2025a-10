@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
@@ -14,5 +15,13 @@ export default defineConfig({
       "@lib": fileURLToPath(new URL("./src/lib", import.meta.url)),
       "@pages": fileURLToPath(new URL("./src/pages", import.meta.url)),
     },
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/__test__/setup/setup.ts",
+    testTimeout: 15000,
+    hookTimeout: 15000,
+    css: true,
   },
 });
