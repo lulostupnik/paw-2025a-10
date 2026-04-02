@@ -15,7 +15,7 @@ public class PagingUtils {
 
     public static <T> ResponseBuilder insertPaginationLinks(ResponseBuilder responseBuilder, UriInfo uriInfo, Page<T> page){
         UriBuilder uriBuilder = uriInfo.getRequestUriBuilder().replaceQueryParam("page", "{page}");
-        LOGGER.warn("" + page.getTotalPages() + page.getCurrentPage());
+
         if (page.getTotalPages() > page.getCurrentPage())
             responseBuilder.link(uriBuilder.build( page.getCurrentPage() + 1), "next");
         if (page.getCurrentPage() > 1)
@@ -23,7 +23,6 @@ public class PagingUtils {
         responseBuilder.link(uriBuilder.build(1), "first");
         responseBuilder.link(uriBuilder.build(page.getTotalPages()), "last");
         responseBuilder.header(TOTAL_COUNT_HEADER, page.getTotalElements());
-        
         return responseBuilder;
     }
 }
