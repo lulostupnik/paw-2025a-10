@@ -8,6 +8,7 @@ export const eventsHandlers = [
     http.get(`${BASE_URL}/events`, () => {
         return HttpResponse.json([defaultEvent, createMockEvent({ id: 2, title: "Second Event" })], {
             headers: {
+                "Content-Type": "application/vnd.gotogether.event-list.v1+json",
                 "x-total-count": "2",
                 link: `<${BASE_URL}/events?page=1>; rel="first", <${BASE_URL}/events?page=1>; rel="last"`,
             },
@@ -18,17 +19,17 @@ export const eventsHandlers = [
         const { id } = params;
         if (id === "error") return new HttpResponse(null, { status: 500 });
         if (id === "404") return new HttpResponse(null, { status: 404 });
-        return HttpResponse.json(createMockEvent({ id: Number(id) }));
+        return HttpResponse.json(createMockEvent({ id: Number(id) }), { headers: { "Content-Type": "application/vnd.gotogether.event.v1+json" } });
     }),
 
     http.post(`${BASE_URL}/events`, async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: 99, ...body }, { status: 201 });
+        return HttpResponse.json({ id: 99, ...body }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.event.v1+json" } });
     }),
 
     http.put(`${BASE_URL}/events/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: Number(params.id), ...body });
+        return HttpResponse.json({ id: Number(params.id), ...body }, { headers: { "Content-Type": "application/vnd.gotogether.event.v1+json" } });
     }),
 
     http.delete(`${BASE_URL}/events/:id`, () => {
@@ -51,6 +52,7 @@ export const eventsHandlers = [
             ],
             {
                 headers: {
+                    "Content-Type": "application/vnd.gotogether.event-response-list.v1+json",
                     "x-total-count": "1",
                     link: `<${BASE_URL}/events/1/responses?page=1>; rel="first", <${BASE_URL}/events/1/responses?page=1>; rel="last"`,
                 },
@@ -60,7 +62,7 @@ export const eventsHandlers = [
 
     http.post(`${BASE_URL}/events/:id/responses`, async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: 10, ...body, dateTime: "2026-06-15T20:30:00Z" }, { status: 201 });
+        return HttpResponse.json({ id: 10, ...body, dateTime: "2026-06-15T20:30:00Z" }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.event-response.v1+json" } });
     }),
 
     http.delete(`${BASE_URL}/events/:eventId/responses/:responseId`, () => {
@@ -80,6 +82,7 @@ export const eventsHandlers = [
             ],
             {
                 headers: {
+                    "Content-Type": "application/vnd.gotogether.event-attendance-list.v1+json",
                     "x-total-count": "1",
                     link: `<${BASE_URL}/events/1/attendances?page=1>; rel="first", <${BASE_URL}/events/1/attendances?page=1>; rel="last"`,
                 },
@@ -88,7 +91,7 @@ export const eventsHandlers = [
     }),
 
     http.post(`${BASE_URL}/events/:id/attendances`, () => {
-        return HttpResponse.json({}, { status: 201 });
+        return HttpResponse.json({}, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.event-attendance.v1+json" } });
     }),
 
     http.get(`${BASE_URL}/events/:eventId/attendances/:userId`, () => {
@@ -97,7 +100,7 @@ export const eventsHandlers = [
                 userUrl: `${BASE_URL}/users/1`,
                 selfUrl: `${BASE_URL}/events/1/attendances/1`,
             },
-        });
+        }, { headers: { "Content-Type": "application/vnd.gotogether.event-attendance.v1+json" } });
     }),
 
     http.delete(`${BASE_URL}/events/:eventId/attendances/:userId`, () => {
@@ -119,6 +122,7 @@ export const eventsHandlers = [
             ],
             {
                 headers: {
+                    "Content-Type": "application/vnd.gotogether.event-rating-list.v1+json",
                     "x-total-count": "1",
                     link: `<${BASE_URL}/events/1/ratings?page=1>; rel="first", <${BASE_URL}/events/1/ratings?page=1>; rel="last"`,
                 },
@@ -128,12 +132,12 @@ export const eventsHandlers = [
 
     http.post(`${BASE_URL}/events/:id/ratings`, async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: 10, ...body }, { status: 201 });
+        return HttpResponse.json({ id: 10, ...body }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.event-rating.v1+json" } });
     }),
 
     http.put(`${BASE_URL}/events/:eventId/ratings/:ratingId`, async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json(body);
+        return HttpResponse.json(body, { headers: { "Content-Type": "application/vnd.gotogether.event-rating.v1+json" } });
     }),
 
     http.delete(`${BASE_URL}/events/:eventId/ratings/:ratingId`, () => {
@@ -148,7 +152,7 @@ export const eventsHandlers = [
             topCountryCount: 10,
             totalParticipants: 25,
             maxParticipants: 50,
-        });
+        }, { headers: { "Content-Type": "application/vnd.gotogether.event-statistics.v1+json" } });
     }),
 
     http.put(`${BASE_URL}/events/:id/flyer`, () => {

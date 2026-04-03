@@ -7,6 +7,7 @@ import javax.ws.rs.core.Response;
 
 import org.springframework.stereotype.Component;
 
+//@TODO Creo que esta mal. hay que poner los URLS.
 @Path("/")
 @Component
 public class RootController {

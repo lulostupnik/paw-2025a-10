@@ -1,4 +1,5 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
+import { ContentTypes } from "@/lib/api/contentTypes";
 import { getEventById, type EventDto } from "@/lib/api/events";
 import { getJourneyById } from "@/lib/api/journeys";
 import type { JourneySummary } from "@/types/journey";
@@ -24,7 +25,7 @@ export interface CreateReportPayload {
 }
 
 export const createReport = async (payload: CreateReportPayload, signal?: AbortSignal) => {
-    const response = await apiClient.post("/reports", payload, { signal });
+    const response = await apiClient.post("/reports", payload, { signal, headers: { "Content-Type": ContentTypes.REPORT } });
     return response.data;
 };
 
@@ -191,17 +192,17 @@ const resolveContentType = (report: ReportDto): ReportListItem["contentType"] =>
 };
 
 export const listReports = async (params: ListReportsParams = {}, signal?: AbortSignal): Promise<PageResult<ReportDto>> => {
-    const response = await apiClient.get<ReportDto[]>("/reports", { params, signal });
+    const response = await apiClient.get<ReportDto[]>("/reports", { params, signal, headers: { Accept: ContentTypes.REPORT_LIST } });
     return toPaged(response);
 };
 
 export const getReportById = async (id: number | string, signal?: AbortSignal): Promise<ReportDto> => {
-    const response = await apiClient.get<ReportDto>(`/reports/${id}`, { signal });
+    const response = await apiClient.get<ReportDto>(`/reports/${id}`, { signal, headers: { Accept: ContentTypes.REPORT } });
     return response.data;
 };
 
 export const updateReportStatus = async (id: number, status: ReportStatus, signal?: AbortSignal) => {
-    const response = await apiClient.put<ReportDto>(`/reports/${id}`, { status }, { signal });
+    const response = await apiClient.put<ReportDto>(`/reports/${id}`, { status }, { signal, headers: { "Content-Type": ContentTypes.REPORT } });
     return response.data;
 };
 

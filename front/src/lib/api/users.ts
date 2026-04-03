@@ -1,4 +1,5 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
+import { ContentTypes } from "@/lib/api/contentTypes";
 import type { ProfileDetail, ProfileEditPayload, ProfileInterest, ProfileRatingStats, ProfileSummary } from "@/types/profile";
 import { getUniversityByUrl } from "./journeys";
 import { getUserId } from "../auth/auth";
@@ -81,7 +82,7 @@ interface UserRatingApi {
 }
 
 export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSignal): Promise<PageResult<UserApi>> => {
-    const response = await apiClient.get<UserApi[]>("/users", { params, signal });
+    const response = await apiClient.get<UserApi[]>("/users", { params, signal, headers: { Accept: ContentTypes.USER_LIST } });
     return toPaged(response);
 };
 
@@ -95,12 +96,12 @@ export const mapUserToProfileSummary = (user: UserApi): ProfileSummary => ({
 });
 
 export const registerUser = async (payload: RegisterPayload, signal?: AbortSignal): Promise<RegisteredUser> => {
-    const { data } = await apiClient.post<RegisteredUser>("/users", payload, { signal });
+    const { data } = await apiClient.post<RegisteredUser>("/users", payload, { signal, headers: { "Content-Type": ContentTypes.USER } });
     return data;
 };
 
 export const updateUserBlocked = async (userId: number, blocked: boolean, signal?: AbortSignal) => {
-    await apiClient.put(`/users/${userId}/blocked`, { blocked }, { signal });
+    await apiClient.put(`/users/${userId}/blocked`, { blocked }, { signal, headers: { "Content-Type": ContentTypes.USER_BLOCKED } });
 };
 
 export const updateUserProfile = async (
@@ -108,7 +109,7 @@ export const updateUserProfile = async (
     payload: ProfileEditPayload,
     signal?: AbortSignal
 ): Promise<ProfileDetail> => {
-    const response = await apiClient.patch<ProfileDetail>(`/users/${userId}`, payload, { signal });
+    const response = await apiClient.patch<ProfileDetail>(`/users/${userId}`, payload, { signal, headers: { "Content-Type": ContentTypes.USER } });
     return response.data;
 };
 
@@ -117,7 +118,7 @@ export const updateUserPassword = async (
     password: string,
     signal?: AbortSignal
 ): Promise<void> => {
-    await apiClient.put(`/users/${userId}/password`, { password }, { signal });
+    await apiClient.put(`/users/${userId}/password`, { password }, { signal, headers: { "Content-Type": ContentTypes.USER_PASSWORD } });
 };
 
 export const updateUserProfilePicture = async (
@@ -134,17 +135,17 @@ export const updateUserProfilePicture = async (
 };
 
 export const getUserById = async (id: number | string, signal?: AbortSignal): Promise<UserApi> => {
-    const response = await apiClient.get<UserApi>(`/users/${id}`, { signal });
+    const response = await apiClient.get<UserApi>(`/users/${id}`, { signal, headers: { Accept: ContentTypes.USER } });
     return response.data;
 };
 
 export const getProfileDetail = async (id: string | number, signal?: AbortSignal): Promise<ProfileDetail> => {
-    const response = await apiClient.get<ProfileDetail>(`/users/${id}`, { signal });
+    const response = await apiClient.get<ProfileDetail>(`/users/${id}`, { signal, headers: { Accept: ContentTypes.USER } });
     return response.data
 }
 
 export const getUserRatingStats = async (userId: string | number, signal?: AbortSignal): Promise<ProfileRatingStats> => {
-    const response = await apiClient.get<UserRatingApi>(`/users/${userId}/rating`, { signal });
+    const response = await apiClient.get<UserRatingApi>(`/users/${userId}/rating`, { signal, headers: { Accept: ContentTypes.USER_RATING } });
     const data = response.data ?? {};
     return {
         averageCreatedEventsRating: data.hostedEventsRating ?? null,
@@ -153,7 +154,7 @@ export const getUserRatingStats = async (userId: string | number, signal?: Abort
 }
 
 export const getUserInterests = async (userId: string | number, params: ListUserInterestParams = {}, signal?: AbortSignal): Promise<PageResult<ProfileInterest>> => {
-    const response = await apiClient.get<UserInterestApi[]>(`/users/${userId}/interests`, { params, signal });
+    const response = await apiClient.get<UserInterestApi[]>(`/users/${userId}/interests`, { params, signal, headers: { Accept: ContentTypes.USER_INTEREST_LIST } });
     const page = toPaged(response);
     const mapped = page.content.map((interest) => ({
         id: interest.interestId,
@@ -163,7 +164,7 @@ export const getUserInterests = async (userId: string | number, params: ListUser
 }
 
 export const addUserInterest = async (userId: string | number, interestId: number, signal?: AbortSignal) => {
-    await apiClient.post(`/users/${userId}/interests`, { interestId }, { signal });
+    await apiClient.post(`/users/${userId}/interests`, { interestId }, { signal, headers: { "Content-Type": ContentTypes.USER_INTEREST } });
 };
 
 export const removeUserInterest = async (userId: string | number, interestId: number, signal?: AbortSignal) => {
@@ -185,7 +186,7 @@ export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal) 
     if (!url) {
         return null;
     }
-    const response = await apiClient.get<CareerApi>(normalizeApiPath(url), { signal });
+    const response = await apiClient.get<CareerApi>(normalizeApiPath(url), { signal, headers: { Accept: ContentTypes.CAREER } });
     return response.data;
 };
 

@@ -5,6 +5,7 @@ import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
+import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.CityDto;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.form.PatchCityForm;
@@ -33,7 +34,7 @@ public class CityController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_CITY_LIST)
     public Response listCities(
             // @QueryParam("country") Long countryId,
             @QueryParam("search") String search,
@@ -48,15 +49,14 @@ public class CityController {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_CITY)
     public Response getCityById(@Context Request req, @PathParam("id") final long id) {
         final City city = cityService.findCityById(id).orElseThrow(() -> new CityNotFoundException(id));
         return CacheUtils.withEtag(req, city, () -> CityDto.fromCity(uriInfo, city));
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_CITY)
     public Response createCity(@Valid final CreateCityForm form) {
         final City city = cityService.createCity(form.getName(), form.getCountry());
         return Response.created(UriUtils.getCityUri(uriInfo, city.getId()))
@@ -66,8 +66,7 @@ public class CityController {
 
     @PUT
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_CITY)
     public Response updateCity(
             @PathParam("id") final long id,
             @Valid final UpdateCityForm form
@@ -78,8 +77,7 @@ public class CityController {
 
     @PATCH
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_CITY)
     public Response patchCity(
             @PathParam("id") final long id,
             @Valid final PatchCityForm form

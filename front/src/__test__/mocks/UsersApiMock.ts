@@ -22,6 +22,7 @@ export const usersHandlers = [
     http.get(`${BASE_URL}/users`, () => {
         return HttpResponse.json([defaultUser, secondUser], {
             headers: {
+                "Content-Type": "application/vnd.gotogether.user-list.v1+json",
                 "x-total-count": "2",
                 link: `<${BASE_URL}/users?page=1>; rel="first", <${BASE_URL}/users?page=1>; rel="last"`,
             },
@@ -32,17 +33,17 @@ export const usersHandlers = [
         const { id } = params;
         if (id === "404") return new HttpResponse(null, { status: 404 });
         if (id === "error") return new HttpResponse(null, { status: 500 });
-        if (id === "2") return HttpResponse.json(secondUser);
-        return HttpResponse.json(createMockUser({ id: Number(id) || 1 }));
+        if (id === "2") return HttpResponse.json(secondUser, { headers: { "Content-Type": "application/vnd.gotogether.user.v1+json" } });
+        return HttpResponse.json(createMockUser({ id: Number(id) || 1 }), { headers: { "Content-Type": "application/vnd.gotogether.user.v1+json" } });
     }),
 
     http.post(`${BASE_URL}/users`, async ({ request }) => {
         const contentType = request.headers.get("Content-Type") ?? "";
 
-        if (contentType.includes("userPassword")) {
+        if (contentType.includes("user-password")) {
             return new HttpResponse(null, { status: 200 });
         }
-        if (contentType.includes("passwordReset")) {
+        if (contentType.includes("password-reset")) {
             return new HttpResponse(null, { status: 200 });
         }
 
@@ -54,13 +55,13 @@ export const usersHandlers = [
 
         return HttpResponse.json(
             { id: 99, username: body.username, email: body.email, role: "USER" },
-            { status: 201 },
+            { status: 201, headers: { "Content-Type": "application/vnd.gotogether.user.v1+json" } },
         );
     }),
 
     http.patch(`${BASE_URL}/users/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: Number(params.id), ...defaultUser, ...body });
+        return HttpResponse.json({ id: Number(params.id), ...defaultUser, ...body }, { headers: { "Content-Type": "application/vnd.gotogether.user.v1+json" } });
     }),
 
     http.put(`${BASE_URL}/users/:id/password`, () => {
@@ -83,6 +84,7 @@ export const usersHandlers = [
             ],
             {
                 headers: {
+                    "Content-Type": "application/vnd.gotogether.user-interest-list.v1+json",
                     "x-total-count": "2",
                     link: `<${BASE_URL}/users/1/interests?page=1>; rel="first", <${BASE_URL}/users/1/interests?page=1>; rel="last"`,
                 },
@@ -106,7 +108,7 @@ export const usersHandlers = [
                 selfUrl: `${BASE_URL}/users/1/rating`,
                 userUrl: `${BASE_URL}/users/1`,
             },
-        });
+        }, { headers: { "Content-Type": "application/vnd.gotogether.user-rating.v1+json" } });
     }),
 
     http.get(`${BASE_URL}/users/:id/profilePicture`, () => {

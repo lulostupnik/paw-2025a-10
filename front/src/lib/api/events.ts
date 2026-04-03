@@ -1,4 +1,5 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
+import { ContentTypes } from "@/lib/api/contentTypes";
 import { getCareerByUrl, getCityByUrl, getUniversityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment, EventDetail, EventRating, ProfileEvent } from "@/types/event";
 import { emptyPage, mapPageList, toPaged, type PageResult } from "@/types/pagination";
@@ -109,17 +110,18 @@ export async function fetchEvents(params: FetchEventsParams = {}, signal?: Abort
     const response = await apiClient.get<EventDto[]>("/events", {
         params,
         signal,
+        headers: { Accept: ContentTypes.EVENT_LIST },
     });
     return toPaged(response);
 }
 
 export const getEventById = async (id: number | string, signal?: AbortSignal) => {
-    const response = await apiClient.get<EventDto>(`/events/${id}`, { signal });
+    const response = await apiClient.get<EventDto>(`/events/${id}`, { signal, headers: { Accept: ContentTypes.EVENT } });
     return response.data;
 };
 
 export const getEventStatistics = async (eventId: number | string, signal?: AbortSignal) => {
-    const response = await apiClient.get<EventStatisticsDto>(`/events/${eventId}/statistics`, { signal });
+    const response = await apiClient.get<EventStatisticsDto>(`/events/${eventId}/statistics`, { signal, headers: { Accept: ContentTypes.EVENT_STATISTICS } });
     return response.data;
 };
 
@@ -128,7 +130,7 @@ export const listEventResponses = async (
     params: { page?: number; size?: number } = {},
     signal?: AbortSignal
 ): Promise<PageResult<EventResponseApi>> => {
-    const response = await apiClient.get<EventResponseApi[]>(`/events/${eventId}/responses`, { params, signal });
+    const response = await apiClient.get<EventResponseApi[]>(`/events/${eventId}/responses`, { params, signal, headers: { Accept: ContentTypes.EVENT_RESPONSE_LIST } });
     return toPaged(response);
 };
 
@@ -137,7 +139,7 @@ export const listEventAttendees = async (
     params: { page?: number; size?: number } = {},
     signal?: AbortSignal
 ): Promise<PageResult<EventAttendee>> => {
-    const response = await apiClient.get<EventAttendanceApi[]>(`/events/${eventId}/attendances`, { params, signal });
+    const response = await apiClient.get<EventAttendanceApi[]>(`/events/${eventId}/attendances`, { params, signal, headers: { Accept: ContentTypes.EVENT_ATTENDANCE_LIST } });
     const page = toPaged(response);
     const users = await Promise.all(
         page.content.map((attendance) =>
@@ -162,7 +164,7 @@ export const listEventRatings = async (
     params: { page?: number; size?: number } = {},
     signal?: AbortSignal
 ): Promise<PageResult<RatingApi>> => {
-    const response = await apiClient.get<RatingApi[]>(`/events/${eventId}/ratings`, { params, signal });
+    const response = await apiClient.get<RatingApi[]>(`/events/${eventId}/ratings`, { params, signal, headers: { Accept: ContentTypes.EVENT_RATING_LIST } });
     return toPaged(response);
 };
 
@@ -311,7 +313,7 @@ export const updateEvent = async (
     },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.put<EventDto>(`/events/${id}`, payload, { signal });
+    const response = await apiClient.put<EventDto>(`/events/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.EVENT } });
     return response.data;
 };
 
@@ -327,16 +329,16 @@ export const createEvent = async (
     },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.post<EventDto>("/events", payload, { signal });
+    const response = await apiClient.post<EventDto>("/events", payload, { signal, headers: { "Content-Type": ContentTypes.EVENT } });
     return response.data;
 };
 
 export const deleteEvent = async (id: number, payload?: { message?: string | null }, signal?: AbortSignal) => {
-    await apiClient.delete(`/events/${id}`, { data: payload, signal });
+    await apiClient.delete(`/events/${id}`, { data: payload, signal, headers: { "Content-Type": ContentTypes.EVENT_DELETE } });
 };
 
 export const createEventResponse = async (eventId: number, payload: { message: string }, signal?: AbortSignal) => {
-    const response = await apiClient.post<EventResponseApi>(`/events/${eventId}/responses`, payload, { signal });
+    const response = await apiClient.post<EventResponseApi>(`/events/${eventId}/responses`, payload, { signal, headers: { "Content-Type": ContentTypes.EVENT_RESPONSE } });
     return response.data;
 };
 
@@ -346,16 +348,16 @@ export const deleteEventResponse = async (
     payload?: { message?: string | null },
     signal?: AbortSignal
 ) => {
-    await apiClient.delete(`/events/${eventId}/responses/${responseId}`, { data: payload, signal });
+    await apiClient.delete(`/events/${eventId}/responses/${responseId}`, { data: payload, signal, headers: { "Content-Type": ContentTypes.EVENT_DELETE } });
 };
 
 export const attendEvent = async (eventId: number, signal?: AbortSignal) => {
-    const response = await apiClient.post(`/events/${eventId}/attendances`, undefined, { signal });
+    const response = await apiClient.post(`/events/${eventId}/attendances`, undefined, { signal, headers: { Accept: ContentTypes.EVENT_ATTENDANCE } });
     return response.data;
 };
 
 export const getEventAttendance = async (eventId: number, userId: number, signal?: AbortSignal) => {
-    const response = await apiClient.get(`/events/${eventId}/attendances/${userId}`, { signal });
+    const response = await apiClient.get(`/events/${eventId}/attendances/${userId}`, { signal, headers: { Accept: ContentTypes.EVENT_ATTENDANCE } });
     return response.data;
 };
 
@@ -375,7 +377,7 @@ export const updateEventFlyer = async (eventId: number, flyer: File, signal?: Ab
 };
 
 export const createEventRating = async (eventId: number, payload: { rating: number }, signal?: AbortSignal) => {
-    const response = await apiClient.post(`/events/${eventId}/ratings`, payload, { signal });
+    const response = await apiClient.post(`/events/${eventId}/ratings`, payload, { signal, headers: { "Content-Type": ContentTypes.EVENT_RATING } });
     return response.data;
 };
 
@@ -385,7 +387,7 @@ export const updateEventRating = async (
     payload: { rating: number },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.put(`/events/${eventId}/ratings/${ratingId}`, payload, { signal });
+    const response = await apiClient.put(`/events/${eventId}/ratings/${ratingId}`, payload, { signal, headers: { "Content-Type": ContentTypes.EVENT_RATING } });
     return response.data;
 };
 

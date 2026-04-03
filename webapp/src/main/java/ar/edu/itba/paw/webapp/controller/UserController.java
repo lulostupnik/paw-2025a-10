@@ -59,7 +59,7 @@ public class UserController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(value = { MediaType.APPLICATION_JSON, })
+    @Produces(value = { CustomMediaType.APPLICATION_USER_LIST, })
     public Response listUsers(
             @QueryParam("attendingEvent") Long attendingEventId,
             @QueryParam("university") Long universityId,
@@ -78,15 +78,14 @@ public class UserController {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_USER)
     public Response getById(@PathParam("id") final long id) {
         final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
         return Response.ok(UserDto.fromUser(uriInfo, user)).build(); // todo: este se cachea?
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_USER)
     public Response createUser(@Valid final CreateUserForm registerForm) {
         final User user = us.createUser(
                 registerForm.getEmail(),
@@ -105,7 +104,7 @@ public class UserController {
     }
 
     @POST
-    @Consumes(CustomMediaType.USER_PASSWORD)
+    @Consumes(CustomMediaType.APPLICATION_USER_PASSWORD)
     public Response requestPasswordReset(@Valid final ForgotPasswordForm form) {
         us.initiatePasswordReset(form.getEmail());
         return Response.noContent().build();
@@ -113,8 +112,7 @@ public class UserController {
 
     @PUT
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_USER)
     public Response updateUser(@PathParam("id") final long id, @Valid EditUserForm form) {
          final User user = us.updateUser(id, form.getUsername(), form.getFirstName(), form.getLastName(),
                  form.getOriginUniversity(), form.getCareer());
@@ -123,8 +121,7 @@ public class UserController {
 
     @PATCH
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_USER)
     public Response patchUser(@PathParam("id") final long id, @Valid PatchUserForm form) {
         final User user = us.patchUser(id, form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer());
         return Response.ok(UserDto.fromUser(uriInfo, user)).build();
@@ -134,7 +131,7 @@ public class UserController {
 
     @PUT
     @Path("/{id}/password")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_USER_PASSWORD)
     public Response updatePassword(
             @PathParam("id") final long id,
             @Valid final PasswordForm form
@@ -148,7 +145,7 @@ public class UserController {
 
     @PUT
     @Path("/{id}/blocked")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_USER_BLOCKED)
     public Response updateBlockedStatus(
             @PathParam("id") final long id,
             @Valid final BlockUserForm form
@@ -162,7 +159,7 @@ public class UserController {
 
     @GET
     @Path("/{userId}/interests")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_USER_INTEREST_LIST)
     public Response listUserInterests(
             @PathParam("userId") final long userId,
             @QueryParam("page") @DefaultValue("1") int page,
@@ -179,8 +176,7 @@ public class UserController {
 
     @POST
     @Path("/{userId}/interests")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_USER_INTEREST)
     public Response addUserInterest(
             @PathParam("userId") final long userId,
             @Valid final AddUserInterestForm form
@@ -193,7 +189,7 @@ public class UserController {
 
     @GET
     @Path("/{userId}/interests/{interestId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_USER_INTEREST)
     public Response getUserInterest(
             @PathParam("userId") final long userId,
             @PathParam("interestId") final long interestId
@@ -217,7 +213,7 @@ public class UserController {
 
     @GET
     @Path("/{userId}/rating")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_USER_RATING)
     public Response getUserRating(@PathParam("userId") final long userId) {
         us.findUserById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 

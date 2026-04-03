@@ -10,6 +10,7 @@ export const journeysHandlers = [
             [defaultJourney, createMockJourney({ id: 2, description: "Second journey" })],
             {
                 headers: {
+                    "Content-Type": "application/vnd.gotogether.journey-list.v1+json",
                     "x-total-count": "2",
                     link: `<${BASE_URL}/journeys?page=1>; rel="first", <${BASE_URL}/journeys?page=1>; rel="last"`,
                 },
@@ -21,17 +22,17 @@ export const journeysHandlers = [
         const { id } = params;
         if (id === "404") return new HttpResponse(null, { status: 404 });
         if (id === "error") return new HttpResponse(null, { status: 500 });
-        return HttpResponse.json(createMockJourney({ id: Number(id) }));
+        return HttpResponse.json(createMockJourney({ id: Number(id) }), { headers: { "Content-Type": "application/vnd.gotogether.journey.v1+json" } });
     }),
 
     http.post(`${BASE_URL}/journeys`, async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: 99, ...body }, { status: 201 });
+        return HttpResponse.json({ id: 99, ...body }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.journey.v1+json" } });
     }),
 
     http.put(`${BASE_URL}/journeys/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: Number(params.id), ...body });
+        return HttpResponse.json({ id: Number(params.id), ...body }, { headers: { "Content-Type": "application/vnd.gotogether.journey.v1+json" } });
     }),
 
     http.delete(`${BASE_URL}/journeys/:id`, () => {
@@ -54,6 +55,7 @@ export const journeysHandlers = [
             ],
             {
                 headers: {
+                    "Content-Type": "application/vnd.gotogether.journey-response-list.v1+json",
                     "x-total-count": "1",
                     link: `<${BASE_URL}/journeys/1/responses?page=1>; rel="first", <${BASE_URL}/journeys/1/responses?page=1>; rel="last"`,
                 },
@@ -66,12 +68,12 @@ export const journeysHandlers = [
             id: 1,
             message: "Nice journey!",
             dateTime: "2026-08-01T10:00:00Z",
-        });
+        }, { headers: { "Content-Type": "application/vnd.gotogether.journey-response.v1+json" } });
     }),
 
     http.post(`${BASE_URL}/journeys/:id/responses`, async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: 10, ...body, dateTime: "2026-08-01T10:30:00Z" }, { status: 201 });
+        return HttpResponse.json({ id: 10, ...body, dateTime: "2026-08-01T10:30:00Z" }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.journey-response.v1+json" } });
     }),
 
     http.delete(`${BASE_URL}/journeys/:journeyId/responses/:responseId`, () => {
@@ -94,6 +96,7 @@ export const journeysHandlers = [
             ],
             {
                 headers: {
+                    "Content-Type": "application/vnd.gotogether.tip-list.v1+json",
                     "x-total-count": "1",
                     link: `<${BASE_URL}/journeys/1/tips?page=1>; rel="first", <${BASE_URL}/journeys/1/tips?page=1>; rel="last"`,
                 },
@@ -107,17 +110,17 @@ export const journeysHandlers = [
             title: "Tip 1",
             content: "Pack light",
             dateTime: "2026-07-10T08:00:00Z",
-        });
+        }, { headers: { "Content-Type": "application/vnd.gotogether.tip.v1+json" } });
     }),
 
     http.post(`${BASE_URL}/journeys/:id/tips`, async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: 10, ...body, dateTime: "2026-07-10T09:00:00Z" }, { status: 201 });
+        return HttpResponse.json({ id: 10, ...body, dateTime: "2026-07-10T09:00:00Z" }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.tip.v1+json" } });
     }),
 
     http.put(`${BASE_URL}/journeys/:journeyId/tips/:tipId`, async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json(body);
+        return HttpResponse.json(body, { headers: { "Content-Type": "application/vnd.gotogether.tip.v1+json" } });
     }),
 
     http.delete(`${BASE_URL}/journeys/:journeyId/tips/:tipId`, () => {

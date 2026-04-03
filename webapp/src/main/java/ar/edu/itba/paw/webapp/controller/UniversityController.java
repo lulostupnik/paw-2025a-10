@@ -5,6 +5,7 @@ import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
+import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.UniversityDto;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import ar.edu.itba.paw.webapp.form.PatchUniversityForm;
@@ -33,7 +34,7 @@ public class UniversityController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_UNIVERSITY_LIST)
     public Response listUniversities(
             // @QueryParam("city") Long cityId, --> por lo menos por ahora no
             // @QueryParam("country") Long countryId, --> idem
@@ -49,15 +50,14 @@ public class UniversityController {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_UNIVERSITY)
     public Response getUniversityById(@Context Request req, @PathParam("id") final long id) {
         final University university = universityService.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
         return CacheUtils.withEtag(req, university, () -> UniversityDto.fromUniversity(uriInfo, university));
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_UNIVERSITY)
     public Response createUniversity(@Valid final CreateUniversityForm form) {
         final University university = universityService.createUniversity(form.getName(), form.getAbbreviation(), form.getCity());
         return Response.created(UriUtils.getUniversityUri(uriInfo, university.getId()))
@@ -67,8 +67,7 @@ public class UniversityController {
 
     @PUT
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_UNIVERSITY)
     public Response updateUniversity(
             @PathParam("id") final long id,
             @Valid final UpdateUniversityForm form
@@ -79,8 +78,7 @@ public class UniversityController {
 
     @PATCH
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_UNIVERSITY)
     public Response patchUniversity(
             @PathParam("id") final long id,
             @Valid final PatchUniversityForm form

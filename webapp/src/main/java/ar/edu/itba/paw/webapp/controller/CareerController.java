@@ -5,6 +5,7 @@ import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
+import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.CareerDto;
 import ar.edu.itba.paw.webapp.form.CreateCareerForm;
 import ar.edu.itba.paw.webapp.form.PatchCareerForm;
@@ -33,7 +34,7 @@ public class CareerController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_CAREER_LIST)
     public Response listCareers(
             @QueryParam("search") String search,
             @QueryParam("page") @DefaultValue("1") int page,
@@ -47,15 +48,14 @@ public class CareerController {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_CAREER)
     public Response getCareerById(@Context Request req, @PathParam("id") final long id) {
         final Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException(id));
         return CacheUtils.withEtag(req, career, () -> CareerDto.fromCareer(uriInfo, career));
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_CAREER)
     public Response createCareer(@Valid final CreateCareerForm form) {
         final Career career = careerService.createCareer(form.getName());
         return Response.created(UriUtils.getCareerUri(uriInfo, career.getId()))
@@ -65,8 +65,7 @@ public class CareerController {
 
     @PUT
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_CAREER)
     public Response updateCareer(
             @PathParam("id") final long id,
             @Valid final UpdateCareerForm form
@@ -77,8 +76,7 @@ public class CareerController {
 
     @PATCH
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_CAREER)
     public Response patchCareer(
             @PathParam("id") final long id,
             @Valid final PatchCareerForm form

@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api/client";
+import { ContentTypes } from "@/lib/api/contentTypes";
 import { toPaged, type PageResult } from "@/types/pagination";
 
 export interface InterestDto {
@@ -20,17 +21,17 @@ export interface ListInterestsParams {
 }
 
 export const listInterests = async (params: ListInterestsParams = {}, signal?: AbortSignal): Promise<PageResult<InterestDto>> => {
-    const response = await apiClient.get<InterestDto[]>("/interests", { params, signal });
+    const response = await apiClient.get<InterestDto[]>("/interests", { params, signal, headers: { Accept: ContentTypes.INTEREST_LIST } });
     return toPaged(response);
 };
 
 export const getInterestById = async (id: number | string, signal?: AbortSignal): Promise<InterestDto> => {
-    const response = await apiClient.get<InterestDto>(`/interests/${id}`, { signal });
+    const response = await apiClient.get<InterestDto>(`/interests/${id}`, { signal, headers: { Accept: ContentTypes.INTEREST } });
     return response.data;
 };
 
 export const createInterest = async (payload: InterestPayload, signal?: AbortSignal): Promise<InterestDto> => {
-    const response = await apiClient.post<InterestDto>("/interests", payload, { signal });
+    const response = await apiClient.post<InterestDto>("/interests", payload, { signal, headers: { "Content-Type": ContentTypes.INTEREST } });
     return response.data;
 };
 
@@ -39,7 +40,7 @@ export const updateInterest = async (
     payload: InterestPayload,
     signal?: AbortSignal
 ): Promise<InterestDto> => {
-    const response = await apiClient.put<InterestDto>(`/interests/${id}`, payload, { signal });
+    const response = await apiClient.put<InterestDto>(`/interests/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.INTEREST } });
     return response.data;
 };
 

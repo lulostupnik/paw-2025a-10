@@ -9,6 +9,7 @@ import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.RatingNotFoundException;
 import ar.edu.itba.paw.webapp.auth.AuthUtils;
+import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.EventAttendanceDto;
 import ar.edu.itba.paw.webapp.dto.EventDto;
 import ar.edu.itba.paw.webapp.dto.EventResponseDto;
@@ -51,7 +52,7 @@ public class EventController {
     // ==================== EVENTS ====================
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_EVENT_LIST)
     public Response listEvents(
             @QueryParam("destination") String destination,
             @QueryParam("interest") String interest,
@@ -98,26 +99,15 @@ public class EventController {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_EVENT)
     public Response getEventById(@Context Request req, @PathParam("id") final long id) {
         final Event event = eventService.findEventById(id).orElseThrow(() -> new EventNotFoundException(id));
         return CacheUtils.withEtag(req, event, () -> EventDto.fromEvent(uriInfo, event));
     }
 
-    // ==================== EVENT STATISTICS ====================
-
-    @GET
-    @Path("/{eventId}/statistics")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getEventStatistics(@PathParam("eventId") final long eventId) {
-        final EventWithStatistics statistics = eventService.findEventWithStatistics(eventId)
-                .orElseThrow(() -> new EventNotFoundException(eventId));
-        return Response.ok(EventStatisticsDto.fromEventWithStatistics(uriInfo, statistics)).build();
-    }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_EVENT)
     public Response createEvent(@Valid final CreateEventForm form) {
         final Long userId = AuthUtils.getCurrentUserId();
 
@@ -139,8 +129,7 @@ public class EventController {
 
     @PUT
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_EVENT)
     public Response updateEvent(@PathParam("id") final long id, @Valid final EditEventForm form) {
         final Event event = eventService.updateEvent(
                 id,
@@ -158,8 +147,7 @@ public class EventController {
 
     @PATCH
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_EVENT)
     public Response patchEvent(@PathParam("id") final long id, @Valid final PatchEventForm form) {
         final Event event = eventService.patchEvent(
                 id,
@@ -175,16 +163,25 @@ public class EventController {
         return Response.ok(EventDto.fromEvent(uriInfo, event)).build();
     }
 
+
+    @GET
+    @Path("/{eventId}/statistics")
+    @Produces(CustomMediaType.APPLICATION_EVENT_STATISTICS)
+    public Response getEventStatistics(@PathParam("eventId") final long eventId) {
+        final EventWithStatistics statistics = eventService.findEventWithStatistics(eventId)
+                .orElseThrow(() -> new EventNotFoundException(eventId));
+        return Response.ok(EventStatisticsDto.fromEventWithStatistics(uriInfo, statistics)).build();
+    }
+
     @DELETE
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteEvent(@PathParam("id") final long id, @Valid final DeleteMessageForm form) {
         final String message = form != null ? form.getMessage() : null;
         eventService.deleteEvent(id, message);
         return Response.noContent().build();
     }
 
-    // ==================== EVENT FLYER ====================
+    // ==================== EVENT FLYER ====================z
 
     @GET
     @Path("/{id}/flyer")
@@ -193,7 +190,7 @@ public class EventController {
         final Image image = eventService.getEventFlyer(id).orElseThrow(() -> new ImageNotFoundException("Event flyer not found"));
         final Response.ResponseBuilder responseBuilder = Response.ok(image.getData())
                 .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
-                .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"event_%d_flyer.jpg\"", id));
+                .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"event_%d_flyer.jpeg\"", id));
         return CacheUtils.withMaxAge(responseBuilder, CacheUtils.ONE_MONTH).build();
     }
 
@@ -226,7 +223,7 @@ public class EventController {
 
     @GET
     @Path("/{eventId}/responses")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_EVENT_RESPONSE_LIST)
     public Response listEventResponses(
             @PathParam("eventId") final long eventId,
             @QueryParam("page") @DefaultValue("1") int page,
@@ -240,7 +237,7 @@ public class EventController {
 
     @GET
     @Path("/{eventId}/responses/{responseId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_EVENT_RESPONSE)
     public Response getEventResponseById(
             @PathParam("eventId") final long eventId,
             @PathParam("responseId") final long responseId
@@ -251,8 +248,7 @@ public class EventController {
 
     @POST
     @Path("/{eventId}/responses")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_EVENT_RESPONSE)
     public Response createEventResponse(
             @PathParam("eventId") final long eventId,
             @Valid @NotNull final CreateEventResponseForm form
@@ -266,7 +262,6 @@ public class EventController {
 
     @DELETE
     @Path("/{eventId}/responses/{responseId}")
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteEventResponse(
             @PathParam("eventId") final long eventId,
             @PathParam("responseId") final long responseId,
@@ -281,7 +276,7 @@ public class EventController {
 
     @GET
     @Path("/{eventId}/attendances")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_EVENT_ATTENDANCE_LIST)
     public Response listEventAttendances(
             @PathParam("eventId") final long eventId,
             @QueryParam("page") @DefaultValue("1") int page,
@@ -295,7 +290,6 @@ public class EventController {
 
     @POST
     @Path("/{eventId}/attendances")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response attendEvent(@PathParam("eventId") final long eventId) {
         final Long userId = AuthUtils.getCurrentUserId();
         final EventAttendance attendance = eventService.createEventAttendance(userId, eventId);
@@ -316,7 +310,7 @@ public class EventController {
 
     @GET
     @Path("/{eventId}/attendances/{userId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_EVENT_ATTENDANCE)
     public Response getEventAttendance(
             @PathParam("eventId") final long eventId,
             @PathParam("userId") final long userId
@@ -348,7 +342,7 @@ public class EventController {
 
     @GET
     @Path("/{eventId}/ratings")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_EVENT_RATING_LIST)
     public Response listEventRatings(
             @PathParam("eventId") final long eventId,
             @QueryParam("page") @DefaultValue("1") int page,
@@ -362,7 +356,7 @@ public class EventController {
 
     @GET
     @Path("/{eventId}/ratings/{ratingId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_EVENT_RATING)
     public Response getEventRatingById(
             @PathParam("eventId") final long eventId,
             @PathParam("ratingId") final long ratingId
@@ -373,8 +367,7 @@ public class EventController {
 
     @POST
     @Path("/{eventId}/ratings")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_EVENT_RATING)
     public Response createEventRating(
             @PathParam("eventId") final long eventId,
             @Valid final CreateRatingForm form
@@ -388,8 +381,7 @@ public class EventController {
 
     @PUT
     @Path("/{eventId}/ratings/{ratingId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_EVENT_RATING)
     public Response updateEventRating(
             @PathParam("eventId") final long eventId,
             @PathParam("ratingId") final long ratingId,

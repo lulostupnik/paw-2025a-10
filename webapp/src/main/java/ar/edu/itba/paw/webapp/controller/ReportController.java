@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Report;
 import ar.edu.itba.paw.models.exceptions.ReportNotFoundException;
 import ar.edu.itba.paw.webapp.auth.AuthUtils;
+import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.ReportDto;
 import ar.edu.itba.paw.webapp.form.CreateReportForm;
 import ar.edu.itba.paw.webapp.form.UpdateReportStatusForm;
@@ -33,7 +34,7 @@ public class ReportController {
 
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_REPORT_LIST)
     public Response listReports(
             @QueryParam("search") String search,
             @QueryParam("page") @DefaultValue("1") int page,
@@ -51,15 +52,14 @@ public class ReportController {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(CustomMediaType.APPLICATION_REPORT)
     public Response getReportById(@PathParam("id") final long id) {
         final Report report = reportService.findById(id).orElseThrow(() -> new ReportNotFoundException(id));
         return Response.ok(ReportDto.fromReport(uriInfo, report)).build();
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_REPORT)
     public Response createReport(@Valid final CreateReportForm form) {
         final Long userId = AuthUtils.getCurrentUserId();
 
@@ -72,8 +72,7 @@ public class ReportController {
 
     @PUT
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(CustomMediaType.APPLICATION_REPORT)
     public Response updateStatus(@PathParam("id") final long id, @Valid final UpdateReportStatusForm form) {
         final Report report = reportService.updateReportStatus(id,form.getStatus());
         return Response.ok(ReportDto.fromReport(uriInfo, report)).build();

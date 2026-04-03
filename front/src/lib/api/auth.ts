@@ -1,4 +1,5 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
+import { ContentTypes } from "@/lib/api/contentTypes";
 import { setAuthTokens, setSession } from "@/lib/auth/auth";
 
 export interface LoginCredentials {
@@ -106,7 +107,7 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
     const payload = authToken ? decodeJwtPayload(authToken) : null;
     const selfUrl = payload?.selfUrl;
     if (selfUrl) {
-        const { data } = await apiClient.get<UserDto>(normalizeApiPath(selfUrl));
+        const { data } = await apiClient.get<UserDto>(normalizeApiPath(selfUrl), { headers: { Accept: ContentTypes.USER } });
         const normalizedRole = normalizeRole(data.role);
         const username = data.username ?? data.email ?? credentials.email;
         const email = data.email ?? credentials.email;
@@ -122,7 +123,7 @@ export interface PasswordResetRequest {
 }
 
 export async function requestPasswordReset(body: PasswordResetRequest): Promise<void> {
-    await apiClient.post("/users", body, {headers: {'Content-Type': 'application/vnd.gotogether.userPassword.v1+json'}});
+    await apiClient.post("/users", body, {headers: {'Content-Type': ContentTypes.USER_PASSWORD}});
 }
 
 export interface EmailVerificationResponse {
@@ -146,7 +147,7 @@ export interface PasswordResetPayload {
 }
 
 export async function resetPassword(payload: PasswordResetPayload): Promise<void> {
-    await apiClient.post("/users", payload, {headers: {'Content-Type': 'application/vnd.gotogether.passwordReset.v1+json'}});
+    await apiClient.post("/users", payload, {headers: {'Content-Type': ContentTypes.PASSWORD_RESET}});
 }
 
 export interface PasswordResetWithTokenPayload {
@@ -194,7 +195,7 @@ export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayl
         { password: payload.password },
         {
             signal,
-            headers: { Authorization: `Bearer ${authToken}` },
+            headers: { Authorization: `Bearer ${authToken}`, "Content-Type": ContentTypes.USER_PASSWORD },
             _skipAuthStore: true,
         } as unknown as Parameters<typeof apiClient.put>[2]
     );

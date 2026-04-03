@@ -26,6 +26,7 @@ export const reportsHandlers = [
             ],
             {
                 headers: {
+                    "Content-Type": "application/vnd.gotogether.report-list.v1+json",
                     "x-total-count": "2",
                     link: `<${BASE_URL}/reports?page=1>; rel="first", <${BASE_URL}/reports?page=1>; rel="last"`,
                 },
@@ -36,17 +37,17 @@ export const reportsHandlers = [
     http.get(`${BASE_URL}/reports/:id`, ({ params }) => {
         const { id } = params;
         if (id === "404") return new HttpResponse(null, { status: 404 });
-        return HttpResponse.json(createMockReport({ id: Number(id) }));
+        return HttpResponse.json(createMockReport({ id: Number(id) }), { headers: { "Content-Type": "application/vnd.gotogether.report.v1+json" } });
     }),
 
     http.post(`${BASE_URL}/reports`, async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: 99, ...body, status: "PENDING" }, { status: 201 });
+        return HttpResponse.json({ id: 99, ...body, status: "PENDING" }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.report.v1+json" } });
     }),
 
     http.put(`${BASE_URL}/reports/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ ...defaultReport, id: Number(params.id), ...body });
+        return HttpResponse.json({ ...defaultReport, id: Number(params.id), ...body }, { headers: { "Content-Type": "application/vnd.gotogether.report.v1+json" } });
     }),
 
     http.delete(`${BASE_URL}/reports/:id`, () => {
