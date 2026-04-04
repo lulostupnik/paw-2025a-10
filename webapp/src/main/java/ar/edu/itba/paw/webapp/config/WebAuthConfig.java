@@ -102,8 +102,9 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()
 
                 .antMatchers(HttpMethod.HEAD, "/api/").access("isAuthenticated()")
+                .antMatchers(HttpMethod.GET, "/api/").permitAll()
 
-                .antMatchers(HttpMethod.GET, "/api/users").permitAll()// TODO:revisar
+                .antMatchers(HttpMethod.GET, "/api/users").access("hasRole('ADMIN')") // TODO: revisar
                 .antMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/users/{id}").access("@accessHelper.isCurrentUser(#id)")
