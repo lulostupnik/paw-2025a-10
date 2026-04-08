@@ -1665,10 +1665,6 @@ public class EventServiceImplTest {
         assertEquals(1, events);
     }
 
-    @Test
-    public void testSendRemindersForEvent(){
-        //TODO test
-    }
 
     @Test
     public void testGetEventFlyer(){

@@ -21,7 +21,7 @@ export default function JourneyCard({ journey }: JourneyCardProps) {
     const location = useLocation();
     const startLabel = useMemo(() => formatDate(journey.startDate, locale), [journey.startDate, locale]);
     const endLabel = useMemo(() => formatDate(journey.endDate, locale), [journey.endDate, locale]);
-    const profilePictureUrl = journey.profilePictureUrl ?? null; // TODO: populate from profile picture id endpoint.
+    const profilePictureUrl = journey.profilePictureUrl ?? null;
 
     return (
         <div className="event-card-wrapper">

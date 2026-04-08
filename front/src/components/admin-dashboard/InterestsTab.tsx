@@ -61,7 +61,6 @@ export default function InterestsTab({
                             <ClickableRow
                                 key={interest.id}
                                 onClick={() => {
-                                    // TODO: wire to the real interest detail route.
                                     navigate(`/interests/${interest.id}`);
                                 }}
                             >

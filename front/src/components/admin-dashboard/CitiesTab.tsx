@@ -62,7 +62,6 @@ export default function CitiesTab({
                             <ClickableRow
                                 key={city.id}
                                 onClick={() => {
-                                    // TODO: wire to the real city detail route.
                                     navigate(`/cities/${city.id}`);
                                 }}
                             >

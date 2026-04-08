@@ -168,7 +168,6 @@ export default function AdminPage() {
             setSearchParams(buildParams(searchQuery, nextPage));
     };
 
-    // TODO: replace with API-backed role checks when auth is fully wired.
     if (!isAdmin()) {
         return <ForbiddenPage />;
     }

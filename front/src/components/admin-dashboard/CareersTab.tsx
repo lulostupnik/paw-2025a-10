@@ -61,7 +61,6 @@ export default function CareersTab({
                             <ClickableRow
                                 key={career.id}
                                 onClick={() => {
-                                    // TODO: wire to the real career detail route.
                                     navigate(`/careers/${career.id}`);
                                 }}
                             >

@@ -119,7 +119,6 @@ export default function UsersTab({
                             <ClickableRow
                                 key={user.id}
                                 onClick={() => {
-                                    // TODO: wire to the real user detail route.
                                     navigate(`/users/${user.id}`);
                                 }}
                             >

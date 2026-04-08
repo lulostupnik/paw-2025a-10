@@ -63,7 +63,6 @@ export default function UniversitiesTab({
                             <ClickableRow
                                 key={university.id}
                                 onClick={() => {
-                                    // TODO: wire to the real university detail route.
                                     navigate(`/universities/${university.id}`);
                                 }}
                             >
