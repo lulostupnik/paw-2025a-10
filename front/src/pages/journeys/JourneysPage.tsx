@@ -188,11 +188,13 @@ export default function JourneysListPage() {
 
     const handlePageChange = useCallback(
         (page: number | string) => {
-            if (typeof(page) === 'string'){
-                const url = new URL(page);
-                setSearchParams(() => {
-                    return url.searchParams
-                }, {replace: true})
+            if (typeof page === 'string') {
+                const pageNumber = new URL(page).searchParams.get('page') ?? '1';
+                setSearchParams((prev) => {
+                    const next = new URLSearchParams(prev);
+                    next.set('page', pageNumber);
+                    return next;
+                }, { replace: true });
             } else {
                 setSearchParams((prev) => {
                     const next = new URLSearchParams(prev);

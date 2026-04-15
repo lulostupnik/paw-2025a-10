@@ -161,9 +161,9 @@ export default function AdminPage() {
     };
 
     const handlePageChange = (nextPage: number | string) => {
-        if (typeof(nextPage) === 'string'){
-            const url = new URL(nextPage);
-            setSearchParams(url.searchParams)
+        if (typeof nextPage === 'string') {
+            const pageNumber = Number(new URL(nextPage).searchParams.get('page') ?? '1');
+            setSearchParams(buildParams(searchQuery, pageNumber));
         } else
             setSearchParams(buildParams(searchQuery, nextPage));
     };

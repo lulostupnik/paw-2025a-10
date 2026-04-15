@@ -535,7 +535,7 @@ return (
                                                         padding: "8px 0",
                                                     }}
                                                 >
-                                                    {!isOwner && data.isFuture && !isFull && (
+                                                    {!isOwner && data.isFuture && (!isFull || isAttending) && (
                                                         <button
                                                             type="button"
                                                             style={{
@@ -651,7 +651,7 @@ return (
                                             )}
                                         </div>
 
-                                        {!isOwner && data.isFuture && !isFull && isAttending && (
+                                        {!isOwner && data.isFuture && isAttending && (
                                             <div className="attendance-status">
                                                 <div className="attending-detail-badge">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

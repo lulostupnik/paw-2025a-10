@@ -140,16 +140,6 @@ export async function verifyEmailToken(token: string): Promise<EmailVerification
     return loginResponse.data;
 }
 
-export interface PasswordResetPayload {
-    token: string;
-    password: string;
-    confirmPassword: string;
-}
-
-export async function resetPassword(payload: PasswordResetPayload): Promise<void> {
-    await apiClient.post("/users", payload, {headers: {'Content-Type': ContentTypes.PASSWORD_RESET}});
-}
-
 export interface PasswordResetWithTokenPayload {
     email: string;
     token: string;
