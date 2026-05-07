@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { renderHook, waitFor, act } from "../setup/utils";
+import { renderHook, act } from "../setup/utils";
 import { useRegister } from "@/hooks/useRegister";
 
 describe("useRegister", () => {

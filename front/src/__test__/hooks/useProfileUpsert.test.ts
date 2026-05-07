@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "../setup/utils";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import * as usersApi from "@/lib/api/users";
+import type { ProfileDetail } from "@/types/profile";
 
 describe("useProfileUpsert", () => {
     beforeEach(() => {
@@ -19,14 +20,15 @@ describe("useProfileUpsert", () => {
 
     it("should call updateUserProfile on updateProfile", async () => {
         localStorage.setItem("userId", "1");
-        const spy = vi.spyOn(usersApi, "updateUserProfile").mockResolvedValue({} as usersApi.RegisteredUser);
+        const spy = vi.spyOn(usersApi, "updateUserProfile").mockResolvedValue({} as ProfileDetail);
         const { result } = renderHook(() => useProfileUpsert());
 
+        const payload = { firstName: "Updated", lastName: "User", username: "updated" };
         await act(async () => {
-            await result.current.updateProfile({ firstname: "Updated" });
+            await result.current.updateProfile(payload);
         });
 
-        expect(spy).toHaveBeenCalledWith(1, { firstname: "Updated" });
+        expect(spy).toHaveBeenCalledWith(1, payload);
         expect(result.current.isLoading).toBe(false);
     });
 
@@ -36,7 +38,7 @@ describe("useProfileUpsert", () => {
         const { result } = renderHook(() => useProfileUpsert());
 
         await act(async () => {
-            await result.current.updatePassword({ password: "NewPass123" });
+            await result.current.updatePassword({ password: "NewPass123", confirmPassword: "NewPass123" });
         });
 
         expect(spy).toHaveBeenCalledWith(1, "NewPass123");
@@ -61,7 +63,7 @@ describe("useProfileUpsert", () => {
 
         await act(async () => {
             try {
-                await result.current.updateProfile({ firstname: "Test" });
+                await result.current.updateProfile({ firstName: "Test", lastName: "User", username: "test" });
             } catch {
                 // expected
             }

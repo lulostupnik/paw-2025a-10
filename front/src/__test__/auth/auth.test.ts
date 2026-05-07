@@ -56,9 +56,9 @@ describe("Auth module", () => {
             expect(localStorage.getItem("username")).toBe("testuser");
         });
 
-        it("should store role", () => {
-            setSession({ role: "ADMIN" });
-            expect(localStorage.getItem("role")).toBe("ADMIN");
+        it("should store isAdmin", () => {
+            setSession({ isAdmin: true });
+            expect(localStorage.getItem("isAdmin")).toBe("true");
         });
 
         it("should store userId as string", () => {

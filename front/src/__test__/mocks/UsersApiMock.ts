@@ -61,7 +61,7 @@ export const usersHandlers = [
 
     http.patch(`${BASE_URL}/users/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({ id: Number(params.id), ...defaultUser, ...body }, { headers: { "Content-Type": "application/vnd.gotogether.user.v1+json" } });
+        return HttpResponse.json({ ...defaultUser, ...body, id: Number(params.id) }, { headers: { "Content-Type": "application/vnd.gotogether.user.v1+json" } });
     }),
 
     http.put(`${BASE_URL}/users/:id/password`, () => {

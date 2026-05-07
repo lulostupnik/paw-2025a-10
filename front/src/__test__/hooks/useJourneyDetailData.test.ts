@@ -25,7 +25,7 @@ describe("useJourneyDetailData", () => {
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         expect(result.current.data!.user).toBeDefined();
-        expect(result.current.data!.user.username).toBe("testuser");
+        expect(result.current.data!.user!.username).toBe("testuser");
     });
 
     it("should resolve destination university", async () => {
@@ -34,7 +34,7 @@ describe("useJourneyDetailData", () => {
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         expect(result.current.data!.destinationUniversity).toBeDefined();
-        expect(result.current.data!.destinationUniversity.name).toBe("MIT");
+        expect(result.current.data!.destinationUniversity!.name).toBe("MIT");
     });
 
     it("should include comments", async () => {

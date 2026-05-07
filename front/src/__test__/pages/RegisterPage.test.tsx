@@ -88,7 +88,7 @@ describe("RegisterPage", () => {
     });
 
     it("should show password strength indicator", async () => {
-        const user = userEvent.setup();
+        userEvent.setup();
         renderRegisterPage();
 
         expect(screen.getByText("register.password.strength.label")).toBeInTheDocument();
