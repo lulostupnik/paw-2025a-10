@@ -10,10 +10,10 @@ import ar.edu.itba.paw.models.UserInterest;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
-import ar.edu.itba.paw.webapp.auth.AccessHelper;
 import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.dto.UserInterestDto;
+import ar.edu.itba.paw.webapp.dto.UserPrivateDto;
 import ar.edu.itba.paw.webapp.dto.UserRatingDto;
 import ar.edu.itba.paw.webapp.form.AddUserInterestForm;
 import ar.edu.itba.paw.webapp.form.BlockUserForm;
@@ -29,6 +29,7 @@ import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 
@@ -52,14 +53,11 @@ public class UserController {
     @Autowired
     private InterestService interestService;
 
-    @Autowired
-    private AccessHelper accessHelper;
-
     @Context
     private UriInfo uriInfo;
 
     @GET
-    @Produces(value = { CustomMediaType.APPLICATION_USER_LIST, })
+    @Produces(CustomMediaType.APPLICATION_USER_PRIVATE_LIST)
     public Response listUsers(
             @QueryParam("attendingEvent") Long attendingEventId,
             @QueryParam("university") Long universityId,
@@ -71,7 +69,7 @@ public class UserController {
             @QueryParam("size") @DefaultValue("10") int size
     ) {
         final Page<User> allUsers = us.findUsers(search, new PageParams(page, size), attendingEventId, universityId, careerId, interestId, blocked);
-        final List<UserDto> userDtos = UserDto.fromUserCollection(uriInfo, allUsers.getContent());
+        final List<UserPrivateDto> userDtos = UserPrivateDto.fromUserCollection(uriInfo, allUsers.getContent());
         final ResponseBuilder response = Response.ok(new GenericEntity<>(userDtos) {});
         return PagingUtils.insertPaginationLinks(response, uriInfo, allUsers).build();
     }
@@ -82,6 +80,15 @@ public class UserController {
     public Response getById(@PathParam("id") final long id) {
         final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
         return Response.ok(UserDto.fromUser(uriInfo, user)).build(); // todo: este se cachea?
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(CustomMediaType.APPLICATION_USER_PRIVATE)
+    @PreAuthorize("hasRole('ADMIN') or @accessHelper.isCurrentUser(#id)")
+    public Response getByIdAdmin(@PathParam("id") final long id) {
+        final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return Response.ok(UserPrivateDto.fromUser(uriInfo, user)).build();
     }
 
     @POST

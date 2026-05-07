@@ -19,7 +19,7 @@ public interface UserService {
                          Long universityId,
                          Long careerId,
                          Long interestId,
-                        Boolean blocked);
+                         Boolean blocked);
 
     void blockUser(long userId);
     void unblockUser(long userId);

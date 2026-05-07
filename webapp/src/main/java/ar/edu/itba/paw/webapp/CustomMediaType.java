@@ -8,7 +8,8 @@ public final class CustomMediaType {
 
     // --- USERS ---
     public static final String APPLICATION_USER = "application/vnd.gotogether.user.v1+json";
-    public static final String APPLICATION_USER_LIST = "application/vnd.gotogether.user-list.v1+json";
+    public static final String APPLICATION_USER_PRIVATE = "application/vnd.gotogether.user-private.v1+json";
+    public static final String APPLICATION_USER_PRIVATE_LIST = "application/vnd.gotogether.user-private-list.v1+json";
     public static final String APPLICATION_USER_PASSWORD = "application/vnd.gotogether.user-password.v1+json";
     public static final String APPLICATION_USER_BLOCKED = "application/vnd.gotogether.user-blocked.v1+json";
     public static final String APPLICATION_USER_INTEREST = "application/vnd.gotogether.user-interest.v1+json";

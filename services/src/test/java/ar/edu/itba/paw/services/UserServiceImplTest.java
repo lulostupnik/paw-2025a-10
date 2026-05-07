@@ -310,7 +310,7 @@ public class UserServiceImplTest {
     public void testFindUsersQuery(){
         when(
             userDao.findUsers(
-                eq(USERNAME), 
+                eq(USERNAME),
                 any(PageParams.class),
                 eq(null),
                 eq(UNI_ID),
