@@ -22,12 +22,12 @@ export const useProfileDetail = (params?: ProfileDetailParams): UseProfileDetail
         queryKey: ["profileDetail", profileId],
         queryFn: async ({ signal }) => {
             let resolvedId = profileId;
+            const currentUserId = getUserId();
             if (!resolvedId || resolvedId === "me") {
-                const userId = getUserId();
-                if (!userId) {
+                if (!currentUserId) {
                     throw new Error("missing-user-id");
                 }
-                resolvedId = userId.toString();
+                resolvedId = currentUserId.toString();
             }
             const user = await getProfileDetail(resolvedId, signal);
             return buildProfileDetail(user);

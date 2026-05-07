@@ -50,9 +50,6 @@ export interface ReportDto {
 interface UserDto {
     id: number;
     username: string;
-    email?: string | null;
-    isActive?: boolean | null;
-    active?: boolean | null;
     firstname: string;
     lastname: string;
     links?: {
@@ -169,8 +166,8 @@ const fetchByUrl = async <T>(url?: string | null, signal?: AbortSignal): Promise
 const mapUser = (user: UserDto | null): ReportUser => ({
     id: user?.id ?? 0,
     username: user?.username ?? "—",
-    email: user?.email ?? null,
-    blocked: user?.isActive === false || user?.active === false,
+    email: null,
+    blocked: false,
     firstname: user?.firstname ?? "—",
     lastname: user?.lastname ?? "—"
 });

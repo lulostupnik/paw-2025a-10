@@ -1,8 +1,9 @@
 const AUTH_TOKEN_KEY = "authToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
 const USERNAME_KEY = "username";
-const ROLE_KEY = "role";
+const IS_ADMIN_KEY = "isAdmin";
 const USER_ID_KEY = "userId";
+const EMAIL_KEY = "email";
 
 type AuthStorage = "local" | "session";
 
@@ -40,11 +41,15 @@ export function isLoggedIn(): boolean {
 }
 
 export function isAdmin(): boolean {
-    return getStoredValue(ROLE_KEY) === "ADMIN";
+    return getStoredValue(IS_ADMIN_KEY) === "true";
 }
 
 export function getUsername(): string {
     return getStoredValue(USERNAME_KEY) || "user";
+}
+
+export function getEmail(): string | null {
+    return getStoredValue(EMAIL_KEY);
 }
 
 export function getUserId(): number | null {
@@ -77,7 +82,8 @@ export function setAuthTokens(tokens: {
 
 export function setSession(session: {
     username?: string;
-    role?: string | null;
+    email?: string | null;
+    isAdmin?: boolean | null;
     userId?: number | null;
     storage?: AuthStorage;
 }) {
@@ -85,8 +91,11 @@ export function setSession(session: {
     if (session.username) {
         setStoredValue(USERNAME_KEY, session.username, storage);
     }
-    if (typeof session.role === "string") {
-        setStoredValue(ROLE_KEY, session.role, storage);
+    if (session.email) {
+        setStoredValue(EMAIL_KEY, session.email, storage);
+    }
+    if (typeof session.isAdmin === "boolean") {
+        setStoredValue(IS_ADMIN_KEY, String(session.isAdmin), storage);
     }
     if (typeof session.userId === "number" && Number.isFinite(session.userId)) {
         setStoredValue(USER_ID_KEY, String(session.userId), storage);
@@ -94,7 +103,7 @@ export function setSession(session: {
 }
 
 export function logout() {
-    [AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY, USERNAME_KEY, ROLE_KEY, USER_ID_KEY].forEach((key) => {
+    [AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY, USERNAME_KEY, IS_ADMIN_KEY, USER_ID_KEY, EMAIL_KEY].forEach((key) => {
         clearStoredValue(key, "local");
         clearStoredValue(key, "session");
     });

@@ -1,15 +1,13 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
-import type { ProfileDetail, ProfileEditPayload, ProfileInterest, ProfileRatingStats, ProfileSummary } from "@/types/profile";
+import type { ProfileDetail, ProfileEditPayload, ProfileInterest, ProfileRatingStats } from "@/types/profile";
 import { getUniversityByUrl } from "./journeys";
-import { getUserId } from "../auth/auth";
-import { mapPageList, toPaged, type PageResult } from "@/types/pagination";
+import { getEmail, getUserId } from "../auth/auth";
+import { toPaged, mapPageList, type PageResult } from "@/types/pagination";
 
 export interface RegisteredUser {
     id: number;
     username: string;
-    email: string;
-    role?: string;
     links?: {
         selfUrl?: string | null;
         profilePictureUrl?: string | null;
@@ -17,7 +15,6 @@ export interface RegisteredUser {
         careerUrl?: string | null;
         journeyUrl?: string | null;
     } | null;
-    active?: boolean;
 }
 
 export interface RegisterPayload {
@@ -54,10 +51,8 @@ export interface ListUserInterestParams {
 export interface UserApi {
     id: number;
     username: string;
-    email?: string | null;
     firstname: string | null;
     lastname: string | null;
-    active?: boolean | null;
     links?: {
         selfUrl?: string | null;
         profilePictureUrl?: string | null;
@@ -65,6 +60,12 @@ export interface UserApi {
         careerUrl?: string | null;
         journeyUrl?: string | null;
     } | null;
+}
+
+export interface UserPrivateApi extends UserApi {
+    email: string;
+    isAdmin: boolean;
+    blocked: boolean;
 }
 
 interface UserInterestApi {
@@ -81,19 +82,10 @@ interface UserRatingApi {
     } | null;
 }
 
-export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSignal): Promise<PageResult<UserApi>> => {
-    const response = await apiClient.get<UserApi[]>("/users", { params, signal, headers: { Accept: ContentTypes.USER_LIST } });
+export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSignal): Promise<PageResult<UserPrivateApi>> => {
+    const response = await apiClient.get<UserPrivateApi[]>("/users", { params, signal, headers: { Accept: ContentTypes.USER_PRIVATE_LIST } });
     return toPaged(response);
 };
-
-export const mapUserToProfileSummary = (user: UserApi): ProfileSummary => ({
-    id: user.id,
-    firstname: user.firstname ?? "",
-    lastname: user.lastname ?? "",
-    username: user.username ?? "",
-    email: user.email ?? null,
-    links: user.links ?? null,
-});
 
 export const registerUser = async (payload: RegisterPayload, signal?: AbortSignal): Promise<RegisteredUser> => {
     const { data } = await apiClient.post<RegisteredUser>("/users", payload, { signal, headers: { "Content-Type": ContentTypes.USER } });
@@ -134,15 +126,15 @@ export const updateUserProfilePicture = async (
     });
 };
 
-export const getUserById = async (id: number | string, signal?: AbortSignal): Promise<UserApi> => {
-    const response = await apiClient.get<UserApi>(`/users/${id}`, { signal, headers: { Accept: ContentTypes.USER } });
-    return response.data;
-};
-
 export const getProfileDetail = async (id: string | number, signal?: AbortSignal): Promise<ProfileDetail> => {
     const response = await apiClient.get<ProfileDetail>(`/users/${id}`, { signal, headers: { Accept: ContentTypes.USER } });
     return response.data
 }
+
+export const getUserPrivateById = async (id: number | string, signal?: AbortSignal): Promise<UserPrivateApi> => {
+    const response = await apiClient.get<UserPrivateApi>(`/users/${id}`, { signal, headers: { Accept: ContentTypes.USER_PRIVATE } });
+    return response.data;
+};
 
 export const getUserRatingStats = async (userId: string | number, signal?: AbortSignal): Promise<ProfileRatingStats> => {
     const response = await apiClient.get<UserRatingApi>(`/users/${userId}/rating`, { signal, headers: { Accept: ContentTypes.USER_RATING } });
@@ -197,15 +189,16 @@ export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSign
         getCareerByUrl(user.links?.careerUrl, signal),
     ]);
 
+    const isMine = user.id == getUserId();
     return {
         id: user.id,
         firstname: user.firstname,
         lastname: user.lastname,
         username: user.username,
-        email: user.email ?? null,
+        email: isMine ? getEmail() : null,
         links: user.links ?? null,
         ratingStats: ratingStats,
-        isMine: user.id == getUserId(),
+        isMine,
         career,
         university
     };

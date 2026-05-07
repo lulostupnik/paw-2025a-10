@@ -16,7 +16,7 @@ import { listCareers } from "@/lib/api/careers";
 import { listCities } from "@/lib/api/cities";
 import { listInterests } from "@/lib/api/interests";
 import { listUniversities } from "@/lib/api/universities";
-import { listUsers, type UserApi } from "@/lib/api/users";
+import { listUsers, type UserPrivateApi } from "@/lib/api/users";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 
 interface AdminTabParams {
@@ -122,14 +122,14 @@ export const useAdminUsers = ({
         queryFn: async ({ signal }) => {
             const users = await listUsers(params, signal);
             const adminUsers = await Promise.all(
-                users.content.map(async (user: UserApi): Promise<AdminUser> => {
+                users.content.map(async (user: UserPrivateApi): Promise<AdminUser> => {
                     const university = await getUniversityByUrl(user.links?.universityUrl, signal);
                     return {
                         id: user.id,
                         firstname: user.firstname ?? "",
-                        email: user.email ?? "",
+                        email: user.email,
                         university: university?.name ?? "",
-                        blocked: user.active === false,
+                        blocked: user.blocked,
                     } satisfies AdminUser;
                 })
             );

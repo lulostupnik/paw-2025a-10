@@ -885,7 +885,6 @@ return (
                                                                             <h3 className="attendee-name">
                                                                                 {attendee.firstname} {attendee.lastname}
                                                                             </h3>
-                                                                            <p className="attendee-email">{attendee.email}</p>
                                                                         </div>
                                                                     </div>
                                                                 ))

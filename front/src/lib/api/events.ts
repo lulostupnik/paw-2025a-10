@@ -152,7 +152,6 @@ export const listEventAttendees = async (
             id: user?.id ?? 0,
             firstname: user?.firstname ?? user?.username ?? "—",
             lastname: user?.lastname ?? "",
-            email: user?.email ?? "",
             profilePictureUrl: user?.links?.profilePictureUrl ?? null,
         };
     });

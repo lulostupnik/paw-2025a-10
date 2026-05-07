@@ -37,7 +37,6 @@ export interface EventAttendee {
     id: number;
     firstname: string;
     lastname: string;
-    email: string;
     profilePictureUrl?: string | null;
 }
 

@@ -12,18 +12,20 @@ export interface AuthenticatedUser {
     id: number | null;
     username: string;
     email: string;
-    role?: string | null;
+    isAdmin?: boolean;
 }
 
-interface UserDto {
+interface PublicUserDto {
     id: number;
     username?: string;
-    email?: string;
-    role?: string;
+    firstname?: string | null;
+    lastname?: string | null;
 }
 
 interface JwtPayload {
     selfUrl?: string;
+    email?: string;
+    role?: string;
 }
 
 function encodeBasicCredentials({ email, password }: LoginCredentials) {
@@ -83,13 +85,6 @@ function getHeaderValue(headers: Record<string, unknown>, name: string): string 
     return undefined;
 }
 
-function normalizeRole(role?: string): string | undefined {
-    if (typeof role !== "string" || role.length === 0) {
-        return undefined;
-    }
-    return role.replace(/^ROLE_/i, "").toUpperCase();
-}
-
 export async function login(credentials: LoginCredentials): Promise<AuthenticatedUser> {
     const basic = encodeBasicCredentials(credentials);
     const storage = credentials.remember ? "local" : "session";
@@ -106,16 +101,17 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
 
     const payload = authToken ? decodeJwtPayload(authToken) : null;
     const selfUrl = payload?.selfUrl;
-    if (selfUrl) {
-        const { data } = await apiClient.get<UserDto>(normalizeApiPath(selfUrl), { headers: { Accept: ContentTypes.USER } });
-        const normalizedRole = normalizeRole(data.role);
-        const username = data.username ?? data.email ?? credentials.email;
-        const email = data.email ?? credentials.email;
-        setSession({ username, role: normalizedRole, userId: data.id, storage });
-        return { id: data.id, username, email, role: normalizedRole };
+    if (!selfUrl) {
+        throw new Error("login-missing-user-context");
     }
 
-    throw new Error("login-missing-user-context");
+    const email = payload?.email ?? credentials.email;
+    const isAdmin = payload?.role === "ADMIN";
+
+    const { data } = await apiClient.get<PublicUserDto>(normalizeApiPath(selfUrl), { headers: { Accept: ContentTypes.USER } });
+    const username = data.username ?? email;
+    setSession({ username, email, isAdmin, userId: data.id, storage });
+    return { id: data.id, username, email, isAdmin };
 }
 
 export interface PasswordResetRequest {
