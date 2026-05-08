@@ -114,6 +114,15 @@
     <filter-name>jersey</filter-name>
   </filter-mapping>
 
+  <filter>
+    <filter-name>UnconditionalCacheFilter</filter-name>
+    <filter-class>ar.edu.itba.paw.webapp.filter.UnconditionalCacheFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>UnconditionalCacheFilter</filter-name>
+    <url-pattern>/assets/*</url-pattern>
+  </filter-mapping>
+
   <servlet-mapping>
     <servlet-name>default</servlet-name>
     <url-pattern>/assets/*</url-pattern>
