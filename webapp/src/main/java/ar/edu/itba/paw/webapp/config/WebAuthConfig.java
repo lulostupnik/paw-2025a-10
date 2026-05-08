@@ -34,9 +34,9 @@ import org.springframework.context.MessageSource;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableWebSecurity
@@ -233,7 +233,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(authAnywhereFilter, UsernamePasswordAuthenticationFilter.class)
 
-                // Enable CORS and disable csrf rules
                 .cors().and().csrf().disable();
     }
 
@@ -251,12 +250,19 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setExposedHeaders(Arrays.asList("X-GoTogether-AuthToken", "X-GoTogether-RefreshToken", "WWW-Authenticate", "ETag", "Content-Disposition", "Location", "Link", "X-Total-Count"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(TimeUnit.HOURS.toSeconds(1));
-
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "HEAD", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
+        configuration.setExposedHeaders(Arrays.asList(
+                "X-GoTogether-AuthToken",
+                "X-GoTogether-RefreshToken",
+                "WWW-Authenticate",
+                "ETag",
+                "Last-Modified",
+                "Content-Disposition",
+                "Location",
+                "Link",
+                "X-Total-Count"
+        ));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
