@@ -113,4 +113,30 @@
     <url-pattern>/api/*</url-pattern>
     <filter-name>jersey</filter-name>
   </filter-mapping>
+
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/assets/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/favicon.ico</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/favicon.png</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/favicon.svg</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>index</servlet-name>
+    <jsp-file>/index.html</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>index</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
 </web-app>

@@ -346,7 +346,6 @@
     <module>persistence</module>
     <module>interfaces-services</module>
     <module>interfaces-persistence</module>
-    <!-- TODO: comente esto porque no me funcionaba -->
-    <!-- <module>frontend</module> -->
+    <module>front</module>
   </modules>
 </project>

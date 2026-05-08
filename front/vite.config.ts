@@ -4,7 +4,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  base: mode === "production" ? "/paw-2025a-10/" : "/",
   plugins: [react()],
   resolve: {
     alias: {
@@ -16,6 +17,14 @@ export default defineConfig({
       "@pages": fileURLToPath(new URL("./src/pages", import.meta.url)),
     },
   },
+  server: { //para que no se lanze CORS en dev.
+    proxy: {
+      "/webapp_war_exploded": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+    },
+  },
   test: {
     globals: true,
     environment: "jsdom",
@@ -24,4 +33,4 @@ export default defineConfig({
     hookTimeout: 15000,
     css: true,
   },
-});
+}));
