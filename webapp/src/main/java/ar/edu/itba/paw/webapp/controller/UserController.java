@@ -249,6 +249,7 @@ public class UserController {
     }
 
     // TODO: parece que hay business logic. Arreglar.
+    // TODO: concluision: dejarlo asi pero habilitar para que hayan eventos sin foto de perfil en el frontend
     @PUT
     @Path("/{userId}/profilePicture")
     @Consumes(MediaType.MULTIPART_FORM_DATA)

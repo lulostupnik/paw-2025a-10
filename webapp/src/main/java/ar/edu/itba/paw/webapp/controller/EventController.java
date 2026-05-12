@@ -196,6 +196,7 @@ public class EventController {
 
     // TODO: ¿Esto tiene lógica de negocios? Pareciera que si, moverlo a service-layer
     // TODO tiene sentido que este separado en otro endpoint? No me pueden quedan eventos inconsistentes sin flyers?
+    // TODO: concluision: dejarlo asi pero habilitar para que hayan eventos sin flyers en el frontend
     @PUT
     @Path("/{id}/flyer")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
