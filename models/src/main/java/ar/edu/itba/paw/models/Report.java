@@ -4,8 +4,6 @@ import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -62,13 +60,11 @@ public class Report {
     @Column(name = "status", nullable = false)
     private ReportStatus status = ReportStatus.PENDING;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
 
     /* hibernate */ Report() {
@@ -115,6 +111,11 @@ public class Report {
     public Report(User reportedUser, User reportingUser, JourneyResponse journeyResponse, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.journeyResponse = journeyResponse;
+    }
+
+    @PreUpdate
+    private void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void markAsDeleted() {
