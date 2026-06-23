@@ -182,11 +182,12 @@ public class JourneyController {
     @Path("/{journeyId}/tips/{tipId}")
     @Produces(CustomMediaType.APPLICATION_TIP)
     public Response getTipById(
+            @Context Request req,
             @PathParam("journeyId") final long journeyId,
             @PathParam("tipId") final long tipId
     ) {
         final Tip tip = journeyService.findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
-        return Response.ok(TipDto.fromTip(uriInfo, tip)).build();
+        return CacheUtils.withEtag(req, tip, () -> TipDto.fromTip(uriInfo, tip));
     }
 
     @POST
@@ -261,11 +262,12 @@ public class JourneyController {
     @Path("/{journeyId}/responses/{responseId}")
     @Produces(CustomMediaType.APPLICATION_JOURNEY_RESPONSE)
     public Response getJourneyResponseById(
+            @Context Request req,
             @PathParam("journeyId") final long journeyId,
             @PathParam("responseId") final long responseId
     ) {
         final JourneyResponse response = journeyService.findJourneyResponseById(journeyId, responseId).orElseThrow(() -> new JourneyResponseNotFoundException(journeyId, responseId));
-        return Response.ok(JourneyResponseDto.fromJourneyResponse(uriInfo, response)).build();
+        return CacheUtils.withEtag(req, response, () -> JourneyResponseDto.fromJourneyResponse(uriInfo, response));
     }
 
     @POST

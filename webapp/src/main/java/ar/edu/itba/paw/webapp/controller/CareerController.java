@@ -36,14 +36,16 @@ public class CareerController {
     @GET
     @Produces(CustomMediaType.APPLICATION_CAREER_LIST)
     public Response listCareers(
+            @Context Request req,
             @QueryParam("search") String search,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
         final Page<Career> careers = careerService.searchCareers(search, new PageParams(page, size));
         final List<CareerDto> careerDtos = CareerDto.fromCareerCollection(uriInfo, careers.getContent());
-        final ResponseBuilder response = Response.ok(new GenericEntity<>(careerDtos) {});
-        return PagingUtils.insertPaginationLinks(response, uriInfo, careers).build();
+        final ResponseBuilder response = PagingUtils.insertPaginationLinks(
+                Response.ok(new GenericEntity<>(careerDtos) {}), uriInfo, careers);
+        return CacheUtils.withEtag(req, careers.getContent(), response);
     }
 
     @GET

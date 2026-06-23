@@ -36,7 +36,7 @@ public class InterestController {
     @GET
     @Produces(CustomMediaType.APPLICATION_INTEREST_LIST)
     public Response listInterests(
-            // @QueryParam("user") Long userId,
+            @Context Request req,
             @QueryParam("search") String search,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
@@ -44,8 +44,9 @@ public class InterestController {
         // TODO: parametro de usuarios? ¿Acá o en /users/{id}/interests? ¿en webapp o en capa de servicios?
         final Page<Interest> interests = interestService.findInterests(search, new PageParams(page, size));
         final List<InterestDto> interestDtos = InterestDto.fromInterestCollection(uriInfo, interests.getContent());
-        final ResponseBuilder response = Response.ok(new GenericEntity<>(interestDtos) {});
-        return PagingUtils.insertPaginationLinks(response, uriInfo, interests).build();
+        final ResponseBuilder response = PagingUtils.insertPaginationLinks(
+                Response.ok(new GenericEntity<>(interestDtos) {}), uriInfo, interests);
+        return CacheUtils.withEtag(req, interests.getContent(), response);
     }
 
     @GET

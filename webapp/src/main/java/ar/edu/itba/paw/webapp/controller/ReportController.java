@@ -10,6 +10,7 @@ import ar.edu.itba.paw.webapp.CustomMediaType;
 import ar.edu.itba.paw.webapp.dto.ReportDto;
 import ar.edu.itba.paw.webapp.form.CreateReportForm;
 import ar.edu.itba.paw.webapp.form.UpdateReportStatusForm;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +54,9 @@ public class ReportController {
     @GET
     @Path("/{id}")
     @Produces(CustomMediaType.APPLICATION_REPORT)
-    public Response getReportById(@PathParam("id") final long id) {
+    public Response getReportById(@Context Request req, @PathParam("id") final long id) {
         final Report report = reportService.findById(id).orElseThrow(() -> new ReportNotFoundException(id));
-        return Response.ok(ReportDto.fromReport(uriInfo, report)).build();
+        return CacheUtils.withLastModified(req, report.getUpdatedAt(), () -> ReportDto.fromReport(uriInfo, report));
     }
 
     @POST

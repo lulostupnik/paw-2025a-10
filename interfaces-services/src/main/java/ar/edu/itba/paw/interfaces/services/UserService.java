@@ -35,4 +35,6 @@ public interface UserService {
 
     Optional<Double> findAverageRatingForCreatedEvents(long userId);
     Optional<Double> findAverageRatingForAttendedEvents(long userId);
+
+    UserRating getUserRating(long userId);
 }

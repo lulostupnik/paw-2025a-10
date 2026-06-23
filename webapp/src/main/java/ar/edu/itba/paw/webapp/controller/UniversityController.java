@@ -36,6 +36,7 @@ public class UniversityController {
     @GET
     @Produces(CustomMediaType.APPLICATION_UNIVERSITY_LIST)
     public Response listUniversities(
+            @Context Request req,
             // @QueryParam("city") Long cityId, --> por lo menos por ahora no
             // @QueryParam("country") Long countryId, --> idem
             @QueryParam("search") String search,
@@ -44,8 +45,9 @@ public class UniversityController {
     ) {
         final Page<University> universities = universityService.findUniversities(search, new PageParams(page, size));
         final List<UniversityDto> universityDtos = UniversityDto.fromUniversityCollection(uriInfo, universities.getContent());
-        final ResponseBuilder response = Response.ok(new GenericEntity<>(universityDtos) {});
-        return PagingUtils.insertPaginationLinks(response, uriInfo, universities).build();
+        final ResponseBuilder response = PagingUtils.insertPaginationLinks(
+                Response.ok(new GenericEntity<>(universityDtos) {}), uriInfo, universities);
+        return CacheUtils.withEtag(req, universities.getContent(), response);
     }
 
     @GET

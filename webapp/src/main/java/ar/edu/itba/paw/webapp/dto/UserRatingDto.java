@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.dto;
 
+import ar.edu.itba.paw.models.UserRating;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 
 import javax.ws.rs.core.UriInfo;
@@ -17,13 +18,13 @@ public class UserRatingDto {
     // private int totalRatings;
     private Links links;
 
-    public static UserRatingDto fromRatings(final UriInfo uriInfo, final long userId, final Double attendedEventsRating, final Double hostedEventsRating) {
+    public static UserRatingDto fromUserRating(final UriInfo uriInfo, final UserRating rating) {
         final UserRatingDto dto = new UserRatingDto();
-        dto.hostedEventsRating = hostedEventsRating;
-        dto.attendedEventsRating = attendedEventsRating;
+        dto.hostedEventsRating = rating.getCreatedEventsRating();
+        dto.attendedEventsRating = rating.getAttendedEventsRating();
         final Links links = new Links();
-        links.selfUrl = UriUtils.getUserRatingUri(uriInfo, userId);
-        links.userUrl = UriUtils.getUserUri(uriInfo, userId);
+        links.selfUrl = UriUtils.getUserRatingUri(uriInfo, rating.getUserId());
+        links.userUrl = UriUtils.getUserUri(uriInfo, rating.getUserId());
         dto.links = links;
         return dto;
     }

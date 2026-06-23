@@ -4,6 +4,8 @@ import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -60,9 +62,11 @@ public class Report {
     @Column(name = "status", nullable = false)
     private ReportStatus status = ReportStatus.PENDING;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
@@ -82,8 +86,6 @@ public class Report {
         this.event = event;
         this.journeyResponse = journeyResponse;
         this.eventResponse = eventResponse;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public Report(User reportedUser, User reportingUser, String description, ReportReason reason) {
@@ -93,41 +95,26 @@ public class Report {
         this.reason = reason;
         this.deleted = false;
         this.status = ReportStatus.PENDING;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-
     }
 
     public Report(User reportedUser, User reportingUser, Journey journey, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.journey = journey;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-
     }
 
     public Report(User reportedUser, User reportingUser, Event event, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.event = event;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-
     }
 
     public Report(User reportedUser, User reportingUser, EventResponse eventResponse, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.eventResponse = eventResponse;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-
     }
 
     public Report(User reportedUser, User reportingUser, JourneyResponse journeyResponse, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.journeyResponse = journeyResponse;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-
     }
 
     public void markAsDeleted() {
@@ -174,4 +161,3 @@ public class Report {
         );
     }
 }
-

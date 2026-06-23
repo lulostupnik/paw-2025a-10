@@ -7,6 +7,7 @@ import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserInterest;
+import ar.edu.itba.paw.models.UserRating;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
@@ -41,7 +42,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Optional;
 
 @Path("users")
 @Component
@@ -77,18 +77,21 @@ public class UserController {
     @GET
     @Path("/{id}")
     @Produces(CustomMediaType.APPLICATION_USER)
-    public Response getById(@PathParam("id") final long id) {
+    public Response getById(@Context Request req, @PathParam("id") final long id) {
         final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
-        return Response.ok(UserDto.fromUser(uriInfo, user)).build(); // todo: este se cachea?
+        // Vary the ETag by media type so the public and private representations never share an ETag.
+        return CacheUtils.withEtag(req, user, CustomMediaType.APPLICATION_USER,
+                () -> UserDto.fromUser(uriInfo, user));
     }
 
     @GET
     @Path("/{id}")
     @Produces(CustomMediaType.APPLICATION_USER_PRIVATE)
     @PreAuthorize("hasRole('ADMIN') or @accessHelper.isCurrentUser(#id)")
-    public Response getByIdAdmin(@PathParam("id") final long id) {
+    public Response getByIdAdmin(@Context Request req, @PathParam("id") final long id) {
         final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
-        return Response.ok(UserPrivateDto.fromUser(uriInfo, user)).build();
+        return CacheUtils.privateWithEtag(req, user, CustomMediaType.APPLICATION_USER_PRIVATE,
+                () -> UserPrivateDto.fromUser(uriInfo, user)); //@TODO creo que tiene sentido, usa mismo hash para el modelo USER, pero distingue el media type.
     }
 
     @POST
@@ -198,12 +201,13 @@ public class UserController {
     @Path("/{userId}/interests/{interestId}")
     @Produces(CustomMediaType.APPLICATION_USER_INTEREST)
     public Response getUserInterest(
+            @Context Request req,
             @PathParam("userId") final long userId,
             @PathParam("interestId") final long interestId
     ) {
         final UserInterest userInterest = interestService.findUserInterest(userId, interestId)
                 .orElseThrow(() -> new UserInterestNotFoundException(userId, interestId));
-        return Response.ok(UserInterestDto.fromUserInterest(uriInfo, userInterest)).build();
+        return CacheUtils.withEtag(req, userInterest, () -> UserInterestDto.fromUserInterest(uriInfo, userInterest));
     }
 
     @DELETE
@@ -221,15 +225,10 @@ public class UserController {
     @GET
     @Path("/{userId}/rating")
     @Produces(CustomMediaType.APPLICATION_USER_RATING)
-    public Response getUserRating(@PathParam("userId") final long userId) {
+    public Response getUserRating(@Context Request req, @PathParam("userId") final long userId) {
         us.findUserById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-
-        // This is a slow computed operation
-        final Optional<Double> createdRating = us.findAverageRatingForCreatedEvents(userId);
-        final Optional<Double> attendedRating = us.findAverageRatingForAttendedEvents(userId);
-        // TODO: Get total ratings count (might need to add to UserService)
-
-        return Response.ok(UserRatingDto.fromRatings(uriInfo, userId, createdRating.orElse(null), attendedRating.orElse(null))).build();
+        final UserRating rating = us.getUserRating(userId);
+        return CacheUtils.withEtag(req, rating, () -> UserRatingDto.fromUserRating(uriInfo, rating));
     }
 
 
@@ -240,12 +239,12 @@ public class UserController {
     @GET
     @Path("/{userId}/profilePicture")
     @Produces({"image/jpeg", "image/png", "image/webp"})
-    public Response getUserProfilePicture(@PathParam("userId") final long userId) {
+    public Response getUserProfilePicture(@Context Request req, @PathParam("userId") final long userId) {
         final Image image = us.getProfilePicture(userId).orElseThrow(() -> new ImageNotFoundException("Profile picture not found"));
         final Response.ResponseBuilder responseBuilder = Response.ok(image.getData())
                 .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
                 .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"profile_%d.jpg\"", userId));
-        return CacheUtils.withMaxAge(responseBuilder, CacheUtils.ONE_MONTH).build();
+        return CacheUtils.withEtag(req, image, responseBuilder);
     }
 
     // TODO: parece que hay business logic. Arreglar.

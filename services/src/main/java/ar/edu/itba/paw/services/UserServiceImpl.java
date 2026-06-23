@@ -192,6 +192,13 @@ public class UserServiceImpl implements UserService {
         return userDao.findAverageRatingForAttendedEvents(userId);
     }
 
+    @Override
+    public UserRating getUserRating(long userId) {
+        final Double createdEventsRating = findAverageRatingForCreatedEvents(userId).orElse(null);
+        final Double attendedEventsRating = findAverageRatingForAttendedEvents(userId).orElse(null);
+        return new UserRating(userId, createdEventsRating, attendedEventsRating);
+    }
+
 
     @Override
     @Transactional

@@ -36,15 +36,16 @@ public class CityController {
     @GET
     @Produces(CustomMediaType.APPLICATION_CITY_LIST)
     public Response listCities(
-            // @QueryParam("country") Long countryId,
+            @Context Request req,
             @QueryParam("search") String search,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
         final Page<City> cities = cityService.searchCities(search, new PageParams(page, size));
         final List<CityDto> cityDtos = CityDto.fromCityCollection(uriInfo, cities.getContent());
-        final ResponseBuilder response = Response.ok(new GenericEntity<>(cityDtos) {});
-        return PagingUtils.insertPaginationLinks(response, uriInfo, cities).build();
+        final ResponseBuilder response = PagingUtils.insertPaginationLinks(
+                Response.ok(new GenericEntity<>(cityDtos) {}), uriInfo, cities);
+        return CacheUtils.withEtag(req, cities.getContent(), response);
     }
 
     @GET

@@ -167,10 +167,10 @@ public class EventController {
     @GET
     @Path("/{eventId}/statistics")
     @Produces(CustomMediaType.APPLICATION_EVENT_STATISTICS)
-    public Response getEventStatistics(@PathParam("eventId") final long eventId) {
+    public Response getEventStatistics(@Context Request req, @PathParam("eventId") final long eventId) {
         final EventWithStatistics statistics = eventService.findEventWithStatistics(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId));
-        return Response.ok(EventStatisticsDto.fromEventWithStatistics(uriInfo, statistics)).build();
+        return CacheUtils.withEtag(req, statistics, () -> EventStatisticsDto.fromEventWithStatistics(uriInfo, statistics));
     }
 
     @DELETE
@@ -186,12 +186,12 @@ public class EventController {
     @GET
     @Path("/{id}/flyer")
     @Produces({"image/jpeg", "image/png", "image/webp"})
-    public Response getEventFlyer(@PathParam("id") final long id) {
+    public Response getEventFlyer(@Context Request req, @PathParam("id") final long id) {
         final Image image = eventService.getEventFlyer(id).orElseThrow(() -> new ImageNotFoundException("Event flyer not found"));
         final Response.ResponseBuilder responseBuilder = Response.ok(image.getData())
                 .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
                 .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"event_%d_flyer.jpeg\"", id));
-        return CacheUtils.withMaxAge(responseBuilder, CacheUtils.ONE_MONTH).build();
+        return CacheUtils.withEtag(req, image, responseBuilder);
     }
 
     // TODO: ¿Esto tiene lógica de negocios? Pareciera que si, moverlo a service-layer
@@ -241,11 +241,12 @@ public class EventController {
     @Path("/{eventId}/responses/{responseId}")
     @Produces(CustomMediaType.APPLICATION_EVENT_RESPONSE)
     public Response getEventResponseById(
+            @Context Request req,
             @PathParam("eventId") final long eventId,
             @PathParam("responseId") final long responseId
     ) {
         final EventResponse response = eventService.findEventResponseById(eventId, responseId).orElseThrow(() -> new EventResponseNotFoundException(eventId, responseId));
-        return Response.ok(EventResponseDto.fromEventResponse(uriInfo, response)).build();
+        return CacheUtils.withEtag(req, response, () -> EventResponseDto.fromEventResponse(uriInfo, response));
     }
 
     @POST
@@ -314,12 +315,13 @@ public class EventController {
     @Path("/{eventId}/attendances/{userId}")
     @Produces(CustomMediaType.APPLICATION_EVENT_ATTENDANCE)
     public Response getEventAttendance(
+            @Context Request req,
             @PathParam("eventId") final long eventId,
             @PathParam("userId") final long userId
     ) {
         final EventAttendance attendance = eventService.findEventAttendance(userId, eventId)
                 .orElseThrow(() -> new EventAttendanceNotFoundException(userId, eventId));
-        return Response.ok(EventAttendanceDto.fromEventAttendance(uriInfo, attendance)).build();
+        return CacheUtils.withEtag(req, attendance, () -> EventAttendanceDto.fromEventAttendance(uriInfo, attendance));
     }
 
 
@@ -360,11 +362,12 @@ public class EventController {
     @Path("/{eventId}/ratings/{ratingId}")
     @Produces(CustomMediaType.APPLICATION_EVENT_RATING)
     public Response getEventRatingById(
+            @Context Request req,
             @PathParam("eventId") final long eventId,
             @PathParam("ratingId") final long ratingId
     ) {
         final Rating rating = eventService.findRatingById(eventId, ratingId).orElseThrow(() -> new RatingNotFoundException(eventId, ratingId, true));
-        return Response.ok(RatingDto.fromRating(uriInfo, rating)).build();
+        return CacheUtils.withEtag(req, rating, () -> RatingDto.fromRating(uriInfo, rating));
     }
 
     @POST
