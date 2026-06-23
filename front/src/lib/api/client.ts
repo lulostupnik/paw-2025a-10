@@ -2,7 +2,7 @@ import axios from "axios";
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getAuthToken, getRefreshToken, setAuthTokens } from "@/lib/auth/auth";
 
-const DEFAULT_API_BASE_URL = import.meta.env.DEV ? "/webapp/api" : "/api";
+const DEFAULT_API_BASE_URL = import.meta.env.DEV ? "/webapp_war_exploded/api" : "/paw-2025a-10/api";
 export const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(/\/$/, "");
 const apiBasePath = (() => {
     try {

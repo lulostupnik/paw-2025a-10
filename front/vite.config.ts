@@ -17,17 +17,23 @@ export default defineConfig(({ mode }) => ({
       "@pages": fileURLToPath(new URL("./src/pages", import.meta.url)),
     },
   },
-  server: { //para que no se lanze CORS en dev.
+  server: {
     proxy: {
       "/webapp_war_exploded": {
         target: "http://localhost:8080",
         changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on("proxyReq", (proxyReq) => {
+            proxyReq.setHeader("origin", "http://localhost:8080");
+          });
+        },
       },
     },
   },
   test: {
     globals: true,
     environment: "jsdom",
+    environmentOptions: { jsdom: { url: "http://localhost/" } },
     setupFiles: "./src/__test__/setup/setup.ts",
     testTimeout: 15000,
     hookTimeout: 15000,
