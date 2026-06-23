@@ -15,16 +15,17 @@ export interface AuthenticatedUser {
     isAdmin?: boolean;
 }
 
-interface PublicUserDto {
+interface PrivateUserDto {
     id: number;
     username?: string;
     firstname?: string | null;
     lastname?: string | null;
+    email?: string;
+    isAdmin?: boolean;
 }
 
 interface JwtPayload {
     selfUrl?: string;
-    email?: string;
     role?: string;
 }
 
@@ -105,10 +106,12 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
         throw new Error("login-missing-user-context");
     }
 
-    const email = payload?.email ?? credentials.email;
     const isAdmin = payload?.role === "ADMIN";
 
-    const { data } = await apiClient.get<PublicUserDto>(normalizeApiPath(selfUrl), { headers: { Accept: ContentTypes.USER } });
+    // Source of truth for profile data (email) is the user resource, not the JWT.
+    // At login we are the resource owner, so the private representation is authorized.
+    const { data } = await apiClient.get<PrivateUserDto>(normalizeApiPath(selfUrl), { headers: { Accept: ContentTypes.USER_PRIVATE } });
+    const email = data.email ?? credentials.email;
     const username = data.username ?? email;
     setSession({ username, email, isAdmin, userId: data.id, storage });
     return { id: data.id, username, email, isAdmin };

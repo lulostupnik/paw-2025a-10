@@ -1026,24 +1026,7 @@ public class JourneyServiceImplTest {
         assertFalse(hasJourney);
     }
 
-    @Test
-    public void testExistsByUserWithJourney(){
-        boolean hasJourney = journeyService.existsByUser(USER_WITH_JOURNEY);
 
-        assertTrue(hasJourney);
-    }
-    @Test
-    public void testExistsByUserWithoutJourney(){
-        boolean hasJourney = journeyService.existsByUser(USER);
-
-        assertFalse(hasJourney);
-    }
-    @Test
-    public void testExistsByUserDeleted(){
-        boolean hasJourney = journeyService.existsByUser(USER_WITH_JOURNEY_DELETED);
-
-        assertFalse(hasJourney);
-    }
 
     @Test
     public void testFindRecommendedJourneysWithEmail(){

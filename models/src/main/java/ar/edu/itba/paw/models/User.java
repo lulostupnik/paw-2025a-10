@@ -76,6 +76,9 @@ public class User{
     @Column(name = "roles", length = 50, nullable = false)
     private UserRoles role;
 
+    public boolean hasActiveJourney() { //@TODO esta bien aca? 
+        return journey != null && !journey.isDeleted();
+    }
 
     /* For hibernate */ User(){
 
@@ -194,5 +197,8 @@ public class User{
                 journey != null ? journey.getId() : null
         );
     }
+
+
+
 
 }

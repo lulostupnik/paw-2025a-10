@@ -95,12 +95,12 @@ describe("Auth module", () => {
         });
 
         it("should return true when role is ADMIN", () => {
-            localStorage.setItem("role", "ADMIN");
+            localStorage.setItem("isAdmin", "true");
             expect(isAdmin()).toBe(true);
         });
 
         it("should return false when role is not ADMIN", () => {
-            localStorage.setItem("role", "USER");
+            localStorage.setItem("isAdmin", "false");
             expect(isAdmin()).toBe(false);
         });
     });
@@ -165,7 +165,7 @@ describe("Auth module", () => {
             localStorage.setItem("authToken", "t");
             localStorage.setItem("refreshToken", "r");
             localStorage.setItem("username", "u");
-            localStorage.setItem("role", "ADMIN");
+            localStorage.setItem("isAdmin", "true");
             localStorage.setItem("userId", "1");
             sessionStorage.setItem("authToken", "st");
 
@@ -174,7 +174,7 @@ describe("Auth module", () => {
             expect(localStorage.getItem("authToken")).toBeNull();
             expect(localStorage.getItem("refreshToken")).toBeNull();
             expect(localStorage.getItem("username")).toBeNull();
-            expect(localStorage.getItem("role")).toBeNull();
+            expect(localStorage.getItem("isAdmin")).toBeNull();
             expect(localStorage.getItem("userId")).toBeNull();
             expect(sessionStorage.getItem("authToken")).toBeNull();
         });

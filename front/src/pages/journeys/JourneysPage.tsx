@@ -35,13 +35,15 @@ export default function JourneysListPage() {
     const { data: profile } = useProfileDetail({ profileId: "me", enabled: logged });
     const journeyId = parseIdFromUrl(profile?.links?.journeyUrl);
     const hasJourney = Boolean(journeyId);
+    // "My Destination" derives the destination from the user's own journey; without one the API returns 400.
+    const canSeeMyDestination = logged && hasJourney;
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [sortOpen, setSortOpen] = useState(false);
     const filtersButtonRef = useRef<HTMLButtonElement>(null);
     const sortButtonRef = useRef<HTMLButtonElement>(null);
     const { filters, applyFilters, resetFilters } = useUrlSyncedListingFilters();
     const tabParam = searchParams.get("tab") ?? "all";
-    const activeTab = logged || tabParam !== "myDestination" ? tabParam : "all";
+    const activeTab = canSeeMyDestination || tabParam !== "myDestination" ? tabParam : "all";
     const sortParam = searchParams.get("sort") ?? DEFAULT_SORT;
     const selectedSort = ["journey-start-asc", "journey-start-desc", "journey-end-asc", "journey-end-desc"].includes(sortParam)
         ? sortParam
@@ -55,8 +57,8 @@ export default function JourneysListPage() {
             { id: "upcoming", label: t("journey.tabs.upcoming") },
             { id: "past", label: t("journey.tabs.past") },
         ];
-        return logged ? tabs : tabs.filter((tab) => tab.id !== "myDestination");
-    }, [logged, t]);
+        return canSeeMyDestination ? tabs : tabs.filter((tab) => tab.id !== "myDestination");
+    }, [canSeeMyDestination, t]);
     const journeySortOptions = useMemo(
         () => [
             { id: "journey-start-asc", label: t("journey.sort.startDate.asc") },
@@ -117,7 +119,7 @@ export default function JourneysListPage() {
         upcoming: activeTab === "upcoming",
         past: activeTab === "past",
         ongoing: activeTab === "ongoing",
-        myDestination: logged && activeTab === "myDestination",
+        myDestination: canSeeMyDestination && activeTab === "myDestination",
         search: appliedSearch || undefined,
         sort: selectedSort.includes("start") ? "start_date" : "end_date",
         direction: selectedSort.endsWith("desc") ? "desc" : "asc",

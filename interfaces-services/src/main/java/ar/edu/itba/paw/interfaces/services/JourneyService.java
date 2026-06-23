@@ -24,7 +24,6 @@ public interface JourneyService {
     Optional<Journey> findJourneyById(long id);
 
     boolean existsByUserEmail(String email);
-    boolean existsByUser(User user);
 
     List<Journey> findRecommendedJourneys(String email, int limit);
 

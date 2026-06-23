@@ -25,7 +25,7 @@ public class UserLinks {
         links.profilePictureUrl = user.getProfilePictureId() != null
                 ? UriUtils.getUserProfilePictureUri(uriInfo, user.getId())
                 : null;
-        if (user.getJourney() != null) {
+        if (user.hasActiveJourney()) {
             links.journeyUrl = UriUtils.getJourneyUri(uriInfo, user.getJourney().getId());
         }
         return links;

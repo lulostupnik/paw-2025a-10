@@ -22,7 +22,6 @@ public class JwtUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtUtils.class);
     private final static long ACCESS_EXPIRATION_TIME_MILLIS = 10 * 60 * 1000; // 10 minutes
     private final static long REFRESH_EXPIRATION_TIME_MILLIS = 7 * 24 * 60 * 60 * 1000; // 1 week
-    private final String EMAIL_CLAIM = "email";
     private final String ROLE_CLAIM = "role";
     private final String SELF_URL_CLAIM = "selfUrl";
     private final String TOKEN_TYPE_CLAIM = "tokenType";
@@ -49,8 +48,6 @@ public class JwtUtils {
         claims.put(TOKEN_TYPE_CLAIM, type);
 
         if (!type.isRefreshToken()) {
-            claims.put(EMAIL_CLAIM, user.getEmail());
-
             if (user.getRole() != null) {
                 claims.put(ROLE_CLAIM, user.getRole());
             }

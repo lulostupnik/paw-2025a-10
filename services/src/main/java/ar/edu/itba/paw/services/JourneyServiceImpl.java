@@ -307,13 +307,7 @@ public class JourneyServiceImpl implements JourneyService {
             LOGGER.warn("User with email '{}' not found", email);
             return new UserNotFoundException(email);
         });
-        return user.getJourney() != null;
-    }
-
-    @Override
-    public boolean existsByUser(final User user) {
-        LOGGER.debug("Checking if user has journey {}", user);
-        return (user.getJourney() != null) && (!user.getJourney().isDeleted());
+        return user.hasActiveJourney();
     }
 
 
