@@ -13,6 +13,7 @@ import { getUserInterests } from "@/lib/api/users";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
+import NotFoundPage from "@/pages/errors/NotFoundPage";
 import type { JourneyComment, JourneyEvent, JourneyTip } from "@/types/journey";
 import type { ProfileInterest } from "@/types/profile";
 
@@ -94,9 +95,11 @@ export default function JourneyDetailPage() {
     const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
     const { id } = useParams();
+    const numericId = Number(id);
+    const hasValidId = Number.isInteger(numericId) && numericId > 0 && numericId <= Number.MAX_SAFE_INTEGER;
     const queryClient = useQueryClient();
     const gate = useAuthGate();
-    const { data, isLoading, isError, isNotFound, refetch, isFetching } = useJourneyDetailData({ journeyId: id });
+    const { data, isLoading, isError, isNotFound, refetch, isFetching } = useJourneyDetailData({ journeyId: hasValidId ? id : undefined });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [eventsOpen, setEventsOpen] = useState(true);
@@ -142,7 +145,7 @@ export default function JourneyDetailPage() {
             }
             return listJourneyTips(Number(id), { page: tipsPage, size: tipsPageSize }, signal);
         },
-        enabled: Boolean(id),
+        enabled: hasValidId,
         placeholderData: keepPreviousData,
     });
 
@@ -155,7 +158,7 @@ export default function JourneyDetailPage() {
             const page = await getJourneyResponses(Number(id), { page: commentsPage, size: commentsPageSize }, signal);
             return mapJourneyResponsesPage(page, signal);
         },
-        enabled: Boolean(id),
+        enabled: hasValidId,
         placeholderData: keepPreviousData,
     });
 
@@ -353,6 +356,10 @@ export default function JourneyDetailPage() {
         },
         [parsePageFromLink, updatePageParam]
     );
+
+    if (!hasValidId) {
+        return <NotFoundPage />;
+    }
 
     if (isLoading) {
         return <div className="journey-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;

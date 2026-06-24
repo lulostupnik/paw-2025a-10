@@ -155,11 +155,11 @@ const parseIdFromUrl = (url?: string | null) => {
     return match ? Number(match[1]) : null;
 };
 
-const fetchByUrl = async <T>(url?: string | null, signal?: AbortSignal): Promise<T | null> => {
+const fetchByUrl = async <T>(url: string | null | undefined, accept: string, signal?: AbortSignal): Promise<T | null> => {
     if (!url) {
         return null;
     }
-    const response = await apiClient.get<T>(normalizeApiPath(url), { signal });
+    const response = await apiClient.get<T>(normalizeApiPath(url), { signal, headers: { Accept: accept } });
     return response.data ?? null;
 };
 
@@ -209,8 +209,8 @@ export const deleteReport = async (id: number, signal?: AbortSignal) => {
 
 export const resolveReportListItem = async (report: ReportDto, signal?: AbortSignal): Promise<ReportListItem> => {
     const [reportedUser, reportingUser] = await Promise.all([
-        fetchByUrl<UserDto>(report.links?.reportedUserUrl, signal),
-        fetchByUrl<UserDto>(report.links?.reportingUserUrl, signal),
+        fetchByUrl<UserDto>(report.links?.reportedUserUrl, ContentTypes.USER, signal),
+        fetchByUrl<UserDto>(report.links?.reportingUserUrl, ContentTypes.USER, signal),
     ]);
 
     return {
@@ -228,8 +228,8 @@ export const resolveReportListItem = async (report: ReportDto, signal?: AbortSig
 export const getReportDetail = async (id: number, signal?: AbortSignal): Promise<ReportDetail> => {
     const report = await getReportById(id, signal);
     const [reportedUser, reportingUser] = await Promise.all([
-        fetchByUrl<UserDto>(report.links?.reportedUserUrl, signal),
-        fetchByUrl<UserDto>(report.links?.reportingUserUrl, signal),
+        fetchByUrl<UserDto>(report.links?.reportedUserUrl, ContentTypes.USER, signal),
+        fetchByUrl<UserDto>(report.links?.reportingUserUrl, ContentTypes.USER, signal),
     ]);
 
     const journeyId = parseIdFromUrl(report.links?.journeyUrl);
@@ -239,22 +239,22 @@ export const getReportDetail = async (id: number, signal?: AbortSignal): Promise
         journeyId
             ? getJourneyById(journeyId, signal)
             : report.links?.journeyUrl
-              ? fetchByUrl<JourneySummary>(report.links.journeyUrl, signal)
+              ? fetchByUrl<JourneySummary>(report.links.journeyUrl, ContentTypes.JOURNEY, signal)
               : null,
-        eventId ? getEventById(eventId, signal) : report.links?.eventUrl ? fetchByUrl<EventDto>(report.links.eventUrl, signal) : null,
-        fetchByUrl<JourneyResponseDto>(report.links?.journeyResponseUrl, signal),
-        fetchByUrl<EventResponseDto>(report.links?.eventResponseUrl, signal),
+        eventId ? getEventById(eventId, signal) : report.links?.eventUrl ? fetchByUrl<EventDto>(report.links.eventUrl, ContentTypes.EVENT, signal) : null,
+        fetchByUrl<JourneyResponseDto>(report.links?.journeyResponseUrl, ContentTypes.JOURNEY_RESPONSE, signal),
+        fetchByUrl<EventResponseDto>(report.links?.eventResponseUrl, ContentTypes.EVENT_RESPONSE, signal),
     ]);
 
     const journeyResponseJourney = journeyResponseData?.links?.journeyUrl
-        ? await fetchByUrl<JourneySummary>(journeyResponseData.links.journeyUrl, signal)
+        ? await fetchByUrl<JourneySummary>(journeyResponseData.links.journeyUrl, ContentTypes.JOURNEY, signal)
         : null;
     const journeyResponseOwner = journeyResponseJourney?.links?.userUrl
-        ? await fetchByUrl<UserDto>(journeyResponseJourney.links.userUrl, signal)
+        ? await fetchByUrl<UserDto>(journeyResponseJourney.links.userUrl, ContentTypes.USER, signal)
         : null;
 
     const eventResponseEvent = eventResponseData?.links?.eventUrl
-        ? await fetchByUrl<EventDto>(eventResponseData.links.eventUrl, signal)
+        ? await fetchByUrl<EventDto>(eventResponseData.links.eventUrl, ContentTypes.EVENT, signal)
         : null;
 
     return {

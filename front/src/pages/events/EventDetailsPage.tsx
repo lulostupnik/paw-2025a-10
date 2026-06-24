@@ -6,6 +6,7 @@ import { getUserId, getUsername, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
 import Pagination from "@/components/listing/Pagination";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
+import NotFoundPage from "@/pages/errors/NotFoundPage";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { attendEvent, createEventRating, createEventResponse, deleteEventRating, getEventAttendance, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
@@ -98,9 +99,11 @@ export default function EventDetailPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { id } = useParams();
+    const numericId = Number(id);
+    const hasValidId = Number.isInteger(numericId) && numericId > 0 && numericId <= Number.MAX_SAFE_INTEGER;
     const queryClient = useQueryClient();
     const gate = useAuthGate();
-    const { data, isLoading, isError, isFetching } = useEventDetailData({ eventId: id });
+    const { data, isLoading, isError, isFetching } = useEventDetailData({ eventId: hasValidId ? id : undefined });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<"details" | "chat" | "rating">("details");
@@ -141,7 +144,7 @@ export default function EventDetailPage() {
                 throw error;
             }
         },
-        enabled: Boolean(id && userId),
+        enabled: hasValidId && Boolean(userId),
         placeholderData: keepPreviousData,
     });
     const isAttendingFromData = attendanceQuery.data ?? false;
@@ -163,7 +166,7 @@ export default function EventDetailPage() {
             }
             return listEventAttendees(Number(id), { page: attendeesPage, size: attendeesPageSize }, signal);
         },
-        enabled: Boolean(id && canViewAttendees),
+        enabled: hasValidId && canViewAttendees,
         placeholderData: keepPreviousData,
     });
     const commentsQuery = useQuery<PageResult<EventComment>>({
@@ -175,7 +178,7 @@ export default function EventDetailPage() {
             const page = await listEventResponses(Number(id), { page: commentsPage, size: commentsPageSize }, signal);
             return mapEventResponsesPage(page, signal);
         },
-        enabled: Boolean(id),
+        enabled: hasValidId,
         placeholderData: keepPreviousData,
     });
     const statsQuery = useQuery({
@@ -186,7 +189,7 @@ export default function EventDetailPage() {
             }
             return getEventStatistics(Number(id), signal);
         },
-        enabled: Boolean(id),
+        enabled: hasValidId,
         placeholderData: keepPreviousData,
     });
     const attendeesPageData = canViewAttendees ? (attendeesQuery.data ?? emptyPage<EventAttendee>()) : emptyPage<EventAttendee>();
@@ -312,6 +315,10 @@ export default function EventDetailPage() {
             document.removeEventListener("keydown", handleKeyDown);
         };
     }, [actionMenuOpen, openCommentMenuId]);
+
+    if (!hasValidId) {
+        return <NotFoundPage />;
+    }
 
     if (isLoading) {
         return <div className="event-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
