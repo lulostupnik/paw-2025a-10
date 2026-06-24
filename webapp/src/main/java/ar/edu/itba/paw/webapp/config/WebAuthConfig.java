@@ -4,6 +4,7 @@ package ar.edu.itba.paw.webapp.config;
 import ar.edu.itba.paw.webapp.auth.*;
 import ar.edu.itba.paw.webapp.auth.filters.AuthAnywhereFilter;
 import ar.edu.itba.paw.webapp.auth.filters.JwtFilter;
+import ar.edu.itba.paw.webapp.dto.ErrorDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +34,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.context.MessageSource;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -215,22 +216,17 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .authenticationEntryPoint((request, response, ex) -> {
                     // response.addHeader("WWW-Authenticate", "Basic realm=\"GoTogether\"");
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+                    writeErrorResponse(response, Response.Status.UNAUTHORIZED, ex.getMessage());
                 })
 
                 .accessDeniedHandler((request, response, ex) -> {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.setContentType("application/json");
-                    response.setCharacterEncoding("UTF-8");
                     String message;
                     try {
                         message = messageSource.getMessage("error.accessDenied", null, "Access denied. You do not have the necessary permissions.", LocaleContextHolder.getLocale());
                     } catch (Exception e) {
                         message = "Access denied. You do not have the necessary permissions.";
                     }
-                    Map<String, String> errorResponse = new HashMap<>();
-                    errorResponse.put("message", message);
-                    objectMapper.writeValue(response.getWriter(), errorResponse);
+                    writeErrorResponse(response, Response.Status.FORBIDDEN, message);
                 })
 
                 // Disable client-side cache handling
@@ -241,6 +237,13 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(authAnywhereFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .cors().and().csrf().disable();
+    }
+
+    private void writeErrorResponse(HttpServletResponse response, Response.Status status, String message) throws IOException {
+        response.setStatus(status.getStatusCode());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        objectMapper.writeValue(response.getWriter(), ErrorDto.fromException(status, message));
     }
 
     @Override
