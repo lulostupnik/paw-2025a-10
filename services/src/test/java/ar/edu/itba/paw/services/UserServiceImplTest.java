@@ -228,6 +228,22 @@ public class UserServiceImplTest {
         userService.verifyUser(USER_ID, TOKEN_VALUE);
     }
 
+    @Test(expected = InvalidTokenException.class)
+    public void testVerifyUserTokenBelongsToAnotherUser(){
+        final long otherUserId = USER_ID + 1;
+        when(
+            tokenService.getByToken(eq(TOKEN_VALUE))
+        ).thenReturn(Optional.of(
+            new Token(
+                new User(otherUserId, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, false),
+                TOKEN_VALUE,
+                TOKEN_EXPIRATION
+            )
+        ));
+
+        userService.verifyUser(USER_ID, TOKEN_VALUE);
+    }
+
     @Test
     public void testUpdatePassword(){
         User newUser = new User(
@@ -423,15 +439,15 @@ public class UserServiceImplTest {
     @Test(expected = InvalidTokenException.class)
     public void testResetPasswordMissingToken(){
         User newUser = new User(
-            null, 
-            null, 
-            null, 
-            null, 
-            null, 
-            null, 
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             0L,
-            "PASSWORD", 
-            LOCALE, 
+            "PASSWORD",
+            LOCALE,
             true
         );
         when(
@@ -441,6 +457,32 @@ public class UserServiceImplTest {
         userService.resetPassword(USER_ID, TOKEN_VALUE, PASSWORD);
 
         assertEquals(PASSWORD, newUser.getPassword());
+    }
+
+    @Test(expected = InvalidTokenException.class)
+    public void testResetPasswordExpiredToken(){
+        final LocalDateTime expiredAt = LocalDateTime.now().minusDays(1);
+        when(
+            tokenService.getByToken(eq(TOKEN_VALUE))
+        ).thenReturn(Optional.of(new Token(USER, TOKEN_VALUE, expiredAt)));
+
+        userService.resetPassword(USER_ID, TOKEN_VALUE, PASSWORD);
+    }
+
+    @Test(expected = InvalidTokenException.class)
+    public void testResetPasswordTokenBelongsToAnotherUser(){
+        final long otherUserId = USER_ID + 1;
+        when(
+            tokenService.getByToken(eq(TOKEN_VALUE))
+        ).thenReturn(Optional.of(
+            new Token(
+                new User(otherUserId, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, true),
+                TOKEN_VALUE,
+                TOKEN_EXPIRATION
+            )
+        ));
+
+        userService.resetPassword(USER_ID, TOKEN_VALUE, PASSWORD);
     }
 
     @Test(expected = UserValidatedException.class)
