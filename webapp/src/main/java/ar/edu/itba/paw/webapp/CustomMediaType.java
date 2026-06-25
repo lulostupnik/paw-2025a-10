@@ -13,6 +13,7 @@ public final class CustomMediaType {
     public static final String APPLICATION_USER_PASSWORD = "application/vnd.gotogether.user-password.v1+json";
     public static final String APPLICATION_USER_PASSWORD_RESET = "application/vnd.gotogether.password-reset.v1+json";
     public static final String APPLICATION_USER_VERIFICATION = "application/vnd.gotogether.user-verification.v1+json";
+    public static final String APPLICATION_USER_VERIFICATION_RESEND = "application/vnd.gotogether.user-verification-resend.v1+json";
     public static final String APPLICATION_USER_BLOCKED = "application/vnd.gotogether.user-blocked.v1+json";
     public static final String APPLICATION_USER_INTEREST = "application/vnd.gotogether.user-interest.v1+json";
     public static final String APPLICATION_USER_INTEREST_LIST = "application/vnd.gotogether.user-interest-list.v1+json";
