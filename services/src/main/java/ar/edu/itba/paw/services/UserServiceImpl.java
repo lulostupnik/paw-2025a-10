@@ -60,9 +60,7 @@ public class UserServiceImpl implements UserService {
         interestService.createUserInterests(interests, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
         Token token = tokenService.userTokenControl(user);
-        String credentials = user.getEmail() + ":" + token.getToken();
-        String encodedCredentials = Base64.getEncoder().encodeToString(credentials.getBytes());
-        emailService.sendValidationEmail(new EmailUser(user), encodedCredentials);
+        emailService.sendValidationEmail(new EmailUser(user), token.getToken());
         LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
         return user;
     }
@@ -71,10 +69,15 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User verifyUser(String tokenStr) {
+    public User verifyUser(final long id, final String tokenStr) {
         Token token = tokenService.getByToken(tokenStr).orElseThrow(() -> new InvalidTokenException(tokenStr));
 
         final User user = token.getUser();
+
+        if (user.getId() != id) {
+            LOGGER.error("Verification token does not belong to user id {}", id);
+            throw new InvalidTokenException(tokenStr);
+        }
 
         tokenService.delete(token);
 

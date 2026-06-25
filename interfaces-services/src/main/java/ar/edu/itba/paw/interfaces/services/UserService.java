@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface UserService {
     User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, List<String> interests, String password, Locale locale);
-    User verifyUser(String token);
+    User verifyUser(long id, String token);
     void updatePassword(long id, String newPassword);
     void resetPassword(long id, String token, String newPassword);
     void initiatePasswordReset(String email);

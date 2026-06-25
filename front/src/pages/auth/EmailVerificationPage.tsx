@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { isAxiosError } from "axios";
 import Button from "@/components/ui/Button";
 import StatusCard from "@/components/ui/StatusCard";
-import { verifyEmailToken, type EmailVerificationResponse } from "@/lib/api/auth";
+import { verifyEmailToken } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
 import { SUPPORT_EMAIL } from "@/lib/utils/support";
 
@@ -11,7 +11,6 @@ type VerificationStatus = "loading" | "success" | "expired" | "invalid" | "block
 
 interface VerificationState {
     status: VerificationStatus;
-    payload?: EmailVerificationResponse | null;
     reference?: string;
 }
 
@@ -44,13 +43,13 @@ export default function EmailVerificationPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const token = searchParams.get("token");
+    const userId = searchParams.get("userId");
     const [state, setState] = useState<VerificationState>(() =>
-        token ? { status: "loading" } : { status: "invalid", reference: generateReference() }
+        token && userId ? { status: "loading" } : { status: "invalid", reference: generateReference() }
     );
 
     useEffect(() => {
-        console.log(token)
-        if (!token) {
+        if (!token || !userId) {
             setState({ status: "invalid", reference: generateReference() });
             return;
         }
@@ -58,10 +57,10 @@ export default function EmailVerificationPage() {
         let cancelled = false;
         setState({ status: "loading" });
 
-        verifyEmailToken(token)
-            .then((payload) => {
+        verifyEmailToken({ userId, token })
+            .then(() => {
                 if (!cancelled) {
-                    setState({ status: "success", payload });
+                    setState({ status: "success" });
                 }
             })
             .catch((error) => {
@@ -73,7 +72,7 @@ export default function EmailVerificationPage() {
         return () => {
             cancelled = true;
         };
-    }, [token]);
+    }, [token, userId]);
 
     const referenceMessage = useMemo(() => {
         if (!state.reference) {
@@ -118,12 +117,6 @@ export default function EmailVerificationPage() {
                             </>
                         }
                     >
-                        {state.payload?.username && (
-                            <p className="status-card__highlight">
-                                {t("validated.alert.message")}
-                                <strong>{" "}{state.payload.username}</strong>
-                            </p>
-                        )}
                         <ul className="status-card__list">
                             <li>{t("validated.feature1.description")}</li>
                             <li>{t("validated.feature2.description")}</li>

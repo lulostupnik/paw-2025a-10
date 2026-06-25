@@ -69,7 +69,7 @@ public class UserServiceImplTest {
     private static final User USER_NO_PICTURE = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, null, LOCALE, false, false);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     private static final String TOKEN_VALUE = "null";
-    private static final LocalDateTime TOKEN_EXPIRATION = LocalDateTime.now();
+    private static final LocalDateTime TOKEN_EXPIRATION = LocalDateTime.now().plusDays(1);
     private static final Token TOKEN = new Token(USER_NOT_VALIDATED, TOKEN_VALUE, TOKEN_EXPIRATION);
     private static final List<User> USERS = List.of(USER);
     private static final Page<User> USER_PAGE = new Page<>(USERS, 1, 1, 1);
@@ -189,21 +189,23 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.of(
             new Token(
                 new User(
-                    EMAIL, 
-                    USERNAME, 
-                    FIRSTNAME, 
-                    LASTNAME, 
-                    UNIVERSITY, 
-                    CAREER, 
-                    USER_ID, 
-                    LOCALE, 
-                    false), 
-                TOKEN_VALUE, 
+                    USER_ID,
+                    EMAIL,
+                    USERNAME,
+                    FIRSTNAME,
+                    LASTNAME,
+                    UNIVERSITY,
+                    CAREER,
+                    IMAGE.getId(),
+                    LOCALE,
+                    false,
+                    false),
+                TOKEN_VALUE,
                 TOKEN_EXPIRATION
             )
         ));
 
-        User user = userService.verifyUser(TOKEN_VALUE);
+        User user = userService.verifyUser(USER_ID, TOKEN_VALUE);
 
         assertTrue(user.isValidated());
     }
@@ -213,7 +215,7 @@ public class UserServiceImplTest {
             tokenService.getByToken(eq(TOKEN_VALUE))
         ).thenReturn(Optional.of(new Token(USER, TOKEN_VALUE, TOKEN_EXPIRATION)));
 
-        User user = userService.verifyUser(TOKEN_VALUE);
+        User user = userService.verifyUser(USER_ID, TOKEN_VALUE);
 
         assertNotNull(user);
     }
@@ -223,7 +225,7 @@ public class UserServiceImplTest {
             tokenService.getByToken(eq(TOKEN_VALUE))
         ).thenReturn(Optional.empty());
 
-        userService.verifyUser(TOKEN_VALUE);
+        userService.verifyUser(USER_ID, TOKEN_VALUE);
     }
 
     @Test
@@ -395,15 +397,16 @@ public class UserServiceImplTest {
     @Test
     public void testResetPassword(){
         User newUser = new User(
-            null, 
-            null, 
-            null, 
-            null, 
-            null, 
-            null, 
+            USER_ID,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             0L,
-            "PASSWORD", 
-            LOCALE, 
+            LOCALE,
+            false,
             true
         );
         when(
@@ -413,7 +416,7 @@ public class UserServiceImplTest {
             passwordEncoder.encode(PASSWORD)
         ).thenReturn(PASSWORD);
 
-        userService.resetPassword(TOKEN_VALUE, PASSWORD);
+        userService.resetPassword(USER_ID, TOKEN_VALUE, PASSWORD);
 
         assertEquals(PASSWORD, newUser.getPassword());
     }
@@ -435,7 +438,7 @@ public class UserServiceImplTest {
             tokenService.getByToken(eq(TOKEN_VALUE))
         ).thenReturn(Optional.empty());
 
-        userService.resetPassword(TOKEN_VALUE, PASSWORD);
+        userService.resetPassword(USER_ID, TOKEN_VALUE, PASSWORD);
 
         assertEquals(PASSWORD, newUser.getPassword());
     }

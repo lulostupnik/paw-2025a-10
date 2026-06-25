@@ -270,6 +270,7 @@ public class EmailServiceImpl implements EmailService {
         Map<String, Object> variables = new HashMap<>();
         variables.put("firstName", user.getUsername());
         variables.put("validationToken", token);
+        variables.put("userId", user.getId());
         variables.put("baseUrl", baseUrl);
 
 

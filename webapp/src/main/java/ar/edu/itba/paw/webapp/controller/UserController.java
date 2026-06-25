@@ -25,6 +25,7 @@ import ar.edu.itba.paw.webapp.form.PasswordForm;
 import ar.edu.itba.paw.webapp.form.PatchUserForm;
 import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
 import ar.edu.itba.paw.webapp.form.ResetPasswordForm;
+import ar.edu.itba.paw.webapp.form.ValidateUserForm;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 
@@ -155,6 +156,19 @@ public class UserController {
             @Valid final ResetPasswordForm form
     ) {
         us.resetPassword(id, form.getToken(), form.getPassword());
+        return Response.noContent().build();
+    }
+
+    // ==================== ACCOUNT VERIFICATION (token) ====================
+
+    @PATCH
+    @Path("/{id}")
+    @Consumes(CustomMediaType.APPLICATION_USER_VERIFICATION)
+    public Response verifyUser(
+            @PathParam("id") final long id,
+            @Valid final ValidateUserForm form
+    ) {
+        us.verifyUser(id, form.getValidationToken());
         return Response.noContent().build();
     }
 

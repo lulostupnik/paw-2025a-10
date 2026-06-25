@@ -123,18 +123,25 @@ export async function requestPasswordReset(body: PasswordResetRequest): Promise<
     await apiClient.post("/users", body, {headers: {'Content-Type': ContentTypes.USER_PASSWORD}});
 }
 
-export interface EmailVerificationResponse {
-    id?: number;
-    username?: string;
-    email?: string;
-    validatedAt?: string;
+export interface EmailVerificationPayload {
+    userId: number | string;
+    token: string;
 }
 
-export async function verifyEmailToken(token: string): Promise<EmailVerificationResponse> {
-    const loginResponse = await apiClient.head("/", {
-        headers: { Authorization: `Basic ${token}` },
-    });
-    return loginResponse.data;
+export async function verifyEmailToken(payload: EmailVerificationPayload, signal?: AbortSignal): Promise<void> {
+    const token = payload.token.trim();
+    if (!token) {
+        throw new Error("missing-token");
+    }
+    if (payload.userId === "" || payload.userId === null || payload.userId === undefined) {
+        throw new Error("missing-user");
+    }
+
+    await apiClient.patch(
+        `/users/${payload.userId}`,
+        { validationToken: token },
+        { signal, headers: { "Content-Type": ContentTypes.USER_VERIFICATION } },
+    );
 }
 
 export interface PasswordResetWithTokenPayload {
