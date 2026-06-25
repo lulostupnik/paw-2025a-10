@@ -1,6 +1,6 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
-import { setAuthTokens, setSession } from "@/lib/auth/auth";
+import { getAuthToken, setAuthTokens, setSession } from "@/lib/auth/auth";
 
 export interface LoginCredentials {
     email: string;
@@ -123,6 +123,28 @@ export async function requestPasswordReset(body: PasswordResetRequest): Promise<
     await apiClient.post("/users", body, {headers: {'Content-Type': ContentTypes.USER_PASSWORD}});
 }
 
+async function hydrateSessionFromStoredToken(signal?: AbortSignal): Promise<void> {
+    const authToken = getAuthToken();
+    if (!authToken) {
+        return;
+    }
+    const selfUrl = decodeJwtPayload(authToken)?.selfUrl;
+    if (!selfUrl) {
+        return;
+    }
+    try {
+        const { data } = await apiClient.get<PrivateUserDto>(normalizeApiPath(selfUrl), {
+            signal,
+            headers: { Accept: ContentTypes.USER_PRIVATE },
+        });
+        const email = data.email ?? undefined;
+        const username = data.username ?? email;
+        setSession({ username, email, isAdmin: data.isAdmin ?? false, userId: data.id });
+    } catch {
+        // Ignore — session hydration is non-critical.
+    }
+}
+
 export interface EmailVerificationPayload {
     userId: number | string;
     token: string;
@@ -142,6 +164,8 @@ export async function verifyEmailToken(payload: EmailVerificationPayload, signal
         { validationToken: token },
         { signal, headers: { "Content-Type": ContentTypes.USER_VERIFICATION } },
     );
+
+    await hydrateSessionFromStoredToken(signal);
 }
 
 export interface PasswordResetWithTokenPayload {
@@ -168,4 +192,6 @@ export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayl
         { token, password: payload.password },
         { signal, headers: { "Content-Type": ContentTypes.PASSWORD_RESET } },
     );
+
+    await hydrateSessionFromStoredToken(signal);
 }
