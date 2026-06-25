@@ -29,14 +29,17 @@ import ar.edu.itba.paw.webapp.form.ValidateUserForm;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 
+import ar.edu.itba.paw.webapp.auth.JwtUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -56,8 +59,22 @@ public class UserController {
     @Autowired
     private InterestService interestService;
 
+    @Autowired
+    private JwtUtils jwtTokenUtil;
+
     @Context
     private UriInfo uriInfo;
+
+    @Context
+    private HttpServletRequest request;
+
+    private ResponseBuilder withAuthTokens(final ResponseBuilder builder, final User user) {
+        final ServletUriComponentsBuilder uriBuilder = ServletUriComponentsBuilder.fromContextPath(request);
+        uriBuilder.path("/api");
+        return builder
+                .header("X-GoTogether-AuthToken", jwtTokenUtil.generateAccessToken(uriBuilder, user))
+                .header("X-GoTogether-RefreshToken", jwtTokenUtil.generateRefreshToken(uriBuilder, user));
+    }
 
     @GET
     @Produces(CustomMediaType.APPLICATION_USER_PRIVATE_LIST)
@@ -155,8 +172,8 @@ public class UserController {
             @PathParam("id") final long id,
             @Valid final ResetPasswordForm form
     ) {
-        us.resetPassword(id, form.getToken(), form.getPassword());
-        return Response.noContent().build();
+        final User user = us.resetPassword(id, form.getToken(), form.getPassword());
+        return withAuthTokens(Response.noContent(), user).build();
     }
 
     // ==================== ACCOUNT VERIFICATION (token) ====================
@@ -168,8 +185,8 @@ public class UserController {
             @PathParam("id") final long id,
             @Valid final ValidateUserForm form
     ) {
-        us.verifyUser(id, form.getValidationToken());
-        return Response.noContent().build();
+        final User user = us.verifyUser(id, form.getValidationToken());
+        return withAuthTokens(Response.noContent(), user).build();
     }
 
 
