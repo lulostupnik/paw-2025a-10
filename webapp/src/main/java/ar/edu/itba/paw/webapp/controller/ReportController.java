@@ -71,7 +71,7 @@ public class ReportController {
                 .build();
     }
 
-    @PUT
+    @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_REPORT)
     public Response updateStatus(@PathParam("id") final long id, @Valid final UpdateReportStatusForm form) {

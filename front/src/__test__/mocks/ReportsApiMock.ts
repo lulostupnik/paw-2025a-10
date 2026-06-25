@@ -45,7 +45,7 @@ export const reportsHandlers = [
         return HttpResponse.json({ id: 99, ...body, status: "PENDING" }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.report.v1+json" } });
     }),
 
-    http.put(`${BASE_URL}/reports/:id`, async ({ request, params }) => {
+    http.patch(`${BASE_URL}/reports/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
         return HttpResponse.json({ ...defaultReport, id: Number(params.id), ...body }, { headers: { "Content-Type": "application/vnd.gotogether.report.v1+json" } });
     }),
