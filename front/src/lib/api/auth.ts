@@ -123,6 +123,10 @@ export async function requestPasswordReset(body: PasswordResetRequest): Promise<
     await apiClient.post("/users", body, {headers: {'Content-Type': ContentTypes.USER_PASSWORD}});
 }
 
+export async function resendVerificationEmail(email: string, signal?: AbortSignal): Promise<void> {
+    await apiClient.post("/users", { email }, { signal, headers: { "Content-Type": ContentTypes.USER_VERIFICATION_RESEND } });
+}
+
 async function hydrateSessionFromStoredToken(signal?: AbortSignal): Promise<void> {
     const authToken = getAuthToken();
     if (!authToken) {

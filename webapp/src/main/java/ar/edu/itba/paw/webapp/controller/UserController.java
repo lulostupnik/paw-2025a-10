@@ -140,6 +140,13 @@ public class UserController {
         return Response.noContent().build();
     }
 
+    @POST
+    @Consumes(CustomMediaType.APPLICATION_USER_VERIFICATION_RESEND)
+    public Response resendVerification(@Valid final ForgotPasswordForm form) {
+        us.resendVerificationEmail(form.getEmail());
+        return Response.noContent().build();
+    }
+
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_USER)

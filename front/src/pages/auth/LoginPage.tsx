@@ -70,7 +70,7 @@ export default function LoginPage() {
                 return;
             }
             if (isAxiosError(error) && error.response?.status === 403) {
-                nav("/not-verified", { replace: true });
+                nav("/not-verified", { replace: true, state: { email: form.email.trim() } });
                 return;
             }
             setAuthError(t("login.error.description"));

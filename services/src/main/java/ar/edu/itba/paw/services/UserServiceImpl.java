@@ -260,6 +260,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public void resendVerificationEmail(final String email) {
+        LOGGER.debug("Attempting to resend verification email to: {}", email);
+        final User user = userDao.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+        if (user.isValidated()) {
+            LOGGER.warn("User with email {} is already validated; skipping verification resend", email);
+            throw new UserValidatedException(email);
+        }
+        final Token token = tokenService.userTokenControl(user);
+        emailService.sendValidationEmail(new EmailUser(user), token.getToken());
+        LOGGER.info("Verification email resent successfully to: {}", email);
+    }
+
+    @Override
+    @Transactional
     public User updateUser(final long userId, final String username,
                            final String firstname, final String lastname, final String universityName,
                            final String careerName) {

@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -500,6 +501,38 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.empty());
 
         userService.initiatePasswordReset(EMAIL);
+    }
+
+    @Test
+    public void testResendVerificationEmail(){
+        when(
+            userDao.findByEmail(eq(EMAIL))
+        ).thenReturn(Optional.of(USER_NOT_VALIDATED));
+        when(
+            tokenService.userTokenControl(USER_NOT_VALIDATED)
+        ).thenReturn(TOKEN);
+
+        userService.resendVerificationEmail(EMAIL);
+
+        verify(emailService).sendValidationEmail(any(), eq(TOKEN_VALUE));
+    }
+
+    @Test(expected = UserValidatedException.class)
+    public void testResendVerificationEmailAlreadyValidated(){
+        when(
+            userDao.findByEmail(eq(EMAIL))
+        ).thenReturn(Optional.of(USER));
+
+        userService.resendVerificationEmail(EMAIL);
+    }
+
+    @Test(expected = UserNotFoundException.class)
+    public void testResendVerificationEmailUserNotFound(){
+        when(
+            userDao.findByEmail(eq(EMAIL))
+        ).thenReturn(Optional.empty());
+
+        userService.resendVerificationEmail(EMAIL);
     }
 
     @Test
