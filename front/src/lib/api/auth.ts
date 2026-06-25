@@ -138,52 +138,27 @@ export async function verifyEmailToken(token: string): Promise<EmailVerification
 }
 
 export interface PasswordResetWithTokenPayload {
-    email: string;
+    userId: number | string;
     token: string;
     password: string;
     confirmPassword: string;
 }
 
 export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayload, signal?: AbortSignal): Promise<void> {
-    const email = payload.email.trim();
-    if (!email) {
-        throw new Error("missing-email");
-    }
     if (payload.password !== payload.confirmPassword) {
         throw new Error("password-mismatch");
     }
-    const normalizedToken = payload.token.trim().replace(/\s+/g, "+");
-    if (!normalizedToken) {
+    const token = payload.token.trim();
+    if (!token) {
         throw new Error("missing-token");
     }
-
-    const basic = encodeBasicCredentials({ email, password: normalizedToken });
-    const loginResponse = await apiClient.head(
-        "/",
-        {
-            signal,
-            headers: { Authorization: `Basic ${basic}` },
-            _skipAuthStore: true,
-        } as unknown as Parameters<typeof apiClient.head>[1]
-    );
-
-    const authToken = getHeaderValue(loginResponse.headers, "x-gotogether-authtoken");
-    if (!authToken) {
-        throw new Error("token-auth-missing-auth-token");
-    }
-    const jwtPayload = decodeJwtPayload(authToken);
-    const selfUrl = jwtPayload?.selfUrl;
-    if (!selfUrl) {
-        throw new Error("token-auth-missing-self-url");
+    if (payload.userId === "" || payload.userId === null || payload.userId === undefined) {
+        throw new Error("missing-user");
     }
 
-    await apiClient.put(
-        `${normalizeApiPath(selfUrl)}/password`,
-        { password: payload.password },
-        {
-            signal,
-            headers: { Authorization: `Bearer ${authToken}`, "Content-Type": ContentTypes.USER_PASSWORD },
-            _skipAuthStore: true,
-        } as unknown as Parameters<typeof apiClient.put>[2]
+    await apiClient.patch(
+        `/users/${payload.userId}`,
+        { token, password: payload.password },
+        { signal, headers: { "Content-Type": ContentTypes.PASSWORD_RESET } },
     );
 }

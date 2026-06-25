@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { isAxiosError } from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
@@ -10,7 +10,6 @@ import { SUPPORT_EMAIL } from "@/lib/utils/support";
 
 type ResetStatus = "form" | "submitting" | "expired" | "invalid" | "blocked" | "error";
 type PasswordStrengthStatus = "empty" | "very-weak" | "weak" | "medium" | "strong";
-const RESET_EMAIL_STORAGE_KEY = "forgot_password_email";
 
 interface PasswordStrength {
     level: number;
@@ -66,22 +65,11 @@ export default function PasswordResetPage() {
     const navigate = useNavigate();
     const [params] = useSearchParams();
     const token = (params.get("token") ?? params.get("amp;token") ?? "").trim();
-    const emailFromQuery = (params.get("email") ?? params.get("amp;email") ?? "").trim();
-    const emailFromStorage = useMemo(() => {
-        if (typeof window === "undefined") {
-            return "";
-        }
-        try {
-            return (window.sessionStorage.getItem(RESET_EMAIL_STORAGE_KEY) ?? "").trim();
-        } catch {
-            return "";
-        }
-    }, []);
-    const email = emailFromQuery || emailFromStorage;
+    const userId = (params.get("userId") ?? params.get("amp;userId") ?? "").trim();
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [touched, setTouched] = useState({ password: false, confirmPassword: false });
-    const [status, setStatus] = useState<ResetStatus>(() => (token && email ? "form" : "invalid"));
+    const [status, setStatus] = useState<ResetStatus>(() => (token && userId ? "form" : "invalid"));
     const [serverError, setServerError] = useState("");
     const passwordStrength = useMemo(() => evaluatePassword(password), [password]);
     const passwordError = useMemo(() => {
@@ -103,36 +91,18 @@ export default function PasswordResetPage() {
         return "";
     }, [confirmPassword, password, t]);
 
-    useEffect(() => {
-        if (!emailFromQuery || typeof window === "undefined") {
-            return;
-        }
-        try {
-            window.sessionStorage.setItem(RESET_EMAIL_STORAGE_KEY, emailFromQuery);
-        } catch {
-            // Ignore storage errors.
-        }
-    }, [emailFromQuery]);
-
     const passwordsMatch = password && confirmPassword ? password === confirmPassword : true;
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setTouched({ password: true, confirmPassword: true });
-        if (!token || !email || passwordError || confirmPasswordError || !passwordsMatch) {
+        if (!token || !userId || passwordError || confirmPasswordError || !passwordsMatch) {
             return;
         }
         setStatus("submitting");
         setServerError("");
         try {
-            await resetPasswordWithToken({ token, email, password, confirmPassword });
-            if (typeof window !== "undefined") {
-                try {
-                    window.sessionStorage.removeItem(RESET_EMAIL_STORAGE_KEY);
-                } catch {
-                    // Ignore storage errors.
-                }
-            }
+            await resetPasswordWithToken({ token, userId, password, confirmPassword });
             navigate("/password/reset/confirmation?status=success");
         } catch (error) {
             const nextStatus = mapResetError(error);

@@ -202,15 +202,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void resetPassword(final String token, final String newPassword) {
+    public void resetPassword(final long id, final String token, final String newPassword) {
         final Optional<Token> maybeToken = tokenService.getByToken(token);
-        if (maybeToken.isEmpty()) {
+        if (maybeToken.isEmpty() || maybeToken.get().isExpired()) {
             LOGGER.error("Token is invalid, or expired for token: {}", token);
             throw new InvalidTokenException(token);
         }
 
         final Token tkn = maybeToken.get();
         final User user = tkn.getUser();
+
+        if (user.getId() != id) {
+            LOGGER.error("Reset token does not belong to user id {}", id);
+            throw new InvalidTokenException(token);
+        }
 
         tokenService.delete(tkn);
         LOGGER.debug("updating new password for token: {}", token);

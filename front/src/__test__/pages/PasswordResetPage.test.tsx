@@ -21,14 +21,14 @@ vi.mock("@/lib/api/auth", () => ({
     resetPasswordWithToken: (...args: unknown[]) => mockResetPasswordWithToken(...args),
 }));
 
-function renderPage(token = "valid-token", email = "test@example.com") {
+function renderPage(token = "valid-token", userId = "1") {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const router = createMemoryRouter(
         [
             { path: "/password/reset", element: <PasswordResetPage /> },
             { path: "/password/reset/confirmation", element: <div>Confirmation</div> },
         ],
-        { initialEntries: [`/password/reset?token=${token}&email=${email}`] },
+        { initialEntries: [`/password/reset?token=${token}&userId=${userId}`] },
     );
     return render(
         <QueryClientProvider client={queryClient}>
@@ -43,18 +43,18 @@ describe("PasswordResetPage", () => {
         sessionStorage.clear();
     });
 
-    it("should render password reset form with token and email", () => {
+    it("should render password reset form with token and userId", () => {
         renderPage();
         expect(screen.getByRole("heading", { name: "profile.edit.password" })).toBeInTheDocument();
         expect(screen.getAllByPlaceholderText("••••••••").length).toBeGreaterThan(0);
     });
 
     it("should show invalid state when token is missing", () => {
-        renderPage("", "test@example.com");
+        renderPage("", "1");
         expect(screen.getByText("invalidtoken.title")).toBeInTheDocument();
     });
 
-    it("should show invalid state when email is missing", () => {
+    it("should show invalid state when userId is missing", () => {
         renderPage("valid-token", "");
         expect(screen.getByText("invalidtoken.title")).toBeInTheDocument();
     });
