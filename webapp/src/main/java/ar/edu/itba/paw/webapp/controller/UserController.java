@@ -9,6 +9,7 @@ import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserInterest;
 import ar.edu.itba.paw.models.UserRating;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
+import ar.edu.itba.paw.models.exceptions.InvalidImageException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
 import ar.edu.itba.paw.webapp.CustomMediaType;
@@ -258,13 +259,13 @@ public class UserController {
             @FormDataParam("profilePicture") final InputStream profilePictureStream
     ) {
         if (profilePictureStream == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Profile picture is required").build();
+            throw new InvalidImageException("Profile picture is required");
         }
         try {
             final byte[] bytes = profilePictureStream.readAllBytes();
             us.updateProfilePicture(userId, bytes);
         } catch (IOException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to read profile picture").build();
+            throw new InvalidImageException("Failed to read profile picture");
         }
         final Image image = us.getProfilePicture(userId).orElseThrow(() -> new ImageNotFoundException("Profile picture not found"));
 
