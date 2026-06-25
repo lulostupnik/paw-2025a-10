@@ -121,18 +121,10 @@ public class UserController {
         return Response.noContent().build();
     }
 
-    @PUT
-    @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_USER)
-    public Response updateUser(@PathParam("id") final long id, @Valid EditUserForm form) {
-         final User user = us.updateUser(id, form.getUsername(), form.getFirstName(), form.getLastName(),
-                 form.getOriginUniversity(), form.getCareer());
-         return Response.ok(UserDto.fromUser(uriInfo, user)).build();
-    }
-
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_USER)
+    @PreAuthorize("@accessHelper.isCurrentUser(#id) or hasRole('ADMIN')")
     public Response patchUser(@PathParam("id") final long id, @Valid PatchUserForm form) {
         final User user = us.patchUser(id, form.getUsername(), form.getFirstName(), form.getLastName(), form.getOriginUniversity(), form.getCareer());
         return Response.ok(UserDto.fromUser(uriInfo, user)).build();
@@ -140,9 +132,10 @@ public class UserController {
 
     // ==================== PASSWORD ====================
 
-    @PUT
-    @Path("/{id}/password")
+    @PATCH
+    @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_USER_PASSWORD)
+    @PreAuthorize("@accessHelper.isCurrentUser(#id)")
     public Response updatePassword(
             @PathParam("id") final long id,
             @Valid final PasswordForm form
@@ -154,9 +147,10 @@ public class UserController {
 
     // ==================== BLOCKED STATUS ====================
 
-    @PUT
-    @Path("/{id}/blocked")
+    @PATCH
+    @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_USER_BLOCKED)
+    @PreAuthorize("hasRole('ADMIN')")
     public Response updateBlockedStatus(
             @PathParam("id") final long id,
             @Valid final BlockUserForm form

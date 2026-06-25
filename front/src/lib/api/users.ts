@@ -93,7 +93,7 @@ export const registerUser = async (payload: RegisterPayload, signal?: AbortSigna
 };
 
 export const updateUserBlocked = async (userId: number, blocked: boolean, signal?: AbortSignal) => {
-    await apiClient.put(`/users/${userId}/blocked`, { blocked }, { signal, headers: { "Content-Type": ContentTypes.USER_BLOCKED } });
+    await apiClient.patch(`/users/${userId}`, { blocked }, { signal, headers: { "Content-Type": ContentTypes.USER_BLOCKED } });
 };
 
 export const updateUserProfile = async (
@@ -110,7 +110,7 @@ export const updateUserPassword = async (
     password: string,
     signal?: AbortSignal
 ): Promise<void> => {
-    await apiClient.put(`/users/${userId}/password`, { password }, { signal, headers: { "Content-Type": ContentTypes.USER_PASSWORD } });
+    await apiClient.patch(`/users/${userId}`, { password }, { signal, headers: { "Content-Type": ContentTypes.USER_PASSWORD } });
 };
 
 export const updateUserProfilePicture = async (

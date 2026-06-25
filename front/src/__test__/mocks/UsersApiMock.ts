@@ -64,15 +64,7 @@ export const usersHandlers = [
         return HttpResponse.json({ ...defaultUser, ...body, id: Number(params.id) }, { headers: { "Content-Type": "application/vnd.gotogether.user.v1+json" } });
     }),
 
-    http.put(`${BASE_URL}/users/:id/password`, () => {
-        return new HttpResponse(null, { status: 204 });
-    }),
-
     http.put(`${BASE_URL}/users/:id/profilePicture`, () => {
-        return new HttpResponse(null, { status: 204 });
-    }),
-
-    http.put(`${BASE_URL}/users/:id/blocked`, () => {
         return new HttpResponse(null, { status: 204 });
     }),
 

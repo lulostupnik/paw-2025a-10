@@ -109,7 +109,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/users/{id}").access("@accessHelper.isCurrentUser(#id)")
-                .antMatchers(HttpMethod.PATCH, "/api/users/{id}").access("@accessHelper.isCurrentUser(#id) or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.PATCH, "/api/users/{id}").permitAll()
                 .antMatchers(HttpMethod.DELETE, "/api/users/{id}").access("@accessHelper.isCurrentUser(#id) or hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.GET, "/api/users/{id}/interests").permitAll()
@@ -123,8 +123,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/users/{id}/profilePicture").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/users/{id}/profilePicture").access("@accessHelper.isCurrentUser(#id)")
 
-                .antMatchers(HttpMethod.PUT, "/api/users/{id}/password").access("@accessHelper.isCurrentUser(#id)")
-                .antMatchers(HttpMethod.PUT, "/api/users/{id}/blocked").access("hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.GET, "/api/cities", "/api/cities/*").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/cities").access("hasRole('ADMIN')")
