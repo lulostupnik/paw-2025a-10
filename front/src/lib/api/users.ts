@@ -65,7 +65,16 @@ export interface UserApi {
 export interface UserPrivateApi extends UserApi {
     email: string;
     isAdmin: boolean;
+}
+
+// The blocked status now lives in its own sub-resource (GET/PUT /users/{id}/blocked), linked from
+// the user representation, instead of being embedded as a boolean.
+export interface UserBlockedApi {
     blocked: boolean;
+    links?: {
+        selfUrl?: string | null;
+        userUrl?: string | null;
+    } | null;
 }
 
 interface UserInterestApi {
@@ -92,8 +101,13 @@ export const registerUser = async (payload: RegisterPayload, signal?: AbortSigna
     return data;
 };
 
+export const getUserBlocked = async (userId: number | string, signal?: AbortSignal): Promise<UserBlockedApi> => {
+    const response = await apiClient.get<UserBlockedApi>(`/users/${userId}/blocked`, { signal, headers: { Accept: ContentTypes.USER_BLOCKED } });
+    return response.data;
+};
+
 export const updateUserBlocked = async (userId: number, blocked: boolean, signal?: AbortSignal) => {
-    await apiClient.patch(`/users/${userId}`, { blocked }, { signal, headers: { "Content-Type": ContentTypes.USER_BLOCKED } });
+    await apiClient.put(`/users/${userId}/blocked`, { blocked }, { signal, headers: { "Content-Type": ContentTypes.USER_BLOCKED } });
 };
 
 export const updateUserProfile = async (
@@ -110,7 +124,7 @@ export const updateUserPassword = async (
     password: string,
     signal?: AbortSignal
 ): Promise<void> => {
-    await apiClient.patch(`/users/${userId}`, { password }, { signal, headers: { "Content-Type": ContentTypes.USER_PASSWORD } });
+    await apiClient.put(`/users/${userId}/password`, { password }, { signal, headers: { "Content-Type": ContentTypes.USER_PASSWORD } });
 };
 
 export const updateUserProfilePicture = async (

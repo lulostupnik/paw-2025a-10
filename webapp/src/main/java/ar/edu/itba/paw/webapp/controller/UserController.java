@@ -13,6 +13,7 @@ import ar.edu.itba.paw.models.exceptions.InvalidImageException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
 import ar.edu.itba.paw.webapp.CustomMediaType;
+import ar.edu.itba.paw.webapp.dto.UserBlockedDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.dto.UserInterestDto;
 import ar.edu.itba.paw.webapp.dto.UserPrivateDto;
@@ -20,10 +21,9 @@ import ar.edu.itba.paw.webapp.dto.UserRatingDto;
 import ar.edu.itba.paw.webapp.form.AddUserInterestForm;
 import ar.edu.itba.paw.webapp.form.BlockUserForm;
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
-import ar.edu.itba.paw.webapp.form.EditUserForm;
+import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
 import ar.edu.itba.paw.webapp.form.PasswordForm;
 import ar.edu.itba.paw.webapp.form.PatchUserForm;
-import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 
@@ -121,13 +121,6 @@ public class UserController {
         return Response.noContent().build();
     }
 
-    @POST
-    @Consumes(CustomMediaType.APPLICATION_USER_VERIFICATION_RESEND)
-    public Response resendVerification(@Valid final ForgotPasswordForm form) {
-        us.resendVerificationEmail(form.getEmail());
-        return Response.noContent().build();
-    }
-
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_USER)
@@ -137,11 +130,11 @@ public class UserController {
         return Response.ok(UserDto.fromUser(uriInfo, user)).build();
     }
 
-    // ==================== PASSWORD ====================
+    // ==================== PASSWORD (sub-resource) ====================
 
-    //Para olvide mi contrasena se usa como Basic email:token y para cambiar la contrasena de un usuario logeado con su JWT
-    @PATCH
-    @Path("/{id}")
+
+    @PUT
+    @Path("/{id}/password")
     @Consumes(CustomMediaType.APPLICATION_USER_PASSWORD)
     @PreAuthorize("@accessHelper.isCurrentUser(#id)")
     public Response updatePassword(
@@ -152,10 +145,10 @@ public class UserController {
         return Response.noContent().build();
     }
 
-    // ==================== ACCOUNT VERIFICATION (Basic email:token -> JWT vía AuthAnywhereFilter) ====================
+    // ==================== ACCOUNT VERIFICATION (sub-resource; Basic email:token -> JWT vía AuthAnywhereFilter) ====================
 
-    @PATCH
-    @Path("/{id}")
+    @POST
+    @Path("/{id}/verification")
     @Consumes(CustomMediaType.APPLICATION_USER_VERIFICATION)
     @PreAuthorize("@accessHelper.isCurrentUser(#id)")
     public Response verifyUser(@PathParam("id") final long id) {
@@ -164,14 +157,23 @@ public class UserController {
     }
 
 
-    // ==================== BLOCKED STATUS ====================
+    // ==================== BLOCKED STATUS (sub-resource) ====================
 
-    @PATCH
-    @Path("/{id}")
+    @GET
+    @Path("/{id}/blocked")
+    @Produces(CustomMediaType.APPLICATION_USER_BLOCKED)
+    @PreAuthorize("hasRole('ADMIN') or @accessHelper.isCurrentUser(#id)")
+    public Response getBlockedStatus(@PathParam("id") final long id) {
+        final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return Response.ok(UserBlockedDto.fromUser(uriInfo, user)).build();
+    }
+
+    @PUT
+    @Path("/{id}/blocked")
     @Consumes(CustomMediaType.APPLICATION_USER_BLOCKED)
     @PreAuthorize("hasRole('ADMIN')")
     public Response updateBlockedStatus(
-            @PathParam("id") final  long id,
+            @PathParam("id") final long id,
             @Valid final BlockUserForm form
     ) {
         us.setBlockedStatus(id, form.getBlocked());

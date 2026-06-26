@@ -39,12 +39,9 @@ export const usersHandlers = [
 
     http.post(`${BASE_URL}/users`, async ({ request }) => {
         const contentType = request.headers.get("Content-Type") ?? "";
-
+        // Forgot password request rides on POST /users with the user-password media type.
         if (contentType.includes("user-password")) {
-            return new HttpResponse(null, { status: 200 });
-        }
-        if (contentType.includes("password-reset")) {
-            return new HttpResponse(null, { status: 200 });
+            return new HttpResponse(null, { status: 204 });
         }
 
         const body = (await request.json()) as Record<string, unknown>;
@@ -62,6 +59,20 @@ export const usersHandlers = [
     http.patch(`${BASE_URL}/users/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
         return HttpResponse.json({ ...defaultUser, ...body, id: Number(params.id) }, { headers: { "Content-Type": "application/vnd.gotogether.user.v1+json" } });
+    }),
+
+    // User state sub-resources.
+    http.put(`${BASE_URL}/users/:id/password`, () => new HttpResponse(null, { status: 204 })),
+    http.post(`${BASE_URL}/users/:id/verification`, () => new HttpResponse(null, { status: 204 })),
+    http.put(`${BASE_URL}/users/:id/blocked`, () => new HttpResponse(null, { status: 204 })),
+    http.get(`${BASE_URL}/users/:id/blocked`, ({ params }) => {
+        return HttpResponse.json(
+            {
+                blocked: false,
+                links: { selfUrl: `${BASE_URL}/users/${params.id}/blocked`, userUrl: `${BASE_URL}/users/${params.id}` },
+            },
+            { headers: { "Content-Type": "application/vnd.gotogether.user-blocked.v1+json" } },
+        );
     }),
 
     http.put(`${BASE_URL}/users/:id/profilePicture`, () => {

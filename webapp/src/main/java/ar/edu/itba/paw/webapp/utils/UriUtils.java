@@ -49,6 +49,10 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(USERS_URL).path(String.valueOf(userId)).path("profilePicture").build();
     }
 
+    public static URI getUserBlockedUri(final UriInfo uriInfo, final long userId) {
+        return uriInfo.getBaseUriBuilder().path(USERS_URL).path(String.valueOf(userId)).path("blocked").build();
+    }
+
     // ==================== JOURNEYS ====================
 
     public static URI getJourneysUri(final UriInfo uriInfo) {

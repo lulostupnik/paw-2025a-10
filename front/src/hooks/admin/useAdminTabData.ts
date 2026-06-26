@@ -16,7 +16,7 @@ import { listCareers } from "@/lib/api/careers";
 import { listCities } from "@/lib/api/cities";
 import { listInterests } from "@/lib/api/interests";
 import { listUniversities } from "@/lib/api/universities";
-import { listUsers, type UserPrivateApi } from "@/lib/api/users";
+import { getUserBlocked, listUsers, type UserPrivateApi } from "@/lib/api/users";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 
 interface AdminTabParams {
@@ -123,13 +123,16 @@ export const useAdminUsers = ({
             const users = await listUsers(params, signal);
             const adminUsers = await Promise.all(
                 users.content.map(async (user: UserPrivateApi): Promise<AdminUser> => {
-                    const university = await getUniversityByUrl(user.links?.universityUrl, signal);
+                    const [university, blockedStatus] = await Promise.all([
+                        getUniversityByUrl(user.links?.universityUrl, signal),
+                        getUserBlocked(user.id, signal),
+                    ]);
                     return {
                         id: user.id,
                         firstname: user.firstname ?? "",
                         email: user.email,
                         university: university?.name ?? "",
-                        blocked: user.blocked,
+                        blocked: blockedStatus.blocked,
                     } satisfies AdminUser;
                 })
             );

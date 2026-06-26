@@ -2,6 +2,7 @@ package ar.edu.itba.paw.webapp.auth.filters;
 
 import ar.edu.itba.paw.interfaces.services.TokenService;
 import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.EmailUser;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.auth.JwtUtils;
@@ -79,6 +80,7 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                     authenticateAs(request, user.getEmail());
                     tokenService.delete(tkn);          // OTP
                 } else if (!user.isValidated()) {
+                    userService.resendVerificationEmail(user.getEmail());
                     throw new UserNotVerifiedException(user.getEmail());
                 } else {
                     final Authentication auth = authenticationManager.authenticate(

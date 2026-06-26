@@ -120,12 +120,11 @@ export interface PasswordResetRequest {
 }
 
 export async function requestPasswordReset(body: PasswordResetRequest): Promise<void> {
-    await apiClient.post("/users", body, {headers: {'Content-Type': ContentTypes.USER_PASSWORD}});
+    await apiClient.post("/users", body, { headers: { "Content-Type": ContentTypes.USER_PASSWORD } });
 }
 
-export async function resendVerificationEmail(email: string, signal?: AbortSignal): Promise<void> {
-    await apiClient.post("/users", { email }, { signal, headers: { "Content-Type": ContentTypes.USER_VERIFICATION_RESEND } });
-}
+// Resending the verification email has no endpoint: it happens automatically server-side when an
+// unverified user attempts to log in (see AuthAnywhereFilter).
 
 async function hydrateSessionFromStoredToken(signal?: AbortSignal): Promise<void> {
     const authToken = getAuthToken();
@@ -171,8 +170,8 @@ export async function verifyEmailToken(payload: EmailVerificationPayload, signal
     // The email carries a one-time token; the PATCH authenticates with Basic email:token and the
     // server (AuthAnywhereFilter) verifies it against the token service and replies with the JWTs.
     const basic = encodeBasicCredentials({ email, password: token });
-    await apiClient.patch(
-        `/users/${payload.userId}`,
+    await apiClient.post(
+        `/users/${payload.userId}/verification`,
         {},
         { signal, headers: { "Content-Type": ContentTypes.USER_VERIFICATION, Authorization: `Basic ${basic}` } },
     );
@@ -207,8 +206,8 @@ export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayl
     // The email carries a one-time token; the PATCH authenticates with Basic email:token and the
     // server (AuthAnywhereFilter) verifies it against the token service and replies with the JWTs.
     const basic = encodeBasicCredentials({ email, password: token });
-    await apiClient.patch(
-        `/users/${payload.userId}`,
+    await apiClient.put(
+        `/users/${payload.userId}/password`,
         { password: payload.password },
         { signal, headers: { "Content-Type": ContentTypes.USER_PASSWORD, Authorization: `Basic ${basic}` } },
     );
