@@ -16,7 +16,6 @@ public class UserLinks {
     private URI universityUrl;
     private URI journeyUrl;
     private URI profilePictureUrl;
-    private URI blockedUrl;
 
     public static UserLinks fromUser(final UriInfo uriInfo, final User user) {
         final UserLinks links = new UserLinks();
@@ -37,5 +36,4 @@ public class UserLinks {
     public URI getUniversityUrl() { return universityUrl; }
     public URI getJourneyUrl() { return journeyUrl; }
     public URI getProfilePictureUrl() { return profilePictureUrl; }
-    public URI getBlockedUrl() { return blockedUrl; }
 }

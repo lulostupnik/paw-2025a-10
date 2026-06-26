@@ -574,12 +574,15 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.of(CAREER));
 
         userService.patchUser(
-            USER_ID, 
-            USERNAME, 
-            FIRSTNAME, 
-            LASTNAME, 
-            UNI_NAME, 
-            CAREER_NAME
+            USER_ID,
+            USERNAME,
+            FIRSTNAME,
+            LASTNAME,
+            UNI_NAME,
+            CAREER_NAME,
+            null,
+            null,
+            null
         );
 
         assertEquals(USERNAME, u.getUsername());
@@ -611,12 +614,15 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.empty());
 
         userService.patchUser(
-            USER_ID, 
-            null, 
-            null, 
-            null, 
-            null, 
-            CAREER_NAME
+            USER_ID,
+            null,
+            null,
+            null,
+            null,
+            CAREER_NAME,
+            null,
+            null,
+            null
         );
     }
     @Test(expected = InvalidReferenceException.class)
@@ -642,11 +648,14 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.empty());
 
         userService.patchUser(
-            USER_ID, 
-            null, 
-            null, 
-            null, 
-            UNI_NAME, 
+            USER_ID,
+            null,
+            null,
+            null,
+            UNI_NAME,
+            null,
+            null,
+            null,
             null
         );
     }
@@ -670,11 +679,14 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.of(u));
 
         userService.patchUser(
-            USER_ID, 
-            null, 
-            null, 
-            null, 
-            null, 
+            USER_ID,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null
         );
 
@@ -688,7 +700,39 @@ public class UserServiceImplTest {
     public void testPatchUserMissingUser(){
         when(userDao.findById(eq(USER_ID))).thenReturn(Optional.empty());
 
-        userService.patchUser(USER_ID, USERNAME, FIRSTNAME, LASTNAME, EMAIL, CAREER_NAME);
+        userService.patchUser(USER_ID, USERNAME, FIRSTNAME, LASTNAME, EMAIL, CAREER_NAME, null, null, null);
+    }
+
+    @Test
+    public void testPatchUserSetsPassword(){
+        User u = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE_ID, LOCALE, false, true);
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(u));
+        when(passwordEncoder.encode(eq(PASSWORD))).thenReturn("ENCODED");
+
+        userService.patchUser(USER_ID, null, null, null, null, null, PASSWORD, null, null);
+
+        assertEquals("ENCODED", u.getPassword());
+    }
+
+    @Test
+    public void testPatchUserSetsVerified(){
+        User u = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE_ID, LOCALE, false, false);
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(u));
+
+        userService.patchUser(USER_ID, null, null, null, null, null, null, true, null);
+
+        assertTrue(u.isValidated());
+    }
+
+    @Test
+    public void testPatchUserSetsBlocked(){
+        User u = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE_ID, LOCALE, false, true);
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(u));
+
+        userService.patchUser(USER_ID, null, null, null, null, null, null, null, true);
+
+        assertTrue(u.isBlocked());
+        verify(emailService).sendUserBlockedNotification(any());
     }
 
     @Test

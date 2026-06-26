@@ -276,7 +276,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User patchUser(final long userId, final String username,
                           final String firstname, final String lastname,
-                          final String universityName, final String careerName) {
+                          final String universityName, final String careerName,
+                          final String password, final Boolean verified, final Boolean blocked) {
         LOGGER.debug("Patching user with ID: {}", userId);
 
         User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
@@ -301,6 +302,19 @@ public class UserServiceImpl implements UserService {
         if (careerName != null) {
             Career career = careerService.findCareerByName(careerName).orElseThrow(() -> new InvalidReferenceException("Career", careerName));
             user.setCareer(career);
+        }
+
+        if (password != null) {
+            user.setPassword(passwordEncoder.encode(password));
+        }
+
+        if (verified != null) {
+            user.setValidated(verified);
+        }
+
+        if (blocked != null) {
+            // Reuses the block/unblock flow so the user still gets the notification email.
+            setBlockedStatus(userId, blocked);
         }
 
         LOGGER.info("User patched successfully with ID: {}", userId);

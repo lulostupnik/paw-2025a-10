@@ -170,10 +170,10 @@ export async function verifyEmailToken(payload: EmailVerificationPayload, signal
     // The email carries a one-time token; the PATCH authenticates with Basic email:token and the
     // server (AuthAnywhereFilter) verifies it against the token service and replies with the JWTs.
     const basic = encodeBasicCredentials({ email, password: token });
-    await apiClient.post(
-        `/users/${payload.userId}/verification`,
-        {},
-        { signal, headers: { "Content-Type": ContentTypes.USER_VERIFICATION, Authorization: `Basic ${basic}` } },
+    await apiClient.patch(
+        `/users/${payload.userId}`,
+        { verified: true },
+        { signal, headers: { "Content-Type": ContentTypes.USER, Authorization: `Basic ${basic}` } },
     );
 
     await hydrateSessionFromStoredToken(signal);
@@ -206,10 +206,10 @@ export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayl
     // The email carries a one-time token; the PATCH authenticates with Basic email:token and the
     // server (AuthAnywhereFilter) verifies it against the token service and replies with the JWTs.
     const basic = encodeBasicCredentials({ email, password: token });
-    await apiClient.put(
-        `/users/${payload.userId}/password`,
+    await apiClient.patch(
+        `/users/${payload.userId}`,
         { password: payload.password },
-        { signal, headers: { "Content-Type": ContentTypes.USER_PASSWORD, Authorization: `Basic ${basic}` } },
+        { signal, headers: { "Content-Type": ContentTypes.USER, Authorization: `Basic ${basic}` } },
     );
 
     await hydrateSessionFromStoredToken(signal);

@@ -56,23 +56,10 @@ export const usersHandlers = [
         );
     }),
 
+    // One PATCH for everything on the user (profile, password, verified, blocked).
     http.patch(`${BASE_URL}/users/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
         return HttpResponse.json({ ...defaultUser, ...body, id: Number(params.id) }, { headers: { "Content-Type": "application/vnd.gotogether.user.v1+json" } });
-    }),
-
-    // User state sub-resources.
-    http.put(`${BASE_URL}/users/:id/password`, () => new HttpResponse(null, { status: 204 })),
-    http.post(`${BASE_URL}/users/:id/verification`, () => new HttpResponse(null, { status: 204 })),
-    http.put(`${BASE_URL}/users/:id/blocked`, () => new HttpResponse(null, { status: 204 })),
-    http.get(`${BASE_URL}/users/:id/blocked`, ({ params }) => {
-        return HttpResponse.json(
-            {
-                blocked: false,
-                links: { selfUrl: `${BASE_URL}/users/${params.id}/blocked`, userUrl: `${BASE_URL}/users/${params.id}` },
-            },
-            { headers: { "Content-Type": "application/vnd.gotogether.user-blocked.v1+json" } },
-        );
     }),
 
     http.put(`${BASE_URL}/users/:id/profilePicture`, () => {

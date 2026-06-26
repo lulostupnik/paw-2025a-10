@@ -10,7 +10,7 @@ import { getCareerById } from "@/lib/api/careers";
 import { getCityById } from "@/lib/api/cities";
 import { getInterestById } from "@/lib/api/interests";
 import { getUniversityById, getUniversityByUrl } from "@/lib/api/universities";
-import { getCareerByUrl, getUserBlocked, getUserPrivateById } from "@/lib/api/users";
+import { getCareerByUrl, getUserPrivateById } from "@/lib/api/users";
 import { getCityByUrl } from "@/lib/api/journeys";
 
 interface AdminDetailParams {
@@ -26,10 +26,9 @@ export const useAdminUserDetailData = (params?: AdminDetailParams) => {
                 throw new Error("missing-user-id");
             }
             const user = await getUserPrivateById(userId, signal);
-            const [university, career, blockedStatus] = await Promise.all([
+            const [university, career] = await Promise.all([
                 getUniversityByUrl(user.links?.universityUrl, signal),
                 getCareerByUrl(user.links?.careerUrl, signal),
-                getUserBlocked(userId, signal),
             ]);
             return {
                 id: user.id,
@@ -41,7 +40,7 @@ export const useAdminUserDetailData = (params?: AdminDetailParams) => {
                 career: career ? { name: career.name } : null,
                 locale: null,
                 profilePictureUrl: user.links?.profilePictureUrl ?? null,
-                blocked: blockedStatus.blocked,
+                blocked: user.blocked,
             } satisfies AdminUserDetail;
         },
         placeholderData: keepPreviousData,

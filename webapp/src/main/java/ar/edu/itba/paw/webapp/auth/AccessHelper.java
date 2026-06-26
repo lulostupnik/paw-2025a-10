@@ -3,7 +3,9 @@ package ar.edu.itba.paw.webapp.auth;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.models.Tip;
+import ar.edu.itba.paw.webapp.form.PatchUserForm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import java.util.Objects;
@@ -24,6 +26,26 @@ public class AccessHelper {
     public boolean isCurrentUser(long userId) {
         final Long currentUserId = AuthUtils.getCurrentUserId();
         return currentUserId != null && currentUserId == userId;
+    }
+
+    private boolean isAdmin() {
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+    }
+    public boolean canPatchUser(long userId, PatchUserForm form) {
+        final boolean admin = isAdmin();
+        final boolean self = isCurrentUser(userId);
+        if (!self && !admin) {
+            return false;
+        }
+        if (form.getBlocked() != null && !admin) {
+            return false;
+        }
+        if (form.getPassword() != null && !self) {
+            return false;
+        }
+        return true;
     }
 
     public boolean isUserEventOwner(long eventId){

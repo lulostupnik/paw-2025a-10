@@ -20,6 +20,8 @@ public class UserPrivateDto {
     private String lastname;
     private String email;
     private boolean isAdmin;
+    private boolean verified;
+    private boolean blocked;
     private UserLinks links;
 
     public static UserPrivateDto fromUser(final UriInfo uriInfo, final User user) {
@@ -30,6 +32,8 @@ public class UserPrivateDto {
         dto.lastname = user.getLastname();
         dto.email = user.getEmail();
         dto.isAdmin = user.getRole() == ar.edu.itba.paw.models.enums.UserRoles.ADMIN;
+        dto.verified = user.isValidated();
+        dto.blocked = user.isBlocked();
         dto.links = UserLinks.fromUser(uriInfo, user);
         return dto;
     }
@@ -44,5 +48,7 @@ public class UserPrivateDto {
     public String getLastname() { return lastname; }
     public String getEmail() { return email; }
     public boolean isAdmin() { return isAdmin; }
+    public boolean isVerified() { return verified; }
+    public boolean isBlocked() { return blocked; }
     public UserLinks getLinks() { return links; }
 }
