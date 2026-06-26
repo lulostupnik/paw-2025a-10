@@ -77,6 +77,7 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                         throw new BadCredentialsException("exception.BadCredentialsException.token");
                     }
                     authenticateAs(request, user.getEmail());
+                    tokenService.delete(tkn);          // OTP
                 } else if (!user.isValidated()) {
                     throw new UserNotVerifiedException(user.getEmail());
                 } else {
