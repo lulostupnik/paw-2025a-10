@@ -271,6 +271,7 @@ public class EmailServiceImpl implements EmailService {
         variables.put("firstName", user.getUsername());
         variables.put("validationToken", token);
         variables.put("userId", user.getId());
+        variables.put("email", user.getEmail());
         variables.put("baseUrl", baseUrl);
 
 

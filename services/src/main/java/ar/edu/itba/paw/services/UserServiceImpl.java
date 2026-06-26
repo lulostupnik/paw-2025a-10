@@ -69,26 +69,16 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User verifyUser(final long id, final String tokenStr) {
-        Token token = tokenService.getByToken(tokenStr).orElseThrow(() -> new InvalidTokenException(tokenStr));
+    public void verifyUser(final long id) {
+        final User user = userDao.findById(id).orElseThrow(() -> {
+            LOGGER.error("User does not exist for ID: {}", id);
+            return new UserNotFoundException(id);
+        });
 
-        final User user = token.getUser();
-
-        if (user.getId() != id) {
-            LOGGER.error("Verification token does not belong to user id {}", id);
-            throw new InvalidTokenException(tokenStr);
+        if (!user.isValidated()) {
+            user.setValidated(true);
+            LOGGER.info("Activating user id {} after successful verification", id);
         }
-
-        tokenService.delete(token);
-
-        if (user.isValidated()) {
-            LOGGER.info("Token consumed for already validated user {}", user.getId());
-            return user;
-        }
-
-        user.setValidated(true);
-        LOGGER.info("Activating user id {} after successful verification", user.getId());
-        return user;
     }
 
 
@@ -200,31 +190,6 @@ public class UserServiceImpl implements UserService {
         final Double createdEventsRating = findAverageRatingForCreatedEvents(userId).orElse(null);
         final Double attendedEventsRating = findAverageRatingForAttendedEvents(userId).orElse(null);
         return new UserRating(userId, createdEventsRating, attendedEventsRating);
-    }
-
-
-    @Override
-    @Transactional
-    public User resetPassword(final long id, final String token, final String newPassword) {
-        final Optional<Token> maybeToken = tokenService.getByToken(token);
-        if (maybeToken.isEmpty() || maybeToken.get().isExpired()) {
-            LOGGER.error("Token is invalid, or expired for token: {}", token);
-            throw new InvalidTokenException(token);
-        }
-
-        final Token tkn = maybeToken.get();
-        final User user = tkn.getUser();
-
-        if (user.getId() != id) {
-            LOGGER.error("Reset token does not belong to user id {}", id);
-            throw new InvalidTokenException(token);
-        }
-
-        tokenService.delete(tkn);
-        LOGGER.debug("updating new password for token: {}", token);
-        user.setPassword(passwordEncoder.encode(newPassword));
-        LOGGER.info("Password updated successfully for token: {}", token);
-        return user;
     }
 
 

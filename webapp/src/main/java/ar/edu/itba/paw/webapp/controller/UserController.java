@@ -24,22 +24,17 @@ import ar.edu.itba.paw.webapp.form.EditUserForm;
 import ar.edu.itba.paw.webapp.form.PasswordForm;
 import ar.edu.itba.paw.webapp.form.PatchUserForm;
 import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
-import ar.edu.itba.paw.webapp.form.ResetPasswordForm;
-import ar.edu.itba.paw.webapp.form.ValidateUserForm;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 
-import ar.edu.itba.paw.webapp.auth.JwtUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -59,22 +54,8 @@ public class UserController {
     @Autowired
     private InterestService interestService;
 
-    @Autowired
-    private JwtUtils jwtTokenUtil;
-
     @Context
     private UriInfo uriInfo;
-
-    @Context
-    private HttpServletRequest request;
-
-    private ResponseBuilder withAuthTokens(final ResponseBuilder builder, final User user) {
-        final ServletUriComponentsBuilder uriBuilder = ServletUriComponentsBuilder.fromContextPath(request);
-        uriBuilder.path("/api");
-        return builder
-                .header("X-GoTogether-AuthToken", jwtTokenUtil.generateAccessToken(uriBuilder, user))
-                .header("X-GoTogether-RefreshToken", jwtTokenUtil.generateRefreshToken(uriBuilder, user));
-    }
 
     @GET
     @Produces(CustomMediaType.APPLICATION_USER_PRIVATE_LIST)
@@ -158,6 +139,7 @@ public class UserController {
 
     // ==================== PASSWORD ====================
 
+    //Para olvide mi contrasena se usa como Basic email:token y para cambiar la contrasena de un usuario logeado con su JWT
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_USER_PASSWORD)
@@ -170,30 +152,15 @@ public class UserController {
         return Response.noContent().build();
     }
 
-    // ==================== PASSWORD RESET (token) ====================
-
-    @PATCH
-    @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_USER_PASSWORD_RESET)
-    public Response resetPassword(
-            @PathParam("id") final long id,
-            @Valid final ResetPasswordForm form
-    ) {
-        final User user = us.resetPassword(id, form.getToken(), form.getPassword());
-        return withAuthTokens(Response.noContent(), user).build();
-    }
-
-    // ==================== ACCOUNT VERIFICATION (token) ====================
+    // ==================== ACCOUNT VERIFICATION (Basic email:token -> JWT vía AuthAnywhereFilter) ====================
 
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_USER_VERIFICATION)
-    public Response verifyUser(
-            @PathParam("id") final long id,
-            @Valid final ValidateUserForm form
-    ) {
-        final User user = us.verifyUser(id, form.getValidationToken());
-        return withAuthTokens(Response.noContent(), user).build();
+    @PreAuthorize("@accessHelper.isCurrentUser(#id)")
+    public Response verifyUser(@PathParam("id") final long id) {
+        us.verifyUser(id);
+        return Response.noContent().build();
     }
 
 
@@ -204,7 +171,7 @@ public class UserController {
     @Consumes(CustomMediaType.APPLICATION_USER_BLOCKED)
     @PreAuthorize("hasRole('ADMIN')")
     public Response updateBlockedStatus(
-            @PathParam("id") final long id,
+            @PathParam("id") final  long id,
             @Valid final BlockUserForm form
     ) {
         us.setBlockedStatus(id, form.getBlocked());

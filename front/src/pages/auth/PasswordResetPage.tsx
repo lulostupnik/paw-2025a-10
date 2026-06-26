@@ -66,6 +66,7 @@ export default function PasswordResetPage() {
     const [params] = useSearchParams();
     const token = (params.get("token") ?? params.get("amp;token") ?? "").trim();
     const userId = (params.get("userId") ?? params.get("amp;userId") ?? "").trim();
+    const email = (params.get("email") ?? params.get("amp;email") ?? "").trim();
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [touched, setTouched] = useState({ password: false, confirmPassword: false });
@@ -102,7 +103,7 @@ export default function PasswordResetPage() {
         setStatus("submitting");
         setServerError("");
         try {
-            await resetPasswordWithToken({ token, userId, password, confirmPassword });
+            await resetPasswordWithToken({ token, userId, email, password, confirmPassword });
             navigate("/password/reset/confirmation?status=success");
         } catch (error) {
             const nextStatus = mapResetError(error);

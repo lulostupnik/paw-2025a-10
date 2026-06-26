@@ -151,22 +151,30 @@ async function hydrateSessionFromStoredToken(signal?: AbortSignal): Promise<void
 
 export interface EmailVerificationPayload {
     userId: number | string;
+    email: string;
     token: string;
 }
 
 export async function verifyEmailToken(payload: EmailVerificationPayload, signal?: AbortSignal): Promise<void> {
     const token = payload.token.trim();
+    const email = payload.email.trim();
     if (!token) {
         throw new Error("missing-token");
+    }
+    if (!email) {
+        throw new Error("missing-email");
     }
     if (payload.userId === "" || payload.userId === null || payload.userId === undefined) {
         throw new Error("missing-user");
     }
 
+    // The email carries a one-time token; the PATCH authenticates with Basic email:token and the
+    // server (AuthAnywhereFilter) verifies it against the token service and replies with the JWTs.
+    const basic = encodeBasicCredentials({ email, password: token });
     await apiClient.patch(
         `/users/${payload.userId}`,
-        { validationToken: token },
-        { signal, headers: { "Content-Type": ContentTypes.USER_VERIFICATION } },
+        {},
+        { signal, headers: { "Content-Type": ContentTypes.USER_VERIFICATION, Authorization: `Basic ${basic}` } },
     );
 
     await hydrateSessionFromStoredToken(signal);
@@ -174,6 +182,7 @@ export async function verifyEmailToken(payload: EmailVerificationPayload, signal
 
 export interface PasswordResetWithTokenPayload {
     userId: number | string;
+    email: string;
     token: string;
     password: string;
     confirmPassword: string;
@@ -184,17 +193,24 @@ export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayl
         throw new Error("password-mismatch");
     }
     const token = payload.token.trim();
+    const email = payload.email.trim();
     if (!token) {
         throw new Error("missing-token");
+    }
+    if (!email) {
+        throw new Error("missing-email");
     }
     if (payload.userId === "" || payload.userId === null || payload.userId === undefined) {
         throw new Error("missing-user");
     }
 
+    // The email carries a one-time token; the PATCH authenticates with Basic email:token and the
+    // server (AuthAnywhereFilter) verifies it against the token service and replies with the JWTs.
+    const basic = encodeBasicCredentials({ email, password: token });
     await apiClient.patch(
         `/users/${payload.userId}`,
-        { token, password: payload.password },
-        { signal, headers: { "Content-Type": ContentTypes.PASSWORD_RESET } },
+        { password: payload.password },
+        { signal, headers: { "Content-Type": ContentTypes.USER_PASSWORD, Authorization: `Basic ${basic}` } },
     );
 
     await hydrateSessionFromStoredToken(signal);

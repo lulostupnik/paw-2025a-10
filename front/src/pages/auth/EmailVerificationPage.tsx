@@ -44,6 +44,7 @@ export default function EmailVerificationPage() {
     const [searchParams] = useSearchParams();
     const token = searchParams.get("token");
     const userId = searchParams.get("userId");
+    const email = searchParams.get("email") ?? searchParams.get("amp;email") ?? "";
     const [state, setState] = useState<VerificationState>(() =>
         token && userId ? { status: "loading" } : { status: "invalid", reference: generateReference() }
     );
@@ -57,7 +58,7 @@ export default function EmailVerificationPage() {
         let cancelled = false;
         setState({ status: "loading" });
 
-        verifyEmailToken({ userId, token })
+        verifyEmailToken({ userId, email, token })
             .then(() => {
                 if (!cancelled) {
                     setState({ status: "success" });
@@ -72,7 +73,7 @@ export default function EmailVerificationPage() {
         return () => {
             cancelled = true;
         };
-    }, [token, userId]);
+    }, [token, userId, email]);
 
     const referenceMessage = useMemo(() => {
         if (!state.reference) {

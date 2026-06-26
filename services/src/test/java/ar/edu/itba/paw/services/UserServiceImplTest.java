@@ -37,7 +37,6 @@ import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
-import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 
@@ -126,15 +125,15 @@ public class UserServiceImplTest {
         ).thenReturn(TOKEN);
 
         User user = userService.createUser(
-            EMAIL, 
-            USERNAME, 
-            FIRSTNAME, 
-            LASTNAME, 
-            UNIVERSITY.getName(), 
-            CAREER.getName(), 
+            EMAIL,
+            USERNAME,
+            FIRSTNAME,
+            LASTNAME,
+            UNIVERSITY.getName(),
+            CAREER.getName(),
             // IMAGE.getData(),
-            List.of(INTEREST.getName()), 
-            PASSWORD, 
+            List.of(INTEREST.getName()),
+            PASSWORD,
             LOCALE
         );
 
@@ -151,15 +150,15 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.empty());
 
         userService.createUser(
-            EMAIL, 
-            USERNAME, 
-            FIRSTNAME, 
-            LASTNAME, 
-            UNIVERSITY.getName(), 
-            CAREER.getName(), 
+            EMAIL,
+            USERNAME,
+            FIRSTNAME,
+            LASTNAME,
+            UNIVERSITY.getName(),
+            CAREER.getName(),
             // IMAGE.getData(),
-            List.of(INTEREST.getName()), 
-            PASSWORD, 
+            List.of(INTEREST.getName()),
+            PASSWORD,
             LOCALE
         );
     }
@@ -170,79 +169,47 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.empty());
 
         userService.createUser(
-            EMAIL, 
-            USERNAME, 
-            FIRSTNAME, 
+            EMAIL,
+            USERNAME,
+            FIRSTNAME,
             LASTNAME,
-            UNIVERSITY.getName(), 
-            CAREER.getName(), 
+            UNIVERSITY.getName(),
+            CAREER.getName(),
             // IMAGE.getData(),
             List.of(INTEREST.getName()),
-            PASSWORD, 
+            PASSWORD,
             LOCALE
         );
     }
 
     @Test
     public void testVerifyUser(){
+        final User unverified = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, false);
         when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(
-            new Token(
-                new User(
-                    USER_ID,
-                    EMAIL,
-                    USERNAME,
-                    FIRSTNAME,
-                    LASTNAME,
-                    UNIVERSITY,
-                    CAREER,
-                    IMAGE.getId(),
-                    LOCALE,
-                    false,
-                    false),
-                TOKEN_VALUE,
-                TOKEN_EXPIRATION
-            )
-        ));
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(unverified));
 
-        User user = userService.verifyUser(USER_ID, TOKEN_VALUE);
+        userService.verifyUser(USER_ID);
 
-        assertTrue(user.isValidated());
+        assertTrue(unverified.isValidated());
     }
     @Test()
     public void testVerifyUserAlreadyValidated(){
         when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(new Token(USER, TOKEN_VALUE, TOKEN_EXPIRATION)));
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
 
-        User user = userService.verifyUser(USER_ID, TOKEN_VALUE);
+        userService.verifyUser(USER_ID);
 
-        assertNotNull(user);
+        assertTrue(USER.isValidated());
     }
-    @Test(expected = InvalidTokenException.class)
-    public void testVerifyUserTokenNotFound(){
+    @Test(expected = UserNotFoundException.class)
+    public void testVerifyUserNotFound(){
         when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
+            userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        userService.verifyUser(USER_ID, TOKEN_VALUE);
-    }
-
-    @Test(expected = InvalidTokenException.class)
-    public void testVerifyUserTokenBelongsToAnotherUser(){
-        final long otherUserId = USER_ID + 1;
-        when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(
-            new Token(
-                new User(otherUserId, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, false),
-                TOKEN_VALUE,
-                TOKEN_EXPIRATION
-            )
-        ));
-
-        userService.verifyUser(USER_ID, TOKEN_VALUE);
+        userService.verifyUser(USER_ID);
     }
 
     @Test
@@ -410,81 +377,6 @@ public class UserServiceImplTest {
         assertEquals(RATING, maybeRating.get(), 0.1);
     }
 
-
-    @Test
-    public void testResetPassword(){
-        User newUser = new User(
-            USER_ID,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            0L,
-            LOCALE,
-            false,
-            true
-        );
-        when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(new Token(newUser, TOKEN_VALUE, TOKEN_EXPIRATION)));
-        when(
-            passwordEncoder.encode(PASSWORD)
-        ).thenReturn(PASSWORD);
-
-        userService.resetPassword(USER_ID, TOKEN_VALUE, PASSWORD);
-
-        assertEquals(PASSWORD, newUser.getPassword());
-    }
-    @Test(expected = InvalidTokenException.class)
-    public void testResetPasswordMissingToken(){
-        User newUser = new User(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            0L,
-            "PASSWORD",
-            LOCALE,
-            true
-        );
-        when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.empty());
-
-        userService.resetPassword(USER_ID, TOKEN_VALUE, PASSWORD);
-
-        assertEquals(PASSWORD, newUser.getPassword());
-    }
-
-    @Test(expected = InvalidTokenException.class)
-    public void testResetPasswordExpiredToken(){
-        final LocalDateTime expiredAt = LocalDateTime.now().minusDays(1);
-        when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(new Token(USER, TOKEN_VALUE, expiredAt)));
-
-        userService.resetPassword(USER_ID, TOKEN_VALUE, PASSWORD);
-    }
-
-    @Test(expected = InvalidTokenException.class)
-    public void testResetPasswordTokenBelongsToAnotherUser(){
-        final long otherUserId = USER_ID + 1;
-        when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(
-            new Token(
-                new User(otherUserId, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, true),
-                TOKEN_VALUE,
-                TOKEN_EXPIRATION
-            )
-        ));
-
-        userService.resetPassword(USER_ID, TOKEN_VALUE, PASSWORD);
-    }
 
     @Test(expected = UserValidatedException.class)
     public void testInitiatePasswordResetUserNotValidated(){

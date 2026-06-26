@@ -25,7 +25,7 @@
     </p>
 
     <div style="text-align: center; margin-top: 40px;">
-        <a th:href="@{${baseUrl + 'validate'}(userId=${userId}, token=${validationToken})}"
+        <a th:href="@{${baseUrl + 'validate'}(userId=${userId}, token=${validationToken}, email=${email})}"
            style="display: inline-block; background-color: #3366ff; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;"
            th:text="#{email.validation.cta}">
         </a>
