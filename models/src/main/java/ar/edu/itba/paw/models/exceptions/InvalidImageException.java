@@ -1,11 +1,12 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class InvalidImageException extends RuntimeException {
+public class InvalidImageException extends CustomRuntimeException {
+
     public InvalidImageException() {
-        super("Invalid image");
+        super("exception.InvalidImageException", CustomRuntimeException.BAD_REQUEST);
     }
 
-    public InvalidImageException(String message) {
-        super(message);
+    public InvalidImageException(final String messageKey) {
+        super(messageKey, CustomRuntimeException.BAD_REQUEST);
     }
 }

@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class CityAlreadyExistsException extends IllegalArgumentException{
+public class CityAlreadyExistsException extends CustomRuntimeException{
     public CityAlreadyExistsException(String name, String country) {
-        super(String.format("City with name %s in country %s already exists", name, country));
+        super("exception.CityAlreadyExistsException", CustomRuntimeException.CONFLICT);
     }
 }

@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class UserWithActiveJourneyException extends RuntimeException{
+public class UserWithActiveJourneyException extends CustomRuntimeException{
     public UserWithActiveJourneyException(final Long id) {
-        super(String.format("User with id %d has an active journey", id));}
+        super("exception.UserWithActiveJourneyException", CustomRuntimeException.CONFLICT);}
 
 }
 

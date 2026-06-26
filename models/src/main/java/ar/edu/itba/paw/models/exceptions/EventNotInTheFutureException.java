@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class EventNotInTheFutureException extends InvalidException {
+public class EventNotInTheFutureException extends CustomRuntimeException {
     public EventNotInTheFutureException(long id) {
-        super(String.format("Event with id %d is not in the future", id));
+        super("exception.EventNotInTheFutureException", CustomRuntimeException.BAD_REQUEST);
     }
 }

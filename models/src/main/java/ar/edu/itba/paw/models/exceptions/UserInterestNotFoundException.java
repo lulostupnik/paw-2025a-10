@@ -1,15 +1,15 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class UserInterestNotFoundException extends NotFoundException {
+public class UserInterestNotFoundException extends CustomRuntimeException {
     public UserInterestNotFoundException(String message) {
-        super(message);
+        super("exception.UserInterestNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 
     public UserInterestNotFoundException() {
-        super("User interest not found");
+        super("exception.UserInterestNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 
     public UserInterestNotFoundException(long userId, long interestId) {
-        super(String.format("Interest %d not found for user %d", interestId, userId));
+        super("exception.UserInterestNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 }

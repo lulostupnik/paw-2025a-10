@@ -1,18 +1,18 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class EventResponseNotFoundException extends NotFoundException {
+public class EventResponseNotFoundException extends CustomRuntimeException {
     public EventResponseNotFoundException(String message) {
-        super(message);
+        super("exception.EventResponseNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
     public EventResponseNotFoundException() {
-        super("Event response not found");
+        super("exception.EventResponseNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 
     public EventResponseNotFoundException(long id) {
-        super(String.format("Event response with id %d not found", id));
+        super("exception.EventResponseNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 
     public EventResponseNotFoundException(long eventId, long responseId) {
-        super(String.format("Event response with id %d not found for event with id %d", responseId, eventId));
+        super("exception.EventResponseNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 }

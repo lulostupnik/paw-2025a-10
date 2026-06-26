@@ -1,10 +1,10 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class CareerNotFoundException extends NotFoundException {
+public class CareerNotFoundException extends CustomRuntimeException {
     public CareerNotFoundException(String CareerName) {
-        super(String.format("Career with name %s not found", CareerName));
+        super("exception.CareerNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
     public CareerNotFoundException(Long id) {
-        super(String.format("Career with id %d not found", id));
+        super("exception.CareerNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 }

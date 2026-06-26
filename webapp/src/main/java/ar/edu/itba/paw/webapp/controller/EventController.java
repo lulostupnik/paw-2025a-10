@@ -18,6 +18,7 @@ import ar.edu.itba.paw.webapp.dto.RatingDto;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.models.Image;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
+import ar.edu.itba.paw.models.exceptions.InvalidImageException;
 import ar.edu.itba.paw.webapp.form.*;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.DateUtils;
@@ -206,13 +207,13 @@ public class EventController {
             @FormDataParam("flyer") final InputStream flyerStream
     ) {
         if (flyerStream == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Flyer is required").build();
+            throw new InvalidImageException("exception.flyer.required");
         }
         try {
             final byte[] bytes = flyerStream.readAllBytes();
             eventService.updateEventFlyer(id, bytes);
         } catch (IOException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Failed to read flyer").build();
+            throw new InvalidImageException("exception.flyer.readFailed");
         }
         final Image image = eventService.getEventFlyer(id).orElseThrow(() -> new ImageNotFoundException("Event flyer not found"));
         return Response.ok(image.getData())

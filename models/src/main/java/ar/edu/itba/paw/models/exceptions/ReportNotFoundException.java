@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class ReportNotFoundException extends NotFoundException {
+public class ReportNotFoundException extends CustomRuntimeException {
     public ReportNotFoundException(long id) {
-        super(String.format("Report with id %d not found", id));
+        super("exception.ReportNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 }

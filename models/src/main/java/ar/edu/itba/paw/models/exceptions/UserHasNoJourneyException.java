@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class UserHasNoJourneyException extends InvalidException {
+public class UserHasNoJourneyException extends CustomRuntimeException {
     public UserHasNoJourneyException(long userId) {
-        super(String.format("User with id %d has no journey", userId));
+        super("exception.UserHasNoJourneyException", CustomRuntimeException.BAD_REQUEST);
     }
 }

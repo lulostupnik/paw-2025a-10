@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class EventNotFoundException extends NotFoundException {
+public class EventNotFoundException extends CustomRuntimeException {
 
     public EventNotFoundException(long id) {
-        super(String.format("Event with id %d not found", id));
+        super("exception.EventNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 }

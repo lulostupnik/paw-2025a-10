@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class JourneyNotFoundException extends NotFoundException {
+public class JourneyNotFoundException extends CustomRuntimeException {
     public JourneyNotFoundException(long id) {
-        super(String.format("Journey with id %d not found", id));
+        super("exception.JourneyNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 }

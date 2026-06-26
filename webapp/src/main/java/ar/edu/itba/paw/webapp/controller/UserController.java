@@ -222,13 +222,13 @@ public class UserController {
             @FormDataParam("profilePicture") final InputStream profilePictureStream
     ) {
         if (profilePictureStream == null) {
-            throw new InvalidImageException("Profile picture is required");
+            throw new InvalidImageException("exception.profilePicture.required");
         }
         try {
             final byte[] bytes = profilePictureStream.readAllBytes();
             us.updateProfilePicture(userId, bytes);
         } catch (IOException e) {
-            throw new InvalidImageException("Failed to read profile picture");
+            throw new InvalidImageException("exception.profilePicture.readFailed");
         }
         final Image image = us.getProfilePicture(userId).orElseThrow(() -> new ImageNotFoundException("Profile picture not found"));
 

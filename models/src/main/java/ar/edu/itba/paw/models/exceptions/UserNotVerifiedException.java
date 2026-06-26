@@ -1,12 +1,12 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class UserNotVerifiedException extends RuntimeException {
+public class UserNotVerifiedException extends CustomRuntimeException {
 
     public UserNotVerifiedException() {
-        super();
+        super("exception.UserNotVerifiedException", CustomRuntimeException.FORBIDDEN);
     }
 
     public UserNotVerifiedException(String message) {
-        super(message);
+        super("exception.UserNotVerifiedException", CustomRuntimeException.FORBIDDEN);
     }
 }

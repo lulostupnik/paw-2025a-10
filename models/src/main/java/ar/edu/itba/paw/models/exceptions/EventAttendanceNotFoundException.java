@@ -1,15 +1,15 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class EventAttendanceNotFoundException extends NotFoundException {
+public class EventAttendanceNotFoundException extends CustomRuntimeException {
     public EventAttendanceNotFoundException(String message) {
-        super(message);
+        super("exception.EventAttendanceNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 
     public EventAttendanceNotFoundException() {
-        super("Event attendance not found");
+        super("exception.EventAttendanceNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 
     public EventAttendanceNotFoundException(long userId, long eventId) {
-        super(String.format("Attendance for user %d at event %d not found", userId, eventId));
+        super("exception.EventAttendanceNotFoundException", CustomRuntimeException.NOT_FOUND);
     }
 }
