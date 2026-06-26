@@ -164,8 +164,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/journeys/*/responses/*").access("hasRole('ADMIN')")
 
                 // Event attendance (específicos ANTES de la regla general)
-                .antMatchers(HttpMethod.GET, "/api/events/*/attendance").access("isAuthenticated()")
-                .antMatchers(HttpMethod.DELETE, "/api/events/*/attendance").access("isAuthenticated()")
                 .antMatchers(HttpMethod.GET, "/api/events/{eventId}/attendances").access("@accessHelper.isUserEventOwner(#eventId)")
                 .antMatchers(HttpMethod.GET, "/api/events/{eventId}/attendances/{userId}").access("@accessHelper.isCurrentUser(#userId) or @accessHelper.isUserEventOwner(#eventId)")
                 .antMatchers(HttpMethod.POST, "/api/events/{eventId}/attendances").access("isAuthenticated()")

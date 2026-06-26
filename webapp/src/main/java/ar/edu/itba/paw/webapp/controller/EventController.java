@@ -302,16 +302,6 @@ public class EventController {
     }
 
     @GET
-    @Path("/{eventId}/attendance")
-    public Response getCurrentUserAttendance(@PathParam("eventId") final long eventId) {
-        final Long userId = AuthUtils.getCurrentUserId();
-        eventService.findEventAttendance(userId, eventId).orElseThrow(EventAttendanceNotFoundException::new);
-        return Response.status(Response.Status.FOUND)
-                .location(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId))
-                .build();
-    }
-
-    @GET
     @Path("/{eventId}/attendances/{userId}")
     @Produces(CustomMediaType.APPLICATION_EVENT_ATTENDANCE)
     public Response getEventAttendance(
@@ -324,13 +314,6 @@ public class EventController {
         return CacheUtils.withEtag(req, attendance, () -> EventAttendanceDto.fromEventAttendance(uriInfo, attendance));
     }
 
-
-    @DELETE
-    @Path("/{eventId}/attendance")
-    public Response unattendEvent(@PathParam("eventId") final long eventId) {
-        final Long userId = AuthUtils.getCurrentUserId();
-        return Response.temporaryRedirect(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId)).build(); // TODO: ¿tiene que retornar 404 si no existe o simplemente dejamos que el otro endpoint le tire el 404?
-    }
 
     @DELETE
     @Path("/{eventId}/attendances/{userId}")
