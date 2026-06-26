@@ -167,9 +167,9 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/events/*/attendance").access("isAuthenticated()")
                 .antMatchers(HttpMethod.DELETE, "/api/events/*/attendance").access("isAuthenticated()")
                 .antMatchers(HttpMethod.GET, "/api/events/{eventId}/attendances").access("@accessHelper.isUserEventOwner(#eventId)")
-                .antMatchers(HttpMethod.GET, "/api/events/{eventId}/attendances/{userId}").access("@accessHelper.isUserEventOwner(#eventId)")
-                .antMatchers(HttpMethod.POST, "/api/events/*/attendances").access("isAuthenticated()")
-                .antMatchers(HttpMethod.DELETE, "/api/events/*/attendances/*").access("isAuthenticated()")
+                .antMatchers(HttpMethod.GET, "/api/events/{eventId}/attendances/{userId}").access("@accessHelper.isCurrentUser(#userId) or @accessHelper.isUserEventOwner(#eventId)")
+                .antMatchers(HttpMethod.POST, "/api/events/{eventId}/attendances").access("isAuthenticated()")
+                .antMatchers(HttpMethod.DELETE, "/api/events/{eventId}/attendances/{userId}").access("@accessHelper.isCurrentUser(#userId) or @accessHelper.isUserEventOwner(#eventId)")
 
                 // Event responses (específicos ANTES de la regla general)
                 .antMatchers(HttpMethod.POST, "/api/events/*/responses").access("isAuthenticated()")
