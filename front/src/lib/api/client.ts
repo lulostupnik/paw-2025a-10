@@ -116,7 +116,7 @@ apiClient.interceptors.response.use(
     async (error: AxiosError) => {
         const originalRequest = error.config as RetriableRequestConfig | undefined;
         const status = error.response?.status;
-        if (!originalRequest || originalRequest._retry || (status !== 401 && status !== 403)) {
+        if (!originalRequest || originalRequest._retry || status !== 401) {
             return Promise.reject(error);
         }
 
