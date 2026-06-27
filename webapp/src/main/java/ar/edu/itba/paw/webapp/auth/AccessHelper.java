@@ -60,6 +60,28 @@ public class AccessHelper {
         return journeyService.isJourneyOwnedByUser(email, journeyId);
     }
 
+    //@TODO verificar que no sea logica en controllers 
+    public boolean canPatchJourney(long journeyId, DeleteMessageForm form) {
+        final boolean admin = isAdmin();
+        if (!isUserJourneyOwner(journeyId) && !admin) {
+            return false;
+        }
+        return admin || !hasMessage(form);
+    }
+
+    public boolean canPatchEvent(long eventId, DeleteMessageForm form) {
+        final boolean admin = isAdmin();
+        if (!isUserEventOwner(eventId) && !admin) {
+            return false;
+        }
+        return admin || !hasMessage(form);
+    }
+
+    private boolean hasMessage(DeleteMessageForm form) {
+        return form != null && form.getMessage() != null && !form.getMessage().isBlank();
+    }
+
+
     public boolean isUserTipOwner(long journeyId, long tipId) {
         if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

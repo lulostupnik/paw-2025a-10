@@ -143,8 +143,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/journeys", "/api/journeys/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/journeys").access("isAuthenticated()")
                 .antMatchers(HttpMethod.PUT, "/api/journeys/{id}").access("@accessHelper.isUserJourneyOwner(#id)")
-                .antMatchers(HttpMethod.PATCH, "/api/journeys/{id}").access("@accessHelper.isUserJourneyOwner(#id)")
-                .antMatchers(HttpMethod.DELETE, "/api/journeys/{id}").access("@accessHelper.isUserJourneyOwner(#id) or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.PATCH, "/api/journeys/{id}").access("isAuthenticated()")
 
                 .antMatchers(HttpMethod.POST, "/api/journeys/{journeyId}/tips").access("@accessHelper.isUserJourneyOwner(#journeyId)")
                 .antMatchers(HttpMethod.PUT, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#journeyId, #tipId)")
@@ -173,8 +172,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/events", "/api/events/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/events").access("isAuthenticated()")
                 .antMatchers(HttpMethod.PUT, "/api/events/{id}").access("@accessHelper.isUserEventOwner(#id)")
-                .antMatchers(HttpMethod.PATCH, "/api/events/{id}").access("@accessHelper.isUserEventOwner(#id)")
-                .antMatchers(HttpMethod.DELETE, "/api/events/{id}").access("@accessHelper.isUserEventOwner(#id) or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.PATCH, "/api/events/{id}").access("isAuthenticated()")
 
                 .antMatchers(HttpMethod.GET, "/api/reports", "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
                 .antMatchers(HttpMethod.POST, "/api/reports").access("isAuthenticated()")

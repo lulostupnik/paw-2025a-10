@@ -149,19 +149,10 @@ public class EventController {
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_EVENT)
-    public Response patchEvent(@PathParam("id") final long id, @Valid final PatchEventForm form) {
-        final Event event = eventService.patchEvent(
-                id,
-                form.getCity(),
-                form.getDate(),
-                form.getDescription(),
-                form.getTitle(),
-                form.getTime(),
-                form.getAddress(),
-                form.getAttendeesLimit()
-        );
-
-        return Response.ok(EventDto.fromEvent(uriInfo, event)).build();
+    @PreAuthorize("@accessHelper.canPatchEvent(#id, #form)")
+    public Response deleteEvent(@PathParam("id") final long id, @Valid final DeleteMessageForm form) {
+        eventService.deleteEvent(id, form != null ? form.getMessage() : null);
+        return Response.noContent().build();
     }
 
 
@@ -174,13 +165,6 @@ public class EventController {
         return CacheUtils.withEtag(req, statistics, () -> EventStatisticsDto.fromEventWithStatistics(uriInfo, statistics));
     }
 
-    @DELETE
-    @Path("/{id}")
-    public Response deleteEvent(@PathParam("id") final long id, @Valid final DeleteMessageForm form) {
-        final String message = form != null ? form.getMessage() : null;
-        eventService.deleteEvent(id, message);
-        return Response.noContent().build();
-    }
 
     // ==================== EVENT FLYER ====================z
 

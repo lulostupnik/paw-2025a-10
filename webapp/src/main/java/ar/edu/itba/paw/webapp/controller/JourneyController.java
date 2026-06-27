@@ -20,7 +20,6 @@ import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 import ar.edu.itba.paw.webapp.form.CreateJourneyResponseForm;
 import ar.edu.itba.paw.webapp.form.CreateTipForm;
 import ar.edu.itba.paw.webapp.form.DeleteMessageForm;
-import ar.edu.itba.paw.webapp.form.PatchJourneyForm;
 import ar.edu.itba.paw.webapp.form.PatchTipForm;
 import ar.edu.itba.paw.webapp.form.UpdateJourneyForm;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
@@ -140,23 +139,9 @@ public class JourneyController {
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_JOURNEY)
-    public Response patchJourney(@PathParam("id") final long id, @Valid final PatchJourneyForm form) {
-        final Journey journey = journeyService.patchJourney(
-                id,
-                form.getDestinationUniversity(),
-                form.getStartDate(),
-                form.getEndDate(),
-                form.getDescription()
-        );
-
-        return Response.ok(JourneyDto.fromJourney(uriInfo, journey)).build();
-    }
-
-    @DELETE
-    @Path("/{id}")
+    @PreAuthorize("@accessHelper.canPatchJourney(#id, #form)")
     public Response deleteJourney(@PathParam("id") final long id, @Valid final DeleteMessageForm form) {
-        final String message = form != null ? form.getMessage() : null;
-        journeyService.deleteJourney(id, message);
+        journeyService.deleteJourney(id, form != null ? form.getMessage() : null);
         return Response.noContent().build();
     }
 
