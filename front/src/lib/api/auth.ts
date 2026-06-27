@@ -107,7 +107,7 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
 
     // Source of truth for profile data (email, admin role) is the user resource, not the JWT.
     // At login we are the resource owner, so the private representation is authorized.
-    const { data } = await apiClient.get<PrivateUserDto>(normalizeApiPath(selfUrl), { headers: { Accept: ContentTypes.USER_PRIVATE } });
+    const { data } = await apiClient.get<PrivateUserDto>(normalizeApiPath(selfUrl), { headers: { Accept: ContentTypes.USER } });
     const email = data.email ?? credentials.email;
     const username = data.username ?? email;
     const isAdmin = data.isAdmin ?? false;
@@ -138,7 +138,7 @@ async function hydrateSessionFromStoredToken(signal?: AbortSignal): Promise<void
     try {
         const { data } = await apiClient.get<PrivateUserDto>(normalizeApiPath(selfUrl), {
             signal,
-            headers: { Accept: ContentTypes.USER_PRIVATE },
+            headers: { Accept: ContentTypes.USER },
         });
         const email = data.email ?? undefined;
         const username = data.username ?? email;

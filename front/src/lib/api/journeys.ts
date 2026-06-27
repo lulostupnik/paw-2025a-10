@@ -144,7 +144,7 @@ export const getUserByUrl = async (url?: string | null, signal?: AbortSignal) =>
     if (!url) {
         return null;
     }
-    const response = await apiClient.get<UserApi>(normalizeApiPath(url), { signal, headers: { Accept: ContentTypes.USER } });
+    const response = await apiClient.get<UserApi>(normalizeApiPath(url), { signal, headers: { Accept: ContentTypes.USER_PUBLIC } });
     return response.data;
 };
 

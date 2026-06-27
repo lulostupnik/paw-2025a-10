@@ -209,8 +209,8 @@ export const deleteReport = async (id: number, signal?: AbortSignal) => {
 
 export const resolveReportListItem = async (report: ReportDto, signal?: AbortSignal): Promise<ReportListItem> => {
     const [reportedUser, reportingUser] = await Promise.all([
-        fetchByUrl<UserDto>(report.links?.reportedUserUrl, ContentTypes.USER, signal),
-        fetchByUrl<UserDto>(report.links?.reportingUserUrl, ContentTypes.USER, signal),
+        fetchByUrl<UserDto>(report.links?.reportedUserUrl, ContentTypes.USER_PUBLIC, signal),
+        fetchByUrl<UserDto>(report.links?.reportingUserUrl, ContentTypes.USER_PUBLIC, signal),
     ]);
 
     return {
@@ -228,8 +228,8 @@ export const resolveReportListItem = async (report: ReportDto, signal?: AbortSig
 export const getReportDetail = async (id: number, signal?: AbortSignal): Promise<ReportDetail> => {
     const report = await getReportById(id, signal);
     const [reportedUser, reportingUser] = await Promise.all([
-        fetchByUrl<UserDto>(report.links?.reportedUserUrl, ContentTypes.USER, signal),
-        fetchByUrl<UserDto>(report.links?.reportingUserUrl, ContentTypes.USER, signal),
+        fetchByUrl<UserDto>(report.links?.reportedUserUrl, ContentTypes.USER_PUBLIC, signal),
+        fetchByUrl<UserDto>(report.links?.reportingUserUrl, ContentTypes.USER_PUBLIC, signal),
     ]);
 
     const journeyId = parseIdFromUrl(report.links?.journeyUrl);
@@ -250,7 +250,7 @@ export const getReportDetail = async (id: number, signal?: AbortSignal): Promise
         ? await fetchByUrl<JourneySummary>(journeyResponseData.links.journeyUrl, ContentTypes.JOURNEY, signal)
         : null;
     const journeyResponseOwner = journeyResponseJourney?.links?.userUrl
-        ? await fetchByUrl<UserDto>(journeyResponseJourney.links.userUrl, ContentTypes.USER, signal)
+        ? await fetchByUrl<UserDto>(journeyResponseJourney.links.userUrl, ContentTypes.USER_PUBLIC, signal)
         : null;
 
     const eventResponseEvent = eventResponseData?.links?.eventUrl

@@ -84,7 +84,7 @@ interface UserRatingApi {
 }
 
 export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSignal): Promise<PageResult<UserPrivateApi>> => {
-    const response = await apiClient.get<UserPrivateApi[]>("/users", { params, signal, headers: { Accept: ContentTypes.USER_PRIVATE_LIST } });
+    const response = await apiClient.get<UserPrivateApi[]>("/users", { params, signal, headers: { Accept: ContentTypes.USER_LIST } });
     return toPaged(response);
 };
 
@@ -128,12 +128,12 @@ export const updateUserProfilePicture = async (
 };
 
 export const getProfileDetail = async (id: string | number, signal?: AbortSignal): Promise<ProfileDetail> => {
-    const response = await apiClient.get<ProfileDetail>(`/users/${id}`, { signal, headers: { Accept: ContentTypes.USER } });
+    const response = await apiClient.get<ProfileDetail>(`/users/${id}`, { signal, headers: { Accept: ContentTypes.USER_PUBLIC } });
     return response.data
 }
 
 export const getUserPrivateById = async (id: number | string, signal?: AbortSignal): Promise<UserPrivateApi> => {
-    const response = await apiClient.get<UserPrivateApi>(`/users/${id}`, { signal, headers: { Accept: ContentTypes.USER_PRIVATE } });
+    const response = await apiClient.get<UserPrivateApi>(`/users/${id}`, { signal, headers: { Accept: ContentTypes.USER } });
     return response.data;
 };
 

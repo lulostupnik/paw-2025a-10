@@ -55,7 +55,7 @@ public class UserController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(CustomMediaType.APPLICATION_USER_PRIVATE_LIST)
+    @Produces(CustomMediaType.APPLICATION_USER_LIST)
     public Response listUsers(
             @QueryParam("attendingEvent") Long attendingEventId,
             @QueryParam("university") Long universityId,
@@ -74,22 +74,22 @@ public class UserController {
 
     @GET
     @Path("/{id}")
-    @Produces(CustomMediaType.APPLICATION_USER)
+    @Produces(CustomMediaType.APPLICATION_USER_PUBLIC)
     public Response getById(@Context Request req, @PathParam("id") final long id) {
         final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
-        // Vary the ETag by media type so the public and private representations never share an ETag.
-        return CacheUtils.withEtag(req, user, CustomMediaType.APPLICATION_USER,
+        // Vary the ETag by media type so the public and full representations never share an ETag.
+        return CacheUtils.withEtag(req, user, CustomMediaType.APPLICATION_USER_PUBLIC,
                 () -> UserDto.fromUser(uriInfo, user));
     }
 
     @GET
     @Path("/{id}")
-    @Produces(CustomMediaType.APPLICATION_USER_PRIVATE)
+    @Produces(CustomMediaType.APPLICATION_USER)
     @PreAuthorize("hasRole('ADMIN') or @accessHelper.isCurrentUser(#id)")
     public Response getByIdAdmin(@Context Request req, @PathParam("id") final long id) {
         final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
-        return CacheUtils.privateWithEtag(req, user, CustomMediaType.APPLICATION_USER_PRIVATE,
-                () -> UserPrivateDto.fromUser(uriInfo, user)); //@TODO creo que tiene sentido, usa mismo hash para el modelo USER, pero distingue el media type.
+        return CacheUtils.privateWithEtag(req, user, CustomMediaType.APPLICATION_USER,  ////@TODO creo que tiene sentido, usa mismo hash para el modelo USER, pero distingue el media type.
+                () -> UserPrivateDto.fromUser(uriInfo, user));
     }
 
     @POST
