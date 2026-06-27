@@ -204,7 +204,7 @@ export default function EventsListPage() {
                     next.set("sort", id);
                 }
                 return next;
-            }, { replace: true });
+            });
         },
         [closeSort, setSearchParams]
     );
@@ -219,7 +219,7 @@ export default function EventsListPage() {
                     next.set("tab", tab);
                 }
                 return next;
-            }, { replace: true });
+            });
         },
         [setSearchParams]
     );
@@ -236,7 +236,7 @@ export default function EventsListPage() {
                 }
                 next.delete("page");
                 return next;
-            }, { replace: true });
+            });
         },
         [setSearchParams]
     );
@@ -249,13 +249,13 @@ export default function EventsListPage() {
                     const next = new URLSearchParams(prev);
                     next.set('page', pageNumber);
                     return next;
-                }, { replace: true });
+                });
             } else {
                 setSearchParams((prev) => {
                     const next = new URLSearchParams(prev);
                     next.set("page", page.toString())
                     return next
-                }, {replace: true})
+                })
             }
         },
         [setSearchParams]

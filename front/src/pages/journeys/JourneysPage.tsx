@@ -165,7 +165,7 @@ export default function JourneysListPage() {
                 next.set("sort", id);
             }
             return next;
-        }, { replace: true });
+        });
     }, [closeSort, setSearchParams]);
 
     const handleTabChange = useCallback(
@@ -178,7 +178,7 @@ export default function JourneysListPage() {
                     next.set("tab", tab);
                 }
                 return next;
-            }, { replace: true });
+            });
         },
         [setSearchParams]
     );
@@ -195,7 +195,7 @@ export default function JourneysListPage() {
                 }
                 next.delete("page");
                 return next;
-            }, { replace: true });
+            });
         },
         [setSearchParams]
     );
@@ -208,13 +208,13 @@ export default function JourneysListPage() {
                     const next = new URLSearchParams(prev);
                     next.set('page', pageNumber);
                     return next;
-                }, { replace: true });
+                });
             } else {
                 setSearchParams((prev) => {
                     const next = new URLSearchParams(prev);
                     next.set("page", page.toString())
                     return next
-                }, {replace: true})
+                })
             }
         },
         [setSearchParams]

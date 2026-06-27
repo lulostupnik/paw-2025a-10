@@ -117,14 +117,14 @@ export function useUrlSyncedListingFilters(): ListingFiltersController {
     const applyFilters = useCallback(
         (next: ListingFiltersState) => {
             setFilters(cloneFilters(next));
-            setSearchParams((prev) => applyFiltersToParams(prev, next), { replace: true });
+            setSearchParams((prev) => applyFiltersToParams(prev, next));
         },
         [setSearchParams]
     );
 
     const resetFilters = useCallback(() => {
         setFilters(cloneFilters(EMPTY_LISTING_FILTERS));
-        setSearchParams((prev) => applyFiltersToParams(prev, EMPTY_LISTING_FILTERS), { replace: true });
+        setSearchParams((prev) => applyFiltersToParams(prev, EMPTY_LISTING_FILTERS));
     }, [setSearchParams]);
 
     return { filters, applyFilters, resetFilters };
