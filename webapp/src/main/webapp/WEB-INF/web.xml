@@ -49,31 +49,6 @@
     </init-param>
   </filter>
 
-
-<!--  <servlet>-->
-<!--    <servlet-name>dispatcher</servlet-name>-->
-<!--    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
-<!--    <init-param>-->
-<!--      <param-name>contextClass</param-name>-->
-<!--      <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>-->
-<!--    </init-param>-->
-<!--    <load-on-startup>1</load-on-startup>-->
-<!--    <multipart-config>-->
-<!--      <max-file-size>10485760</max-file-size>-->
-<!--      <max-request-size>20971520</max-request-size>-->
-<!--      <file-size-threshold>5242880</file-size-threshold>-->
-<!--    </multipart-config>-->
-<!--  </servlet>-->
-
-<!--  <servlet-mapping>-->
-<!--    <servlet-name>dispatcher</servlet-name>-->
-<!--    <url-pattern>/</url-pattern>-->
-<!--  </servlet-mapping>-->
-
-<!--  <servlet-mapping>-->
-<!--    <servlet-name>default</servlet-name>-->
-<!--    <url-pattern>*.css</url-pattern>-->
-<!--  </servlet-mapping>-->
   <filter>
     <filter-name>springSecurityFilterChain</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>

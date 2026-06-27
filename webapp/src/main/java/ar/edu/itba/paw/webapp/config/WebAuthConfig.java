@@ -21,7 +21,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -50,8 +49,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private AccessHelper accessHelper;
     @Autowired
-    private CustomAuthenticationFailureHandler failureHandler;
-    @Autowired
     private JwtFilter jwtTokenFilter;
 
     @Autowired
@@ -76,11 +73,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AuthEntryPointHandler authEntryPointHandler() {
-        return new AuthEntryPointHandler();
-    }
-
-    @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
@@ -100,7 +92,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and().authorizeRequests()
                 // Allow CORS preflight requests to pass through security.
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers("/register", "/login", "/reset-password", "/forgot_pass", "/validate", "/not-verified").anonymous()
 
                 .antMatchers(HttpMethod.HEAD, "/api/").access("isAuthenticated()")
                 .antMatchers(HttpMethod.GET, "/api/").permitAll()
@@ -230,12 +221,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         objectMapper.writeValue(response.getWriter(), ErrorDto.fromException(status, message));
     }
 
-    @Override
-    public void configure(final WebSecurity web) throws Exception {
-        web.ignoring()
-                .antMatchers("/resources/css/**", "/resources/js/**", "/resources/images/**",
-                        "/resources/favicon.ico", "/errors/*", "/resources/icons/**");
-    }
     @Bean
     public JwtUtils jwtTokenUtil(@Value("${jwtSecret.key}") String jwtSecret) {
         return new JwtUtils(jwtSecret);

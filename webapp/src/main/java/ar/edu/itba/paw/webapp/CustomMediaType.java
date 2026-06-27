@@ -32,9 +32,6 @@ public final class CustomMediaType {
     public static final String APPLICATION_EVENT_RATING = "application/vnd.gotogether.event-rating.v1+json";
     public static final String APPLICATION_EVENT_RATING_LIST = "application/vnd.gotogether.event-rating-list.v1+json";
 
-    // --- EVENT DELETE ---
-    public static final String APPLICATION_EVENT_DELETE = "application/vnd.gotogether.event-delete.v1+json";
-
     // --- JOURNEYS ---
     public static final String APPLICATION_JOURNEY = "application/vnd.gotogether.journey.v1+json";
     public static final String APPLICATION_JOURNEY_LIST = "application/vnd.gotogether.journey-list.v1+json";
@@ -42,9 +39,6 @@ public final class CustomMediaType {
     // --- JOURNEY RESPONSES ---
     public static final String APPLICATION_JOURNEY_RESPONSE = "application/vnd.gotogether.journey-response.v1+json";
     public static final String APPLICATION_JOURNEY_RESPONSE_LIST = "application/vnd.gotogether.journey-response-list.v1+json";
-
-    // --- JOURNEY DELETE ---
-    public static final String APPLICATION_JOURNEY_DELETE = "application/vnd.gotogether.journey-delete.v1+json";
 
     // --- TIPS ---
     public static final String APPLICATION_TIP = "application/vnd.gotogether.tip.v1+json";
