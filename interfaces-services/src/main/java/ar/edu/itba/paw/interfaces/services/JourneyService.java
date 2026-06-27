@@ -20,7 +20,7 @@ public interface JourneyService {
     void deleteJourneyResponse(long journeyId, long responseId, String message);
 
     Page<Journey> findJourneys(String search, PageParams pageParams);
-    Page<Journey> findJourneys(String search, Long userId, SortFieldJourney sortBy, SortDirection direction, String city, String university, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing, PageParams pageParams);
+    Page<Journey> findJourneys(String search, Long excludeUserId, Long destinationCityId, SortFieldJourney sortBy, SortDirection direction, String city, String university, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isOngoing, PageParams pageParams);
     Optional<Journey> findJourneyById(long id);
 
     boolean existsByUserEmail(String email);

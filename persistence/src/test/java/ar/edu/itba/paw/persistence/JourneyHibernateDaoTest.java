@@ -367,6 +367,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             null,
             USER_1_ID,
+            CITY_2_ID,
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
             CITY_1_NAME,
@@ -374,7 +375,6 @@ public class JourneyHibernateDaoTest {
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             INTEREST_1_NAME,
-            true,
             false,
             false,
             PAGE_1_BIG
@@ -391,6 +391,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             null,
             USER_1_ID,
+            CITY_2_ID,
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
             null,
@@ -398,7 +399,6 @@ public class JourneyHibernateDaoTest {
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             INTEREST_1_NAME,
-            true,
             false,
             false,
             PAGE_1_BIG
@@ -415,6 +415,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             USER_1_NAME,
             null,
+            null,
             SortFieldJourney.END_DATE,
             SortDirection.ASC,
             null,
@@ -422,7 +423,6 @@ public class JourneyHibernateDaoTest {
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             INTEREST_1_NAME,
-            true,
             false,
             false,
             PAGE_1_BIG
@@ -440,14 +440,14 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             USER_1_NAME,
             USER_1_ID,
+            null,
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
-            CITY_1_NAME, 
+            CITY_1_NAME,
             null,
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             null,
-            false,
             false,
             false,
             PAGE_1_BIG
@@ -464,6 +464,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             USER_1_NAME,
             null,
+            null,
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
             "",
@@ -471,7 +472,6 @@ public class JourneyHibernateDaoTest {
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             null,
-            true,
             false,
             false,
             PAGE_1_BIG
@@ -489,6 +489,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             USER_2_NAME,
             null,
+            null,
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
             "",
@@ -496,7 +497,6 @@ public class JourneyHibernateDaoTest {
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             null,
-            false,
             false,
             false,
             PAGE_1_BIG
@@ -514,6 +514,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             USER_1_NAME,
             null,
+            null,
             SortFieldJourney.START_DATE,
             SortDirection.ASC,
             "",
@@ -521,7 +522,6 @@ public class JourneyHibernateDaoTest {
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             "",
-            false,
             false,
             false,
             PAGE_1_BIG
@@ -539,6 +539,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             null,
             USER_1_ID,
+            null,
             SortFieldJourney.START_DATE,
             SortDirection.DESC,
             null,
@@ -546,7 +547,6 @@ public class JourneyHibernateDaoTest {
             JOURNEY_START_DATE,
             JOURNEY_END_DATE,
             null,
-            false,
             false,
             false,
             PAGE_1_BIG
@@ -564,13 +564,13 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             null,
+            null,
             SortDirection.DESC,
             null,
             null,
             null,
             null,
             null,
-            false,
             false,
             false,
             PAGE_1_BIG
@@ -588,6 +588,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             "",
             null,
+            null,
             SortFieldJourney.START_DATE,
             SortDirection.DESC,
             "",
@@ -595,7 +596,6 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             "",
-            false,
             false,
             false,
             PAGE_1_BIG
@@ -614,6 +614,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             USER_2_NAME,
             null,
+            null,
             SortFieldJourney.START_DATE,
             SortDirection.DESC,
             null,
@@ -621,7 +622,6 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             null,
-            false,
             false,
             false,
             PAGE_1_BIG
@@ -639,6 +639,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             USER_2_NAME,
             null,
+            null,
             SortFieldJourney.START_DATE,
             SortDirection.DESC,
             null,
@@ -646,7 +647,6 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             null,
-            false,
             true,
             false,
             PAGE_1_BIG
@@ -664,6 +664,7 @@ public class JourneyHibernateDaoTest {
         Page<Journey> page = journeyDao.search(
             USER_2_NAME,
             null,
+            null,
             SortFieldJourney.START_DATE,
             SortDirection.DESC,
             null,
@@ -671,7 +672,6 @@ public class JourneyHibernateDaoTest {
             null,
             null,
             null,
-            false,
             false,
             true,
             PAGE_1_BIG

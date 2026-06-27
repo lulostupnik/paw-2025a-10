@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { getCityByUrl, getJourneyById, getUniversityByUrl } from "@/lib/api/journeys";
 import ListingLayout from "@/components/listing/ListingLayout";
 import JourneyCard from "@/components/journeys/JourneyCard";
 import EmptyState from "@/components/EmptyState";
@@ -35,8 +37,17 @@ export default function JourneysListPage() {
     const { data: profile } = useProfileDetail({ profileId: "me", enabled: logged });
     const journeyId = parseIdFromUrl(profile?.links?.journeyUrl);
     const hasJourney = Boolean(journeyId);
-    // "My Destination" derives the destination from the user's own journey; without one the API returns 400.
     const canSeeMyDestination = logged && hasJourney;
+    const { data: myDestinationCityId } = useQuery({
+        queryKey: ["my-destination-city", journeyId],
+        enabled: canSeeMyDestination && journeyId != null,
+        queryFn: async ({ signal }) => {
+            const journey = await getJourneyById(journeyId as number, signal);
+            const university = await getUniversityByUrl(journey?.links?.destinationUniversityUrl, signal);
+            const city = university?.links?.cityUrl ? await getCityByUrl(university.links.cityUrl, signal) : null;
+            return city?.id ?? null;
+        },
+    });
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [sortOpen, setSortOpen] = useState(false);
     const filtersButtonRef = useRef<HTMLButtonElement>(null);
@@ -119,7 +130,8 @@ export default function JourneysListPage() {
         upcoming: activeTab === "upcoming",
         past: activeTab === "past",
         ongoing: activeTab === "ongoing",
-        myDestination: canSeeMyDestination && activeTab === "myDestination",
+        destinationCity: activeTab === "myDestination" ? (myDestinationCityId ?? undefined) : undefined,
+        excludeUser: logged && profile?.id ? profile.id : undefined,
         search: appliedSearch || undefined,
         sort: selectedSort.includes("start") ? "start_date" : "end_date",
         direction: selectedSort.endsWith("desc") ? "desc" : "asc",

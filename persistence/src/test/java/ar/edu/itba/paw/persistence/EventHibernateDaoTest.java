@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.City;
@@ -71,6 +72,21 @@ public class EventHibernateDaoTest {
         em.flush();
 
         assertEqualsEvent(event, Map.of("id", event.getId(), "attendees", 1));
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, EVENT_TABLE,
+                "id = " + event.getId()
+                    + " AND user_id = " + USER_1_ID
+                    + " AND city_id = " + CITY_1_ID
+                    + " AND flyer_image_id = " + IMAGE_1_ID
+                    + " AND title = '" + EVENT_TITLE_DEFAULT + "'"
+                    + " AND description = '" + EVENT_DESCRIPTION_DEFAULT + "'"
+                    + " AND address = '" + EVENT_ADDRESS_DEFAULT + "'"
+                    + " AND attendees_limit = " + EVENT_ATTENDANCE_LIMIT_DEFAULT
+                    + " AND deleted = FALSE"
+            )
+        );
     }
     @Test
     public void testCreateNoAddress(){
@@ -92,6 +108,21 @@ public class EventHibernateDaoTest {
         eventParams.put("attendees", 1);
         eventParams.put("address", null);
         assertEqualsEvent(event, eventParams);
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, EVENT_TABLE,
+                "id = " + event.getId()
+                    + " AND user_id = " + USER_1_ID
+                    + " AND city_id = " + CITY_1_ID
+                    + " AND flyer_image_id = " + IMAGE_1_ID
+                    + " AND title = '" + EVENT_TITLE_DEFAULT + "'"
+                    + " AND description = '" + EVENT_DESCRIPTION_DEFAULT + "'"
+                    + " AND address IS NULL"
+                    + " AND attendees_limit = " + EVENT_ATTENDANCE_LIMIT_DEFAULT
+                    + " AND deleted = FALSE"
+            )
+        );
     }
     @Test
     public void testCreateNoAddressNoLimit(){
@@ -114,6 +145,21 @@ public class EventHibernateDaoTest {
         eventParams.put("address", null);
         eventParams.put("limit", null);
         assertEqualsEvent(event, eventParams);
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, EVENT_TABLE,
+                "id = " + event.getId()
+                    + " AND user_id = " + USER_1_ID
+                    + " AND city_id = " + CITY_1_ID
+                    + " AND flyer_image_id = " + IMAGE_1_ID
+                    + " AND title = '" + EVENT_TITLE_DEFAULT + "'"
+                    + " AND description = '" + EVENT_DESCRIPTION_DEFAULT + "'"
+                    + " AND address IS NULL"
+                    + " AND attendees_limit IS NULL"
+                    + " AND deleted = FALSE"
+            )
+        );
     }
     @Test
     public void testCreateNoAddressNoLimitNoTime(){
@@ -137,6 +183,22 @@ public class EventHibernateDaoTest {
         eventParams.put("limit", null);
         eventParams.put("time", null);
         assertEqualsEvent(event, eventParams);
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, EVENT_TABLE,
+                "id = " + event.getId()
+                    + " AND user_id = " + USER_1_ID
+                    + " AND city_id = " + CITY_1_ID
+                    + " AND flyer_image_id = " + IMAGE_1_ID
+                    + " AND title = '" + EVENT_TITLE_DEFAULT + "'"
+                    + " AND description = '" + EVENT_DESCRIPTION_DEFAULT + "'"
+                    + " AND address IS NULL"
+                    + " AND attendees_limit IS NULL"
+                    + " AND event_time IS NULL"
+                    + " AND deleted = FALSE"
+            )
+        );
     }
     @Test(expected = PersistenceException.class)
     public void testCreateWrongUser(){
@@ -199,6 +261,21 @@ public class EventHibernateDaoTest {
         eventParams.put("attendees", 1);
         eventParams.put("description", null);
         assertEqualsEvent(event, eventParams);
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, EVENT_TABLE,
+                "id = " + event.getId()
+                    + " AND user_id = " + USER_1_ID
+                    + " AND city_id = " + CITY_1_ID
+                    + " AND flyer_image_id = " + IMAGE_1_ID
+                    + " AND title = '" + EVENT_TITLE_DEFAULT + "'"
+                    + " AND description IS NULL"
+                    + " AND address = '" + EVENT_ADDRESS_DEFAULT + "'"
+                    + " AND attendees_limit = " + EVENT_ATTENDANCE_LIMIT_DEFAULT
+                    + " AND deleted = FALSE"
+            )
+        );
     }
     @Test(expected = PersistenceException.class)
     public void testCreateWrongImage(){

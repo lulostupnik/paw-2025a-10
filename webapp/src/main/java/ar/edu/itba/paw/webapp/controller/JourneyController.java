@@ -60,14 +60,14 @@ public class JourneyController {
             @QueryParam("upcoming") @DefaultValue("false") boolean upcoming,
             @QueryParam("past") @DefaultValue("false") boolean past,
             @QueryParam("ongoing") @DefaultValue("false") boolean ongoing,
-            @QueryParam("myDestination") @DefaultValue("false") boolean myDestination,
+            @QueryParam("destinationCity") Long destinationCity,
+            @QueryParam("excludeUser") Long excludeUser,
             @QueryParam("search") String search,
             @QueryParam("sort") String sort,
             @QueryParam("direction") String direction,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("8") int size
     ) {
-        final Long userId = AuthUtils.getCurrentUserId();
         final LocalDate startDate = DateUtils.parseDate(startDateStr);
         final LocalDate endDate = DateUtils.parseDate(endDateStr);
         final SortFieldJourney sortField = SortFieldJourney.from(sort);
@@ -75,7 +75,8 @@ public class JourneyController {
 
         final Page<Journey> journeys = journeyService.findJourneys(
                 search,
-                userId,
+                excludeUser,
+                destinationCity,
                 sortField,
                 sortDirection,
                 city,
@@ -85,7 +86,6 @@ public class JourneyController {
                 interest,
                 past,
                 upcoming,
-                myDestination,
                 ongoing,
                 new PageParams(page, size)
         );

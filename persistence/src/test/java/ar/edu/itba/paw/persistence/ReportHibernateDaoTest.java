@@ -60,15 +60,35 @@ public class ReportHibernateDaoTest {
                 null, 
                 USER_1, 
                 USER_2, 
-                REPORT_USER_DESC, 
-                HARASSMENT, 
-                null, 
-                null, 
-                null, 
-                null, 
-                false, 
-                ReportStatus.PENDING), 
+                REPORT_USER_DESC,
+                HARASSMENT,
+                null,
+                null,
+                null,
+                null,
+                false,
+                ReportStatus.PENDING),
             report
+        );
+
+        assertEquals(
+            TOTAL_REPORTS + 1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "deleted = FALSE")
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, REPORT_TABLE,
+                "id = " + report.getId()
+                    + " AND reported_user_id = " + USER_1_ID
+                    + " AND reporting_user_id = " + USER_2_ID
+                    + " AND description = '" + REPORT_USER_DESC + "'"
+                    + " AND reason = '" + HARASSMENT.name() + "'"
+                    + " AND status = '" + ReportStatus.PENDING.name() + "'"
+                    + " AND deleted = FALSE"
+                    + " AND journey_id IS NULL AND event_id IS NULL"
+                    + " AND event_response_id IS NULL AND journey_response_id IS NULL"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -171,15 +191,36 @@ public class ReportHibernateDaoTest {
                 null, 
                 USER_1, 
                 USER_2, 
-                REPORT_JOURNEY_DESC, 
-                HARASSMENT, 
-                JOURNEY_1, 
-                null, 
-                null, 
-                null, 
-                false, 
-                ReportStatus.PENDING), 
+                REPORT_JOURNEY_DESC,
+                HARASSMENT,
+                JOURNEY_1,
+                null,
+                null,
+                null,
+                false,
+                ReportStatus.PENDING),
             report
+        );
+
+        assertEquals(
+            TOTAL_REPORTS + 1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "deleted = FALSE")
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, REPORT_TABLE,
+                "id = " + report.getId()
+                    + " AND reported_user_id = " + USER_1_ID
+                    + " AND reporting_user_id = " + USER_2_ID
+                    + " AND description = '" + REPORT_JOURNEY_DESC + "'"
+                    + " AND reason = '" + HARASSMENT.name() + "'"
+                    + " AND status = '" + ReportStatus.PENDING.name() + "'"
+                    + " AND deleted = FALSE"
+                    + " AND journey_id = " + JOURNEY_1_ID
+                    + " AND event_id IS NULL"
+                    + " AND event_response_id IS NULL AND journey_response_id IS NULL"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -305,15 +346,36 @@ public class ReportHibernateDaoTest {
                 null, 
                 USER_1, 
                 USER_2, 
-                REPORT_JOURNEY_RESPONSE_DESC, 
-                HARASSMENT, 
-                null, 
-                null, 
-                null, 
-                JOURNEY_RESPONSE_1, 
-                false, 
-                ReportStatus.PENDING), 
+                REPORT_JOURNEY_RESPONSE_DESC,
+                HARASSMENT,
+                null,
+                null,
+                null,
+                JOURNEY_RESPONSE_1,
+                false,
+                ReportStatus.PENDING),
             report
+        );
+
+        assertEquals(
+            TOTAL_REPORTS + 1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "deleted = FALSE")
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, REPORT_TABLE,
+                "id = " + report.getId()
+                    + " AND reported_user_id = " + USER_1_ID
+                    + " AND reporting_user_id = " + USER_2_ID
+                    + " AND description = '" + REPORT_JOURNEY_RESPONSE_DESC + "'"
+                    + " AND reason = '" + HARASSMENT.name() + "'"
+                    + " AND status = '" + ReportStatus.PENDING.name() + "'"
+                    + " AND deleted = FALSE"
+                    + " AND journey_response_id = " + JOURNEY_RESPONSE_1_ID
+                    + " AND journey_id IS NULL AND event_id IS NULL"
+                    + " AND event_response_id IS NULL"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -422,15 +484,36 @@ public class ReportHibernateDaoTest {
                 null, 
                 USER_1, 
                 USER_2, 
-                REPORT_EVENT_DESC, 
-                HARASSMENT, 
-                null, 
-                EVENT_1, 
-                null, 
-                null, 
-                false, 
-                ReportStatus.PENDING), 
+                REPORT_EVENT_DESC,
+                HARASSMENT,
+                null,
+                EVENT_1,
+                null,
+                null,
+                false,
+                ReportStatus.PENDING),
             report
+        );
+
+        assertEquals(
+            TOTAL_REPORTS + 1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "deleted = FALSE")
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, REPORT_TABLE,
+                "id = " + report.getId()
+                    + " AND reported_user_id = " + USER_1_ID
+                    + " AND reporting_user_id = " + USER_2_ID
+                    + " AND description = '" + REPORT_EVENT_DESC + "'"
+                    + " AND reason = '" + HARASSMENT.name() + "'"
+                    + " AND status = '" + ReportStatus.PENDING.name() + "'"
+                    + " AND deleted = FALSE"
+                    + " AND event_id = " + EVENT_1_ID
+                    + " AND journey_id IS NULL"
+                    + " AND event_response_id IS NULL AND journey_response_id IS NULL"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -560,15 +643,36 @@ public class ReportHibernateDaoTest {
                 null, 
                 USER_1, 
                 USER_2, 
-                REPORT_EVENT_RESPONSE_DESC, 
-                HARASSMENT, 
-                null, 
-                null, 
-                EVENT_RESPONSE_1, 
-                null, 
-                false, 
-                ReportStatus.PENDING), 
+                REPORT_EVENT_RESPONSE_DESC,
+                HARASSMENT,
+                null,
+                null,
+                EVENT_RESPONSE_1,
+                null,
+                false,
+                ReportStatus.PENDING),
             report
+        );
+
+        assertEquals(
+            TOTAL_REPORTS + 1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "deleted = FALSE")
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, REPORT_TABLE,
+                "id = " + report.getId()
+                    + " AND reported_user_id = " + USER_1_ID
+                    + " AND reporting_user_id = " + USER_2_ID
+                    + " AND description = '" + REPORT_EVENT_RESPONSE_DESC + "'"
+                    + " AND reason = '" + HARASSMENT.name() + "'"
+                    + " AND status = '" + ReportStatus.PENDING.name() + "'"
+                    + " AND deleted = FALSE"
+                    + " AND event_response_id = " + EVENT_RESPONSE_1_ID
+                    + " AND journey_id IS NULL AND event_id IS NULL"
+                    + " AND journey_response_id IS NULL"
+            )
         );
     }
     @Test(expected = PersistenceException.class)

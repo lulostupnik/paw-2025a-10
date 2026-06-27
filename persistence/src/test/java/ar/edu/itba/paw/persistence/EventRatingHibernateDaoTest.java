@@ -62,6 +62,18 @@ public class EventRatingHibernateDaoTest {
         assertEqualsUser(USER_3, rating.getUser());
         assertEquals(EVENT_1_USER_1_RATING, rating.getRating(), 0.1);
         assertTrue(rating.getId() > 1);
+
+        assertEquals(
+            TOTAL_RATINGS + 1,
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, RATING_TABLE)
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, RATING_TABLE,
+                "id = " + rating.getId() + " AND user_id = " + USER_3_ID + " AND event_id = " + EVENT_1_ID + " AND rating = " + EVENT_1_USER_1_RATING
+            )
+        );
     }
     @Test(expected = PersistenceException.class)
     public void testRateEventRatingTooHigh(){

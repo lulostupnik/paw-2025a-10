@@ -90,7 +90,8 @@ export interface FetchJourneysParams {
     upcoming?: boolean;
     past?: boolean;
     ongoing?: boolean;
-    myDestination?: boolean;
+    destinationCity?: number;
+    excludeUser?: number;
     search?: string;
     sort?: string;
     direction?: string;

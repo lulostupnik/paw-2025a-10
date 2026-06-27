@@ -207,18 +207,17 @@ public class JourneyServiceImpl implements JourneyService {
     private Page<Journey> searchByTerm(final String searchTerm, final PageParams pageParams){
         return journeyDao.search(
                 searchTerm,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                false,
-                false,
-                false,
-
+                null,   // excludeUserId
+                null,   // destinationCityId
+                null,   // orderBy
+                null,   // direction
+                null,   // city
+                null,   // university
+                null,   // startDate
+                null,   // endDate
+                null,   // interest
+                false,  // isUpcoming
+                false,  // isPast
                 pageParams
         );
     }
@@ -257,15 +256,11 @@ public class JourneyServiceImpl implements JourneyService {
 
 
     @Override
-    public Page<Journey> findJourneys(final String search, final Long userId, final SortFieldJourney sortBy, final SortDirection direction, final String city,
+    public Page<Journey> findJourneys(final String search, final Long excludeUserId, final Long destinationCityId, final SortFieldJourney sortBy, final SortDirection direction, final String city,
                                       final String university, final LocalDate startDate, final LocalDate endDate, final String interest,
-                                      final boolean isPast, final boolean isUpcoming, final boolean isMyDestination, final boolean isOngoing,
+                                      final boolean isPast, final boolean isUpcoming, final boolean isOngoing,
                                       final PageParams pageParams) {
         validateMutuallyExclusiveTimeFilters(isPast, isUpcoming, isOngoing);
-
-        if (userId != null && isMyDestination) {
-            journeyDao.findByUserId(userId).orElseThrow(() -> new UserHasNoJourneyException(userId));
-        }
 
         LocalDate adjustedStartDate = startDate;
         LocalDate adjustedEndDate = endDate;
@@ -282,7 +277,8 @@ public class JourneyServiceImpl implements JourneyService {
 
         return journeyDao.search(
                 search,
-                userId,
+                excludeUserId,
+                destinationCityId,
                 sortBy,
                 direction,
                 city,
@@ -290,7 +286,6 @@ public class JourneyServiceImpl implements JourneyService {
                 adjustedStartDate,
                 adjustedEndDate,
                 interest,
-                isMyDestination,
                 isUpcoming,
                 isPast,
                 pageParams

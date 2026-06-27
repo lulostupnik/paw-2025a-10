@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.Event;
@@ -81,13 +82,21 @@ public class EventResponseHibernateDaoTest {
 
         assertEqualsEventReply(
             new EventResponse(
-                reply.getId(), 
-                USER_1, 
-                EVENT_1, 
-                RESPONSE_MESSAGE, 
+                reply.getId(),
+                USER_1,
+                EVENT_1,
+                RESPONSE_MESSAGE,
                 LocalDateTime.now()
-                ), 
+                ),
             reply
+        );
+
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, EVENT_REPLY_TABLE,
+                "id = " + reply.getId() + " AND user_id = " + USER_1_ID + " AND event_id = " + EVENT_1_ID + " AND message = '" + RESPONSE_MESSAGE + "' AND deleted = FALSE"
+            )
         );
     }
     @Test(expected = PersistenceException.class)

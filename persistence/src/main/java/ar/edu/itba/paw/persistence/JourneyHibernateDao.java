@@ -122,9 +122,9 @@ public class JourneyHibernateDao implements JourneyDao {
         };
     }
     @Override
-    public Page<Journey> search(final String searchTerm, final Long userId, final SortFieldJourney orderBy, final SortDirection direction,
+    public Page<Journey> search(final String searchTerm, final Long excludeUserId, final Long destinationCityId, final SortFieldJourney orderBy, final SortDirection direction,
                                 final String city, final String university, final LocalDate startDate, final LocalDate endDate, final String interest,
-                                final boolean isMyDestination, final boolean isUpcoming, final boolean isPast, final PageParams pageParams) {
+                                final boolean isUpcoming, final boolean isPast, final PageParams pageParams) {
 
         final String pattern = likePattern(searchTerm);
 
@@ -170,9 +170,9 @@ public class JourneyHibernateDao implements JourneyDao {
             paramMap.put("university", university);
         }
 
-        if (userId != null) {
-            filters.add("j.user_id != :userId");
-            paramMap.put("userId", userId);
+        if (excludeUserId != null) {
+            filters.add("j.user_id != :excludeUserId");
+            paramMap.put("excludeUserId", excludeUserId);
         }
         if(isUpcoming){
             filters.add("j.start_date > CURRENT_DATE");
@@ -215,7 +215,7 @@ public class JourneyHibernateDao implements JourneyDao {
         }
 
 
-        if (isMyDestination && userId != null) {
+        if (destinationCityId != null) {
             if (!joinedUnis){
                 countSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
                         .append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
@@ -223,17 +223,8 @@ public class JourneyHibernateDao implements JourneyDao {
                         .append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
                 joinedUnis = true;
             }
-            filters.add("""
-            ci2.id = (
-                SELECT ci3.id
-                FROM journeys j2
-                JOIN universities un3 ON j2.destination_university_id = un3.id
-                JOIN cities ci3 ON un3.city_id = ci3.id
-                WHERE j2.user_id = :userId
-                LIMIT 1
-            )
-        """);
-            paramMap.put("userId", userId);
+            filters.add("ci2.id = :destinationCityId");
+            paramMap.put("destinationCityId", destinationCityId);
         }
 
         countSql.append(" WHERE j.deleted = FALSE ");

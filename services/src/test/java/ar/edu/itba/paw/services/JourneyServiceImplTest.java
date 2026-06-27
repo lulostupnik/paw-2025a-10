@@ -47,7 +47,6 @@ import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.models.exceptions.MutuallyExclusiveFiltersException;
 import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
-import ar.edu.itba.paw.models.exceptions.UserHasNoJourneyException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserWithActiveJourneyException;
 
@@ -415,8 +414,9 @@ public class JourneyServiceImplTest {
     public void testFindJourneysQuery(){
         when(
             journeyDao.search(
-                eq(EMAIL), 
-                eq(null),   //userID
+                eq(EMAIL),
+                eq(null),   //excludeUserId
+                any(),      //destinationCityId
                 eq(null),   //orderBy
                 eq(null),   //direction
                 eq(null),   //city
@@ -424,7 +424,6 @@ public class JourneyServiceImplTest {
                 eq(null),   //startDate
                 eq(null),   //endDate
                 eq(null),   //interest
-                eq(false),  //isMyDestination
                 eq(false),  //isUpcoming
                 eq(false),  //isPast
                 any(PageParams.class)
@@ -474,12 +473,10 @@ public class JourneyServiceImplTest {
     @Test
     public void testFindJourneysCurrentNoDateChange(){
         when(
-            journeyDao.findByUserId(eq(USER_ID_WITH_JOURNEY))
-        ).thenReturn(Optional.of(JOURNEY));
-        when(
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -487,7 +484,6 @@ public class JourneyServiceImplTest {
                 eq(START_DATE),
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
-                eq(true),
                 eq(false),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -497,6 +493,7 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -506,7 +503,6 @@ public class JourneyServiceImplTest {
             INTEREST_NAME,
             false,
             false,
-            true,
             true,
             PAGE_1_DEFAULT
         );
@@ -519,6 +515,7 @@ public class JourneyServiceImplTest {
         journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -529,19 +526,16 @@ public class JourneyServiceImplTest {
             true,
             true,
             true,
-            true,
             PAGE_1_DEFAULT
         );
     }
     @Test
     public void testFindJourneysCurrentDateChange(){        
         when(
-            journeyDao.findByUserId(eq(USER_ID_WITH_JOURNEY))
-        ).thenReturn(Optional.of(JOURNEY));
-        when(
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -549,7 +543,6 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
-                eq(true),
                 eq(false),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -559,6 +552,7 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -569,7 +563,6 @@ public class JourneyServiceImplTest {
             false,
             false,
             true,
-            true,
             PAGE_1_DEFAULT
         );
 
@@ -579,12 +572,10 @@ public class JourneyServiceImplTest {
     @Test
     public void testFindJourneysCurrentNoDates(){
         when(
-            journeyDao.findByUserId(eq(USER_ID_WITH_JOURNEY))
-        ).thenReturn(Optional.of(JOURNEY));
-        when(
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -592,7 +583,6 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
-                eq(true),
                 eq(false),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -602,6 +592,7 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -611,7 +602,6 @@ public class JourneyServiceImplTest {
             INTEREST_NAME,
             false,
             false,
-            true,
             true,
             PAGE_1_DEFAULT
         );
@@ -622,12 +612,10 @@ public class JourneyServiceImplTest {
     @Test
     public void testFindJourneysPast(){
         when(
-            journeyDao.findByUserId(eq(USER_ID_WITH_JOURNEY))
-        ).thenReturn(Optional.of(JOURNEY));
-        when(
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -635,7 +623,6 @@ public class JourneyServiceImplTest {
                 eq(START_DATE),
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
-                eq(true),
                 eq(false),
                 eq(true),
                 eq(PAGE_1_DEFAULT)
@@ -645,6 +632,7 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -654,7 +642,6 @@ public class JourneyServiceImplTest {
             INTEREST_NAME,
             true,
             false,
-            true,
             false,
             PAGE_1_DEFAULT
         );
@@ -668,6 +655,7 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -675,7 +663,6 @@ public class JourneyServiceImplTest {
                 eq(START_DATE),
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(false),
                 eq(true),
                 eq(PAGE_1_DEFAULT)
@@ -685,6 +672,7 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -693,7 +681,6 @@ public class JourneyServiceImplTest {
             LocalDate.now().minusDays(10),
             INTEREST_NAME,
             true,
-            false,
             false,
             false,
             PAGE_1_DEFAULT
@@ -708,6 +695,7 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -715,7 +703,6 @@ public class JourneyServiceImplTest {
                 eq(START_DATE),
                 any(LocalDate.class),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(false),
                 eq(true),
                 eq(PAGE_1_DEFAULT)
@@ -725,6 +712,7 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -733,7 +721,6 @@ public class JourneyServiceImplTest {
             null,
             INTEREST_NAME,
             true,
-            false,
             false,
             false,
             PAGE_1_DEFAULT
@@ -748,6 +735,7 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -755,7 +743,6 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -765,6 +752,7 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -774,7 +762,6 @@ public class JourneyServiceImplTest {
             INTEREST_NAME,
             false,
             true,
-            false,
             false,
             PAGE_1_DEFAULT
         );
@@ -788,6 +775,7 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -795,7 +783,6 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -805,6 +792,7 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -814,7 +802,6 @@ public class JourneyServiceImplTest {
             INTEREST_NAME,
             false,
             true,
-            false,
             false,
             PAGE_1_DEFAULT
         );
@@ -828,6 +815,7 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -835,7 +823,6 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -845,6 +832,7 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -854,7 +842,6 @@ public class JourneyServiceImplTest {
             INTEREST_NAME,
             false,
             true,
-            false,
             false,
             PAGE_1_DEFAULT
         );
@@ -868,6 +855,7 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -877,7 +865,6 @@ public class JourneyServiceImplTest {
                 eq(INTEREST_NAME),
                 eq(false),
                 eq(false),
-                eq(false),
                 eq(PAGE_1_DEFAULT)
             )
         ).thenReturn(JOURNEY_PAGE);
@@ -885,6 +872,7 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -892,7 +880,6 @@ public class JourneyServiceImplTest {
             START_DATE,
             END_DATE,
             INTEREST_NAME,
-            false,
             false,
             false,
             false,
@@ -908,6 +895,7 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
                 eq(CITY_NAME),
@@ -915,7 +903,6 @@ public class JourneyServiceImplTest {
                 any(LocalDate.class),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -925,67 +912,6 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             USER_ID_WITH_JOURNEY,
-            SortFieldJourney.from("end_date"),
-            SortDirection.from("desc"),
-            CITY_NAME,
-            UNI_NAME,
-            START_DATE,
-            END_DATE,
-            INTEREST_NAME,
-            false,
-            true,
-            false,
-            false,
-            PAGE_1_DEFAULT
-        );
-
-        assertNotNull(page);
-        assertEquals(JOURNEY_PAGE, page);
-    }
-    @Test(expected = UserHasNoJourneyException.class)
-    public void testFindJourneysUserHasNoJourneys(){    
-        Page<Journey> page = journeyService.findJourneys(
-            DESCRIPTION,
-            USER_ID,
-            SortFieldJourney.from("end_date"),
-            SortDirection.from("desc"),
-            CITY_NAME,
-            UNI_NAME,
-            START_DATE,
-            END_DATE,
-            INTEREST_NAME,
-            false,
-            true,
-            true,
-            false,
-            PAGE_1_DEFAULT
-        );
-    
-        assertNotNull(page);
-        assertEquals(JOURNEY_PAGE, page);
-    }
-    @Test
-    public void testFindJourneysMissingUser(){ 
-        when(
-            journeyDao.search(
-                eq(DESCRIPTION), 
-                eq(null),
-                eq(SortFieldJourney.END_DATE),
-                eq(SortDirection.DESC),
-                eq(CITY_NAME),
-                eq(UNI_NAME),
-                any(LocalDate.class),
-                eq(END_DATE),
-                eq(INTEREST_NAME),
-                eq(true),
-                eq(true),
-                eq(false),
-                any(PageParams.class)
-            )
-        ).thenReturn(JOURNEY_PAGE);
-        
-        Page<Journey> page = journeyService.findJourneys(
-            DESCRIPTION,
             null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
@@ -996,6 +922,45 @@ public class JourneyServiceImplTest {
             INTEREST_NAME,
             false,
             true,
+            false,
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(JOURNEY_PAGE, page);
+    }
+    @Test
+    public void testFindJourneysMissingUser(){
+        when(
+            journeyDao.search(
+                eq(DESCRIPTION),
+                eq(null),
+                any(),
+                eq(SortFieldJourney.END_DATE),
+                eq(SortDirection.DESC),
+                eq(CITY_NAME),
+                eq(UNI_NAME),
+                any(LocalDate.class),
+                eq(END_DATE),
+                eq(INTEREST_NAME),
+                eq(true),
+                eq(false),
+                any(PageParams.class)
+            )
+        ).thenReturn(JOURNEY_PAGE);
+        
+        Page<Journey> page = journeyService.findJourneys(
+            DESCRIPTION,
+            null,
+            null,
+            SortFieldJourney.from("end_date"),
+            SortDirection.from("desc"),
+            CITY_NAME,
+            UNI_NAME,
+            START_DATE,
+            END_DATE,
+            INTEREST_NAME,
+            false,
             true,
             false,
             PAGE_1_DEFAULT

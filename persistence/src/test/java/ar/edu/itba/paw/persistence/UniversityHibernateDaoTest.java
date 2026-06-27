@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.University;
@@ -56,6 +57,22 @@ public class UniversityHibernateDaoTest {
         em.flush();
 
         assertEqualsUni(new University(uni.getId(), UNIVERSITY_NEW_NAME, UNIVERSITY_NEW_CODE, CITY_1), uni);
+
+        University persisted = jdbcTemplate.queryForObject(
+            UNIVERSITY_SELECT_BY_ID, UNIVERSITY_ROW_MAPPER, uni.getId()
+        );
+        assertEqualsUni(new University(uni.getId(), UNIVERSITY_NEW_NAME, UNIVERSITY_NEW_CODE, CITY_1), persisted);
+        assertEquals(
+            TOTAL_UNIVERSITIES + 1,
+            jdbcTemplate.queryForObject(UNIVERSITY_COUNT_NOT_DELETED, Integer.class).intValue()
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, UNIVERSITY_TABLE,
+                "id = " + uni.getId() + " AND name = '" + UNIVERSITY_NEW_NAME + "' AND abbreviation = '" + UNIVERSITY_NEW_CODE + "' AND deleted = FALSE"
+            )
+        );
     }
     @Test(expected = UniversityAlreadyExistsException.class)
     public void testCreateDuplicate(){
@@ -68,6 +85,22 @@ public class UniversityHibernateDaoTest {
         em.flush();
 
         assertEqualsUni(new University(UNIVERSITY_DELETED_ID, UNIVERSITY_DELETED_NAME, UNIVERSITY_NEW_CODE, CITY_1), uni);
+
+        University persisted = jdbcTemplate.queryForObject(
+            UNIVERSITY_SELECT_BY_ID, UNIVERSITY_ROW_MAPPER, UNIVERSITY_DELETED_ID
+        );
+        assertEqualsUni(new University(UNIVERSITY_DELETED_ID, UNIVERSITY_DELETED_NAME, UNIVERSITY_NEW_CODE, CITY_1), persisted);
+        assertEquals(
+            TOTAL_UNIVERSITIES + 1,
+            jdbcTemplate.queryForObject(UNIVERSITY_COUNT_NOT_DELETED, Integer.class).intValue()
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, UNIVERSITY_TABLE,
+                "id = " + UNIVERSITY_DELETED_ID + " AND name = '" + UNIVERSITY_DELETED_NAME + "' AND abbreviation = '" + UNIVERSITY_NEW_CODE + "' AND deleted = FALSE"
+            )
+        );
     }
     @Test
     public void testCreateDeletedCopyBoth(){
@@ -75,6 +108,22 @@ public class UniversityHibernateDaoTest {
         em.flush();
 
         assertEqualsUni(UNI_DELETED, uni);
+
+        University persisted = jdbcTemplate.queryForObject(
+            UNIVERSITY_SELECT_BY_ID, UNIVERSITY_ROW_MAPPER, UNIVERSITY_DELETED_ID
+        );
+        assertEqualsUni(UNI_DELETED, persisted);
+        assertEquals(
+            TOTAL_UNIVERSITIES + 1,
+            jdbcTemplate.queryForObject(UNIVERSITY_COUNT_NOT_DELETED, Integer.class).intValue()
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, UNIVERSITY_TABLE,
+                "id = " + UNIVERSITY_DELETED_ID + " AND name = '" + UNIVERSITY_DELETED_NAME + "' AND abbreviation = '" + UNIVERSITY_DELETED_CODE + "' AND deleted = FALSE"
+            )
+        );
     }
 
     @Test

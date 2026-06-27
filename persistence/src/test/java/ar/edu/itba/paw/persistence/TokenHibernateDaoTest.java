@@ -56,6 +56,18 @@ public class TokenHibernateDaoTest {
         assertEquals(TOKEN_NEW_VALUE, token.getToken());
         assertEqualsUser(USER_I3, token.getUser());
         assertTrue(token.getId() > 1);
+
+        assertEquals(
+            TOTAL_TOKENS + 1,
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, TOKEN_TABLE)
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, TOKEN_TABLE,
+                "id = " + token.getId() + " AND user_id = " + USER_I3_ID + " AND token = '" + TOKEN_NEW_VALUE + "'"
+            )
+        );
     }
     @Test(expected = PersistenceException.class)
     public void testCreateTokenWrongUser(){
