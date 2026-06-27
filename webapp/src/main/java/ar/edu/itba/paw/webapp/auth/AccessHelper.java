@@ -34,6 +34,7 @@ public class AccessHelper {
         return auth != null && auth.getAuthorities().stream()
                 .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
     }
+    //@TODO verificar que no sea logica en controllers
     public boolean canPatchUser(long userId, PatchUserForm form) {
         final boolean admin = isAdmin();
         final boolean self = isCurrentUser(userId);
