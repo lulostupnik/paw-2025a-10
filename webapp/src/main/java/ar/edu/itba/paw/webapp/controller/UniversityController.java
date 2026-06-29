@@ -62,7 +62,7 @@ public class UniversityController {
     @Consumes(CustomMediaType.APPLICATION_UNIVERSITY)
     @Produces(CustomMediaType.APPLICATION_UNIVERSITY)
     public Response createUniversity(@Valid final CreateUniversityForm form) {
-        final University university = universityService.createUniversity(form.getName(), form.getAbbreviation(), form.getCity());
+        final University university = universityService.createUniversity(form.getName(), form.getAbbreviation(), form.getCityId());
         return Response.created(UriUtils.getUniversityUri(uriInfo, university.getId()))
                 .entity(UniversityDto.fromUniversity(uriInfo, university))
                 .build();
@@ -76,7 +76,7 @@ public class UniversityController {
             @PathParam("id") final long id,
             @Valid final UpdateUniversityForm form
     ) {
-        final University university = universityService.updateUniversity(id, form.getName(), form.getAbbreviation(), form.getCity());
+        final University university = universityService.updateUniversity(id, form.getName(), form.getAbbreviation(), form.getCityId());
         return Response.ok(UniversityDto.fromUniversity(uriInfo, university)).build();
     }
 
@@ -88,7 +88,7 @@ public class UniversityController {
             @PathParam("id") final long id,
             @Valid final PatchUniversityForm form
     ) {
-        final University university = universityService.patchUniversity(id, form.getName(), form.getAbbreviation(), form.getCity());
+        final University university = universityService.patchUniversity(id, form.getName(), form.getAbbreviation(), form.getCityId());
         return Response.ok(UniversityDto.fromUniversity(uriInfo, university)).build();
     }
 

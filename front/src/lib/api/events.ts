@@ -275,7 +275,7 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
         id: event.id,
         title: event.title,
         description: event.description ?? "",
-        city: { name: city?.name ?? "—" },
+        city: { id: city?.id, name: city?.name ?? "—" },
         date: event.date ?? "",
         time: event.time ?? null,
         address: event.address ?? null,
@@ -302,7 +302,7 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
 export const updateEvent = async (
     id: number,
     payload: {
-        city: string;
+        cityId: number;
         date: string;
         description: string;
         title: string;
@@ -318,7 +318,7 @@ export const updateEvent = async (
 
 export const createEvent = async (
     payload: {
-        city: string;
+        cityId: number;
         date: string;
         description: string;
         title: string;

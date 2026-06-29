@@ -19,11 +19,9 @@ public class CreateUniversityForm {
     @NotEmpty
     private String abbreviation;
 
-    @Size(max = 50)
     @NotNull
-    @NotEmpty
     @ExistingCity
-    private String city;
+    private Long cityId;
 
 
     public String getName() {
@@ -42,11 +40,11 @@ public class CreateUniversityForm {
         this.abbreviation = abbreviation;
     }
 
-    public String getCity() {
-        return city;
+    public Long getCityId() {
+        return cityId;
     }
 
-    public void setCity(String cityName) {
-        this.city = cityName;
+    public void setCityId(Long cityId) {
+        this.cityId = cityId;
     }
 }

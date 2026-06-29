@@ -15,7 +15,7 @@ export interface UniversityDto {
 export interface UniversityPayload {
     name: string;
     abbreviation: string;
-    city: string;
+    cityId: number;
 }
 
 export interface ListUniversitiesParams {

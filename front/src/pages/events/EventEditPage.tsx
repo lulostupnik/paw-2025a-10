@@ -68,7 +68,7 @@ export default function EventEditPage() {
         const hasUnlimited = !data.attendeesLimit || data.attendeesLimit <= 0;
         setForm({
             name: data.title ?? "",
-            city: data.city?.name ? { id: 0, name: data.city.name } : null,
+            city: data.city?.name ? { id: data.city.id ?? 0, name: data.city.name } : null,
             date: data.date ?? "",
             time: data.time ?? "",
             allDay: !data.time,
@@ -226,10 +226,17 @@ export default function EventEditPage() {
             return;
         }
 
+        const cityId = form.city?.id;
+        if (!cityId) {
+            setErrors((prev) => ({ ...prev, city: t("event.create.validation.city") }));
+            setTouched((prev) => ({ ...prev, city: true }));
+            return;
+        }
+
         try {
             setSubmitting(true);
             await updateEvent(Number(id), {
-                city: form.city?.name ?? "",
+                cityId,
                 date: form.date,
                 description: form.description.trim(),
                 title: form.name.trim(),

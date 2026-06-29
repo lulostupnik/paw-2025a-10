@@ -64,7 +64,7 @@ export default function EventCreatePage() {
             if (firstFieldError) {
                 const field = firstFieldError.field ?? "";
                 const message = firstFieldError.message?.toLowerCase() ?? "";
-                if (field === "city") {
+                if (field === "city" || field === "cityId") {
                     if (message.includes("must not be null") || message.includes("must not be empty")) {
                         return t("event.create.validation.city");
                     }
@@ -288,10 +288,15 @@ export default function EventCreatePage() {
         }
         setSubmitError(null);
 
+        const cityId = form.city?.id;
+        if (cityId == null) {
+            return;
+        }
+
         try {
             setSubmitting(true);
             const eventResponse = await createEvent({
-                city: form.city?.name ?? "",
+                cityId,
                 date: form.date,
                 description: form.description.trim(),
                 title: form.name.trim(),

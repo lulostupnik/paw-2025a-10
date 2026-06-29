@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
@@ -55,15 +55,25 @@ export default function UniversityCreatePage() {
         return cities.filter((city) => city.name.toLowerCase().includes(query));
     }, [cities, cityQuery]);
 
+    const resolveCityId = useCallback(
+        (name: string) =>
+            cities.find((c) => c.name.trim().toLowerCase() === name.trim().toLowerCase())?.id ?? null,
+        [cities]
+    );
+
     const errors = useMemo(
         () => ({
             name: form.name.trim() ? "" : t("NotNull.createUniversity.name", { defaultValue: "Campo obligatorio." }),
             abbreviation: form.abbreviation.trim()
                 ? ""
                 : t("NotNull.createUniversity.abbreviation", { defaultValue: "Campo obligatorio." }),
-            city: form.city.trim() ? "" : t("NotNull.createUniversity.city", { defaultValue: "Campo obligatorio." }),
+            city: !form.city.trim()
+                ? t("NotNull.createUniversity.city", { defaultValue: "Campo obligatorio." })
+                : resolveCityId(form.city) != null
+                    ? ""
+                    : t("ExistingCity.createUniversityForm.city", { defaultValue: "Esta ciudad no está entre nuestras opciones" }),
         }),
-        [form, t]
+        [form, t, resolveCityId]
     );
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -72,12 +82,16 @@ export default function UniversityCreatePage() {
         if (errors.name || errors.abbreviation || errors.city) {
             return;
         }
+        const cityId = resolveCityId(form.city);
+        if (cityId == null) {
+            return;
+        }
         setSubmitting(true);
         setSubmitError(null);
         createUniversity({
             name: form.name.trim(),
             abbreviation: form.abbreviation.trim(),
-            city: form.city.trim(),
+            cityId,
         })
             .then((created) => navigate(`/universities/${created.id}`))
             .catch((error) => {

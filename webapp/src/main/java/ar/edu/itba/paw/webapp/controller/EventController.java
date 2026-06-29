@@ -116,7 +116,7 @@ public class EventController {
 
         final Event event = eventService.createEvent(
                 userId,
-                form.getCity(),
+                form.getCityId(),
                 form.getDate(),
                 form.getDescription(),
                 form.getTitle(),
@@ -137,7 +137,7 @@ public class EventController {
     public Response updateEvent(@PathParam("id") final long id, @Valid final EditEventForm form) {
         final Event event = eventService.updateEvent(
                 id,
-                form.getCity(),
+                form.getCityId(),
                 form.getDate(),
                 form.getDescription(),
                 form.getTitle(),

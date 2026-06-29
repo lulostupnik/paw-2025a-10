@@ -54,31 +54,31 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event createEvent(final String email, final String cityName, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
+    public Event createEvent(final String email, final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
 
         LOGGER.debug("Creating event for user {}", email);
         User user = userService.findUserByEmail(email).orElseThrow(()-> {
                 LOGGER.error("User not found {}", email);
                 return new UserNotFoundException(email);}
         );
-        return createEventInternal(user, cityName, date, description, title, time, address, attendeesLimit);
+        return createEventInternal(user, cityId, date, description, title, time, address, attendeesLimit);
     }
 
     @Override
     @Transactional
-    public Event createEvent(final long userId, final String cityName, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
+    public Event createEvent(final long userId, final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Creating event for user {}", userId);
         User user = userService.findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User not found {}", userId);
             return new UserNotFoundException(userId);
         });
-        return createEventInternal(user, cityName, date, description, title, time, address, attendeesLimit);
+        return createEventInternal(user, cityId, date, description, title, time, address, attendeesLimit);
     }
 
-    private Event createEventInternal(final User user, final String cityName, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
-        City city = cityService.findCityByName(cityName).orElseThrow(() ->{
-            LOGGER.error("City not found {}", cityName);
-            return new InvalidReferenceException("City", cityName);}
+    private Event createEventInternal(final User user, final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
+        City city = cityService.findCityById(cityId).orElseThrow(() ->{
+            LOGGER.error("City not found {}", cityId);
+            return new InvalidReferenceException("City", String.valueOf(cityId));}
         );
         Event event = eventDao.create(user, city, date, description, null, title, time, address, attendeesLimit);
         LOGGER.info("Event {} created", event.getId());
@@ -451,12 +451,12 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event updateEvent(final long eventId, final String cityName, final LocalDate date, final String description,
+    public Event updateEvent(final long eventId, final long cityId, final LocalDate date, final String description,
                             final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Editing event {}", eventId);
         Event currentEvent = eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
 
-        City resolvedCity = cityService.findCityByName(cityName).orElseThrow(() -> new InvalidReferenceException("City", cityName));
+        City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", String.valueOf(cityId)));
 
         currentEvent.setTitle(title);
         currentEvent.setDescription(description);
@@ -472,13 +472,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event patchEvent(final long eventId, final String cityName, final LocalDate date, final String description,
+    public Event patchEvent(final long eventId, final Long cityId, final LocalDate date, final String description,
                             final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Patching event {}", eventId);
         Event currentEvent = eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
 
-        if (cityName != null) {
-            City resolvedCity = cityService.findCityByName(cityName).orElseThrow(() -> new InvalidReferenceException("City", cityName));
+        if (cityId != null) {
+            City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", String.valueOf(cityId)));
             currentEvent.setCity(resolvedCity);
         }
         if (title != null) {

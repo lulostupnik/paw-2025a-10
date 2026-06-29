@@ -51,7 +51,7 @@ export interface EventDetail {
     id: number;
     title: string;
     description: string;
-    city: { name: string };
+    city: { id?: number; name: string };
     date: string;
     time?: string | null;
     address?: string | null;

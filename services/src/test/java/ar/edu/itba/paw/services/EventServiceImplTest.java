@@ -142,7 +142,7 @@ public class EventServiceImplTest {
     @Test
     public void testCreateEvent(){
         when(
-            cityService.findCityByName(eq(CITY_NAME))
+            cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.of(CITY));
         when(
             userService.findUserByEmail(eq(EMAIL))
@@ -163,7 +163,7 @@ public class EventServiceImplTest {
 
         Event event = eventService.createEvent(
             EMAIL,
-            CITY_NAME,
+            CITY_ID,
             EVENT_DATE,
             DESCRIPTION,
             TITLE,
@@ -178,7 +178,7 @@ public class EventServiceImplTest {
     @Test
     public void testCreateEventWithUserID(){
         when(
-            cityService.findCityByName(eq(CITY_NAME))
+            cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.of(CITY));
         when(
             userService.findUserById(eq(USER_ID))
@@ -199,7 +199,7 @@ public class EventServiceImplTest {
 
         Event event = eventService.createEvent(
             USER_ID,
-            CITY_NAME,
+            CITY_ID,
             EVENT_DATE,
             DESCRIPTION,
             TITLE,
@@ -219,7 +219,7 @@ public class EventServiceImplTest {
 
         eventService.createEvent(
             EMAIL,
-            CITY_NAME,
+            CITY_ID,
             EVENT_DATE,
             DESCRIPTION,
             TITLE,
@@ -236,7 +236,7 @@ public class EventServiceImplTest {
 
         eventService.createEvent(
             USER_ID,
-            CITY_NAME,
+            CITY_ID,
             EVENT_DATE,
             DESCRIPTION,
             TITLE,
@@ -248,7 +248,7 @@ public class EventServiceImplTest {
     @Test(expected = InvalidReferenceException.class)
     public void testCreateEventCityNotFound(){
         when(
-            cityService.findCityByName(eq(CITY_NAME))
+            cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.empty());
         when(
             userService.findUserByEmail(eq(EMAIL))
@@ -256,7 +256,7 @@ public class EventServiceImplTest {
 
         eventService.createEvent(
             EMAIL,
-            CITY_NAME,
+            CITY_ID,
             EVENT_DATE,
             DESCRIPTION,
             TITLE,
@@ -1216,12 +1216,12 @@ public class EventServiceImplTest {
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.of(newEvent));
         when(
-            cityService.findCityByName(eq("CITY_NAME"))
+            cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.of(new City("CITY_NAME", COUNTRY)));
 
         Event event = eventService.updateEvent(
             EVENT_ID,
-            "CITY_NAME",
+            CITY_ID,
             EVENT_DATE.plusDays(1),
             "DESCRIPTION",
             "TITLE",
@@ -1244,12 +1244,12 @@ public class EventServiceImplTest {
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         when(
-            cityService.findCityByName(eq(CITY_NAME))
+            cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.empty());
 
         eventService.updateEvent(
             EVENT_ID,
-            CITY_NAME,
+            CITY_ID,
             EVENT_DATE,
             DESCRIPTION,
             TITLE,
@@ -1266,7 +1266,7 @@ public class EventServiceImplTest {
 
         eventService.updateEvent(
             EVENT_ID,
-            CITY_NAME,
+            CITY_ID,
             EVENT_DATE,
             DESCRIPTION,
             TITLE,
@@ -1282,7 +1282,7 @@ public class EventServiceImplTest {
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.patchEvent(EVENT_ID, CITY_NAME, EVENT_DATE, DESCRIPTION, TITLE, TIME, ADDRESS, null);
+        eventService.patchEvent(EVENT_ID, CITY_ID, EVENT_DATE, DESCRIPTION, TITLE, TIME, ADDRESS, null);
     }
     @Test
     public void testPatchEvent(){
@@ -1291,10 +1291,10 @@ public class EventServiceImplTest {
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.of(oldEvent));
         when(
-            cityService.findCityByName("CITY_NAME")
+            cityService.findCityById(CITY_ID)
         ).thenReturn(Optional.of(new City("CITY_NAME", COUNTRY)));
 
-        Event patched = eventService.patchEvent(EVENT_ID, "CITY_NAME", EVENT_DATE_PAST, "DESCRIPTION", "TITLE", TIME.plusHours(1), "ADDRESS", 1);
+        Event patched = eventService.patchEvent(EVENT_ID, CITY_ID, EVENT_DATE_PAST, "DESCRIPTION", "TITLE", TIME.plusHours(1), "ADDRESS", 1);
 
         assertNotNull(patched);
         assertEquals(EVENT_ID, patched.getId().longValue());
@@ -1331,10 +1331,10 @@ public class EventServiceImplTest {
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         when(
-            cityService.findCityByName(CITY_NAME)
+            cityService.findCityById(CITY_ID)
         ).thenReturn(Optional.empty());
 
-        eventService.patchEvent(EVENT_ID, CITY_NAME, EVENT_DATE, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
+        eventService.patchEvent(EVENT_ID, CITY_ID, EVENT_DATE, DESCRIPTION, TITLE, TIME, ADDRESS, LIMIT);
     }
 
     @Test

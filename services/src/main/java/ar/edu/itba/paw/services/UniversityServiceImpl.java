@@ -54,34 +54,34 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Transactional
-    public University createUniversity(final String name, final String abbreviation, final String cityName) {
-        LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityName);
-        City city = cityService.findCityByName(cityName).orElseThrow(() -> {
-            LOGGER.error("City not found with name: {}", cityName);
-            return new InvalidReferenceException("City", cityName);
+    public University createUniversity(final String name, final String abbreviation, final long cityId) {
+        LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityId);
+        City city = cityService.findCityById(cityId).orElseThrow(() -> {
+            LOGGER.error("City not found with id: {}", cityId);
+            return new InvalidReferenceException("City", String.valueOf(cityId));
         });
         University university = universityDao.create(name, abbreviation, city);
-        LOGGER.info("University created successfully with name: {}, abbreviation: {}, in city: {}", name, abbreviation, cityName);
+        LOGGER.info("University created successfully with name: {}, abbreviation: {}, in city: {}", name, abbreviation, cityId);
         return university;
     }
 
     @Override
     @Transactional
-    public University updateUniversity(final long id, final String name, final String abbreviation, final String cityName) {
-        LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityName);
-        City city = cityService.findCityByName(cityName).orElseThrow(() -> new InvalidReferenceException("City", cityName));
+    public University updateUniversity(final long id, final String name, final String abbreviation, final long cityId) {
+        LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityId);
+        City city = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", String.valueOf(cityId)));
         University university = universityDao.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
         university.setName(name);
         university.setAbbreviation(abbreviation);
         university.setCity(city);
 
-        LOGGER.info("University updated successfully with id: {}, name: {}, abbreviation: {}, city: {}", id, name, abbreviation, cityName);
+        LOGGER.info("University updated successfully with id: {}, name: {}, abbreviation: {}, city: {}", id, name, abbreviation, cityId);
         return university;
     }
 
     @Override
     @Transactional
-    public University patchUniversity(final long id, final String name, final String abbreviation, final String cityName) {
+    public University patchUniversity(final long id, final String name, final String abbreviation, final Long cityId) {
         LOGGER.debug("Patching university with id {}", id);
         University university = universityDao.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
 
@@ -91,8 +91,8 @@ public class UniversityServiceImpl implements UniversityService {
         if (abbreviation != null) {
             university.setAbbreviation(abbreviation);
         }
-        if (cityName != null) {
-            City city = cityService.findCityByName(cityName).orElseThrow(() -> new InvalidReferenceException("City", cityName));
+        if (cityId != null) {
+            City city = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", String.valueOf(cityId)));
             university.setCity(city);
         }
 

@@ -13,10 +13,9 @@ public class EditEventForm {
     @PositiveOrZero
     private long id;
 
-    @Size(min = 2, max = 100)
     @NotNull
     @ExistingCity
-    private String city;
+    private Long cityId;
 
     @Size(max = 50)
     @NotNull
@@ -44,12 +43,12 @@ public class EditEventForm {
     @Min(1)
     private Integer attendeesLimit;
 
-    public String getCity() {
-        return city;
+    public Long getCityId() {
+        return cityId;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setCityId(Long cityId) {
+        this.cityId = cityId;
     }
 
     public LocalDate getDate() {
@@ -100,8 +99,8 @@ public class EditEventForm {
     }
     @Override
     public String toString(){
-        return "{city: \"" +
-                city +
+        return "{cityId: \"" +
+                cityId +
                 "\", date: \"" +
                 date +
                 "\", time: \"" +

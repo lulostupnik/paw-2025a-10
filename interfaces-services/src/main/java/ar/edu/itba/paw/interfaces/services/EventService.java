@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
-    Event createEvent(String email, String cityName, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit);
-    Event createEvent(long userId, String cityName, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit);
+    Event createEvent(String email, long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit);
+    Event createEvent(long userId, long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit);
     Event updateEvent(long eventId,
-                     String cityName,
+                     long cityId,
                      LocalDate date,
                      String description,
                      String title,
@@ -20,7 +20,7 @@ public interface EventService {
                      String address,
                      Integer attendeesLimit);
     Event patchEvent(long eventId,
-                     String cityName,
+                     Long cityId,
                      LocalDate date,
                      String description,
                      String title,

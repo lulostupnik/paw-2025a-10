@@ -6,7 +6,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 
-public class CityNameValidator implements ConstraintValidator<ExistingCity, String> {
+public class CityNameValidator implements ConstraintValidator<ExistingCity, Long> {
 
     private final CityService cityService;
 
@@ -16,10 +16,10 @@ public class CityNameValidator implements ConstraintValidator<ExistingCity, Stri
     }
 
     @Override
-    public boolean isValid(String city, ConstraintValidatorContext constraintValidatorContext) {
-        if (city == null || city.isEmpty()) {
+    public boolean isValid(Long cityId, ConstraintValidatorContext constraintValidatorContext) {
+        if (cityId == null) {
             return true;
         }
-        return cityService.findCityByName(city).isPresent();
+        return cityService.findCityById(cityId).isPresent();
     }
 }
