@@ -7,7 +7,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
+import org.mockito.InOrder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+import ar.edu.itba.paw.interfaces.persistence.ReportDao;
 import ar.edu.itba.paw.interfaces.persistence.TipDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.EmailService;
@@ -116,6 +119,8 @@ public class JourneyServiceImplTest {
     JourneyResponseDao replyDao;
     @Mock
     TipDao tipDao;
+    @Mock
+    ReportDao reportDao;
 
     @Mock
     UserService userService;
@@ -187,6 +192,11 @@ public class JourneyServiceImplTest {
 
         assertNotNull(journey);
         assertEquals(JOURNEY, journey);
+
+        InOrder order = inOrder(reportDao, replyDao, journeyDao);
+        order.verify(reportDao).hardDeleteByJourneyId(JOURNEY_ID);
+        order.verify(replyDao).hardDeleteByJourneyId(JOURNEY_ID);
+        order.verify(journeyDao).hardDelete(JOURNEY_DELETED);
     }
     @Test(expected = UserWithActiveJourneyException.class)
     public void testCreateJourneyWithActiveJourney(){

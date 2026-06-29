@@ -61,6 +61,17 @@ public class ReportHibernateDao implements ReportDao {
         return Optional.ofNullable(em.find(Report.class, id));
     }
 
+    @Override
+    public void hardDeleteByJourneyId(final long journeyId) {
+        em.createQuery("""
+        DELETE FROM Report r
+        WHERE r.journey.id = :journeyId
+           OR r.journeyResponse.id IN (SELECT jr.id FROM JourneyResponse jr WHERE jr.journey.id = :journeyId)
+    """)
+                .setParameter("journeyId", journeyId)
+                .executeUpdate();
+    }
+
 
 
     @Override

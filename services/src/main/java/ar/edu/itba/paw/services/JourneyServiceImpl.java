@@ -2,6 +2,7 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+import ar.edu.itba.paw.interfaces.persistence.ReportDao;
 import ar.edu.itba.paw.interfaces.persistence.TipDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
@@ -24,6 +25,7 @@ public class JourneyServiceImpl implements JourneyService {
     private final JourneyResponseDao journeyResponseDao;
     private final TipDao tipDao;
     private final JourneyDao journeyDao;
+    private final ReportDao reportDao;
     private final UserService userService;
     private final EmailService emailService;
     private final UniversityService universityService;
@@ -32,7 +34,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Autowired
     public JourneyServiceImpl(final JourneyDao journeyDao, final UserService userService,
-                              final UniversityService universityService, final JourneyResponseDao journeyResponseDao, TipDao tipDao, final EmailService emailService, final InterestService interestService) {
+                              final UniversityService universityService, final JourneyResponseDao journeyResponseDao, TipDao tipDao, final EmailService emailService, final InterestService interestService, final ReportDao reportDao) {
         this.journeyDao = journeyDao;
         this.userService = userService;
         this.universityService = universityService;
@@ -40,6 +42,7 @@ public class JourneyServiceImpl implements JourneyService {
         this.tipDao = tipDao;
         this.emailService = emailService;
         this.interestService = interestService;
+        this.reportDao = reportDao;
     }
 
     private void checkDates(final LocalDate startDate, final LocalDate endDate) {
@@ -81,6 +84,7 @@ public class JourneyServiceImpl implements JourneyService {
             }
             // Hard delete the soft-deleted journey and its responses
             LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), userId);
+            reportDao.hardDeleteByJourneyId(existingJourney.getId());
             tipDao.deleteByJourney(existingJourney.getId());
             journeyResponseDao.hardDeleteByJourneyId(existingJourney.getId());
             journeyDao.hardDelete(existingJourney);
