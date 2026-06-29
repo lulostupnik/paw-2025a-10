@@ -2,12 +2,13 @@ package ar.edu.itba.paw.webapp.auth.filters;
 
 import ar.edu.itba.paw.interfaces.services.TokenService;
 import ar.edu.itba.paw.interfaces.services.UserService;
-import ar.edu.itba.paw.models.EmailUser;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.auth.JwtUtils;
-import ar.edu.itba.paw.models.exceptions.UserNotVerifiedException;
+import ar.edu.itba.paw.webapp.dto.ErrorDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,12 +27,15 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 @Component
 public class AuthAnywhereFilter extends OncePerRequestFilter {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String AUTH_HEADER_TYPE = "Basic";
 
     @Autowired
@@ -48,6 +52,9 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private MessageSource messageSource;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -75,13 +82,15 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                 if (maybeToken.isPresent()) {
                     final Token tkn = maybeToken.get();
                     if (tkn.isExpired() || tkn.getUser().getId().longValue() != user.getId()) {
-                        throw new BadCredentialsException("exception.BadCredentialsException.token");
+                        writeError(request, response, Response.Status.UNAUTHORIZED, "auth.invalidCredentials");
+                        return;
                     }
                     authenticateAs(request, user.getEmail());
                     tokenService.delete(tkn);          // OTP
                 } else if (!user.isValidated()) {
                     userService.resendVerificationEmail(user.getEmail());
-                    throw new UserNotVerifiedException(user.getEmail());
+                    writeError(request, response, Response.Status.FORBIDDEN, "exception.UserNotVerifiedException");
+                    return;
                 } else {
                     final Authentication auth = authenticationManager.authenticate(
                             new UsernamePasswordAuthenticationToken(email, credentials)
@@ -95,7 +104,8 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                 response.setHeader("X-GoTogether-RefreshToken", jwtTokenUtil.generateRefreshToken(uriBuilder, user));
             }
         } catch (Exception e) {
-            response.addHeader("WWW-Authenticate", "Basic realm=\"GoTogether\"");
+            writeError(request, response, Response.Status.UNAUTHORIZED, "auth.invalidCredentials");
+            return;
         }
 
         filterChain.doFilter(request, response);
@@ -107,5 +117,18 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private void writeError(final HttpServletRequest request, final HttpServletResponse response,
+                            final Response.Status status, final String messageKey) throws IOException {
+        SecurityContextHolder.clearContext();
+        final String message = messageSource.getMessage(messageKey, null, messageKey, request.getLocale());
+        response.setStatus(status.getStatusCode());
+        if (status == Response.Status.UNAUTHORIZED) {
+            response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer realm=\"GoTogether\"");
+        }
+        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        OBJECT_MAPPER.writeValue(response.getWriter(), ErrorDto.fromException(status, message));
     }
 }

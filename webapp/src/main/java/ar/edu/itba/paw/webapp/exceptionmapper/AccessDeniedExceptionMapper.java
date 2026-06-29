@@ -15,7 +15,7 @@ import javax.ws.rs.ext.Provider;
 public class AccessDeniedExceptionMapper implements ExceptionMapper<AccessDeniedException> {
 
     private static final String AUTH_HEADER = "WWW-Authenticate";
-    private static final String AUTH_SCHEMES = "Basic realm=\"GoTogether\", Bearer realm=\"GoTogether\"";
+    private static final String AUTH_SCHEMES = "Bearer realm=\"GoTogether\"";
 
     @Override
     public Response toResponse(AccessDeniedException ex) {
