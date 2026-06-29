@@ -45,6 +45,9 @@ public class EventStatisticsDto {
         final Links links = new Links();
         links.selfUrl = UriUtils.getEventStatisticsUri(uriInfo, event.getId());
         links.eventUrl = UriUtils.getEventUri(uriInfo, event.getId());
+        if (statistics.getTopAttendeeCountryId() != null) {
+            links.topCountryUrl = UriUtils.getCountryUri(uriInfo, statistics.getTopAttendeeCountryId());
+        }
         dto.links = links;
 
         return dto;
@@ -62,8 +65,10 @@ public class EventStatisticsDto {
     public static class Links {
         private URI selfUrl;
         private URI eventUrl;
+        private URI topCountryUrl; 
 
         public URI getSelfUrl() { return selfUrl; }
         public URI getEventUrl() { return eventUrl; }
+        public URI getTopCountryUrl() { return topCountryUrl; }
     }
 }

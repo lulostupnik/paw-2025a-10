@@ -164,6 +164,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Getting event with statistics by id {}", eventId);
 
         String topAttendeeCountry = null;
+        Long topAttendeeCountryId = null;
         int topAttendeeCountryCount = 0;
         Event event;
 
@@ -183,10 +184,11 @@ public class EventServiceImpl implements EventService {
 
         if(maybeCountryAttendeeCount.isPresent()){
             topAttendeeCountry = maybeCountryAttendeeCount.get().getCountryName();
+            topAttendeeCountryId = maybeCountryAttendeeCount.get().getCountryId();
             topAttendeeCountryCount = maybeCountryAttendeeCount.get().getCount();
         }
 
-        return Optional.of(new EventWithStatistics(event, createdEventsCount, attendedEventsCount, topAttendeeCountry, topAttendeeCountryCount));
+        return Optional.of(new EventWithStatistics(event, createdEventsCount, attendedEventsCount, topAttendeeCountry, topAttendeeCountryId, topAttendeeCountryCount));
     }
 
 

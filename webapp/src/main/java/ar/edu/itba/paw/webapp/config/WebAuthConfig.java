@@ -122,6 +122,8 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PATCH, "/api/cities/*").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.DELETE, "/api/cities/*").access("hasRole('ADMIN')")
 
+                .antMatchers(HttpMethod.GET, "/api/countries", "/api/countries/*").permitAll()
+
                 .antMatchers(HttpMethod.GET, "/api/careers", "/api/careers/*").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/careers").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.PUT, "/api/careers/*").access("hasRole('ADMIN')")

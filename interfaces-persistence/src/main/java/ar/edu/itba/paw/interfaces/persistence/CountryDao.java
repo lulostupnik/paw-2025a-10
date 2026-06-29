@@ -6,5 +6,6 @@ import java.util.Optional;
 
 public interface CountryDao {
     List<Country> findAll();
+    Optional<Country> findById(long id);
     Optional<Country> findByName(String name);
 }

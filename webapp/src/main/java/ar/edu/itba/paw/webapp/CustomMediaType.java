@@ -48,6 +48,10 @@ public final class CustomMediaType {
     public static final String APPLICATION_CITY = "application/vnd.gotogether.city.v1+json";
     public static final String APPLICATION_CITY_LIST = "application/vnd.gotogether.city-list.v1+json";
 
+    // --- COUNTRIES ---
+    public static final String APPLICATION_COUNTRY = "application/vnd.gotogether.country.v1+json";
+    public static final String APPLICATION_COUNTRY_LIST = "application/vnd.gotogether.country-list.v1+json";
+
     // --- UNIVERSITIES ---
     public static final String APPLICATION_UNIVERSITY = "application/vnd.gotogether.university.v1+json";
     public static final String APPLICATION_UNIVERSITY_LIST = "application/vnd.gotogether.university-list.v1+json";

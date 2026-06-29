@@ -125,14 +125,14 @@ public class EventHibernateDao implements EventDao {
     @Override
     public Optional<CountryAttendeeCount> findTopAttendeeCountry(final long eventId) {
         Query query = em.createNativeQuery("""
-        SELECT co.name AS country_name, COUNT(*) AS attendee_count
+        SELECT co.id AS country_id, co.name AS country_name, COUNT(*) AS attendee_count
         FROM event_attendances ea
         JOIN users u ON ea.user_id = u.id
         JOIN universities uni ON u.university = uni.id
         JOIN cities ci ON uni.city_id = ci.id
         JOIN countries co ON ci.country_id = co.id
         WHERE ea.event_id = :eventId
-        GROUP BY co.name
+        GROUP BY co.id, co.name
         ORDER BY attendee_count DESC
         LIMIT 1
     """);
@@ -143,7 +143,7 @@ public class EventHibernateDao implements EventDao {
 
         return results.stream()
                 .findFirst()
-                .map(row -> new CountryAttendeeCount((String) row[0], ((Number) row[1]).intValue()));
+                .map(row -> new CountryAttendeeCount(((Number) row[0]).longValue(), (String) row[1], ((Number) row[2]).intValue()));
     }
 
 

@@ -9,6 +9,7 @@ import lombok.ToString;
 @ToString
 public class CountryAttendeeCount {
 
+    private final long countryId;
     private final String countryName;
     private final int count;
 
