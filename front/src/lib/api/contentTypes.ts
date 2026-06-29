@@ -47,6 +47,10 @@ export const ContentTypes = {
     CITY: "application/vnd.gotogether.city.v1+json",
     CITY_LIST: "application/vnd.gotogether.city-list.v1+json",
 
+    // --- COUNTRIES ---
+    COUNTRY: "application/vnd.gotogether.country.v1+json",
+    COUNTRY_LIST: "application/vnd.gotogether.country-list.v1+json",
+
     // --- UNIVERSITIES ---
     UNIVERSITY: "application/vnd.gotogether.university.v1+json",
     UNIVERSITY_LIST: "application/vnd.gotogether.university-list.v1+json",

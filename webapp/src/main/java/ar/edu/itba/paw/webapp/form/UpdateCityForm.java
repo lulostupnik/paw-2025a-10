@@ -13,11 +13,9 @@ public class UpdateCityForm {
     @NotEmpty
     private String name;
 
-    @Size(max = 50)
     @NotNull
-    @NotEmpty
     @ExistingCountry
-    private String country;
+    private Long countryId;
 
     public String getName() {
         return name;
@@ -27,11 +25,11 @@ public class UpdateCityForm {
         this.name = name;
     }
 
-    public String getCountry() {
-        return country;
+    public Long getCountryId() {
+        return countryId;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setCountryId(Long countryId) {
+        this.countryId = countryId;
     }
 }

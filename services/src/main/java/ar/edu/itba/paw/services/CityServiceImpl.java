@@ -53,12 +53,12 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    public City updateCity(final long id,final String name,final String countryName) {
-        LOGGER.debug("Updating city with id {}, name {}, country {}", id, name, countryName);
-        Country country = countryService.findCountryByName(countryName)
+    public City updateCity(final long id,final String name,final long countryId) {
+        LOGGER.debug("Updating city with id {}, name {}, country {}", id, name, countryId);
+        Country country = countryService.findCountryById(countryId)
                 .orElseThrow(() -> {
-                    LOGGER.error("Country {} not found", countryName);
-                    return new InvalidReferenceException("Country", countryName);});
+                    LOGGER.error("Country {} not found", countryId);
+                    return new InvalidReferenceException("Country", String.valueOf(countryId));});
         City city = cityDao.findById(id)
                 .orElseThrow(() -> {
                     LOGGER.error("City with id {} not found", id);
@@ -71,15 +71,15 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    public City patchCity(final long id, final String name, final String countryName) {
+    public City patchCity(final long id, final String name, final Long countryId) {
         LOGGER.debug("Patching city with id {}", id);
         City city = cityDao.findById(id).orElseThrow(() -> new CityNotFoundException(id));
 
         if (name != null) {
             city.setName(name);
         }
-        if (countryName != null) {
-            Country country = countryService.findCountryByName(countryName).orElseThrow(() -> new InvalidReferenceException("Country", countryName));
+        if (countryId != null) {
+            Country country = countryService.findCountryById(countryId).orElseThrow(() -> new InvalidReferenceException("Country", String.valueOf(countryId)));
             city.setCountry(country);
         }
 
@@ -89,14 +89,14 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    public City createCity(final String cityName,final String countryName) {
-        LOGGER.debug("Creating city with name {} and country {}", cityName, countryName);
-        Country country = countryService.findCountryByName(countryName)
+    public City createCity(final String cityName,final long countryId) {
+        LOGGER.debug("Creating city with name {} and country {}", cityName, countryId);
+        Country country = countryService.findCountryById(countryId)
                 .orElseThrow(() -> {
-                    LOGGER.error("Country {} not found", countryName);
-                    return new InvalidReferenceException("Country", countryName);});
+                    LOGGER.error("Country {} not found", countryId);
+                    return new InvalidReferenceException("Country", String.valueOf(countryId));});
         City city = cityDao.create(cityName, country);
-        LOGGER.info("City with name {} and country {} created successfully", cityName, countryName);
+        LOGGER.info("City with name {} and country {} created successfully", cityName, countryId);
         return city;
     }
 

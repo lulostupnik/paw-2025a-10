@@ -1,10 +1,11 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useQuery } from "@tanstack/react-query";
-import { createCity, listCities } from "@/lib/api/cities";
+import { createCity } from "@/lib/api/cities";
+import { listCountries, type CountryDto } from "@/lib/api/countries";
 import { useNavigate } from "react-router-dom";
 
 interface CityFormState {
@@ -36,12 +37,8 @@ export default function CityCreatePage() {
     const [submitting, setSubmitting] = useState(false);
 
     const countriesQuery = useQuery({
-        queryKey: ["cityCountries"],
-        queryFn: async ({ signal }) => {
-            const cities = await listCities({ page: 1, size: 200 }, signal);    //TODO Shouln't we have a GET countries endpoint?
-            const unique = Array.from(new Set(cities.content.map((item) => item.country).filter(Boolean)));
-            return unique.map((name, index) => ({ id: index + 1, name: name ?? "" }));
-        },
+        queryKey: ["countries"],
+        queryFn: ({ signal }) => listCountries(signal),
     });
     const countries = useMemo(() => countriesQuery.data ?? [], [countriesQuery.data]);
 
@@ -53,14 +50,24 @@ export default function CityCreatePage() {
         return countries.filter((country) => country.name.toLowerCase().includes(query));
     }, [countries, countryQuery]);
 
+    // The body references the country by its id, so the typed/selected name is
+    // resolved to the country's id at submit time using the loaded list.
+    const resolveCountryId = useCallback(
+        (name: string) =>
+            countries.find((c) => c.name.trim().toLowerCase() === name.trim().toLowerCase())?.id ?? null,
+        [countries]
+    );
+
     const errors = useMemo(
         () => ({
             name: form.name.trim() ? "" : t("NotNull.createCity.name", { defaultValue: "Campo obligatorio." }),
-            country: form.country.trim()
-                ? ""
-                : t("NotNull.createCity.country", { defaultValue: "Campo obligatorio." }),
+            country: !form.country.trim()
+                ? t("NotNull.createCity.country", { defaultValue: "Campo obligatorio." })
+                : resolveCountryId(form.country) != null
+                    ? ""
+                    : t("ExistingCountry.createCityForm.country", { defaultValue: "Este país no está entre nuestras opciones" }),
         }),
-        [form, t]
+        [form, t, resolveCountryId]
     );
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -69,9 +76,13 @@ export default function CityCreatePage() {
         if (errors.name || errors.country) {
             return;
         }
+        const countryId = resolveCountryId(form.country);
+        if (countryId == null) {
+            return;
+        }
         setSubmitting(true);
         setSubmitError(null);
-        createCity({ name: form.name.trim(), country: form.country.trim() })
+        createCity({ name: form.name.trim(), countryId })
             .then((created) => navigate(`/cities/${created.id}`))
             .catch((error) => {
                 console.error("Failed to create city", error);
@@ -80,10 +91,10 @@ export default function CityCreatePage() {
             .finally(() => setSubmitting(false));
     };
 
-    const handleCountrySelect = (value: string) => {
-        setSelectedCountry(value);
-        setCountryQuery(value);
-        setForm((prev) => ({ ...prev, country: value }));
+    const handleCountrySelect = (country: CountryDto) => {
+        setSelectedCountry(country.name);
+        setCountryQuery(country.name);
+        setForm((prev) => ({ ...prev, country: country.name }));
         setCountryOpen(false);
     };
 
@@ -170,7 +181,7 @@ export default function CityCreatePage() {
                                             role="option"
                                             className={`autocomplete-item ${selectedCountry === country.name ? "selected" : ""}`}
                                             onMouseDown={(event) => event.preventDefault()}
-                                            onClick={() => handleCountrySelect(country.name)}
+                                            onClick={() => handleCountrySelect(country)}
                                         >
                                             {country.name}
                                         </div>

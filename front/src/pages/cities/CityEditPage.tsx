@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminCityDetailData } from "@/hooks/useAdminDetailData";
 import { useQuery } from "@tanstack/react-query";
-import { listCities, updateCity } from "@/lib/api/cities";
+import { updateCity } from "@/lib/api/cities";
+import { listCountries, type CountryDto } from "@/lib/api/countries";
 import { useNavigate } from "react-router-dom";
 
 interface CityFormState {
@@ -34,12 +35,8 @@ export default function CityEditPage() {
     const [submitting, setSubmitting] = useState(false);
 
     const countriesQuery = useQuery({
-        queryKey: ["cityCountries"],
-        queryFn: async ({ signal }) => {
-            const cities = await listCities({ page: 1, size: 200 }, signal);
-            const unique = Array.from(new Set(cities.content.map((item) => item.country).filter(Boolean)));
-            return unique.map((name, index) => ({ id: index + 1, name: name ?? "" }));
-        },
+        queryKey: ["countries"],
+        queryFn: ({ signal }) => listCountries(signal),
     });
     const countries = useMemo(() => countriesQuery.data ?? [], [countriesQuery.data]);
 
@@ -63,14 +60,24 @@ export default function CityEditPage() {
         setSelectedCountry(city.country ?? null);
     }, [city]);
 
+    // The body references the country by its id, so the typed/selected name is
+    // resolved to the country's id at submit time using the loaded list.
+    const resolveCountryId = useCallback(
+        (name: string) =>
+            countries.find((c) => c.name.trim().toLowerCase() === name.trim().toLowerCase())?.id ?? null,
+        [countries]
+    );
+
     const errors = useMemo(
         () => ({
             name: form.name.trim() ? "" : t("NotNull.createCity.name", { defaultValue: "Campo obligatorio." }),
-            country: form.country.trim()
-                ? ""
-                : t("NotNull.createCity.country", { defaultValue: "Campo obligatorio." }),
+            country: !form.country.trim()
+                ? t("NotNull.createCity.country", { defaultValue: "Campo obligatorio." })
+                : resolveCountryId(form.country) != null
+                    ? ""
+                    : t("ExistingCountry.createCityForm.country", { defaultValue: "Este país no está entre nuestras opciones" }),
         }),
-        [form, t]
+        [form, t, resolveCountryId]
     );
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -85,7 +92,11 @@ export default function CityEditPage() {
         }
         setSubmitting(true);
         setSubmitError(null);
-        updateCity(id, { name: form.name.trim(), country: form.country.trim() })
+        const countryId = resolveCountryId(form.country);
+        if (countryId == null) {
+            return;
+        }
+        updateCity(id, { name: form.name.trim(), countryId })
             .then(() => navigate(`/cities/${id}`))
             .catch((error) => {
                 console.error("Failed to update city", error);
@@ -94,10 +105,10 @@ export default function CityEditPage() {
             .finally(() => setSubmitting(false));
     };
 
-    const handleCountrySelect = (value: string) => {
-        setSelectedCountry(value);
-        setCountryQuery(value);
-        setForm((prev) => ({ ...prev, country: value }));
+    const handleCountrySelect = (country: CountryDto) => {
+        setSelectedCountry(country.name);
+        setCountryQuery(country.name);
+        setForm((prev) => ({ ...prev, country: country.name }));
         setCountryOpen(false);
     };
 
@@ -197,7 +208,7 @@ export default function CityEditPage() {
                                             role="option"
                                             className={`autocomplete-item ${selectedCountry === country.name ? "selected" : ""}`}
                                             onMouseDown={(event) => event.preventDefault()}
-                                            onClick={() => handleCountrySelect(country.name)}
+                                            onClick={() => handleCountrySelect(country)}
                                         >
                                             {country.name}
                                         </div>

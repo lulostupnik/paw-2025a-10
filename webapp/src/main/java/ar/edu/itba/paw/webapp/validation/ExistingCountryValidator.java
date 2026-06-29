@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class ExistingCountryValidator implements ConstraintValidator<ExistingCountry, String> {
+public class ExistingCountryValidator implements ConstraintValidator<ExistingCountry, Long> {
 
     private final CountryService countryService;
     @Autowired
@@ -18,11 +18,10 @@ public class ExistingCountryValidator implements ConstraintValidator<ExistingCou
     }
 
     @Override
-    public boolean isValid(String country, ConstraintValidatorContext context) {
-        if (country == null || country.isEmpty()) {
+    public boolean isValid(Long countryId, ConstraintValidatorContext context) {
+        if (countryId == null) {
             return true;
         }
-
-        return countryService.findCountryByName(country).isPresent();
+        return countryService.findCountryById(countryId).isPresent();
     }
 }

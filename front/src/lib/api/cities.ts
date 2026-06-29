@@ -8,12 +8,14 @@ export interface CityDto {
     country?: string | null;
     links?: {
         selfUrl?: string | null;
+        countryUrl?: string | null;
     } | null;
 }
 
 export interface CityPayload {
     name: string;
-    country: string;
+    /** Id of the country resource (bodies reference related resources by id, like menumate/vitae). */
+    countryId: number;
 }
 
 export interface ListCitiesParams {
