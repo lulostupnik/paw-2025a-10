@@ -42,15 +42,18 @@ public class UserHibernateDao implements UserDao {
 
     @Override
     public boolean existsByUsername(String username) {
-        final TypedQuery<User> query = em.createQuery("from User as u where u.username= :username", User.class);
-        query.setParameter("username", username);
-        final List<User> list = query.getResultList();
-        return ! list.isEmpty();
+        final Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.username = :username", Long.class)
+                .setParameter("username", username)
+                .getSingleResult();
+        return count > 0;
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        return findByEmail(email).isPresent();
+        final Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.email = :email", Long.class)
+                .setParameter("email", email)
+                .getSingleResult();
+        return count > 0;
     }
 
 
