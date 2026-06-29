@@ -78,7 +78,7 @@ public class EventServiceImpl implements EventService {
     private Event createEventInternal(final User user, final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         City city = cityService.findCityById(cityId).orElseThrow(() ->{
             LOGGER.error("City not found {}", cityId);
-            return new InvalidReferenceException("City", String.valueOf(cityId));}
+            return new InvalidReferenceException("City", cityId);}
         );
         Event event = eventDao.create(user, city, date, description, null, title, time, address, attendeesLimit);
         LOGGER.info("Event {} created", event.getId());
@@ -456,7 +456,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.debug("Editing event {}", eventId);
         Event currentEvent = eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
 
-        City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", String.valueOf(cityId)));
+        City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
 
         currentEvent.setTitle(title);
         currentEvent.setDescription(description);
@@ -478,7 +478,7 @@ public class EventServiceImpl implements EventService {
         Event currentEvent = eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
 
         if (cityId != null) {
-            City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", String.valueOf(cityId)));
+            City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
             currentEvent.setCity(resolvedCity);
         }
         if (title != null) {

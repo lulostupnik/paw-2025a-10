@@ -58,7 +58,7 @@ public class CityServiceImpl implements CityService {
         Country country = countryService.findCountryById(countryId)
                 .orElseThrow(() -> {
                     LOGGER.error("Country {} not found", countryId);
-                    return new InvalidReferenceException("Country", String.valueOf(countryId));});
+                    return new InvalidReferenceException("Country", countryId);});
         City city = cityDao.findById(id)
                 .orElseThrow(() -> {
                     LOGGER.error("City with id {} not found", id);
@@ -79,7 +79,7 @@ public class CityServiceImpl implements CityService {
             city.setName(name);
         }
         if (countryId != null) {
-            Country country = countryService.findCountryById(countryId).orElseThrow(() -> new InvalidReferenceException("Country", String.valueOf(countryId)));
+            Country country = countryService.findCountryById(countryId).orElseThrow(() -> new InvalidReferenceException("Country", countryId));
             city.setCountry(country);
         }
 
@@ -94,7 +94,7 @@ public class CityServiceImpl implements CityService {
         Country country = countryService.findCountryById(countryId)
                 .orElseThrow(() -> {
                     LOGGER.error("Country {} not found", countryId);
-                    return new InvalidReferenceException("Country", String.valueOf(countryId));});
+                    return new InvalidReferenceException("Country", countryId);});
         City city = cityDao.create(cityName, country);
         LOGGER.info("City with name {} and country {} created successfully", cityName, countryId);
         return city;

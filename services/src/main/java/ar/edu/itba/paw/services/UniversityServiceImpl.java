@@ -58,7 +58,7 @@ public class UniversityServiceImpl implements UniversityService {
         LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityId);
         City city = cityService.findCityById(cityId).orElseThrow(() -> {
             LOGGER.error("City not found with id: {}", cityId);
-            return new InvalidReferenceException("City", String.valueOf(cityId));
+            return new InvalidReferenceException("City", cityId);
         });
         University university = universityDao.create(name, abbreviation, city);
         LOGGER.info("University created successfully with name: {}, abbreviation: {}, in city: {}", name, abbreviation, cityId);
@@ -69,7 +69,7 @@ public class UniversityServiceImpl implements UniversityService {
     @Transactional
     public University updateUniversity(final long id, final String name, final String abbreviation, final long cityId) {
         LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityId);
-        City city = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", String.valueOf(cityId)));
+        City city = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
         University university = universityDao.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
         university.setName(name);
         university.setAbbreviation(abbreviation);
@@ -92,7 +92,7 @@ public class UniversityServiceImpl implements UniversityService {
             university.setAbbreviation(abbreviation);
         }
         if (cityId != null) {
-            City city = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", String.valueOf(cityId)));
+            City city = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
             university.setCity(city);
         }
 
