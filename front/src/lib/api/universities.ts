@@ -46,7 +46,7 @@ export const getUniversityByUrl = async (url?: string | null, signal?: AbortSign
 };
 
 export const createUniversity = async (payload: UniversityPayload, signal?: AbortSignal): Promise<UniversityDto> => {
-    const response = await apiClient.post<UniversityDto>("/universities", payload, { signal, headers: { "Content-Type": ContentTypes.UNIVERSITY } });
+    const response = await apiClient.post<UniversityDto>("/universities", payload, { signal, headers: { "Content-Type": ContentTypes.UNIVERSITY, Accept: ContentTypes.UNIVERSITY } });
     return response.data;
 };
 
@@ -55,7 +55,7 @@ export const updateUniversity = async (
     payload: UniversityPayload,
     signal?: AbortSignal
 ): Promise<UniversityDto> => {
-    const response = await apiClient.put<UniversityDto>(`/universities/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.UNIVERSITY } });
+    const response = await apiClient.put<UniversityDto>(`/universities/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.UNIVERSITY, Accept: ContentTypes.UNIVERSITY } });
     return response.data;
 };
 

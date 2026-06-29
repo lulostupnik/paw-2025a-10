@@ -94,6 +94,7 @@ public class UserController {
 
     @POST
     @Consumes(CustomMediaType.APPLICATION_USER)
+    @Produces(CustomMediaType.APPLICATION_USER_PUBLIC)
     public Response createUser(@Valid final CreateUserForm registerForm) {
         final User user = us.createUser(
                 registerForm.getEmail(),
@@ -122,6 +123,7 @@ public class UserController {
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_USER)
     @PreAuthorize("@accessHelper.canPatchUser(#id, #form)")
+    @Produces(CustomMediaType.APPLICATION_USER_PUBLIC)
     public Response patchUser(@PathParam("id") final long id, @Valid PatchUserForm form) {
         final User user = us.patchUser(id, form.getUsername(), form.getFirstName(), form.getLastName(),
                 form.getOriginUniversity(), form.getCareer(), form.getPassword(), form.getVerified(), form.getBlocked());
@@ -151,6 +153,7 @@ public class UserController {
     @POST
     @Path("/{userId}/interests")
     @Consumes(CustomMediaType.APPLICATION_USER_INTEREST)
+    @Produces(CustomMediaType.APPLICATION_USER_INTEREST)
     public Response addUserInterest(
             @PathParam("userId") final long userId,
             @Valid final AddUserInterestForm form

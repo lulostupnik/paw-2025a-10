@@ -31,7 +31,7 @@ export const getInterestById = async (id: number | string, signal?: AbortSignal)
 };
 
 export const createInterest = async (payload: InterestPayload, signal?: AbortSignal): Promise<InterestDto> => {
-    const response = await apiClient.post<InterestDto>("/interests", payload, { signal, headers: { "Content-Type": ContentTypes.INTEREST } });
+    const response = await apiClient.post<InterestDto>("/interests", payload, { signal, headers: { "Content-Type": ContentTypes.INTEREST, Accept: ContentTypes.INTEREST } });
     return response.data;
 };
 
@@ -40,7 +40,7 @@ export const updateInterest = async (
     payload: InterestPayload,
     signal?: AbortSignal
 ): Promise<InterestDto> => {
-    const response = await apiClient.put<InterestDto>(`/interests/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.INTEREST } });
+    const response = await apiClient.put<InterestDto>(`/interests/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.INTEREST, Accept: ContentTypes.INTEREST } });
     return response.data;
 };
 

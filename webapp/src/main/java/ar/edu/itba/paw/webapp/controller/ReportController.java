@@ -61,6 +61,7 @@ public class ReportController {
 
     @POST
     @Consumes(CustomMediaType.APPLICATION_REPORT)
+    @Produces(CustomMediaType.APPLICATION_REPORT)
     public Response createReport(@Valid final CreateReportForm form) {
         final Long userId = AuthUtils.getCurrentUserId();
 
@@ -74,6 +75,7 @@ public class ReportController {
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_REPORT)
+    @Produces(CustomMediaType.APPLICATION_REPORT)
     public Response updateStatus(@PathParam("id") final long id, @Valid final UpdateReportStatusForm form) {
         final Report report = reportService.updateReportStatus(id,form.getStatus());
         return Response.ok(ReportDto.fromReport(uriInfo, report)).build();

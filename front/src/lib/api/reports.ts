@@ -25,7 +25,7 @@ export interface CreateReportPayload {
 }
 
 export const createReport = async (payload: CreateReportPayload, signal?: AbortSignal) => {
-    const response = await apiClient.post("/reports", payload, { signal, headers: { "Content-Type": ContentTypes.REPORT } });
+    const response = await apiClient.post("/reports", payload, { signal, headers: { "Content-Type": ContentTypes.REPORT, Accept: ContentTypes.REPORT } });
     return response.data;
 };
 
@@ -199,7 +199,7 @@ export const getReportById = async (id: number | string, signal?: AbortSignal): 
 };
 
 export const updateReportStatus = async (id: number, status: ReportStatus, signal?: AbortSignal) => {
-    const response = await apiClient.patch<ReportDto>(`/reports/${id}`, { status }, { signal, headers: { "Content-Type": ContentTypes.REPORT } });
+    const response = await apiClient.patch<ReportDto>(`/reports/${id}`, { status }, { signal, headers: { "Content-Type": ContentTypes.REPORT, Accept: ContentTypes.REPORT } });
     return response.data;
 };
 

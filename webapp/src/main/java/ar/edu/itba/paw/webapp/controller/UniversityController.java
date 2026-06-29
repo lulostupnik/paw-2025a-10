@@ -60,6 +60,7 @@ public class UniversityController {
 
     @POST
     @Consumes(CustomMediaType.APPLICATION_UNIVERSITY)
+    @Produces(CustomMediaType.APPLICATION_UNIVERSITY)
     public Response createUniversity(@Valid final CreateUniversityForm form) {
         final University university = universityService.createUniversity(form.getName(), form.getAbbreviation(), form.getCity());
         return Response.created(UriUtils.getUniversityUri(uriInfo, university.getId()))
@@ -70,6 +71,7 @@ public class UniversityController {
     @PUT
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_UNIVERSITY)
+    @Produces(CustomMediaType.APPLICATION_UNIVERSITY)
     public Response updateUniversity(
             @PathParam("id") final long id,
             @Valid final UpdateUniversityForm form
@@ -81,6 +83,7 @@ public class UniversityController {
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_UNIVERSITY)
+    @Produces(CustomMediaType.APPLICATION_UNIVERSITY)
     public Response patchUniversity(
             @PathParam("id") final long id,
             @Valid final PatchUniversityForm form

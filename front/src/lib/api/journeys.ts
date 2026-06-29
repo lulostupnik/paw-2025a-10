@@ -118,7 +118,7 @@ export const createJourney = async (
     },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.post<JourneySummary>("/journeys", payload, { signal, headers: { "Content-Type": ContentTypes.JOURNEY } });
+    const response = await apiClient.post<JourneySummary>("/journeys", payload, { signal, headers: { "Content-Type": ContentTypes.JOURNEY, Accept: ContentTypes.JOURNEY } });
     return response.data;
 };
 
@@ -132,12 +132,12 @@ export const updateJourney = async (
     },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.put<JourneySummary>(`/journeys/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.JOURNEY } });
+    const response = await apiClient.put<JourneySummary>(`/journeys/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.JOURNEY, Accept: ContentTypes.JOURNEY } });
     return response.data;
 };
 
 export const deleteJourney = async (id: string | number, payload?: { message?: string | null }, signal?: AbortSignal) => {
-    await apiClient.patch(`/journeys/${id}`, payload ?? {}, { signal, headers: { "Content-Type": ContentTypes.JOURNEY } });
+    await apiClient.patch(`/journeys/${id}`, payload ?? {}, { signal, headers: { "Content-Type": ContentTypes.JOURNEY, Accept: ContentTypes.JOURNEY } });
 };
 
 export const getUserByUrl = async (url?: string | null, signal?: AbortSignal) => {
@@ -196,7 +196,7 @@ export const getJourneyResponse = async (journeyId: number, responseId: number, 
 };
 
 export const createJourneyResponse = async (journeyId: number, payload: { message: string }, signal?: AbortSignal) => {
-    const response = await apiClient.post<JourneyResponseApi>(`/journeys/${journeyId}/responses`, payload, { signal, headers: { "Content-Type": ContentTypes.JOURNEY_RESPONSE } });
+    const response = await apiClient.post<JourneyResponseApi>(`/journeys/${journeyId}/responses`, payload, { signal, headers: { "Content-Type": ContentTypes.JOURNEY_RESPONSE, Accept: ContentTypes.JOURNEY_RESPONSE } });
     return response.data;
 };
 
@@ -228,7 +228,7 @@ export const createJourneyTip = async (
     payload: { title: string; content: string },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.post<TipApi>(`/journeys/${journeyId}/tips`, payload, { signal, headers: { "Content-Type": ContentTypes.TIP } });
+    const response = await apiClient.post<TipApi>(`/journeys/${journeyId}/tips`, payload, { signal, headers: { "Content-Type": ContentTypes.TIP, Accept: ContentTypes.TIP } });
     return response.data;
 };
 
@@ -238,7 +238,7 @@ export const updateJourneyTip = async (
     payload: { title: string; content: string },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.put<TipApi>(`/journeys/${journeyId}/tips/${tipId}`, payload, { signal, headers: { "Content-Type": ContentTypes.TIP } });
+    const response = await apiClient.put<TipApi>(`/journeys/${journeyId}/tips/${tipId}`, payload, { signal, headers: { "Content-Type": ContentTypes.TIP, Accept: ContentTypes.TIP } });
     return response.data;
 };
 

@@ -110,6 +110,7 @@ public class EventController {
 
     @POST
     @Consumes(CustomMediaType.APPLICATION_EVENT)
+    @Produces(CustomMediaType.APPLICATION_EVENT)
     public Response createEvent(@Valid final CreateEventForm form) {
         final Long userId = AuthUtils.getCurrentUserId();
 
@@ -132,6 +133,7 @@ public class EventController {
     @PUT
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_EVENT)
+    @Produces(CustomMediaType.APPLICATION_EVENT)
     public Response updateEvent(@PathParam("id") final long id, @Valid final EditEventForm form) {
         final Event event = eventService.updateEvent(
                 id,
@@ -238,6 +240,7 @@ public class EventController {
     @POST
     @Path("/{eventId}/responses")
     @Consumes(CustomMediaType.APPLICATION_EVENT_RESPONSE)
+    @Produces(CustomMediaType.APPLICATION_EVENT_RESPONSE)
     public Response createEventResponse(
             @PathParam("eventId") final long eventId,
             @Valid @NotNull final CreateEventResponseForm form
@@ -342,6 +345,7 @@ public class EventController {
     @POST
     @Path("/{eventId}/ratings")
     @Consumes(CustomMediaType.APPLICATION_EVENT_RATING)
+    @Produces(CustomMediaType.APPLICATION_EVENT_RATING)
     public Response createEventRating(
             @PathParam("eventId") final long eventId,
             @Valid final CreateRatingForm form
@@ -356,6 +360,7 @@ public class EventController {
     @PUT
     @Path("/{eventId}/ratings/{ratingId}")
     @Consumes(CustomMediaType.APPLICATION_EVENT_RATING)
+    @Produces(CustomMediaType.APPLICATION_EVENT_RATING)
     public Response updateEventRating(
             @PathParam("eventId") final long eventId,
             @PathParam("ratingId") final long ratingId,

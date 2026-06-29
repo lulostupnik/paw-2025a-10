@@ -173,7 +173,7 @@ export async function verifyEmailToken(payload: EmailVerificationPayload, signal
     await apiClient.patch(
         `/users/${payload.userId}`,
         { verified: true },
-        { signal, headers: { "Content-Type": ContentTypes.USER, Authorization: `Basic ${basic}` } },
+        { signal, headers: { "Content-Type": ContentTypes.USER, Accept: ContentTypes.USER_PUBLIC, Authorization: `Basic ${basic}` } },
     );
 
     await hydrateSessionFromStoredToken(signal);
@@ -209,7 +209,7 @@ export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayl
     await apiClient.patch(
         `/users/${payload.userId}`,
         { password: payload.password },
-        { signal, headers: { "Content-Type": ContentTypes.USER, Authorization: `Basic ${basic}` } },
+        { signal, headers: { "Content-Type": ContentTypes.USER, Accept: ContentTypes.USER_PUBLIC, Authorization: `Basic ${basic}` } },
     );
 
     await hydrateSessionFromStoredToken(signal);

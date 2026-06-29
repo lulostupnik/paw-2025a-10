@@ -89,12 +89,12 @@ export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSign
 };
 
 export const registerUser = async (payload: RegisterPayload, signal?: AbortSignal): Promise<RegisteredUser> => {
-    const { data } = await apiClient.post<RegisteredUser>("/users", payload, { signal, headers: { "Content-Type": ContentTypes.USER } });
+    const { data } = await apiClient.post<RegisteredUser>("/users", payload, { signal, headers: { "Content-Type": ContentTypes.USER, Accept: ContentTypes.USER_PUBLIC } });
     return data;
 };
 
 export const updateUserBlocked = async (userId: number, blocked: boolean, signal?: AbortSignal) => {
-    await apiClient.patch(`/users/${userId}`, { blocked }, { signal, headers: { "Content-Type": ContentTypes.USER } });
+    await apiClient.patch(`/users/${userId}`, { blocked }, { signal, headers: { "Content-Type": ContentTypes.USER, Accept: ContentTypes.USER_PUBLIC } });
 };
 
 export const updateUserProfile = async (
@@ -102,7 +102,7 @@ export const updateUserProfile = async (
     payload: ProfileEditPayload,
     signal?: AbortSignal
 ): Promise<ProfileDetail> => {
-    const response = await apiClient.patch<ProfileDetail>(`/users/${userId}`, payload, { signal, headers: { "Content-Type": ContentTypes.USER } });
+    const response = await apiClient.patch<ProfileDetail>(`/users/${userId}`, payload, { signal, headers: { "Content-Type": ContentTypes.USER, Accept: ContentTypes.USER_PUBLIC } });
     return response.data;
 };
 
@@ -111,7 +111,7 @@ export const updateUserPassword = async (
     password: string,
     signal?: AbortSignal
 ): Promise<void> => {
-    await apiClient.patch(`/users/${userId}`, { password }, { signal, headers: { "Content-Type": ContentTypes.USER } });
+    await apiClient.patch(`/users/${userId}`, { password }, { signal, headers: { "Content-Type": ContentTypes.USER, Accept: ContentTypes.USER_PUBLIC } });
 };
 
 export const updateUserProfilePicture = async (
@@ -157,7 +157,7 @@ export const getUserInterests = async (userId: string | number, params: ListUser
 }
 
 export const addUserInterest = async (userId: string | number, interestId: number, signal?: AbortSignal) => {
-    await apiClient.post(`/users/${userId}/interests`, { interestId }, { signal, headers: { "Content-Type": ContentTypes.USER_INTEREST } });
+    await apiClient.post(`/users/${userId}/interests`, { interestId }, { signal, headers: { "Content-Type": ContentTypes.USER_INTEREST, Accept: ContentTypes.USER_INTEREST } });
 };
 
 export const removeUserInterest = async (userId: string | number, interestId: number, signal?: AbortSignal) => {

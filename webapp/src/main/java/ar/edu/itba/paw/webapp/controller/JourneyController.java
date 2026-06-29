@@ -106,6 +106,7 @@ public class JourneyController {
 
     @POST
     @Consumes(CustomMediaType.APPLICATION_JOURNEY)
+    @Produces(CustomMediaType.APPLICATION_JOURNEY)
     public Response createJourney(@Valid final CreateJourneyForm form) {
         final Long userId = AuthUtils.getCurrentUserId();
 
@@ -125,6 +126,7 @@ public class JourneyController {
     @PUT
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_JOURNEY)
+    @Produces(CustomMediaType.APPLICATION_JOURNEY)
     public Response updateJourney(@PathParam("id") final long id, @Valid final UpdateJourneyForm form) {
         final Journey journey = journeyService.updateJourney(
                 id,
@@ -179,6 +181,7 @@ public class JourneyController {
     @POST
     @Path("/{journeyId}/tips")
     @Consumes(CustomMediaType.APPLICATION_TIP)
+    @Produces(CustomMediaType.APPLICATION_TIP)
     public Response createTip(
             @PathParam("journeyId") final long journeyId,
             @Valid final CreateTipForm form
@@ -192,6 +195,7 @@ public class JourneyController {
     @PUT
     @Path("/{journeyId}/tips/{tipId}")
     @Consumes(CustomMediaType.APPLICATION_TIP)
+    @Produces(CustomMediaType.APPLICATION_TIP)
     public Response updateTip(
             @PathParam("journeyId") final long journeyId,
             @PathParam("tipId") final long tipId,
@@ -259,6 +263,7 @@ public class JourneyController {
     @POST
     @Path("/{journeyId}/responses")
     @Consumes(CustomMediaType.APPLICATION_JOURNEY_RESPONSE)
+    @Produces(CustomMediaType.APPLICATION_JOURNEY_RESPONSE)
     public Response createJourneyResponse(
             @PathParam("journeyId") final long journeyId,
             @Valid final CreateJourneyResponseForm form

@@ -59,6 +59,7 @@ public class InterestController {
 
     @POST
     @Consumes(CustomMediaType.APPLICATION_INTEREST)
+    @Produces(CustomMediaType.APPLICATION_INTEREST)
     public Response createInterest(@Valid final CreateInterestForm form) {
         final Interest interest = interestService.createInterest(form.getName());
         return Response.created(UriUtils.getInterestUri(uriInfo, interest.getId()))
@@ -69,6 +70,7 @@ public class InterestController {
     @PUT
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_INTEREST)
+    @Produces(CustomMediaType.APPLICATION_INTEREST)
     public Response updateInterest(
             @PathParam("id") final long id,
             @Valid final UpdateInterestForm form
@@ -80,6 +82,7 @@ public class InterestController {
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_INTEREST)
+    @Produces(CustomMediaType.APPLICATION_INTEREST)
     public Response patchInterest(
             @PathParam("id") final long id,
             @Valid final PatchInterestForm form

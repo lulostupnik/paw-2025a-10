@@ -58,6 +58,7 @@ public class CareerController {
 
     @POST
     @Consumes(CustomMediaType.APPLICATION_CAREER)
+    @Produces(CustomMediaType.APPLICATION_CAREER)
     public Response createCareer(@Valid final CreateCareerForm form) {
         final Career career = careerService.createCareer(form.getName());
         return Response.created(UriUtils.getCareerUri(uriInfo, career.getId()))
@@ -68,6 +69,7 @@ public class CareerController {
     @PUT
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_CAREER)
+    @Produces(CustomMediaType.APPLICATION_CAREER)
     public Response updateCareer(
             @PathParam("id") final long id,
             @Valid final UpdateCareerForm form
@@ -79,6 +81,7 @@ public class CareerController {
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_CAREER)
+    @Produces(CustomMediaType.APPLICATION_CAREER)
     public Response patchCareer(
             @PathParam("id") final long id,
             @Valid final PatchCareerForm form

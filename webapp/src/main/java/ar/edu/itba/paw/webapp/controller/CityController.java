@@ -58,6 +58,7 @@ public class CityController {
 
     @POST
     @Consumes(CustomMediaType.APPLICATION_CITY)
+    @Produces(CustomMediaType.APPLICATION_CITY)
     public Response createCity(@Valid final CreateCityForm form) {
         final City city = cityService.createCity(form.getName(), form.getCountry());
         return Response.created(UriUtils.getCityUri(uriInfo, city.getId()))
@@ -68,6 +69,7 @@ public class CityController {
     @PUT
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_CITY)
+    @Produces(CustomMediaType.APPLICATION_CITY)
     public Response updateCity(
             @PathParam("id") final long id,
             @Valid final UpdateCityForm form
@@ -79,6 +81,7 @@ public class CityController {
     @PATCH
     @Path("/{id}")
     @Consumes(CustomMediaType.APPLICATION_CITY)
+    @Produces(CustomMediaType.APPLICATION_CITY)
     public Response patchCity(
             @PathParam("id") final long id,
             @Valid final PatchCityForm form
