@@ -15,9 +15,9 @@ describe("useRegister", () => {
         lastName: "User",
         password: "Password123",
         confirmPassword: "Password123",
-        career: "Computer Science",
-        originUniversity: "MIT",
-        interests: ["Travel"],
+        careerId: 1,
+        universityId: 1,
+        interestIds: [1],
     };
 
     it("should start with initial state", () => {

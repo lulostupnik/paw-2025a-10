@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface JourneyService {
-    Journey createJourney(long userId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
+    Journey createJourney(long userId, long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description);
 
-    Journey updateJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
-    Journey patchJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
+    Journey updateJourney(long journeyId, long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description);
+    Journey patchJourney(long journeyId, Long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description);
     void deleteJourney(long id, String message);
 
     JourneyResponse createJourneyResponse(String email, long journeyId, String message);

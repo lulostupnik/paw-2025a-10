@@ -36,6 +36,14 @@ const addDays = (dateValue: string, days: number) => {
     return nextDate.toISOString().slice(0, 10);
 };
 
+const parseIdFromUrl = (url?: string | null) => {
+    if (!url) {
+        return null;
+    }
+    const match = url.match(/\/(\d+)(?:\/)?$/);
+    return match ? Number(match[1]) : null;
+};
+
 export default function JourneyEditPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
@@ -55,10 +63,11 @@ export default function JourneyEditPage() {
             return;
         }
         const destinationName = data.destinationUniversity?.name ?? "";
+        const destinationId = parseIdFromUrl(data.links?.destinationUniversityUrl) ?? 0;
         setForm({
             startDate: data.startDate ?? "",
             endDate: data.endDate ?? "",
-            destination: destinationName ? { id: 0, name: destinationName } : null,
+            destination: destinationName ? { id: destinationId, name: destinationName } : null,
             description: data.description ?? "",
         });
         setDestinationQuery(destinationName);
@@ -134,7 +143,7 @@ export default function JourneyEditPage() {
             await updateJourney(
                 id,
                 {
-                    destinationUniversity: form.destination?.name ?? "",
+                    destinationUniversityId: form.destination?.id ?? 0,
                     startDate: form.startDate,
                     endDate: form.endDate,
                     description: form.description.trim(),

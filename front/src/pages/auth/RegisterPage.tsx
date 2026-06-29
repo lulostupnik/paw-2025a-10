@@ -447,9 +447,9 @@ export default function RegisterPage() {
                 confirmPassword: form.confirmPassword,
                 firstName: form.firstName.trim(),
                 lastName: form.lastName.trim(),
-                career: form.career?.name ?? "",
-                originUniversity: form.university?.name ?? "",
-                interests: form.interests.map((interest) => interest.name),
+                careerId: form.career?.id ?? 0,
+                universityId: form.university?.id ?? 0,
+                interestIds: form.interests.map((interest) => interest.id),
             });
             setForm(initialForm);
             setTouched(initialTouchedState);

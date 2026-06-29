@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 public interface UserService {
-    User createUser(String email, String username, String firstname, String lastname, String universityName, String careerName, List<String> interests, String password, Locale locale);
+    User createUser(String email, String username, String firstname, String lastname, long universityId, long careerId, List<Long> interestIds, String password, Locale locale);
     void verifyUser(long id);
     void updatePassword(long id, String newPassword);
     void initiatePasswordReset(String email);
@@ -26,9 +26,9 @@ public interface UserService {
     void setBlockedStatus(long userId, boolean blocked);
 
     User updateUser(long userId, String username, String firstname, String lastname,
-                    String universityName, String careerName);
+                    long universityId, long careerId);
 
-    User patchUser(long userId, String username, String firstname, String lastname, String universityName, String careerName,
+    User patchUser(long userId, String username, String firstname, String lastname, Long universityId, Long careerId,
                    String password, Boolean verified, Boolean blocked);
 
     long updateProfilePicture(long userId, byte[] profilePicture);

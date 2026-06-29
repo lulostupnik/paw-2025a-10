@@ -92,8 +92,8 @@ export default function ProfileForm() {
                 firstName: form.firstName.trim(),
                 lastName: form.lastName.trim(),
                 username: form.username.trim(),
-                originUniversity: selectedUniversity?.name,
-                career: selectedCareer?.name,
+                universityId: selectedUniversity?.id,
+                careerId: selectedCareer?.id,
             });
             const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
             const fallbackPath = profile ? `/profiles/${profile.id}/info` : "/profiles/me/info";

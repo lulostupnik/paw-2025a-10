@@ -111,7 +111,7 @@ export const getJourneyById = async (id: string | number, signal?: AbortSignal) 
 
 export const createJourney = async (
     payload: {
-        destinationUniversity: string;
+        destinationUniversityId: number;
         startDate: string;
         endDate: string;
         description: string;
@@ -125,7 +125,7 @@ export const createJourney = async (
 export const updateJourney = async (
     id: string | number,
     payload: {
-        destinationUniversity: string;
+        destinationUniversityId: number;
         startDate: string;
         endDate: string;
         description: string;

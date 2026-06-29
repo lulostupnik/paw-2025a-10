@@ -10,8 +10,7 @@ public interface UserInterestDao {
     Optional<UserInterest> findById(long userId, long interestId);
     UserInterest create(long userId, long interestId);
     void delete(long userId, long interestId);
-    void createUserInterests(List<String> interests, long userId);
-    void createUserInterests(long[] interests, long userId);
+    void createUserInterests(List<Long> interestIds, long userId);
     void updateUserInterests(long[] interestIds, long userId);
     void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId);
 }

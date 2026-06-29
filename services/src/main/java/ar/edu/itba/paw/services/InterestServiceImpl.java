@@ -117,9 +117,9 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     @Transactional
-    public void createUserInterests(final List<String> interests, final  long userId) {
-        userInterestDao.createUserInterests(interests, userId);
-        LOGGER.info("Interests {} added to user {}", interests, userId);
+    public void createUserInterests(final List<Long> interestIds, final  long userId) {
+        userInterestDao.createUserInterests(interestIds, userId);
+        LOGGER.info("Interests {} added to user {}", interestIds, userId);
     }
 
     @Override

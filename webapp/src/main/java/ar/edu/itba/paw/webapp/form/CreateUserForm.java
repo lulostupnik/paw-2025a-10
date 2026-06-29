@@ -2,7 +2,6 @@ package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -16,10 +15,9 @@ public class CreateUserForm {
     @NotNull
     private String email;
 
-    @Size(max = 100)
     @NotNull
     @ExistingCareer
-    private String career;
+    private Long careerId;
 
     @Size(min = 2, max = 50)
     @UsernameNotInUse
@@ -43,14 +41,12 @@ public class CreateUserForm {
     @NotNull
     private String lastName;
 
-    @Size(max = 100)
-    @NotEmpty
     @NotNull
     @ExistingUniversity
-    private String originUniversity;
+    private Long universityId;
 
     @ValidInterest
-    private List<String> interests;
+    private List<Long> interestIds;
 
     public String getEmail() {
         return email;
@@ -60,12 +56,12 @@ public class CreateUserForm {
         this.email = email;
     }
 
-    public String getCareer() {
-        return career;
+    public Long getCareerId() {
+        return careerId;
     }
 
-    public void setCareer(String career) {
-        this.career = career;
+    public void setCareerId(Long careerId) {
+        this.careerId = careerId;
     }
 
     public String getUsername() {
@@ -92,20 +88,20 @@ public class CreateUserForm {
         this.firstName = firstName;
     }
 
-    public String getOriginUniversity() {
-        return originUniversity;
+    public Long getUniversityId() {
+        return universityId;
     }
 
-    public void setOriginUniversity(String originUniversity) {
-        this.originUniversity = originUniversity;
+    public void setUniversityId(Long universityId) {
+        this.universityId = universityId;
     }
 
-    public List<String> getInterests() {
-        return interests;
+    public List<Long> getInterestIds() {
+        return interestIds;
     }
 
-    public void setInterests(List<String> interests) {
-        this.interests = interests;
+    public void setInterestIds(List<Long> interestIds) {
+        this.interestIds = interestIds;
     }
     public String getPassword() {
         return password;
@@ -132,14 +128,14 @@ public class CreateUserForm {
         sb.append(firstName);
         sb.append("\", lastName: \"");
         sb.append(lastName);
-        sb.append("\", originUniversity: \"");
-        sb.append(originUniversity);
-        sb.append("\", career: \"");
-        sb.append(career);
-        if(interests != null) {
-            sb.append("\", interests: {");
-            for(String interest : interests) {
-                sb.append(interest);
+        sb.append("\", universityId: \"");
+        sb.append(universityId);
+        sb.append("\", careerId: \"");
+        sb.append(careerId);
+        if(interestIds != null) {
+            sb.append("\", interestIds: {");
+            for(Long interestId : interestIds) {
+                sb.append(interestId);
                 sb.append(", ");
             }
             sb.append("}");

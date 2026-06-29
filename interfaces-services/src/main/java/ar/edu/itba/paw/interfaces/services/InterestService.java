@@ -11,7 +11,7 @@ public interface InterestService {
     Interest patchInterest(long id, String interest);
     void deleteInterest(long id);
 
-    void createUserInterests(List<String> interests, long userId);
+    void createUserInterests(List<Long> interestIds, long userId);
     void updateUserInterestScores(List<UserInterest> interests);
 
     Optional<Interest> findInterestById(long id);

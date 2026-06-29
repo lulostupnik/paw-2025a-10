@@ -112,7 +112,7 @@ public class JourneyController {
 
         final Journey journey = journeyService.createJourney(
                 userId,
-                form.getDestinationUniversity(),
+                form.getDestinationUniversityId(),
                 form.getStartDate(),
                 form.getEndDate(),
                 form.getDescription()
@@ -130,7 +130,7 @@ public class JourneyController {
     public Response updateJourney(@PathParam("id") final long id, @Valid final UpdateJourneyForm form) {
         final Journey journey = journeyService.updateJourney(
                 id,
-                form.getDestinationUniversity(),
+                form.getDestinationUniversityId(),
                 form.getStartDate(),
                 form.getEndDate(),
                 form.getDescription()

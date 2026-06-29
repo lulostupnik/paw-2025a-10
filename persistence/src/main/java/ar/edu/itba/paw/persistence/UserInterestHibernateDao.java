@@ -99,21 +99,13 @@ public class UserInterestHibernateDao implements UserInterestDao {
     }
 
     @Override
-    public void createUserInterests(List<String> interests, long userId) {
+    public void createUserInterests(List<Long> interestIds, long userId) {
         User user = userDao.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-        for (String interest : interests) {
-            Interest i = interestDao.findByName(interest)
-                    .orElseGet(() -> interestDao.create(interest));
-            create(user, i);
+        if (interestIds == null) {
+            return;
         }
-    }
-
-    @Override
-    public void createUserInterests(long[] interests, long userId) {
-        User user = userDao.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-        for( long interestId : interests) {
+        for (long interestId : interestIds) {
             Interest i = interestDao.findById(interestId)
                     .orElseThrow(() -> new InterestsNotFoundException(interestId));
             create(user, i);

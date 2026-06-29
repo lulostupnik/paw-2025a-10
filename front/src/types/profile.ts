@@ -41,8 +41,8 @@ export interface ProfileEditPayload {
     firstName: string;
     lastName: string;
     username: string;
-    originUniversity?: string;
-    career?: string;
+    universityId?: number;
+    careerId?: number;
 }
 
 export interface ProfilePicturePayload {

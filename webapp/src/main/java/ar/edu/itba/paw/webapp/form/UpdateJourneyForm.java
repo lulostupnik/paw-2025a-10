@@ -14,10 +14,9 @@ public class UpdateJourneyForm {
     @NotNull
     private LocalDate endDate;
 
-    @Size(min = 2, max = 100)
     @NotNull
     @ExistingUniversity
-    private String destinationUniversity;
+    private Long destinationUniversityId;
 
     @Size(min = 2, max = 2047)
     @NotNull
@@ -39,12 +38,12 @@ public class UpdateJourneyForm {
         this.endDate = endDate;
     }
 
-    public String getDestinationUniversity() {
-        return destinationUniversity;
+    public Long getDestinationUniversityId() {
+        return destinationUniversityId;
     }
 
-    public void setDestinationUniversity(String destinationUniversity) {
-        this.destinationUniversity = destinationUniversity;
+    public void setDestinationUniversityId(Long destinationUniversityId) {
+        this.destinationUniversityId = destinationUniversityId;
     }
 
     public String getDescription() {

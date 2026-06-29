@@ -16,13 +16,11 @@ public class PatchUserForm {
     @Size(min = 2, max = 100)
     private String lastName;
 
-    @Size(max = 100)
     @ExistingUniversity
-    private String originUniversity;
+    private Long universityId;
 
-    @Size(max = 100)
     @ExistingCareer
-    private String career;
+    private Long careerId;
 
     @Size(min = 8, max = 72)
     private String password;
@@ -55,20 +53,20 @@ public class PatchUserForm {
         this.lastName = lastName;
     }
 
-    public String getOriginUniversity() {
-        return originUniversity;
+    public Long getUniversityId() {
+        return universityId;
     }
 
-    public void setOriginUniversity(String originUniversity) {
-        this.originUniversity = originUniversity;
+    public void setUniversityId(Long universityId) {
+        this.universityId = universityId;
     }
 
-    public String getCareer() {
-        return career;
+    public Long getCareerId() {
+        return careerId;
     }
 
-    public void setCareer(String career) {
-        this.career = career;
+    public void setCareerId(Long careerId) {
+        this.careerId = careerId;
     }
 
     public String getPassword() {

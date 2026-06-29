@@ -21,10 +21,9 @@ public class CreateJourneyForm {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-    @Size(min = 2, max = 100)
     @NotNull
     @ExistingUniversity
-    private String destinationUniversity;
+    private Long destinationUniversityId;
 
     @Size(min = 2, max = 2047)
     @NotNull
@@ -45,12 +44,12 @@ public class CreateJourneyForm {
     public void setEndDate(LocalDate endDate){
         this.endDate = endDate;
     }
-    public String getDestinationUniversity(){
-        return destinationUniversity;
+    public Long getDestinationUniversityId(){
+        return destinationUniversityId;
     }
 
-    public void setDestinationUniversity(String destination){
-        this.destinationUniversity = destination;
+    public void setDestinationUniversityId(Long destinationUniversityId){
+        this.destinationUniversityId = destinationUniversityId;
     }
 
     public String getDescription(){
@@ -67,8 +66,8 @@ public class CreateJourneyForm {
                 startDate +
                 "\", endDate: \"" +
                 endDate +
-                "\", destinationUniversity: \"" +
-                destinationUniversity +
+                "\", destinationUniversityId: \"" +
+                destinationUniversityId +
                 "\", description: \"" +
                 description +
                 "\"}";

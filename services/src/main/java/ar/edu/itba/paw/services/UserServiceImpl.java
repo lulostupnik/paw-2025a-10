@@ -41,23 +41,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(final String email,final  String username,final  String firstname, final  String lastname,final  String universityName, final String careerName, final List<String> interests,final  String password, final Locale locale) {
+    public User createUser(final String email,final  String username,final  String firstname, final  String lastname,final  long universityId, final long careerId, final List<Long> interestIds,final  String password, final Locale locale) {
         LOGGER.debug("Creating new user with email: {} and username: {}", email, username);
-        University university = universityService.findByName(universityName)
+        University university = universityService.findById(universityId)
                 .orElseThrow(() -> {
-                    LOGGER.error("University not found: '{}' during user creation for email: {}", universityName, email);
-                    return new InvalidReferenceException("University", universityName);
+                    LOGGER.error("University not found: '{}' during user creation for email: {}", universityId, email);
+                    return new InvalidReferenceException("University", universityId);
                 });
 
-        Career career = careerService.findCareerByName(careerName)
+        Career career = careerService.findCareerById(careerId)
                 .orElseThrow(() -> {
-                    LOGGER.error("Career not found: '{}' during user creation for email: {}", careerName, email);
-                    return new InvalidReferenceException("Career", careerName);
+                    LOGGER.error("Career not found: '{}' during user creation for email: {}", careerId, email);
+                    return new InvalidReferenceException("Career", careerId);
                 });
 
         User user = userDao.create(email, username, firstname, lastname, university, career, null, passwordEncoder.encode(password), Locale.of(locale.getLanguage()), false);
         LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
-        interestService.createUserInterests(interests, user.getId());
+        interestService.createUserInterests(interestIds, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
         Token token = tokenService.userTokenControl(user);
         emailService.sendValidationEmail(new EmailUser(user), token.getToken());
@@ -240,8 +240,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User updateUser(final long userId, final String username,
-                           final String firstname, final String lastname, final String universityName,
-                           final String careerName) {
+                           final String firstname, final String lastname, final long universityId,
+                           final long careerId) {
         LOGGER.debug("Updating user with ID: {}", userId);
 
         User user = userDao.findById(userId)
@@ -250,16 +250,16 @@ public class UserServiceImpl implements UserService {
                     return new UserNotFoundException(userId);
                 });
 
-        University university = universityService.findByName(universityName)
+        University university = universityService.findById(universityId)
                 .orElseThrow(() -> {
-                    LOGGER.error("University not found: '{}' during user update for user ID: {}", universityName, userId);
-                    return new InvalidReferenceException("University", universityName);
+                    LOGGER.error("University not found: '{}' during user update for user ID: {}", universityId, userId);
+                    return new InvalidReferenceException("University", universityId);
                 });
 
-        Career career = careerService.findCareerByName(careerName)
+        Career career = careerService.findCareerById(careerId)
                 .orElseThrow(() -> {
-                    LOGGER.error("Career not found: '{}' during user update for user ID: {}", careerName, userId);
-                    return new InvalidReferenceException("Career", careerName);
+                    LOGGER.error("Career not found: '{}' during user update for user ID: {}", careerId, userId);
+                    return new InvalidReferenceException("Career", careerId);
                 });
 
         user.setUsername(username);
@@ -276,7 +276,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User patchUser(final long userId, final String username,
                           final String firstname, final String lastname,
-                          final String universityName, final String careerName,
+                          final Long universityId, final Long careerId,
                           final String password, final Boolean verified, final Boolean blocked) {
         LOGGER.debug("Patching user with ID: {}", userId);
 
@@ -294,13 +294,13 @@ public class UserServiceImpl implements UserService {
             user.setLastname(lastname);
         }
 
-        if (universityName != null) {
-            University university = universityService.findByName(universityName).orElseThrow(() -> new InvalidReferenceException("University", universityName));
+        if (universityId != null) {
+            University university = universityService.findById(universityId).orElseThrow(() -> new InvalidReferenceException("University", universityId));
             user.setUniversity(university);
         }
 
-        if (careerName != null) {
-            Career career = careerService.findCareerByName(careerName).orElseThrow(() -> new InvalidReferenceException("Career", careerName));
+        if (careerId != null) {
+            Career career = careerService.findCareerById(careerId).orElseThrow(() -> new InvalidReferenceException("Career", careerId));
             user.setCareer(career);
         }
 

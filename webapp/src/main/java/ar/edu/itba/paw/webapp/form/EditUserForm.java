@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.*;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -22,17 +21,13 @@ public class EditUserForm {
     @NotNull
     private String lastName;
 
-    @Size(max = 100)
     @NotNull
-    @NotEmpty
     @ExistingUniversity
-    private String originUniversity;
+    private Long universityId;
 
-    @Size(max = 100)
     @NotNull
-    @NotEmpty
     @ExistingCareer
-    private String career;
+    private Long careerId;
 
     public long getUserId() {
         return userId;
@@ -66,20 +61,20 @@ public class EditUserForm {
         this.lastName = lastName;
     }
 
-    public String getOriginUniversity() {
-        return originUniversity;
+    public Long getUniversityId() {
+        return universityId;
     }
 
-    public void setOriginUniversity(String originUniversity) {
-        this.originUniversity = originUniversity;
+    public void setUniversityId(Long universityId) {
+        this.universityId = universityId;
     }
 
-    public String getCareer() {
-        return career;
+    public Long getCareerId() {
+        return careerId;
     }
 
-    public void setCareer(String career) {
-        this.career = career;
+    public void setCareerId(Long careerId) {
+        this.careerId = careerId;
     }
 
     @Override
@@ -89,8 +84,8 @@ public class EditUserForm {
                 ", username='" + username + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", university='" + originUniversity + '\'' +
-                ", career='" + career + '\'' +
+                ", universityId=" + universityId +
+                ", careerId=" + careerId +
                 '}';
     }
 }

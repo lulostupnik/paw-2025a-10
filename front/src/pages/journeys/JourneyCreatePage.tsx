@@ -123,7 +123,7 @@ export default function JourneyCreatePage() {
         try {
             setSubmitting(true);
             const journey = await createJourney({
-                destinationUniversity: form.destination?.name ?? "",
+                destinationUniversityId: form.destination?.id ?? 0,
                 startDate: form.startDate,
                 endDate: form.endDate,
                 description: form.description.trim(),

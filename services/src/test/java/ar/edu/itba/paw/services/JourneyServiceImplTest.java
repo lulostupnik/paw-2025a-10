@@ -135,7 +135,7 @@ public class JourneyServiceImplTest {
             userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
-            uniService.findByName(eq(UNI_NAME))
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNI));
         when(
             journeyDao.create(
@@ -149,7 +149,7 @@ public class JourneyServiceImplTest {
 
         Journey journey = journeyService.createJourney(
             USER_ID,
-            UNI_NAME, 
+            UNI_ID,
             START_DATE, 
             END_DATE, 
             DESCRIPTION
@@ -165,7 +165,7 @@ public class JourneyServiceImplTest {
             userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(u));
         when(
-            uniService.findByName(eq(UNI_NAME))
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNI));
         when(
             journeyDao.create(
@@ -179,7 +179,7 @@ public class JourneyServiceImplTest {
 
         Journey journey = journeyService.createJourney(
             USER_ID,
-            UNI_NAME, 
+            UNI_ID,
             START_DATE, 
             END_DATE, 
             DESCRIPTION
@@ -194,12 +194,12 @@ public class JourneyServiceImplTest {
             userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER_WITH_JOURNEY));
         when(
-            uniService.findByName(eq(UNI_NAME))
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNI));
 
         journeyService.createJourney(
             USER_ID,
-            UNI_NAME, 
+            UNI_ID,
             START_DATE, 
             END_DATE, 
             DESCRIPTION
@@ -211,12 +211,12 @@ public class JourneyServiceImplTest {
             userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
-            uniService.findByName(eq(UNI_NAME))
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.empty());
 
         journeyService.createJourney(
             USER_ID,
-            UNI_NAME, 
+            UNI_ID,
             START_DATE, 
             END_DATE, 
             DESCRIPTION
@@ -230,7 +230,7 @@ public class JourneyServiceImplTest {
 
         journeyService.createJourney(
             USER_ID,
-            UNI_NAME, 
+            UNI_ID,
             null, 
             END_DATE, 
             DESCRIPTION
@@ -244,7 +244,7 @@ public class JourneyServiceImplTest {
 
         journeyService.createJourney(
             USER_ID,
-            UNI_NAME, 
+            UNI_ID,
             START_DATE, 
             null, 
             DESCRIPTION
@@ -258,7 +258,7 @@ public class JourneyServiceImplTest {
 
         journeyService.createJourney(
             USER_ID,
-            UNI_NAME, 
+            UNI_ID,
             END_DATE, 
             START_DATE, 
             DESCRIPTION
@@ -272,7 +272,7 @@ public class JourneyServiceImplTest {
 
         journeyService.createJourney(
             USER_ID,
-            UNI_NAME, 
+            UNI_ID,
             START_DATE.plusDays(-1), 
             START_DATE, 
             DESCRIPTION
@@ -286,7 +286,7 @@ public class JourneyServiceImplTest {
 
         journeyService.createJourney(
             USER_ID,
-            UNI_NAME, 
+            UNI_ID,
             START_DATE.plusDays(-1), 
             START_DATE, 
             DESCRIPTION
@@ -1249,12 +1249,12 @@ public class JourneyServiceImplTest {
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(newJourney));
         when(
-            uniService.findByName(eq(UNI_NAME))
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNI));
 
         journeyService.updateJourney(
             JOURNEY_ID, 
-            UNI_NAME, 
+            UNI_ID,
             START_DATE, 
             END_DATE, 
             DESCRIPTION
@@ -1271,12 +1271,12 @@ public class JourneyServiceImplTest {
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         when(
-            uniService.findByName(eq(UNI_NAME))
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.empty());
 
         journeyService.updateJourney(
             JOURNEY_ID, 
-            UNI_NAME, 
+            UNI_ID,
             START_DATE, 
             END_DATE, 
             DESCRIPTION
@@ -1290,7 +1290,7 @@ public class JourneyServiceImplTest {
 
         journeyService.updateJourney(
             JOURNEY_ID, 
-            UNI_NAME, 
+            UNI_ID,
             START_DATE, 
             END_DATE, 
             DESCRIPTION
@@ -1304,10 +1304,10 @@ public class JourneyServiceImplTest {
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(j));
         when(
-            uniService.findByName(eq(UNI_NAME))
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNI));
 
-        journeyService.patchJourney(JOURNEY_ID, UNI_NAME, START_DATE, END_DATE, DESCRIPTION);
+        journeyService.patchJourney(JOURNEY_ID, UNI_ID, START_DATE, END_DATE, DESCRIPTION);
 
         assertNotNull(j.getDestinationUniversity());
         assertEquals(UNI_NAME, j.getDestinationUniversity().getName());
@@ -1337,10 +1337,10 @@ public class JourneyServiceImplTest {
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(j));
         when(
-            uniService.findByName(eq(UNI_NAME))
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.patchJourney(JOURNEY_ID, UNI_NAME, START_DATE, END_DATE, DESCRIPTION);
+        journeyService.patchJourney(JOURNEY_ID, UNI_ID, START_DATE, END_DATE, DESCRIPTION);
     }
     @Test(expected = JourneyNotFoundException.class)
     public void testPatchJourneyMissingJourney(){
@@ -1349,7 +1349,7 @@ public class JourneyServiceImplTest {
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.patchJourney(JOURNEY_ID, UNI_NAME, START_DATE, END_DATE, DESCRIPTION);
+        journeyService.patchJourney(JOURNEY_ID, UNI_ID, START_DATE, END_DATE, DESCRIPTION);
     }
 
     @Test

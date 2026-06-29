@@ -101,9 +101,9 @@ public class UserController {
                 registerForm.getUsername(),
                 registerForm.getFirstName(),
                 registerForm.getLastName(),
-                registerForm.getOriginUniversity(),
-                registerForm.getCareer(),
-                registerForm.getInterests(),
+                registerForm.getUniversityId(),
+                registerForm.getCareerId(),
+                registerForm.getInterestIds(),
                 registerForm.getPassword(),
                 LocaleContextHolder.getLocale()
         );
@@ -126,7 +126,7 @@ public class UserController {
     @Produces(CustomMediaType.APPLICATION_USER_PUBLIC)
     public Response patchUser(@PathParam("id") final long id, @Valid PatchUserForm form) {
         final User user = us.patchUser(id, form.getUsername(), form.getFirstName(), form.getLastName(),
-                form.getOriginUniversity(), form.getCareer(), form.getPassword(), form.getVerified(), form.getBlocked());
+                form.getUniversityId(), form.getCareerId(), form.getPassword(), form.getVerified(), form.getBlocked());
         return Response.ok(UserDto.fromUser(uriInfo, user)).build();
     }
 

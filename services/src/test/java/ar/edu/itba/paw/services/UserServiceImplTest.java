@@ -98,10 +98,10 @@ public class UserServiceImplTest {
     @Test
     public void testCreateUser(){
         when(
-            universityService.findByName(eq(UNIVERSITY.getName()))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNIVERSITY));
         when(
-            careerService.findCareerByName(eq(CAREER.getName()))
+            careerService.findCareerById(eq(CAREER_ID))
         ).thenReturn(Optional.of(CAREER));
         when(
             passwordEncoder.encode(eq(PASSWORD))
@@ -129,10 +129,10 @@ public class UserServiceImplTest {
             USERNAME,
             FIRSTNAME,
             LASTNAME,
-            UNIVERSITY.getName(),
-            CAREER.getName(),
+            UNI_ID,
+            CAREER_ID,
             // IMAGE.getData(),
-            List.of(INTEREST.getName()),
+            List.of(INTEREST_ID),
             PASSWORD,
             LOCALE
         );
@@ -143,10 +143,10 @@ public class UserServiceImplTest {
     @Test(expected = InvalidReferenceException.class)
     public void testCreateUserMissingCareer(){
         when(
-            universityService.findByName(eq(UNIVERSITY.getName()))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNIVERSITY));
         when(
-            careerService.findCareerByName(eq(CAREER.getName()))
+            careerService.findCareerById(eq(CAREER_ID))
         ).thenReturn(Optional.empty());
 
         userService.createUser(
@@ -154,10 +154,10 @@ public class UserServiceImplTest {
             USERNAME,
             FIRSTNAME,
             LASTNAME,
-            UNIVERSITY.getName(),
-            CAREER.getName(),
+            UNI_ID,
+            CAREER_ID,
             // IMAGE.getData(),
-            List.of(INTEREST.getName()),
+            List.of(INTEREST_ID),
             PASSWORD,
             LOCALE
         );
@@ -165,7 +165,7 @@ public class UserServiceImplTest {
     @Test(expected = InvalidReferenceException.class)
     public void testCreateUserMissingUniversity(){
         when(
-            universityService.findByName(eq(UNIVERSITY.getName()))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.empty());
 
         userService.createUser(
@@ -173,10 +173,10 @@ public class UserServiceImplTest {
             USERNAME,
             FIRSTNAME,
             LASTNAME,
-            UNIVERSITY.getName(),
-            CAREER.getName(),
+            UNI_ID,
+            CAREER_ID,
             // IMAGE.getData(),
-            List.of(INTEREST.getName()),
+            List.of(INTEREST_ID),
             PASSWORD,
             LOCALE
         );
@@ -446,10 +446,10 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(u));
         when(
-            universityService.findByName(eq(UNI_NAME))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNIVERSITY));
         when(
-            careerService.findCareerByName(eq(CAREER_NAME))
+            careerService.findCareerById(eq(CAREER_ID))
         ).thenReturn(Optional.of(CAREER));
 
         userService.updateUser(
@@ -457,8 +457,8 @@ public class UserServiceImplTest {
             USERNAME, 
             FIRSTNAME, 
             LASTNAME, 
-            UNI_NAME, 
-            CAREER_NAME
+            UNI_ID,
+            CAREER_ID
         );
 
         assertEquals(USERNAME, u.getUsername());
@@ -486,10 +486,10 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(u));
         when(
-            universityService.findByName(eq(UNI_NAME))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNIVERSITY));
         when(
-            careerService.findCareerByName(eq(CAREER_NAME))
+            careerService.findCareerById(eq(CAREER_ID))
         ).thenReturn(Optional.empty());
 
         userService.updateUser(
@@ -497,8 +497,8 @@ public class UserServiceImplTest {
             USERNAME, 
             FIRSTNAME, 
             LASTNAME, 
-            UNI_NAME, 
-            CAREER_NAME
+            UNI_ID,
+            CAREER_ID
         );
     }
     @Test(expected = InvalidReferenceException.class)
@@ -520,7 +520,7 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(u));
         when(
-            universityService.findByName(eq(UNI_NAME))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.empty());
 
         userService.updateUser(
@@ -528,8 +528,8 @@ public class UserServiceImplTest {
             USERNAME,
             FIRSTNAME, 
             LASTNAME, 
-            UNI_NAME, 
-            CAREER_NAME
+            UNI_ID,
+            CAREER_ID
         );
     }
     @Test(expected = UserNotFoundException.class)
@@ -543,8 +543,8 @@ public class UserServiceImplTest {
             USERNAME, 
             FIRSTNAME, 
             LASTNAME, 
-            UNI_NAME, 
-            CAREER_NAME
+            UNI_ID,
+            CAREER_ID
         );
     }
 
@@ -567,10 +567,10 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(u));
         when(
-            universityService.findByName(eq(UNI_NAME))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNIVERSITY));
         when(
-            careerService.findCareerByName(eq(CAREER_NAME))
+            careerService.findCareerById(eq(CAREER_ID))
         ).thenReturn(Optional.of(CAREER));
 
         userService.patchUser(
@@ -578,8 +578,8 @@ public class UserServiceImplTest {
             USERNAME,
             FIRSTNAME,
             LASTNAME,
-            UNI_NAME,
-            CAREER_NAME,
+            UNI_ID,
+            CAREER_ID,
             null,
             null,
             null
@@ -610,7 +610,7 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(u));
         when(
-            careerService.findCareerByName(eq(CAREER_NAME))
+            careerService.findCareerById(eq(CAREER_ID))
         ).thenReturn(Optional.empty());
 
         userService.patchUser(
@@ -619,7 +619,7 @@ public class UserServiceImplTest {
             null,
             null,
             null,
-            CAREER_NAME,
+            CAREER_ID,
             null,
             null,
             null
@@ -644,7 +644,7 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(u));
         when(
-            universityService.findByName(eq(UNI_NAME))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.empty());
 
         userService.patchUser(
@@ -652,7 +652,7 @@ public class UserServiceImplTest {
             null,
             null,
             null,
-            UNI_NAME,
+            UNI_ID,
             null,
             null,
             null,
@@ -700,7 +700,7 @@ public class UserServiceImplTest {
     public void testPatchUserMissingUser(){
         when(userDao.findById(eq(USER_ID))).thenReturn(Optional.empty());
 
-        userService.patchUser(USER_ID, USERNAME, FIRSTNAME, LASTNAME, EMAIL, CAREER_NAME, null, null, null);
+        userService.patchUser(USER_ID, USERNAME, FIRSTNAME, LASTNAME, UNI_ID, CAREER_ID, null, null, null);
     }
 
     @Test

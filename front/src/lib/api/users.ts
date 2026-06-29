@@ -24,9 +24,9 @@ export interface RegisterPayload {
     lastName: string;
     password: string;
     confirmPassword: string;
-    career: string;
-    originUniversity: string;
-    interests: string[];
+    careerId: number;
+    universityId: number;
+    interestIds: number[];
 }
 
 export interface CareerApi {

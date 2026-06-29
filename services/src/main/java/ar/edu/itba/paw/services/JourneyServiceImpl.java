@@ -56,7 +56,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public Journey createJourney(final long userId, final String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+    public Journey createJourney(final long userId, final long destinationUniversityId, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Creating journey for user {}", userId);
 
         User user = userService.findUserById(userId)
@@ -66,10 +66,10 @@ public class JourneyServiceImpl implements JourneyService {
                 });
 
         checkDates(startDate, endDate);
-        University destination = universityService.findByName(destinationUniversity)
+        University destination = universityService.findById(destinationUniversityId)
                 .orElseThrow(() -> {
-                    LOGGER.warn("Destination university not found: {}", destinationUniversity);
-                    return new InvalidReferenceException("University", destinationUniversity);
+                    LOGGER.warn("Destination university not found: {}", destinationUniversityId);
+                    return new InvalidReferenceException("University", destinationUniversityId);
                 }
         );
 
@@ -384,10 +384,10 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public Journey updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+    public Journey updateJourney(final long journeyId, final  long destinationUniversityId, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Editing journey {}", journeyId);
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
-        University university = universityService.findByName(destinationUniversity).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversity));
+        University university = universityService.findById(destinationUniversityId).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversityId));
         journey.setDestinationUniversity(university);
         journey.setStartDate(startDate);
         journey.setEndDate(endDate);
@@ -398,12 +398,12 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public Journey patchJourney(final long journeyId, final String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
+    public Journey patchJourney(final long journeyId, final Long destinationUniversityId, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Patching journey {}", journeyId);
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
 
-        if (destinationUniversity != null) {
-            University university = universityService.findByName(destinationUniversity).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversity));
+        if (destinationUniversityId != null) {
+            University university = universityService.findById(destinationUniversityId).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversityId));
             journey.setDestinationUniversity(university);
         }
         if (startDate != null) {

@@ -187,7 +187,7 @@ public class UserInterestHibernateDaoTest {
     @Test
     public void testCreateUserInterests(){
         interestDao.createUserInterests(
-            INTEREST_DATA.keySet().stream().mapToLong(l->l).toArray(), 
+            INTEREST_DATA.keySet().stream().toList(),
             USER_2_ID
         );
         em.flush();
@@ -208,24 +208,21 @@ public class UserInterestHibernateDaoTest {
     @Test(expected = UserNotFoundException.class)
     public void testCreateUserInterestsWrongUser(){
         interestDao.createUserInterests(
-            INTEREST_DATA.keySet().stream().mapToLong(l->l).toArray(), 
+            INTEREST_DATA.keySet().stream().toList(),
             12341234l
         );
         em.flush();
     }
     @Test(expected = InterestsNotFoundException.class)
     public void testCreateUserInterestsWrongInterest(){
-        long[] array = new long[3];
-        array[0] = INTEREST_1_ID;
-        array[1] = INTEREST_2_ID;
-        array[2] = 12341234;
+        List<Long> array = List.of(INTEREST_1_ID, INTEREST_2_ID, 12341234L);
 
         interestDao.createUserInterests(array, USER_1_ID);
         em.flush();
     }
     @Test
     public void testCreateUserInterestsEmptyInterests(){
-        interestDao.createUserInterests(new long[0], USER_1_ID);
+        interestDao.createUserInterests(List.<Long>of(), USER_1_ID);
         em.flush();
 
         assertEquals(
@@ -316,53 +313,6 @@ public class UserInterestHibernateDaoTest {
 
         assertEquals(
             1, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_2_ID
-            ).size()
-        );
-    }
-
-    @Test
-    public void testCreateUserInterestsNames(){
-        interestDao.createUserInterests(
-            List.of(INTEREST_1_NAME, INTEREST_2_NAME), 
-            USER_2_ID
-        );
-        em.flush();
-
-        assertEquals(
-            2, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID,
-                INTEREST_ROW_MAPPER, 
-                USER_2_ID
-            ).size()
-        );
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testCreateUserInterestsNamesMissingUser(){
-        interestDao.createUserInterests(
-            List.of(INTEREST_1_NAME, INTEREST_2_NAME), 
-            12341234l
-        );
-        em.flush();
-    }
-
-    @Test
-    public void testCreateUserInterestsNamesMissingInterest(){
-        interestDao.createUserInterests(
-            List.of(
-                INTEREST_1_NAME, 
-                INTEREST_2_NAME, 
-                "COMPLETELY UNIQUE AND REVOLUTIONARY INTEREST"
-            ), USER_2_ID
-        );
-        em.flush();
-
-        assertEquals(
-            3, 
             jdbcTemplate.query(
                 INTEREST_SELECT_BY_USER_ID, 
                 INTEREST_ROW_MAPPER, 
