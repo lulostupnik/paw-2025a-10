@@ -944,4 +944,23 @@ public class ReportHibernateDaoTest {
         assertEquals(USER_3_REPORTS, reports.getContent().size());
     }
 
+    @Test
+    public void testHardDeleteByJourneyId(){
+        // report referencing journey 1 directly, and report referencing a response (id 1) of journey 1
+        jdbcTemplate.update(
+            "INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted) " +
+            "VALUES (100, 3, 1, 1, null, null, null, 'by journey', 'HARASSMENT', FALSE)");
+        jdbcTemplate.update(
+            "INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted) " +
+            "VALUES (101, 3, 1, null, null, null, 1, 'by response', 'HARASSMENT', FALSE)");
+
+        assertEquals(2, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "id IN (100, 101)"));
+
+        reportDao.hardDeleteByJourneyId(1);
+        em.flush();
+
+        assertEquals(0, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "id IN (100, 101)"));
+        // a report tied to a different journey (seed report 2 -> journey 3) must remain
+        assertEquals(1, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "id = 2"));
+    }
 }

@@ -23,15 +23,11 @@ public class ValidInterestValidator implements ConstraintValidator<ValidInterest
         if (interestIds == null || interestIds.isEmpty()) {
             return true;
         }
-        try {
-            for(Long interestId : interestIds) {
-                if (interestId == null || interestService.findInterestById(interestId).isEmpty()) {
-                    return false;
-                }
+        for (Long interestId : interestIds) {
+            if (interestId == null || interestService.findInterestById(interestId).isEmpty()) {
+                return false;
             }
-            return true;
-        } catch (Exception e) {
-            return true;
         }
+        return true;
     }
 }
