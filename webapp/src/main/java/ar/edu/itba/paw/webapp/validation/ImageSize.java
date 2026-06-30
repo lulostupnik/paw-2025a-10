@@ -8,7 +8,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ImageSize {
-    String message() default "Image size exceeds the maximum allowed";
+    String message() default "{validation.image.tooLarge}";
     Class<?>[] groups() default {};
     Class<? extends javax.validation.Payload>[] payload() default {};
 

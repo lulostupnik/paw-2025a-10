@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = ContentTypeValidator.class)
 public @interface ContentType {
-    String message() default "Invalid file type. Only JPEG, JPG and PNG files are allowed.";
+    String message() default "{validation.image.invalidType}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
     String[] value();

@@ -52,7 +52,7 @@ public class RoleBasedMessageValidator implements ConstraintValidator<RoleBasedM
             boolean hasMessage = form.getMessage() != null && !form.getMessage().trim().isEmpty();
             if (!hasMessage) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("Please provide a reason for deletion")
+                context.buildConstraintViolationWithTemplate("{validation.message.requiredForAdmin}")
                         .addPropertyNode("message")
                         .addConstraintViolation();
             }

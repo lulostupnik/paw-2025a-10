@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidInterest {
-    String message() default "Not a valid interest selection";
+    String message() default "{validation.interest.invalidSelection}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

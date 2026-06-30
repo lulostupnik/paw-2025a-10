@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidUpdateUser {
-    String message() default "Username or email already in use";
+    String message() default "{validation.user.usernameOrEmailInUse}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

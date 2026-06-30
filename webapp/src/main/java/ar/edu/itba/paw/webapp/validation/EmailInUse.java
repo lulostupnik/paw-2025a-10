@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = EmailInUseValidator.class)
 public @interface EmailInUse {
-    String message() default "Email must be registered in the system";
+    String message() default "{validation.email.notRegistered}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

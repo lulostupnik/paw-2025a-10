@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidEventFilterDateRange {
-    String message() default "End date must not be before start date";
+    String message() default "{validation.dateRange.endBeforeStart}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

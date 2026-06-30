@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PasswordsMatch {
-    String message() default "Passwords do not match";
+    String message() default "{validation.passwords.mismatch}";
 
     Class<?>[] groups() default {};
 

@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {CityNameValidator.class})
 public @interface ExistingCity {
-    String message() default "City does not exist";
+    String message() default "{validation.city.notExists}";
 
     Class<?>[] groups() default {};
 

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CurrentAttendees {
-    String message() default "Attendees limit cannot be less than current attendees count";
+    String message() default "{validation.attendees.belowCurrent}";
     Class<?>[] groups() default {};
     Class<? extends javax.validation.Payload>[] payload() default {};
 }

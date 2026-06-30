@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE}) 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RoleBasedMessage {
-    String message() default "Message is required for admin users";
+    String message() default "{validation.message.requiredForAdmin}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 

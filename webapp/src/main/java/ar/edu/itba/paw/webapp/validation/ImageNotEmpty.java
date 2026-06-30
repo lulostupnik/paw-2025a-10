@@ -8,7 +8,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ImageNotEmpty {
-    String message() default "Image is required";
+    String message() default "{validation.image.required}";
     Class<?>[] groups() default {};
     Class<? extends javax.validation.Payload>[] payload() default {};
 }

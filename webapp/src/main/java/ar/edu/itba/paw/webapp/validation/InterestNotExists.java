@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {InterestNotExistsValidator.class})
 public @interface InterestNotExists {
-    String message() default "Interest already exists";
+    String message() default "{validation.interest.alreadyExists}";
     Class<?>[] groups() default {};
     Class<? extends javax.validation.Payload>[] payload() default {};
 }
