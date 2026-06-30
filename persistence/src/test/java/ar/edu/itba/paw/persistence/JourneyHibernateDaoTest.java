@@ -69,6 +69,19 @@ public class JourneyHibernateDaoTest {
         );
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_TABLE));
     }
+
+    @Test
+    public void testHardDelete(){
+        assertEquals(1, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, JOURNEY_TABLE, "id = " + JOURNEY_2_ID));
+
+        final Journey journey = em.find(Journey.class, JOURNEY_2_ID);
+        journey.getUser().setJourney(null);
+        journeyDao.hardDelete(journey);
+        em.flush();
+
+        assertEquals(0, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, JOURNEY_TABLE, "id = " + JOURNEY_2_ID));
+    }
+
     @Test(expected = PersistenceException.class)
     public void testCreateInvalidUser(){
         journeyDao.create(

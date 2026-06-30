@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.Tip;
@@ -82,12 +83,8 @@ public class TipHibernateDaoTest {
         em.flush();
 
         assertEquals(
-            0, 
-            jdbcTemplate.query(
-                TIP_SELECT_BY_ID,
-                TIP_ROW_MAPPER, 
-                TIP_1_ID
-            ).size()
+            0,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, TIP_TABLE, "id = " + TIP_1_ID)
         );
     }
     @Test (expected = NoResultException.class)
@@ -102,12 +99,8 @@ public class TipHibernateDaoTest {
         em.flush();
 
         assertEquals(
-            0, 
-            jdbcTemplate.query(
-                TIP_SELECT_BY_ID,
-                TIP_ROW_MAPPER, 
-                TIP_1_ID
-            ).size()
+            0,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, TIP_TABLE, "id = " + TIP_1_ID)
         );
     }
     @Test
@@ -116,12 +109,8 @@ public class TipHibernateDaoTest {
         em.flush();
 
         assertEquals(
-            1, 
-            jdbcTemplate.query(
-                TIP_SELECT_BY_ID,
-                TIP_ROW_MAPPER, 
-                TIP_1_ID
-            ).size()
+            1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, TIP_TABLE, "id = " + TIP_1_ID)
         );
     }
 

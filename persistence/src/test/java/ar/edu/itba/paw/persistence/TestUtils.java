@@ -363,6 +363,7 @@ class TestUtils {
 
     public static final Map<Long, Report> REPORT_PENDING_DATA = Map.of(REPORT_USER_ID, REPORT_USER, REPORT_JOURNEY_ID, REPORT_JOURNEY, REPORT_EVENT_ID, REPORT_EVENT);
 
+    public static final String TIP_TABLE = "tips";
     public static final long TIP_1_ID = 1;
     public static final String TIP_1_TITLE = "title";
     public static final String TIP_1_CONTENT = "content";
