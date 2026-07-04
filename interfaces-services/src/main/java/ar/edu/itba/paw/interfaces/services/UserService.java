@@ -8,7 +8,6 @@ import java.util.Optional;
 public interface UserService {
     User createUser(String email, String username, String firstname, String lastname, long universityId, long careerId, List<Long> interestIds, String password, Locale locale);
     void verifyUser(long id);
-    void updatePassword(long id, String newPassword);
     void initiatePasswordReset(String email);
     void resendVerificationEmail(String email);
     Optional<User> findUserByEmail(String email);
@@ -24,9 +23,6 @@ public interface UserService {
     void blockUser(long userId);
     void unblockUser(long userId);
     void setBlockedStatus(long userId, boolean blocked);
-
-    User updateUser(long userId, String username, String firstname, String lastname,
-                    long universityId, long careerId);
 
     User patchUser(long userId, String username, String firstname, String lastname, Long universityId, Long careerId,
                    String password, Boolean verified, Boolean blocked);

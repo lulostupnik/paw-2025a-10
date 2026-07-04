@@ -304,77 +304,6 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testCreateJourneyResponse(){
-        when(
-            journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.of(JOURNEY));
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-        when(
-            replyDao.findRespondersByJourneyId(
-                eq(JOURNEY_ID), 
-                any(PageParams.class)
-            )
-        ).thenReturn(new Page<>(USERS, 1, 1, 1));
-        when(
-            replyDao.create(eq(USER), eq(JOURNEY), eq(DESCRIPTION))
-        ).thenReturn(REPLY);
-
-        JourneyResponse reply = journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
-
-        assertNotNull(reply);
-        assertEquals(USER, reply.getUser());
-        assertEquals(JOURNEY, reply.getJourney());
-        assertEquals(DESCRIPTION, reply.getMessage());
-    }
-    @Test
-    public void testCreateJourneyResponseNoMails(){
-        when(
-            journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.of(JOURNEY));
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER));
-        when(
-            replyDao.findRespondersByJourneyId(
-                eq(JOURNEY_ID), 
-                any(PageParams.class)
-            )
-        ).thenReturn(new Page<>(List.of(), 1, 1, 2))
-        .thenReturn(new Page<>(List.of(), 2, 1, 2));
-        when(
-            replyDao.create(eq(USER), eq(JOURNEY), eq(DESCRIPTION))
-        ).thenReturn(REPLY);
-
-        JourneyResponse reply = journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
-
-        assertNotNull(reply);
-        assertEquals(USER, reply.getUser());
-        assertEquals(JOURNEY, reply.getJourney());
-        assertEquals(DESCRIPTION, reply.getMessage());
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testCreateJourneyResponseUserNotFound(){
-        when(
-            journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.of(JOURNEY));
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.empty());
-
-        journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
-    }
-    @Test(expected = JourneyNotFoundException.class)
-    public void testCreateJourneyResponseNotFound(){
-        when(
-            journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.empty());
-
-        journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
-    }
-
-    @Test
     public void testCreateJourneyResponseUserId(){
         when(
             journeyDao.findById(eq(JOURNEY_ID))
@@ -1002,7 +931,6 @@ public class JourneyServiceImplTest {
     }
 
 
-
     @Test
     public void testFindRecommendedJourneysWithEmail(){
         when(
@@ -1217,35 +1145,6 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testFindJourneyByUserId(){
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER_WITH_JOURNEY));
-
-        Optional<Journey> maybeJourney = journeyService.findJourneyByUserId(USER_ID);
-
-        assertTrue(maybeJourney.isPresent());
-    }
-    @Test
-    public void testFindJourneyByUserIdNoJourney(){
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-
-        Optional<Journey> maybeJourney = journeyService.findJourneyByUserId(USER_ID);
-
-        assertTrue(maybeJourney.isEmpty());
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testFindJourneyByUserIdNoUser(){
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.empty());
-
-        journeyService.findJourneyByUserId(USER_ID);
-    }
-
-    @Test
     public void testUpdateJourney(){
         Journey newJourney = new Journey(
             JOURNEY_ID, 
@@ -1305,61 +1204,6 @@ public class JourneyServiceImplTest {
             END_DATE, 
             DESCRIPTION
         );
-    }
-
-    @Test
-    public void testPatchJourney(){
-        Journey j = new Journey(USER, null, null, null, null);
-        when(
-            journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.of(j));
-        when(
-            uniService.findById(eq(UNI_ID))
-        ).thenReturn(Optional.of(UNI));
-
-        journeyService.patchJourney(JOURNEY_ID, UNI_ID, START_DATE, END_DATE, DESCRIPTION);
-
-        assertNotNull(j.getDestinationUniversity());
-        assertEquals(UNI_NAME, j.getDestinationUniversity().getName());
-        assertEquals(START_DATE, j.getStartDate());
-        assertEquals(END_DATE, j.getEndDate());
-        assertEquals(DESCRIPTION, j.getDescription());
-    }
-    @Test
-    public void testPatchJourneyNoPatches(){
-        Journey j = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
-        when(
-            journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.of(j));
-
-        journeyService.patchJourney(JOURNEY_ID, null, null, null, null);
-
-        assertNotNull(j.getDestinationUniversity());
-        assertEquals(UNI_NAME, j.getDestinationUniversity().getName());
-        assertEquals(START_DATE, j.getStartDate());
-        assertEquals(END_DATE, j.getEndDate());
-        assertEquals(DESCRIPTION, j.getDescription());
-    }
-    @Test(expected = InvalidReferenceException.class)
-    public void testPatchJourneyMissingUni(){
-        Journey j = new Journey(USER, null, null, null, null);
-        when(
-            journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.of(j));
-        when(
-            uniService.findById(eq(UNI_ID))
-        ).thenReturn(Optional.empty());
-
-        journeyService.patchJourney(JOURNEY_ID, UNI_ID, START_DATE, END_DATE, DESCRIPTION);
-    }
-    @Test(expected = JourneyNotFoundException.class)
-    public void testPatchJourneyMissingJourney(){
-
-        when(
-            journeyDao.findById(eq(JOURNEY_ID))
-        ).thenReturn(Optional.empty());
-
-        journeyService.patchJourney(JOURNEY_ID, UNI_ID, START_DATE, END_DATE, DESCRIPTION);
     }
 
     @Test

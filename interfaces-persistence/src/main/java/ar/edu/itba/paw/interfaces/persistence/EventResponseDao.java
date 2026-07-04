@@ -7,7 +7,6 @@ public interface EventResponseDao {
     Optional<EventResponse> findById(long id);
 
     EventResponse create(User user, Event event, String message);
-    int countByEventId(long eventId);
     Page<EventResponse> listAllByEventId(long eventId, PageParams pageParams);
     Page<User> findRespondersByEventId(long eventId, PageParams pageParams);
 

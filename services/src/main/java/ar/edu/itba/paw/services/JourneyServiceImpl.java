@@ -99,62 +99,6 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public JourneyResponse createJourneyResponse(final String email, final long journeyId, final String message) {
-        LOGGER.debug("Replying to journey {}", journeyId);
-        Journey journey = journeyDao.findById(journeyId)
-                .orElseThrow(() -> {
-                    LOGGER.warn("Journey with id {} not found", journeyId);
-                    return new JourneyNotFoundException(journeyId);
-                });
-
-        User responder = userService.findUserByEmail(email)
-                .orElseThrow(() -> {
-                    LOGGER.warn("User with email {} not found", email);
-                    return new UserNotFoundException(email);
-                });
-
-        JourneyResponse journeyResponse = journeyResponseDao.create(responder, journey, message);
-
-        interestService.updateMatchingInterestScores(responder.getId(), journey.getUser().getId());
-        LOGGER.info("Interest scores updated for responder {}", responder.getId());
-
-        int page = 1;
-        int pageSize = 50;
-        Page<User> respondersPage;
-
-        EmailJourney emailJourney = new EmailJourney(journey);
-        EmailUser emailResponder = new EmailUser(responder);
-        do {
-            respondersPage = journeyResponseDao.findRespondersByJourneyId(
-                    journeyId,
-                    new PageParams(page, pageSize)
-            );
-
-
-            List<EmailUser> responders = respondersPage.getContent().stream()
-                    .map(EmailUser::new)
-                    .toList();
-
-            if (!responders.isEmpty()) {
-                emailService.answerJourneyNotification(
-                        responders,
-                        message,
-                        emailResponder,
-                        emailJourney
-                );
-            }
-
-            page++;
-        } while (page <= respondersPage.getTotalPages());
-        LOGGER.info("Journey response notifications sent to all responders for journey {}", journeyId);
-
-        emailService.answerJourneyOwnerNotification(message, emailResponder, emailJourney);
-        LOGGER.info("Journey response notifications sent to owner for journey {}", journeyId);
-        return journeyResponse;
-    }
-
-    @Override
-    @Transactional
     public JourneyResponse createJourneyResponse(final long userId, final long journeyId, final String message) {
         LOGGER.debug("Replying to journey {} by user {}", journeyId, userId);
         Journey journey = journeyDao.findById(journeyId)
@@ -331,7 +275,6 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
 
-
     @Override
     @Transactional
     public void deleteJourney(final long id, final String message) {
@@ -377,16 +320,6 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public Optional<Journey> findJourneyByUserId(long id) {
-            LOGGER.debug("Getting journey by id {}", id);
-            User user = userService.findUserById(id).orElseThrow(() -> {
-                LOGGER.warn("User with id {} not found", id);
-                return new UserNotFoundException(id);
-            });
-            return Optional.ofNullable(user.getJourney());
-        }
-
-    @Override
     @Transactional
     public Journey updateJourney(final long journeyId, final  long destinationUniversityId, final LocalDate startDate, final LocalDate endDate, final String description) {
         LOGGER.debug("Editing journey {}", journeyId);
@@ -397,30 +330,6 @@ public class JourneyServiceImpl implements JourneyService {
         journey.setEndDate(endDate);
         journey.setDescription(description);
         LOGGER.info("Journey updated: {}", journeyId);
-        return journey;
-    }
-
-    @Override
-    @Transactional
-    public Journey patchJourney(final long journeyId, final Long destinationUniversityId, final LocalDate startDate, final LocalDate endDate, final String description) {
-        LOGGER.debug("Patching journey {}", journeyId);
-        Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
-
-        if (destinationUniversityId != null) {
-            University university = universityService.findById(destinationUniversityId).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversityId));
-            journey.setDestinationUniversity(university);
-        }
-        if (startDate != null) {
-            journey.setStartDate(startDate);
-        }
-        if (endDate != null) {
-            journey.setEndDate(endDate);
-        }
-        if (description != null) {
-            journey.setDescription(description);
-        }
-
-        LOGGER.info("Journey patched: {}", journeyId);
         return journey;
     }
 

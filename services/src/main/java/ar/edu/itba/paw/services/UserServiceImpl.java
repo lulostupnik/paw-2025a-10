@@ -83,20 +83,6 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @Transactional
-    public void updatePassword(final long id, final String newPassword) {
-        User user = userDao.findById(id).orElseThrow(() -> {
-            LOGGER.error("User does not exist for ID: {}", id);
-            return new UserNotFoundException(id);
-        });
-        LOGGER.debug("Password change for user with id: {}", id);
-        user.setPassword(passwordEncoder.encode(newPassword));
-        LOGGER.info("Password changed successfully for user ID: {}", id);
-
-    }
-
-
-    @Override
     public Optional<User> findUserByEmail(final String email) {
         LOGGER.debug("Searching for user with email: {}", email);
         return userDao.findByEmail(email);
@@ -235,41 +221,6 @@ public class UserServiceImpl implements UserService {
         final Token token = tokenService.userTokenControl(user);
         emailService.sendValidationEmail(new EmailUser(user), token.getToken());
         LOGGER.info("Verification email resent successfully to: {}", email);
-    }
-
-    @Override
-    @Transactional
-    public User updateUser(final long userId, final String username,
-                           final String firstname, final String lastname, final long universityId,
-                           final long careerId) {
-        LOGGER.debug("Updating user with ID: {}", userId);
-
-        User user = userDao.findById(userId)
-                .orElseThrow(() -> {
-                    LOGGER.error("User with id {} not found", userId);
-                    return new UserNotFoundException(userId);
-                });
-
-        University university = universityService.findById(universityId)
-                .orElseThrow(() -> {
-                    LOGGER.error("University not found: '{}' during user update for user ID: {}", universityId, userId);
-                    return new InvalidReferenceException("University", universityId);
-                });
-
-        Career career = careerService.findCareerById(careerId)
-                .orElseThrow(() -> {
-                    LOGGER.error("Career not found: '{}' during user update for user ID: {}", careerId, userId);
-                    return new InvalidReferenceException("Career", careerId);
-                });
-
-        user.setUsername(username);
-        user.setFirstname(firstname);
-        user.setLastname(lastname);
-        user.setUniversity(university);
-        user.setCareer(career);
-
-        LOGGER.info("User updated successfully with ID: {}", userId);
-        return user;
     }
 
     @Override

@@ -24,8 +24,6 @@ public interface EventDao {
     Page<Event> search(String search, PageParams pageParams);
     Optional<CountryAttendeeCount> findTopAttendeeCountry(long eventId);
 
-    Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
-
     int countEventsCreatedByUser(long userId);
 
     Page<Event> findAllBetweenDates(LocalDate startDate, LocalDate endDate, PageParams pageParams);

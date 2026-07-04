@@ -39,19 +39,6 @@ public class EventResponseHibernateDao implements EventResponseDao {
     }
 
     @Override
-    public int countByEventId(long eventId) {
-        final String sql = """
-        SELECT COUNT(*)
-        FROM event_responses
-        WHERE event_id = :eventId AND deleted = FALSE
-    """;
-
-        return ((BigInteger)em.createNativeQuery(sql)
-                .setParameter("eventId", eventId)
-                .getSingleResult()).intValue();
-    }
-
-    @Override
     public Page<EventResponse> listAllByEventId(final long eventId, final PageParams pageParams) {
         final String countSql = """
         SELECT COUNT(*)

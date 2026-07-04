@@ -195,13 +195,6 @@ public class JourneyResponseHibernateDaoTest {
     }
 
     @Test
-    public void testGetCount(){
-        int count = responseDao.countByJourneyId(JOURNEY_1_ID);
-
-        assertEquals(TOTAL_JOURNEY_RESPONSES, count);
-    }
-
-    @Test
     public void testFindRespondersByJourneyId(){
         Page<User> responders = responseDao.findRespondersByJourneyId(
             JOURNEY_1_ID, PAGE_1_BIG

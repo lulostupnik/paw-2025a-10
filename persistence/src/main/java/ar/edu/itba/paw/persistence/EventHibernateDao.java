@@ -293,39 +293,6 @@ public class EventHibernateDao implements EventDao {
 
 
     @Override
-    public Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams) {
-        final String countSql = """
-        SELECT COUNT(*)
-        FROM event_attendances ea
-        JOIN events e ON ea.event_id = e.id
-        WHERE ea.user_id = :userId AND e.user_id != :userId AND e.deleted = FALSE
-    """;
-
-        final String idSql = """
-        SELECT e.id
-        FROM event_attendances ea
-        JOIN events e ON ea.event_id = e.id
-        WHERE ea.user_id = :userId AND e.user_id != :userId AND e.deleted = FALSE
-        ORDER BY e.event_date DESC
-    """;
-
-        final String jpqlFetch = """
-        FROM Event e WHERE e.id IN :ids ORDER BY e.date DESC
-    """;
-        return fetchPageByIds(
-                em,
-                countSql,
-                idSql,
-                Map.of("userId", userId),
-                jpqlFetch,
-                Event.class,
-                pageParams,
-                Map.of()
-        );
-    }
-
-
-    @Override
     public int countEventsCreatedByUser(long userId) {
         final String sql = """
         SELECT COUNT(*)

@@ -11,10 +11,8 @@ public interface JourneyService {
     Journey createJourney(long userId, long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description);
 
     Journey updateJourney(long journeyId, long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description);
-    Journey patchJourney(long journeyId, Long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description);
     void deleteJourney(long id, String message);
 
-    JourneyResponse createJourneyResponse(String email, long journeyId, String message);
     JourneyResponse createJourneyResponse(long userId, long journeyId, String message);
     void deleteJourneyResponse(long id, String message);
     void deleteJourneyResponse(long journeyId, long responseId, String message);
@@ -29,8 +27,6 @@ public interface JourneyService {
 
     boolean isJourneyOwnedByUser(String email, long journeyID);
     boolean isJourneyOwnedByUser(Journey journey, User user);
-
-    Optional<Journey> findJourneyByUserId(long userId);
 
     Optional<JourneyResponse> findJourneyResponseById(long id);
 

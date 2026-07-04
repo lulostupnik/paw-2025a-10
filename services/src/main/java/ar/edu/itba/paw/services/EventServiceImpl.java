@@ -194,23 +194,6 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public Page<Event> searchEvents(final String search, final PageParams pageParams) {
-        LOGGER.debug("Getting all events with search {}", search);
-        if (search == null || search.isEmpty()) {
-            return eventDao.findAll(pageParams);
-        }
-        return eventDao.search(search, pageParams);
-    }
-
-
-    @Override
-    public Page<Event> findEvents(final long userId, final PageParams pageParams) {
-        LOGGER.debug("Getting all events for user {}", userId);
-        return eventDao.findByUserId(userId, pageParams);
-    }
-
-
-    @Override
     @Transactional
     public EventAttendance createEventAttendance(final long userId, final  long eventId) {
         Event event = eventDao.findById(eventId).orElseThrow(() -> {
@@ -472,40 +455,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event patchEvent(final long eventId, final Long cityId, final LocalDate date, final String description,
-                            final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
-        LOGGER.debug("Patching event {}", eventId);
-        Event currentEvent = eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
-
-        if (cityId != null) {
-            City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
-            currentEvent.setCity(resolvedCity);
-        }
-        if (title != null) {
-            currentEvent.setTitle(title);
-        }
-        if (description != null) {
-            currentEvent.setDescription(description);
-        }
-        if (time != null) {
-            currentEvent.setTime(time);
-        }
-        if (address != null) {
-            currentEvent.setAddress(address);
-        }
-        if (attendeesLimit != null) {
-            currentEvent.setAttendeesLimit(attendeesLimit);
-        }
-        if (date != null) {
-            currentEvent.setDate(date);
-        }
-
-        LOGGER.info("Event {} patched", eventId);
-        return currentEvent;
-    }
-
-    @Override
-    @Transactional
     public void deleteEvent(final long id, final String message) {
         LOGGER.debug("Deleting event {}", id);
         Optional<Event> maybeEvent = eventDao.findById(id);
@@ -600,72 +549,6 @@ public class EventServiceImpl implements EventService {
     }*/
 
     @Override
-    public Page<Event> findCreatedByJourney(final Journey journey, final PageParams pageParams){
-        LocalDate cappedEndDate = capEndDateForPastEvents(journey.getEndDate());
-        LocalTime endTime = null;
-
-        if (cappedEndDate.equals(LocalDate.now())) {
-            endTime = LocalTime.now();
-        }
-
-        return eventDao.findAllWithFilters(
-                journey.getUser().getId(),
-                null,
-                SortFieldEvent.DATE,
-                SortDirection.ASC,
-                null,
-                journey.getStartDate(),
-                cappedEndDate,
-                null,
-                endTime,
-                null,
-                null,
-                null,
-                null,
-                false,
-                pageParams
-        );
-    }
-
-    @Override
-    public Page<Event> findAttendedByJourney(final Journey journey, final PageParams pageParams){
-        LocalDate cappedEndDate = capEndDateForPastEvents(journey.getEndDate());
-        LocalTime endTime = null;
-
-        if (cappedEndDate.equals(LocalDate.now())) {
-            endTime = LocalTime.now();
-        }
-
-        return eventDao.findAllWithFilters(
-                null,
-                null,
-                SortFieldEvent.DATE,
-                SortDirection.ASC,
-                null,
-                journey.getStartDate(),
-                cappedEndDate,
-                null,
-                endTime,
-                null,                           // interest
-                journey.getUser().getId(),      // attendedByUserId
-                null,                           // university
-                null,                           // minRating
-                false,
-                pageParams
-        );
-    }
-
-    private LocalDate capEndDateForPastEvents(LocalDate endDate) {
-        LocalDate yesterday = LocalDate.now();
-        return endDate == null || endDate.isAfter(yesterday) ? yesterday : endDate;
-    }
-
-    private LocalDate ensureStartDateForUpcomingEvents(LocalDate startDate) {
-        LocalDate today = LocalDate.now();
-        return startDate == null || startDate.isBefore(today) ? today : startDate;
-    }
-
-    @Override
     @Scheduled(cron = "0 0 12 * * ?")
     public void sendEventReminders() {
         LOGGER.info("Starting scheduled task: sending reminder emails for upcoming events");
@@ -696,12 +579,6 @@ public class EventServiceImpl implements EventService {
         } while (eventPage <= eventsPage.getTotalPages());
 
         LOGGER.info("Completed scheduled task: sent reminder emails for {} upcoming events", totalEventsProcessed);
-    }
-
-    @Override
-    public Page<User> findEventAttendees(long eventId, PageParams pageParams) {
-        LOGGER.debug("Getting attendees for event {} with pageParams {}", eventId, pageParams);
-        return eventAttendanceDao.findAttendeesByEventId(eventId, pageParams);
     }
 
     @Override

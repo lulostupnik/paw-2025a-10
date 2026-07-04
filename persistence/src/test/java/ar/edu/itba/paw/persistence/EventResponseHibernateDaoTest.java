@@ -145,27 +145,6 @@ public class EventResponseHibernateDaoTest {
     }
 
     @Test
-    public void testCountByEventId(){
-        int replyCount = replyDao.countByEventId(EVENT_1_ID);
-
-        assertEquals(EVENT_1_REPLIES, replyCount);
-    }
-    @Test
-    public void testCountByEventIdNoReplies(){
-        deleteEventReplies(jdbcTemplate);
-
-        int replyCount = replyDao.countByEventId(EVENT_1_ID);
-
-        assertEquals(0, replyCount);
-    }
-    @Test
-    public void testCountByEventIdWrongEvent(){
-        int replyCount = replyDao.countByEventId(12341234);
-
-        assertEquals(0, replyCount);
-    }
-
-    @Test
     public void testListAllByEventIdPage1(){
         Page<EventResponse> page1 = replyDao.listAllByEventId(
             EVENT_1_ID, 

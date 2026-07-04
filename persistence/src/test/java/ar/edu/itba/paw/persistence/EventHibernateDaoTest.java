@@ -680,47 +680,6 @@ public class EventHibernateDaoTest {
     }
 
     @Test
-    public void testFindAllEventsByAttendeePageOne(){
-        Page<Event> page1 = eventDao.findAllEventsByAttendee(USER_1_ID, PAGE_1_SINGLE);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(1, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(1, page1.getContent().size());
-    }
-    @Test
-    public void testFindAllEventsByAttendeePageTwo(){
-        Page<Event> page2 = eventDao.findAllEventsByAttendee(USER_1_ID, PAGE_2_SINGLE);
-
-        assertNotNull(page2);
-        assertEquals(2, page2.getCurrentPage());
-        assertEquals(1, page2.getTotalPages());
-        assertNotNull(page2.getContent());
-        assertEquals(0, page2.getContent().size());
-    }
-    @Test
-    public void testFindAllPagedByAttendee(){
-        Page<Event> events = eventDao.findAllEventsByAttendee(USER_1_ID, PAGE_1_SINGLE);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(1, events.getTotalPages());
-        assertNotNull(events.getContent());
-        assertEquals(1, events.getContent().size());
-    }
-    @Test
-    public void testFindAllEventsByAttendeeWrongUserPaged(){
-        Page<Event> events = eventDao.findAllEventsByAttendee(12341234, PAGE_1_SINGLE);
-
-        assertNotNull(events);
-        assertEquals(1, events.getCurrentPage());
-        assertEquals(0, events.getTotalPages());
-        assertNotNull(events.getContent());
-        assertEquals(0, events.getContent().size());
-    }
-
-    @Test
     public void testCountEventsCreatedByUser(){
         int eventCount = eventDao.countEventsCreatedByUser(USER_1_ID);
 

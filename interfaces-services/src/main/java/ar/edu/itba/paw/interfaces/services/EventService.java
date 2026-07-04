@@ -19,22 +19,11 @@ public interface EventService {
                      LocalTime time,
                      String address,
                      Integer attendeesLimit);
-    Event patchEvent(long eventId,
-                     Long cityId,
-                     LocalDate date,
-                     String description,
-                     String title,
-                     LocalTime time,
-                     String address,
-                     Integer attendeesLimit);
     void deleteEvent(long id, String message);
 
     Optional<Event> findEventById(long id);
 
     Optional<EventWithStatistics> findEventWithStatistics(long eventId);
-
-    Page<Event> searchEvents(String search, PageParams pageParams);
-    Page<Event> findEvents(long userId, PageParams pageParams);
 
     EventAttendance createEventAttendance(long userId, long eventId);
     Optional<EventAttendance> findEventAttendance(long userId, long eventId);
@@ -71,12 +60,8 @@ public interface EventService {
     Optional<EventResponse> findEventResponseById(long id);
     Optional<EventResponse> findEventResponseById(long eventId, long responseId);
 
-    Page<Event> findCreatedByJourney(Journey journey, PageParams pageParams);
-    Page<Event> findAttendedByJourney(Journey journey, PageParams pageParams);
-
     void sendEventReminders();
 
-    Page<User> findEventAttendees(long eventId, PageParams pageParams);
     Page<EventAttendance> findEventAttendances(long eventId, PageParams pageParams);
 
     int countEventsCreatedByUser(long userId);
