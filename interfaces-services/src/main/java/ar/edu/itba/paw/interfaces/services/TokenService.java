@@ -15,6 +15,6 @@ public interface TokenService {
 
     void deleteExpiredTokens();
 
-    void checkTokenValidity(String token);
+    boolean isTokenValid(Token token, long userId);
 
 }

@@ -81,7 +81,7 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
 
                 if (maybeToken.isPresent()) {
                     final Token tkn = maybeToken.get();
-                    if (tkn.isExpired() || tkn.getUser().getId().longValue() != user.getId()) {
+                    if (!tokenService.isTokenValid(tkn, user.getId())) {
                         writeError(request, response, Response.Status.UNAUTHORIZED, "auth.invalidCredentials");
                         return;
                     }

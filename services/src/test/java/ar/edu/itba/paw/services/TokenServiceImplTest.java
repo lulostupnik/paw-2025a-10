@@ -5,7 +5,6 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -26,7 +25,10 @@ public class TokenServiceImplTest {
     private static final LocalDateTime TOKEN_EXPIRATION = LocalDateTime.now().plusDays(1);
     private static final User USER = new User(TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, null, null, TOKEN_ID, TOKEN_VALUE, null, false);
     private static final Token TOKEN = new Token(TOKEN_ID, USER, TOKEN_VALUE, TOKEN_EXPIRATION);
-    
+
+    private static final long OWNER_ID = 7;
+    private static final User TOKEN_OWNER = new User(OWNER_ID, TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, null, null, null, null, false, true);
+
     @InjectMocks
     private TokenServiceImpl tokenService;
 
@@ -127,19 +129,23 @@ public class TokenServiceImplTest {
         assertEquals(TOKEN, maybeToken.get());
     }
 
-    @Test(expected = InvalidTokenException.class)
-    public void testCheckTokenValidityInvalid() {
-        when(tokenDao.findByToken(eq(TOKEN_VALUE)))
-                .thenReturn(Optional.empty());
+    @Test
+    public void testIsTokenValidValid() {
+        final Token token = new Token(TOKEN_ID, TOKEN_OWNER, TOKEN_VALUE, LocalDateTime.now().plusDays(1));
 
-        tokenService.checkTokenValidity(TOKEN_VALUE);
+        assertTrue(tokenService.isTokenValid(token, OWNER_ID));
     }
-    @Test(expected = InvalidTokenException.class)
-    public void testCheckTokenValidityExpired() {
-        when(tokenDao.findByToken(eq(TOKEN_VALUE)))
-                .thenReturn(Optional.of(new Token(USER, TOKEN_VALUE, LocalDateTime.now().minusDays(10))));
+    @Test
+    public void testIsTokenValidExpired() {
+        final Token token = new Token(TOKEN_ID, TOKEN_OWNER, TOKEN_VALUE, LocalDateTime.now().minusDays(1));
 
-        tokenService.checkTokenValidity(TOKEN_VALUE);
+        assertFalse(tokenService.isTokenValid(token, OWNER_ID));
+    }
+    @Test
+    public void testIsTokenValidWrongUser() {
+        final Token token = new Token(TOKEN_ID, TOKEN_OWNER, TOKEN_VALUE, LocalDateTime.now().plusDays(1));
+
+        assertFalse(tokenService.isTokenValid(token, OWNER_ID + 999));
     }
 
 }
