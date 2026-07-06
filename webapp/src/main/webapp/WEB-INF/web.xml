@@ -34,11 +34,6 @@
       <param-name>jersey.config.server.provider.packages</param-name>
       <param-value>ar.edu.itba.paw.webapp.controller;ar.edu.itba.paw.webapp.exceptionmapper;ar.edu.itba.paw.webapp.contextresolver;ar.edu.itba.paw.webapp.filter</param-value>
     </init-param>
-    <!-- pass to next filter if Jersey/App returns 404 -->
-    <init-param>
-      <param-name>jersey.config.servlet.filter.forwardOn404</param-name>
-      <param-value>true</param-value>
-    </init-param>
     <init-param>
       <param-name>jersey.config.server.provider.classnames</param-name>
       <param-value>org.glassfish.jersey.media.multipart.MultiPartFeature,org.glassfish.jersey.server.validation.ValidationFeature</param-value>
@@ -46,6 +41,10 @@
     <init-param>
       <param-name>jersey.config.servlet.filter.contextPath</param-name>
       <param-value>/api</param-value>
+    </init-param>
+    <init-param>
+      <param-name>jersey.config.servlet.filter.forwardOn404</param-name>
+      <param-value>false</param-value>
     </init-param>
   </filter>
 
@@ -117,7 +116,7 @@
 
   <servlet>
     <servlet-name>index</servlet-name>
-    <jsp-file>/index.html</jsp-file>
+    <servlet-class>ar.edu.itba.paw.webapp.servlet.SpaFallbackServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>index</servlet-name>
