@@ -13,6 +13,7 @@ public class RootIndexDto {
     private String universitiesUrl;
     private String careersUrl;
     private String citiesUrl;
+    private String countriesUrl;
 
     // By-ID URI templates
     private String userByIdUrl;
@@ -23,6 +24,7 @@ public class RootIndexDto {
     private String universityByIdUrl;
     private String careerByIdUrl;
     private String cityByIdUrl;
+    private String countryByIdUrl;
 
     // User sub-resources
     private String userInterestsUrl;
@@ -53,12 +55,13 @@ public class RootIndexDto {
         // Top-level collection URLs with query param templates
         dto.usersUrl = baseUri + "users{?attendingEvent,university,career,interest,search,blocked,page,size}";
         dto.eventsUrl = baseUri + "events{?destination,interest,afterDate,beforeDate,search,sort,direction,page,size,attendedBy,university,minRating,hasCapacity,creatorId}";
-        dto.journeysUrl = baseUri + "journeys{?city,university,startDate,endDate,interest,upcoming,past,ongoing,myDestination,search,sort,direction,page,size}";
+        dto.journeysUrl = baseUri + "journeys{?city,university,startDate,endDate,interest,upcoming,past,ongoing,destinationCity,excludeUser,search,sort,direction,page,size}";
         dto.reportsUrl = baseUri + "reports{?search,page,size}";
         dto.interestsUrl = baseUri + "interests{?search,page,size}";
         dto.universitiesUrl = baseUri + "universities{?search,page,size}";
         dto.careersUrl = baseUri + "careers{?search,page,size}";
         dto.citiesUrl = baseUri + "cities{?search,page,size}";
+        dto.countriesUrl = baseUri + "countries";
 
         // By-ID URI templates
         dto.userByIdUrl = baseUri + "users/{id}";
@@ -69,6 +72,7 @@ public class RootIndexDto {
         dto.universityByIdUrl = baseUri + "universities/{id}";
         dto.careerByIdUrl = baseUri + "careers/{id}";
         dto.cityByIdUrl = baseUri + "cities/{id}";
+        dto.countryByIdUrl = baseUri + "countries/{id}";
 
         // User sub-resources
         dto.userInterestsUrl = baseUri + "users/{id}/interests{?page,size}";
@@ -120,6 +124,9 @@ public class RootIndexDto {
     public String getCitiesUrl() { return citiesUrl; }
     public void setCitiesUrl(String citiesUrl) { this.citiesUrl = citiesUrl; }
 
+    public String getCountriesUrl() { return countriesUrl; }
+    public void setCountriesUrl(String countriesUrl) { this.countriesUrl = countriesUrl; }
+
     // By-ID URI template getters/setters
     public String getUserByIdUrl() { return userByIdUrl; }
     public void setUserByIdUrl(String userByIdUrl) { this.userByIdUrl = userByIdUrl; }
@@ -144,6 +151,9 @@ public class RootIndexDto {
 
     public String getCityByIdUrl() { return cityByIdUrl; }
     public void setCityByIdUrl(String cityByIdUrl) { this.cityByIdUrl = cityByIdUrl; }
+
+    public String getCountryByIdUrl() { return countryByIdUrl; }
+    public void setCountryByIdUrl(String countryByIdUrl) { this.countryByIdUrl = countryByIdUrl; }
 
     // User sub-resource getters/setters
     public String getUserInterestsUrl() { return userInterestsUrl; }
