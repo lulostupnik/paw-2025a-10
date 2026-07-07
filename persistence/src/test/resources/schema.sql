@@ -182,7 +182,7 @@ CREATE SEQUENCE tokens_id_seq START WITH 5;
 CREATE TABLE IF NOT EXISTS tokens (
     id bigint DEFAULT nextval('tokens_id_seq') PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    token VARCHAR(100) UNIQUE,
+    token VARCHAR(128) UNIQUE,
     token_expiration TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

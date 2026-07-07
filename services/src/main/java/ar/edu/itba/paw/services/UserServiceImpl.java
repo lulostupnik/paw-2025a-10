@@ -59,8 +59,8 @@ public class UserServiceImpl implements UserService {
         LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
         interestService.createUserInterests(interestIds, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
-        Token token = tokenService.userTokenControl(user);
-        emailService.sendValidationEmail(new EmailUser(user), token.getToken());
+        String rawToken = tokenService.userTokenControl(user);
+        emailService.sendValidationEmail(new EmailUser(user), rawToken);
         LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
         return user;
     }
@@ -204,8 +204,8 @@ public class UserServiceImpl implements UserService {
 //            return;
 //        }
 
-        Token token = tokenService.userTokenControl(user);
-        emailService.sendForgotPassEmail(new EmailUser(user), token.getToken());
+        String rawToken = tokenService.userTokenControl(user);
+        emailService.sendForgotPassEmail(new EmailUser(user), rawToken);
         LOGGER.info("Forgot password email sent successfully to: {}", email);
     }
 
@@ -218,8 +218,8 @@ public class UserServiceImpl implements UserService {
             LOGGER.warn("User with email {} is already validated; skipping verification resend", email);
             throw new UserValidatedException(email);
         }
-        final Token token = tokenService.userTokenControl(user);
-        emailService.sendValidationEmail(new EmailUser(user), token.getToken());
+        String rawToken = tokenService.userTokenControl(user);
+        emailService.sendValidationEmail(new EmailUser(user), rawToken);
         LOGGER.info("Verification email resent successfully to: {}", email);
     }
 

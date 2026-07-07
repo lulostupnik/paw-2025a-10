@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,27 +33,25 @@ public class TokenServiceImpl implements TokenService {
 
     @Transactional
     @Override
-    public Token userTokenControl(User user) {
+    public String userTokenControl(User user) {
+        final String rawToken = generateToken();
+        final String hashedToken = hashToken(rawToken);
         Token token = user.getToken();
         if (token != null) {
-            if (token.getExpirationDate() != null && !token.isExpired()) {
-                LOGGER.info("Token is fresh for user {}", user.getId());
-                return token;
-            }
-            token.setToken(generateToken());
+            token.setToken(hashedToken);
             token.setExpirationDate(generateTokenExpirationDate());
-            LOGGER.info("Token was refreshed for user {}",user.getId());
+            LOGGER.info("Token was refreshed for user {}", user.getId());
         } else {
-            token = new Token(user, generateToken(), generateTokenExpirationDate());
+            token = new Token(user, hashedToken, generateTokenExpirationDate());
             user.setToken(token);
             LOGGER.info("Token was created for user {}", user.getId());
         }
-        return token;
+        return rawToken;
     }
 
     @Override
     public Optional<Token> getByToken(String token) {
-        return tokenDao.findByToken(token);
+        return tokenDao.findByToken(hashToken(token));
     }
 
     @Transactional
@@ -80,6 +79,10 @@ public class TokenServiceImpl implements TokenService {
 
     private static String generateToken() {
         return UUID.randomUUID().toString().substring(0, 32);
+    }
+
+    private static String hashToken(final String rawToken) {
+        return Sha512DigestUtils.shaHex(rawToken);
     }
 
 }

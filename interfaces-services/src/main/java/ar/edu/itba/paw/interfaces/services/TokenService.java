@@ -7,7 +7,7 @@ import java.util.Optional;
 public interface TokenService {
 
 
-    Token userTokenControl(User user);
+    String userTokenControl(User user);
 
     Optional<Token> getByToken(String token);
 

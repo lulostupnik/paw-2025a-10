@@ -291,7 +291,7 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS tokens (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    token VARCHAR(100) UNIQUE,
+    token VARCHAR(128) UNIQUE,
     token_expiration TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

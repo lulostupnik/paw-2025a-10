@@ -122,7 +122,7 @@ public class UserServiceImplTest {
         ).thenReturn(USER);
         when(
             tokenService.userTokenControl(USER)
-        ).thenReturn(TOKEN);
+        ).thenReturn(TOKEN_VALUE);
 
         User user = userService.createUser(
             EMAIL,
@@ -368,7 +368,7 @@ public class UserServiceImplTest {
         ).thenReturn(Optional.of(USER_NOT_VALIDATED));
         when(
             tokenService.userTokenControl(USER_NOT_VALIDATED)
-        ).thenReturn(TOKEN);
+        ).thenReturn(TOKEN_VALUE);
 
         userService.resendVerificationEmail(EMAIL);
 
