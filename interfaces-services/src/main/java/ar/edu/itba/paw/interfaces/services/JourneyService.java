@@ -20,11 +20,10 @@ public interface JourneyService {
 
     Page<Journey> findJourneys(String search, PageParams pageParams);
     Page<Journey> findJourneys(String search, Long excludeUserId, Long destinationCityId, SortFieldJourney sortBy, SortDirection direction, String city, String university, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isOngoing, PageParams pageParams);
+    Page<Journey> findRecommendedJourneys(long userId, PageParams pageParams);
     Optional<Journey> findJourneyById(long id);
 
     boolean existsByUserEmail(String email);
-
-    List<Journey> findRecommendedJourneys(String email, int limit);
 
     boolean isJourneyOwnedByUser(String email, long journeyID);
     boolean isJourneyOwnedByUser(Journey journey, User user);
@@ -43,6 +42,4 @@ public interface JourneyService {
     Optional<Tip> findTipById(long journeyId, long tipId);
     boolean isTipOwnedByUser(long journeyId, long tipId, String email);
 }
-
-
 

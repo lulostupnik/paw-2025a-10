@@ -934,37 +934,37 @@ public class JourneyServiceImplTest {
 
 
     @Test
-    public void testFindRecommendedJourneysWithEmail(){
+    public void testFindRecommendedJourneysWithActiveJourney(){
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID_WITH_JOURNEY))
         ).thenReturn(Optional.of(USER_WITH_JOURNEY));
         when(
-            journeyDao.findRecommended(eq(EMAIL), eq(PAGE_1_DEFAULT))
+            journeyDao.findRecommended(eq(EMAIL_2), eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
+        Page<Journey> journeys = journeyService.findRecommendedJourneys(USER_ID_WITH_JOURNEY, PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
+        assertEquals(JOURNEYS, journeys.getContent());
     }
     @Test
     public void testFindRecommendedJourneysWithUserNoJourneysButJourneyInCity(){
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
             journeyDao.findByOriginCity(eq(CITY_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
+        Page<Journey> journeys = journeyService.findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
+        assertEquals(JOURNEYS, journeys.getContent());
     }
     @Test
     public void testFindRecommendedJourneysWithUserNoJourneysNoJourneyInCity(){
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
             journeyDao.findByOriginCity(eq(CITY_ID), eq(PAGE_1_DEFAULT))
@@ -973,28 +973,22 @@ public class JourneyServiceImplTest {
             journeyDao.findAll(eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
+        Page<Journey> journeys = journeyService.findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
+        assertEquals(JOURNEYS, journeys.getContent());
     }
-    @Test
+    @Test(expected = UserNotFoundException.class)
     public void testFindRecommendedJourneysWrongUser(){
         when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER)).thenReturn(Optional.empty());
-        when(
-            journeyDao.findAll(any(PageParams.class))
-        ).thenReturn(JOURNEY_PAGE);
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
 
-        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
+        journeyService.findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
     }
     @Test(expected = InvalidPaginationParamsException.class)
     public void testFindRecommendedJourneysWrongLimit(){
-        journeyService.findRecommendedJourneys(EMAIL, 0);
+        journeyService.findRecommendedJourneys(USER_ID, new PageParams(1, 0));
     }
 
     @Test

@@ -253,28 +253,29 @@ public class JourneyServiceImpl implements JourneyService {
         return user.hasActiveJourney();
     }
 
-
     @Override
-    public List<Journey> findRecommendedJourneys(final String email, final int limit) {
-        LOGGER.debug("Getting recommended journeys for {}", email);
-        if(limit <= 0 ){
-            throw new InvalidPaginationParamsException("Limit must be grater than 0");
+    public Page<Journey> findRecommendedJourneys(final long userId, final PageParams pageParams) {
+        LOGGER.debug("Getting recommended journeys for user {}", userId);
+
+        final User user = userService.findUserById(userId).orElseThrow(() -> {
+            LOGGER.warn("User with id {} not found", userId);
+            return new UserNotFoundException(userId);
+        });
+
+        if (user.hasActiveJourney()) {
+            return journeyDao.findRecommended(user.getEmail(), pageParams);
         }
-        if(existsByUserEmail(email)){
-            return journeyDao.findRecommended(email, new PageParams(1, limit)).getContent();
+
+        final Page<Journey> journeysFromOriginCity = journeyDao.findByOriginCity(
+                user.getUniversity().getCity().getId(),
+                pageParams
+        );
+        if (!journeysFromOriginCity.getContent().isEmpty()) {
+            return journeysFromOriginCity;
         }
-        Optional<User> maybeUser = userService.findUserByEmail(email);
-        if(maybeUser.isEmpty()){
-            return journeyDao.findAll(new PageParams(1, limit)).getContent();
-        }
-        List<Journey> journeys = journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId(), new PageParams(1, limit)).getContent();
-        if(journeys.isEmpty()){
-            return journeyDao.findAll( new PageParams(1, limit)).getContent();
-        }
-        return journeys ;
+
+        return journeyDao.findAll(pageParams);
     }
-
-
     @Override
     @Transactional
     public void patchJourney(final long id, final Boolean deleted, final String deletionMessage) {

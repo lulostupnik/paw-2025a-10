@@ -92,6 +92,7 @@ export interface FetchJourneysParams {
     ongoing?: boolean;
     destinationCity?: number;
     excludeUser?: number;
+    recommendedForUser?: number;
     search?: string;
     sort?: string;
     direction?: string;

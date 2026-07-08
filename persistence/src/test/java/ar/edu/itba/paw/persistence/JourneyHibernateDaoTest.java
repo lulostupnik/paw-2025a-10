@@ -376,6 +376,45 @@ public class JourneyHibernateDaoTest {
     }
 
     @Test
+    public void testRecommendedJourneysTotalElementsIgnoresZeroScoreCandidates(){
+        deleteJourneys(jdbcTemplate);
+        insertJourney(ds, Map.of("user", USER_1));
+
+        jdbcTemplate.update(
+            "INSERT INTO universities(id, name, abbreviation, city_id, deleted) VALUES (?, ?, ?, ?, FALSE)",
+            10L,
+            "No matching university",
+            "NMU",
+            CITY_3_ID
+        );
+
+        Journey recommendedJourney1 = insertJourney(ds, Map.of("user", USER_2));
+        Journey recommendedJourney2 = insertJourney(ds, Map.of("user", USER_3));
+        Journey recommendedJourney3 = insertJourney(ds, Map.of("user", USER_I1));
+        insertJourney(ds, Map.of(
+            "user", USER_4,
+            "destination", new University(10L, "No matching university", "NMU", CITY_3),
+            "startDate", JOURNEY_END_DATE.plusDays(2),
+            "endDate", JOURNEY_END_DATE.plusDays(30)
+        ));
+
+        Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, new PageParams(1, 3));
+        Page<Journey> page2 = journeyDao.findRecommended(USER_1_MAIL, new PageParams(2, 3));
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(1, page1.getTotalPages());
+        assertEquals(3, page1.getTotalElements());
+        assertEqualsJourneyList(List.of(recommendedJourney1, recommendedJourney2, recommendedJourney3), page1.getContent());
+
+        assertNotNull(page2);
+        assertEquals(2, page2.getCurrentPage());
+        assertEquals(1, page2.getTotalPages());
+        assertEquals(3, page2.getTotalElements());
+        assertTrue(page2.getContent().isEmpty());
+    }
+
+    @Test
     public void testFindAllWithFilters(){
         Page<Journey> page = journeyDao.search(
             null,

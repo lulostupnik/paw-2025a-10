@@ -259,6 +259,11 @@ public class JourneyHibernateDao implements JourneyDao {
             FROM users
             WHERE email = :email
         ),
+        user_interests AS (
+            SELECT category_id, score
+            FROM user_interest
+            JOIN user_data ud ON user_interest.user_id = ud.id
+        ),
         user_journey AS (
             SELECT
                 j.destination_university_id AS university_id,
@@ -272,7 +277,19 @@ public class JourneyHibernateDao implements JourneyDao {
             LIMIT 1
         ),
         journey_scores AS (
-            SELECT j.id
+            SELECT
+                j.id,
+                CASE WHEN j.destination_university_id = uj.university_id THEN 50 ELSE 0 END AS university_match_score,
+                CASE WHEN dest_univ.city_id = uj.city_id THEN 30 ELSE 0 END AS city_match_score,
+                COALESCE((
+                    SELECT SUM(ui.score) * 3
+                    FROM user_interest journey_ui
+                    JOIN user_interests ui ON ui.category_id = journey_ui.category_id
+                    WHERE journey_ui.user_id = j.user_id
+                ), 0) AS interest_match_score,
+                CASE WHEN (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end) THEN 15 ELSE 0 END AS timing_match_score,
+                CASE WHEN j.destination_university_id = ud.university AND (uj.user_start IS NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 50 ELSE 0 END AS origin_uni_match_off_travel_score,
+                CASE WHEN dest_univ.city_id = (SELECT city_id FROM universities WHERE id = ud.university) AND (uj.user_start IS NULL OR NOT (j.start_date, j.end_date) OVERLAPS (uj.user_start, uj.user_end)) THEN 30 ELSE 0 END AS origin_city_match_off_travel_score
             FROM journeys j
             JOIN users u ON j.user_id = u.id
             JOIN universities dest_univ ON j.destination_university_id = dest_univ.id
@@ -281,6 +298,14 @@ public class JourneyHibernateDao implements JourneyDao {
             WHERE j.user_id != ud.id AND j.deleted = FALSE
         )
         SELECT COUNT(*) FROM journey_scores
+        WHERE (
+            university_match_score +
+            city_match_score +
+            interest_match_score +
+            timing_match_score +
+            origin_uni_match_off_travel_score +
+            origin_city_match_off_travel_score
+        ) > 0
     """;
 
         final String idSql = """
@@ -353,4 +378,3 @@ public class JourneyHibernateDao implements JourneyDao {
     }
 
 }
-

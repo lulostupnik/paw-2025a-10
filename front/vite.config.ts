@@ -19,6 +19,15 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     proxy: {
+      "/webapp": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on("proxyReq", (proxyReq) => {
+            proxyReq.setHeader("origin", "http://localhost:8080");
+          });
+        },
+      },
       "/webapp_war_exploded": {
         target: "http://localhost:8080",
         changeOrigin: true,

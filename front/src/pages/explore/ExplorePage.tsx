@@ -66,6 +66,7 @@ export default function ExplorePage() {
     const { journeys, loading: journeysLoading, error: journeysError } = useJourneys({
         page: 1,
         size: currentUserId ? 5 : 4,
+        ...(currentUserId ? { recommendedForUser: currentUserId } : {}),
     });
     const { events, loading: eventsLoading, error: eventsError } = useEvents({ page: 1, size: 6 });
     const visibleJourneys = useMemo(
