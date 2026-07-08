@@ -9,10 +9,9 @@ import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserInterest;
 import ar.edu.itba.paw.models.UserRating;
 import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
-import ar.edu.itba.paw.models.exceptions.InvalidImageException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
-import ar.edu.itba.paw.webapp.CustomMediaType;
+import ar.edu.itba.paw.webapp.GoTogetherMediaType;
 import ar.edu.itba.paw.webapp.dto.UserDto;
 import ar.edu.itba.paw.webapp.dto.UserInterestDto;
 import ar.edu.itba.paw.webapp.dto.UserPrivateDto;
@@ -23,7 +22,7 @@ import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
 import ar.edu.itba.paw.webapp.form.PatchUserForm;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
-
+import ar.edu.itba.paw.webapp.utils.ImageUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -55,7 +53,7 @@ public class UserController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(CustomMediaType.APPLICATION_USER_LIST)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_LIST)
     public Response listUsers(
             @QueryParam("attendingEvent") Long attendingEventId,
             @QueryParam("university") Long universityId,
@@ -67,34 +65,34 @@ public class UserController {
             @QueryParam("size") @DefaultValue("10") int size
     ) {
         final Page<User> allUsers = us.findUsers(search, new PageParams(page, size), attendingEventId, universityId, careerId, interestId, blocked);
-        final List<UserPrivateDto> userDtos = UserPrivateDto.fromUserCollection(uriInfo, allUsers.getContent());
+        final List<UserDto> userDtos = UserDto.fromUserCollection(uriInfo, allUsers.getContent());
         final ResponseBuilder response = Response.ok(new GenericEntity<>(userDtos) {});
         return PagingUtils.insertPaginationLinks(response, uriInfo, allUsers).build();
     }
 
     @GET
     @Path("/{id}")
-    @Produces(CustomMediaType.APPLICATION_USER_PUBLIC)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC)
     public Response getById(@Context Request req, @PathParam("id") final long id) {
         final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
         // Vary the ETag by media type so the public and full representations never share an ETag.
-        return CacheUtils.withEtag(req, user, CustomMediaType.APPLICATION_USER_PUBLIC,
+        return CacheUtils.withEtag(req, user, GoTogetherMediaType.APPLICATION_USER_PUBLIC,
                 () -> UserDto.fromUser(uriInfo, user));
     }
 
     @GET
     @Path("/{id}")
-    @Produces(CustomMediaType.APPLICATION_USER)
+    @Produces(GoTogetherMediaType.APPLICATION_USER)
     @PreAuthorize("hasRole('ADMIN') or @accessHelper.isCurrentUser(#id)")
     public Response getByIdAdmin(@Context Request req, @PathParam("id") final long id) {
         final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
-        return CacheUtils.privateWithEtag(req, user, CustomMediaType.APPLICATION_USER,  ////@TODO creo que tiene sentido, usa mismo hash para el modelo USER, pero distingue el media type.
+        return CacheUtils.privateWithEtag(req, user, GoTogetherMediaType.APPLICATION_USER,  ////@TODO creo que tiene sentido, usa mismo hash para el modelo USER, pero distingue el media type.
                 () -> UserPrivateDto.fromUser(uriInfo, user));
     }
 
     @POST
-    @Consumes(CustomMediaType.APPLICATION_USER)
-    @Produces(CustomMediaType.APPLICATION_USER_PUBLIC)
+    @Consumes(GoTogetherMediaType.APPLICATION_USER)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC)
     public Response createUser(@Valid final CreateUserForm registerForm) {
         final User user = us.createUser(
                 registerForm.getEmail(),
@@ -113,7 +111,7 @@ public class UserController {
     }
 
     @POST
-    @Consumes(CustomMediaType.APPLICATION_USER_PASSWORD)
+    @Consumes(GoTogetherMediaType.APPLICATION_USER_PASSWORD)
     public Response requestPasswordReset(@Valid final ForgotPasswordForm form) {
         us.initiatePasswordReset(form.getEmail());
         return Response.noContent().build();
@@ -121,12 +119,12 @@ public class UserController {
 
     @PATCH
     @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_USER)
+    @Consumes(GoTogetherMediaType.APPLICATION_USER)
     @PreAuthorize("@accessHelper.canPatchUser(#id, #form)")
-    @Produces(CustomMediaType.APPLICATION_USER_PUBLIC)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC)
     public Response patchUser(@PathParam("id") final long id, @Valid PatchUserForm form) {
         final User user = us.patchUser(id, form.getUsername(), form.getFirstName(), form.getLastName(),
-                form.getUniversityId(), form.getCareerId(), form.getPassword(), form.getVerified(), form.getBlocked());
+                form.getUniversityId(), form.getCareerId(), form.getPassword(), form.getBlocked());
         return Response.ok(UserDto.fromUser(uriInfo, user)).build();
     }
 
@@ -135,16 +133,13 @@ public class UserController {
 
     @GET
     @Path("/{userId}/interests")
-    @Produces(CustomMediaType.APPLICATION_USER_INTEREST_LIST)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_INTEREST_LIST)
     public Response listUserInterests(
             @PathParam("userId") final long userId,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
-        final User user = us.findUserById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        final Page<UserInterest> userInterests = interestService.findInterestsByUser(user, new PageParams(page, size));
+        final Page<UserInterest> userInterests = interestService.findInterestsByUser(userId, new PageParams(page, size));
         final List<UserInterestDto> interestDtos = UserInterestDto.fromUserInterestCollection(uriInfo, userInterests.getContent());
         final ResponseBuilder response = Response.ok(new GenericEntity<>(interestDtos) {});
         return PagingUtils.insertPaginationLinks(response, uriInfo, userInterests).build();
@@ -152,8 +147,8 @@ public class UserController {
 
     @POST
     @Path("/{userId}/interests")
-    @Consumes(CustomMediaType.APPLICATION_USER_INTEREST)
-    @Produces(CustomMediaType.APPLICATION_USER_INTEREST)
+    @Consumes(GoTogetherMediaType.APPLICATION_USER_INTEREST)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_INTEREST)
     public Response addUserInterest(
             @PathParam("userId") final long userId,
             @Valid final AddUserInterestForm form
@@ -166,7 +161,7 @@ public class UserController {
 
     @GET
     @Path("/{userId}/interests/{interestId}")
-    @Produces(CustomMediaType.APPLICATION_USER_INTEREST)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_INTEREST)
     public Response getUserInterest(
             @Context Request req,
             @PathParam("userId") final long userId,
@@ -191,9 +186,8 @@ public class UserController {
 
     @GET
     @Path("/{userId}/rating")
-    @Produces(CustomMediaType.APPLICATION_USER_RATING)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_RATING)
     public Response getUserRating(@Context Request req, @PathParam("userId") final long userId) {
-        us.findUserById(userId).orElseThrow(() -> new UserNotFoundException(userId));
         final UserRating rating = us.getUserRating(userId);
         return CacheUtils.withEtag(req, rating, () -> UserRatingDto.fromUserRating(uriInfo, rating));
     }
@@ -209,13 +203,11 @@ public class UserController {
     public Response getUserProfilePicture(@Context Request req, @PathParam("userId") final long userId) {
         final Image image = us.getProfilePicture(userId).orElseThrow(() -> new ImageNotFoundException("Profile picture not found"));
         final Response.ResponseBuilder responseBuilder = Response.ok(image.getData())
-                .header(HttpHeaders.CONTENT_TYPE, "image/jpeg")
-                .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"profile_%d.jpg\"", userId));
+                .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"profile_%d\"", userId));
         return CacheUtils.withEtag(req, image, responseBuilder);
     }
 
-    // TODO: parece que hay business logic. Arreglar.
-    // TODO: concluision: dejarlo asi pero habilitar para que hayan eventos sin foto de perfil en el frontend
     @PUT
     @Path("/{userId}/profilePicture")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -224,20 +216,11 @@ public class UserController {
             @PathParam("userId") final long userId,
             @FormDataParam("profilePicture") final InputStream profilePictureStream
     ) {
-        if (profilePictureStream == null) {
-            throw new InvalidImageException("exception.profilePicture.required");
-        }
-        try {
-            final byte[] bytes = profilePictureStream.readAllBytes();
-            us.updateProfilePicture(userId, bytes);
-        } catch (IOException e) {
-            throw new InvalidImageException("exception.profilePicture.readFailed");
-        }
-        final Image image = us.getProfilePicture(userId).orElseThrow(() -> new ImageNotFoundException("Profile picture not found"));
-
+        final byte[] bytes = ImageUtils.readImage(profilePictureStream);
+        final Image image = us.updateProfilePicture(userId, bytes);
         return Response.ok(image.getData())
                 .contentLocation(UriUtils.getUserProfilePictureUri(uriInfo, userId))
-                .header("Content-Type", "image/jpeg")
+                .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))
                 .build();
     }
 }

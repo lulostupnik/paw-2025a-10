@@ -16,7 +16,7 @@ public interface InterestService {
 
     Optional<Interest> findInterestById(long id);
     Optional<Interest> findInterestByName(String name);
-    Page<UserInterest> findInterestsByUser(User user, PageParams pageParams);
+    Page<UserInterest> findInterestsByUser(long userId, PageParams pageParams);
     Optional<UserInterest> findUserInterest(long userId, long interestId);
     UserInterest addUserInterest(long userId, long interestId);
     void removeUserInterest(long userId, long interestId);

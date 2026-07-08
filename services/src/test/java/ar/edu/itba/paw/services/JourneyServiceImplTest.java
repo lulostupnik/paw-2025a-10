@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.InOrder;
 
@@ -1006,6 +1008,30 @@ public class JourneyServiceImplTest {
 
         assertTrue(newJourney.isDeleted());
         assertEquals(DESCRIPTION, newJourney.getDeletionMessage());
+    }
+    @Test
+    public void testPatchJourneyDeletedTrue(){
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(newJourney));
+
+        journeyService.patchJourney(JOURNEY_ID, true, DESCRIPTION);
+
+        assertTrue(newJourney.isDeleted());
+        assertEquals(DESCRIPTION, newJourney.getDeletionMessage());
+    }
+    @Test
+    public void testPatchJourneyDeletedFalseIsNoOp(){
+        journeyService.patchJourney(JOURNEY_ID, false, DESCRIPTION);
+
+        verify(journeyDao, never()).findById(JOURNEY_ID);
+    }
+    @Test
+    public void testPatchJourneyDeletedNullIsNoOp(){
+        journeyService.patchJourney(JOURNEY_ID, null, null);
+
+        verify(journeyDao, never()).findById(JOURNEY_ID);
     }
     @Test
     public void testDeleteJourneyEmptyMessage(){

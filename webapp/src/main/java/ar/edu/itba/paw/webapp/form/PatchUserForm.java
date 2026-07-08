@@ -25,8 +25,6 @@ public class PatchUserForm {
     @Size(min = 8, max = 72)
     private String password;
 
-    private Boolean verified;
-
     private Boolean blocked;
 
     public String getUsername() {
@@ -75,14 +73,6 @@ public class PatchUserForm {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Boolean getVerified() {
-        return verified;
-    }
-
-    public void setVerified(Boolean verified) {
-        this.verified = verified;
     }
 
     public Boolean getBlocked() {

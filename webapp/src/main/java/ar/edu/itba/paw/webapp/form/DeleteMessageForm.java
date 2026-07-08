@@ -4,7 +4,7 @@ import javax.validation.constraints.Size;
 
 public class DeleteMessageForm {
 
-    @Size(max = 2047)
+    @Size(max = 1000)
     private String message;
 
     public String getMessage() {

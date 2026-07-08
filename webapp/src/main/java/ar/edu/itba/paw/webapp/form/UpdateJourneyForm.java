@@ -1,17 +1,22 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.webapp.validation.ExistingUniversity;
+import ar.edu.itba.paw.webapp.validation.FutureDate;
+import ar.edu.itba.paw.webapp.validation.ValidDateRange;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
+@ValidDateRange
 public class UpdateJourneyForm {
 
     @NotNull
+    @FutureDate
     private LocalDate startDate;
 
     @NotNull
+    @FutureDate
     private LocalDate endDate;
 
     @NotNull

@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.webapp;
 
-public final class CustomMediaType {
+public final class GoTogetherMediaType {
 
-    private CustomMediaType() {
+    private GoTogetherMediaType() {
         throw new AssertionError();
     }
 

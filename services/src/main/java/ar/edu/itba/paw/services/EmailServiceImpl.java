@@ -2,7 +2,6 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.exceptions.InvalidImageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,10 +149,11 @@ public class EmailServiceImpl implements EmailService {
     }
 
     private byte[] getUserImageData(EmailUser user){
-        return imageService.findImage(user.getProfilePictureId()).orElseThrow(() -> {
-            LOGGER.error("EmailUser with ID {} does not have profile picture", user.getId());
-            return new InvalidImageException();
-        }).getData();
+        final Long profilePictureId = user.getProfilePictureId();
+        if (profilePictureId == null) {
+            return new byte[0];
+        }
+        return imageService.findImage(profilePictureId).map(Image::getData).orElse(new byte[0]);
     }
     @Override
     public void answerEventOwnerNotification(final String message, final EmailUser commenter, final EmailEvent event) {

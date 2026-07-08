@@ -15,9 +15,6 @@ public final class UriUtils {
     public static final String CAREERS_URL = API_BASE_URL + "/careers";
     public static final String CITIES_URL = API_BASE_URL + "/cities";
     public static final String COUNTRIES_URL = API_BASE_URL + "/countries";
-    public static final String IMAGES_URL = API_BASE_URL + "/images";
-    public static final String PASSWORD_RESET_TOKENS_URL = API_BASE_URL + "/password-reset-tokens";
-    public static final String RATINGS_URL = API_BASE_URL + "/ratings";
 
     private UriUtils() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -87,6 +84,15 @@ public final class UriUtils {
 
     public static URI getEventUri(final UriInfo uriInfo, final long eventId) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).build();
+    }
+
+    // Events created by / attended by a user, referenced as query params on the events collection.
+    public static URI getUserCreatedEventsUri(final UriInfo uriInfo, final long userId) {
+        return uriInfo.getBaseUriBuilder().path(EVENTS_URL).queryParam("creatorId", userId).build();
+    }
+
+    public static URI getUserAttendedEventsUri(final UriInfo uriInfo, final long userId) {
+        return uriInfo.getBaseUriBuilder().path(EVENTS_URL).queryParam("attendedBy", userId).build();
     }
 
     // Event Flyer (sub-resource of events)
@@ -187,31 +193,5 @@ public final class UriUtils {
 
     public static URI getCountryUri(final UriInfo uriInfo, final long countryId) {
         return uriInfo.getBaseUriBuilder().path(COUNTRIES_URL).path(String.valueOf(countryId)).build();
-    }
-
-    // ==================== IMAGES ====================
-
-    public static URI getImagesUri(final UriInfo uriInfo) {
-        return uriInfo.getBaseUriBuilder().path(IMAGES_URL).build();
-    }
-
-    public static URI getImageUri(final UriInfo uriInfo, final long imageId) {
-        return uriInfo.getBaseUriBuilder().path(IMAGES_URL).path(String.valueOf(imageId)).build();
-    }
-
-    // ==================== PASSWORD RESET TOKENS ====================
-
-    public static URI getPasswordResetTokensUri(final UriInfo uriInfo) {
-        return uriInfo.getBaseUriBuilder().path(PASSWORD_RESET_TOKENS_URL).build();
-    }
-
-    // ==================== RATINGS (Alternative top-level) ====================
-
-    public static URI getRatingsUri(final UriInfo uriInfo) {
-        return uriInfo.getBaseUriBuilder().path(RATINGS_URL).build();
-    }
-
-    public static URI getRatingUri(final UriInfo uriInfo, final long ratingId) {
-        return uriInfo.getBaseUriBuilder().path(RATINGS_URL).path(String.valueOf(ratingId)).build();
     }
 }

@@ -5,7 +5,7 @@ import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
-import ar.edu.itba.paw.webapp.CustomMediaType;
+import ar.edu.itba.paw.webapp.GoTogetherMediaType;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.PatchInterestForm;
@@ -34,7 +34,7 @@ public class InterestController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(CustomMediaType.APPLICATION_INTEREST_LIST)
+    @Produces(GoTogetherMediaType.APPLICATION_INTEREST_LIST)
     public Response listInterests(
             @Context Request req,
             @QueryParam("search") String search,
@@ -51,15 +51,15 @@ public class InterestController {
 
     @GET
     @Path("/{id}")
-    @Produces(CustomMediaType.APPLICATION_INTEREST)
+    @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
     public Response getInterestById(@Context Request req, @PathParam("id") final long id) {
         final Interest interest = interestService.findInterestById(id).orElseThrow(() -> new InterestsNotFoundException(id));
         return CacheUtils.withEtag(req, interest, () -> InterestDto.fromInterest(uriInfo, interest));
     }
 
     @POST
-    @Consumes(CustomMediaType.APPLICATION_INTEREST)
-    @Produces(CustomMediaType.APPLICATION_INTEREST)
+    @Consumes(GoTogetherMediaType.APPLICATION_INTEREST)
+    @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
     public Response createInterest(@Valid final CreateInterestForm form) {
         final Interest interest = interestService.createInterest(form.getName());
         return Response.created(UriUtils.getInterestUri(uriInfo, interest.getId()))
@@ -69,8 +69,8 @@ public class InterestController {
 
     @PUT
     @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_INTEREST)
-    @Produces(CustomMediaType.APPLICATION_INTEREST)
+    @Consumes(GoTogetherMediaType.APPLICATION_INTEREST)
+    @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
     public Response updateInterest(
             @PathParam("id") final long id,
             @Valid final UpdateInterestForm form
@@ -81,8 +81,8 @@ public class InterestController {
 
     @PATCH
     @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_INTEREST)
-    @Produces(CustomMediaType.APPLICATION_INTEREST)
+    @Consumes(GoTogetherMediaType.APPLICATION_INTEREST)
+    @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
     public Response patchInterest(
             @PathParam("id") final long id,
             @Valid final PatchInterestForm form

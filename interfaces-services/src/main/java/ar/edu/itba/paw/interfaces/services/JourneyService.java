@@ -12,6 +12,7 @@ public interface JourneyService {
 
     Journey updateJourney(long journeyId, long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description);
     void deleteJourney(long id, String message);
+    void patchJourney(long id, Boolean deleted, String deletionMessage);
 
     JourneyResponse createJourneyResponse(long userId, long journeyId, String message);
     void deleteJourneyResponse(long id, String message);

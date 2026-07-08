@@ -1,10 +1,12 @@
 package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
+import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.persistence.UserInterestDao;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +22,12 @@ public class InterestServiceImpl implements InterestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InterestServiceImpl.class);
     private final InterestDao interestDao;
     private final UserInterestDao userInterestDao;
+    private final UserDao userDao;
     @Autowired
-    public InterestServiceImpl(final InterestDao interestDao, final UserInterestDao userInterestDao) {
+    public InterestServiceImpl(final InterestDao interestDao, final UserInterestDao userInterestDao, final UserDao userDao) {
         this.userInterestDao = userInterestDao;
         this.interestDao = interestDao;
+        this.userDao = userDao;
     }
 
     @Override
@@ -49,8 +53,12 @@ public class InterestServiceImpl implements InterestService {
 
 
     @Override
-    public Page<UserInterest> findInterestsByUser(final User user, final PageParams pageParams) {
-        LOGGER.debug("Getting interests of user {} with pageParams {}", user, pageParams);
+    public Page<UserInterest> findInterestsByUser(final long userId, final PageParams pageParams) {
+        LOGGER.debug("Getting interests of user {} with pageParams {}", userId, pageParams);
+        final User user = userDao.findById(userId).orElseThrow(() -> {
+            LOGGER.error("User does not exist for ID: {}", userId);
+            return new UserNotFoundException(userId);
+        });
         return userInterestDao.findAllByUser(user, pageParams);
     }
 

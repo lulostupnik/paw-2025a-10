@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class EventNotInTheFutureException extends CustomRuntimeException {
+public class EventNotInTheFutureException extends BusinessException {
     public EventNotInTheFutureException(long id) {
-        super("exception.EventNotInTheFutureException", CustomRuntimeException.BAD_REQUEST);
+        super("exception.EventNotInTheFutureException", BusinessException.BAD_REQUEST);
     }
 }

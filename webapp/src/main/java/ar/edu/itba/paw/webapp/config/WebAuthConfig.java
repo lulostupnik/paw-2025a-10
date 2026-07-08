@@ -93,10 +93,10 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 // Allow CORS preflight requests to pass through security.
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                .antMatchers(HttpMethod.HEAD, "/api/").access("isAuthenticated()")
+                .antMatchers(HttpMethod.HEAD, "/api/").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/").permitAll()
 
-                .antMatchers(HttpMethod.GET, "/api/users").access("hasRole('ADMIN')") // TODO: revisar
+                .antMatchers(HttpMethod.GET, "/api/users").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/users").permitAll()
 
                 .antMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
@@ -108,8 +108,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/users/{id}/interests/*").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/users/{id}/rating").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/users/{id}/interests").access("@accessHelper.isCurrentUser(#id)")
-                .antMatchers(HttpMethod.PUT, "/api/users/{id}/interests").access("@accessHelper.isCurrentUser(#id)")
-                .antMatchers(HttpMethod.DELETE, "/api/users/{id}/interest").access("@accessHelper.isCurrentUser(#id)")
                 .antMatchers(HttpMethod.DELETE, "/api/users/{id}/interests/*").access("@accessHelper.isCurrentUser(#id)")
 
                 .antMatchers(HttpMethod.GET, "/api/users/{id}/profilePicture").permitAll()
@@ -170,6 +168,9 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/events/{eventId}/ratings/{ratingId}").access("@accessHelper.isUserRatingOwner(#eventId, #ratingId)")
                 .antMatchers(HttpMethod.DELETE, "/api/events/{eventId}/ratings/{ratingId}").access("@accessHelper.isUserRatingOwner(#eventId, #ratingId) or hasRole('ADMIN')")
 
+                // Event flyer: only the event owner may replace it (específico ANTES de la regla general)
+                .antMatchers(HttpMethod.PUT, "/api/events/{id}/flyer").access("@accessHelper.isUserEventOwner(#id)")
+
                 // Events general (DESPUÉS de las reglas específicas)
                 .antMatchers(HttpMethod.GET, "/api/events", "/api/events/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/events").access("isAuthenticated()")
@@ -181,16 +182,11 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
                 .antMatchers(HttpMethod.PATCH, "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
 
-                .antMatchers(HttpMethod.GET, "/api/images/*").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/images").access("isAuthenticated()")
-                .antMatchers(HttpMethod.DELETE, "/api/images/*").access("hasRole('ADMIN')")
-
-
                 .antMatchers("/**").access("isAuthenticated()")
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint((request, response, ex) -> {
-                    // response.addHeader("WWW-Authenticate", "Basic realm=\"GoTogether\"");
+                    response.addHeader("WWW-Authenticate", "Basic realm=\"GoTogether\", Bearer realm=\"GoTogether\"");
                     writeErrorResponse(response, Response.Status.UNAUTHORIZED, ex.getMessage());
                 })
 

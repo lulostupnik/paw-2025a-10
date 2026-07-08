@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class CountryNotFoundException extends CustomRuntimeException {
+public class CountryNotFoundException extends BusinessException {
     public CountryNotFoundException(String message, String countryName) {
-        super("exception.CountryNotFoundException", CustomRuntimeException.NOT_FOUND);
+        super("exception.CountryNotFoundException", BusinessException.NOT_FOUND);
     }
 }

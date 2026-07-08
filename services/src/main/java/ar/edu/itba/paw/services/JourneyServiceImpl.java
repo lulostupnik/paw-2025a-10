@@ -277,6 +277,15 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
+    public void patchJourney(final long id, final Boolean deleted, final String deletionMessage) {
+        LOGGER.debug("Patching journey {}", id);
+        if (Boolean.TRUE.equals(deleted)) {
+            deleteJourney(id, deletionMessage);
+        }
+    }
+
+    @Override
+    @Transactional
     public void deleteJourney(final long id, final String message) {
 
         Optional<Journey> maybeJourney = journeyDao.findById(id);

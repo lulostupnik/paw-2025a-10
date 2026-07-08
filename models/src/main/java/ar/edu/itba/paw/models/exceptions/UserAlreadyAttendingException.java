@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class UserAlreadyAttendingException extends CustomRuntimeException {
+public class UserAlreadyAttendingException extends BusinessException {
     public UserAlreadyAttendingException(long id, long eventId) {
-        super("exception.UserAlreadyAttendingException", CustomRuntimeException.CONFLICT);
+        super("exception.UserAlreadyAttendingException", BusinessException.CONFLICT);
     }
 }

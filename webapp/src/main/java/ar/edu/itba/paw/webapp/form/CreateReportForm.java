@@ -11,7 +11,7 @@ public class CreateReportForm {
     private ReportType reportType;
 
     @NotNull
-    private long targetId;
+    private Long targetId;
 
 
     @Size(min = 2, max = 2047)
@@ -42,14 +42,14 @@ public class CreateReportForm {
         return reportType;
     }
 
-    public long getTargetId() {
+    public Long getTargetId() {
         return targetId;
     }
 
     public void setReportType(ReportType reportType) {
         this.reportType = reportType;
     }
-    public void setTargetId(long targetId) {
+    public void setTargetId(Long targetId) {
         this.targetId = targetId;
     }
 

@@ -1,6 +1,6 @@
 package ar.edu.itba.paw.webapp.exceptionmapper;
 
-import ar.edu.itba.paw.models.exceptions.CustomRuntimeException;
+import ar.edu.itba.paw.models.exceptions.BusinessException;
 import ar.edu.itba.paw.webapp.dto.ErrorDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ import java.util.Locale;
 
 @Provider
 @Component
-public class BusinessExceptionMapper implements ExceptionMapper<CustomRuntimeException> {
+public class BusinessExceptionMapper implements ExceptionMapper<BusinessException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessExceptionMapper.class);
     private static final Locale DEFAULT_LOCALE = new Locale("en");
@@ -30,10 +30,10 @@ public class BusinessExceptionMapper implements ExceptionMapper<CustomRuntimeExc
     private HttpHeaders headers;
 
     @Override
-    public Response toResponse(final CustomRuntimeException exception) {
+    public Response toResponse(final BusinessException exception) {
         final Response.Status status = Response.Status.fromStatusCode(exception.getStatus());
         final String message = localize(exception.getMessageKey());
-        LOGGER.warn("CustomRuntimeException {} -> {} ({})", exception.getClass().getSimpleName(), exception.getMessageKey(), status);
+        LOGGER.warn("BusinessException {} -> {} ({})", exception.getClass().getSimpleName(), exception.getMessageKey(), status);
         return Response.status(status)
                 .type(MediaType.APPLICATION_JSON)
                 .entity(ErrorDto.fromException(status, message))

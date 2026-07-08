@@ -5,7 +5,7 @@ import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
-import ar.edu.itba.paw.webapp.CustomMediaType;
+import ar.edu.itba.paw.webapp.GoTogetherMediaType;
 import ar.edu.itba.paw.webapp.dto.UniversityDto;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import ar.edu.itba.paw.webapp.form.PatchUniversityForm;
@@ -34,7 +34,7 @@ public class UniversityController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(CustomMediaType.APPLICATION_UNIVERSITY_LIST)
+    @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY_LIST)
     public Response listUniversities(
             @Context Request req,
             // @QueryParam("city") Long cityId, --> por lo menos por ahora no
@@ -52,15 +52,15 @@ public class UniversityController {
 
     @GET
     @Path("/{id}")
-    @Produces(CustomMediaType.APPLICATION_UNIVERSITY)
+    @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY)
     public Response getUniversityById(@Context Request req, @PathParam("id") final long id) {
         final University university = universityService.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
         return CacheUtils.withEtag(req, university, () -> UniversityDto.fromUniversity(uriInfo, university));
     }
 
     @POST
-    @Consumes(CustomMediaType.APPLICATION_UNIVERSITY)
-    @Produces(CustomMediaType.APPLICATION_UNIVERSITY)
+    @Consumes(GoTogetherMediaType.APPLICATION_UNIVERSITY)
+    @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY)
     public Response createUniversity(@Valid final CreateUniversityForm form) {
         final University university = universityService.createUniversity(form.getName(), form.getAbbreviation(), form.getCityId());
         return Response.created(UriUtils.getUniversityUri(uriInfo, university.getId()))
@@ -70,8 +70,8 @@ public class UniversityController {
 
     @PUT
     @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_UNIVERSITY)
-    @Produces(CustomMediaType.APPLICATION_UNIVERSITY)
+    @Consumes(GoTogetherMediaType.APPLICATION_UNIVERSITY)
+    @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY)
     public Response updateUniversity(
             @PathParam("id") final long id,
             @Valid final UpdateUniversityForm form
@@ -82,8 +82,8 @@ public class UniversityController {
 
     @PATCH
     @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_UNIVERSITY)
-    @Produces(CustomMediaType.APPLICATION_UNIVERSITY)
+    @Consumes(GoTogetherMediaType.APPLICATION_UNIVERSITY)
+    @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY)
     public Response patchUniversity(
             @PathParam("id") final long id,
             @Valid final PatchUniversityForm form

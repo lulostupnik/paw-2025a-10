@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
+import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.persistence.UserInterestDao;
 import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Page;
@@ -20,6 +21,7 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.UserInterest;
 import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InterestServiceImplTest {
@@ -39,6 +41,8 @@ public class InterestServiceImplTest {
     InterestDao interestDao;
     @Mock
     UserInterestDao uiDao;
+    @Mock
+    UserDao userDao;
 
 
     @Test
@@ -73,12 +77,24 @@ public class InterestServiceImplTest {
     @Test
     public void testFindInterestsByUser(){
         when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
             uiDao.findAllByUser(eq(USER), any(PageParams.class))
         ).thenReturn(new Page<>(List.of(USER_INTEREST), 1, 1, 1));
 
-        Page<UserInterest> interests = interestService.findInterestsByUser(USER, PAGE_1_DEFAULT);
+        Page<UserInterest> interests = interestService.findInterestsByUser(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(interests);
+    }
+
+    @Test(expected = UserNotFoundException.class)
+    public void testFindInterestsByUserNotFound(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        interestService.findInterestsByUser(USER_ID, PAGE_1_DEFAULT);
     }
 
     @Test

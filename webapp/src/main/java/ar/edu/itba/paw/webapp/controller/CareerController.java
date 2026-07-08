@@ -5,7 +5,7 @@ import ar.edu.itba.paw.models.Career;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
-import ar.edu.itba.paw.webapp.CustomMediaType;
+import ar.edu.itba.paw.webapp.GoTogetherMediaType;
 import ar.edu.itba.paw.webapp.dto.CareerDto;
 import ar.edu.itba.paw.webapp.form.CreateCareerForm;
 import ar.edu.itba.paw.webapp.form.PatchCareerForm;
@@ -34,7 +34,7 @@ public class CareerController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(CustomMediaType.APPLICATION_CAREER_LIST)
+    @Produces(GoTogetherMediaType.APPLICATION_CAREER_LIST)
     public Response listCareers(
             @Context Request req,
             @QueryParam("search") String search,
@@ -50,15 +50,15 @@ public class CareerController {
 
     @GET
     @Path("/{id}")
-    @Produces(CustomMediaType.APPLICATION_CAREER)
+    @Produces(GoTogetherMediaType.APPLICATION_CAREER)
     public Response getCareerById(@Context Request req, @PathParam("id") final long id) {
         final Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException(id));
         return CacheUtils.withEtag(req, career, () -> CareerDto.fromCareer(uriInfo, career));
     }
 
     @POST
-    @Consumes(CustomMediaType.APPLICATION_CAREER)
-    @Produces(CustomMediaType.APPLICATION_CAREER)
+    @Consumes(GoTogetherMediaType.APPLICATION_CAREER)
+    @Produces(GoTogetherMediaType.APPLICATION_CAREER)
     public Response createCareer(@Valid final CreateCareerForm form) {
         final Career career = careerService.createCareer(form.getName());
         return Response.created(UriUtils.getCareerUri(uriInfo, career.getId()))
@@ -68,8 +68,8 @@ public class CareerController {
 
     @PUT
     @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_CAREER)
-    @Produces(CustomMediaType.APPLICATION_CAREER)
+    @Consumes(GoTogetherMediaType.APPLICATION_CAREER)
+    @Produces(GoTogetherMediaType.APPLICATION_CAREER)
     public Response updateCareer(
             @PathParam("id") final long id,
             @Valid final UpdateCareerForm form
@@ -80,8 +80,8 @@ public class CareerController {
 
     @PATCH
     @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_CAREER)
-    @Produces(CustomMediaType.APPLICATION_CAREER)
+    @Consumes(GoTogetherMediaType.APPLICATION_CAREER)
+    @Produces(GoTogetherMediaType.APPLICATION_CAREER)
     public Response patchCareer(
             @PathParam("id") final long id,
             @Valid final PatchCareerForm form

@@ -1,10 +1,10 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class InvalidDateException extends CustomRuntimeException {
+public class InvalidDateException extends BusinessException {
     public InvalidDateException(String message) {
-        super("exception.InvalidDateException", CustomRuntimeException.BAD_REQUEST);
+        super("exception.InvalidDateException", BusinessException.BAD_REQUEST);
     }
     public InvalidDateException() {
-        super("exception.InvalidDateException", CustomRuntimeException.BAD_REQUEST);
+        super("exception.InvalidDateException", BusinessException.BAD_REQUEST);
     }
 }

@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class EventIsFullException extends CustomRuntimeException {
+public class EventIsFullException extends BusinessException {
 
     public EventIsFullException(long id) {
-        super("exception.EventIsFullException", CustomRuntimeException.CONFLICT);
+        super("exception.EventIsFullException", BusinessException.CONFLICT);
     }
 }

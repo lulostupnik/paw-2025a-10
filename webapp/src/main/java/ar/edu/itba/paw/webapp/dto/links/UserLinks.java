@@ -16,6 +16,8 @@ public class UserLinks {
     private URI universityUrl;
     private URI journeyUrl;
     private URI profilePictureUrl;
+    private URI createdEventsUrl;
+    private URI attendedEventsUrl;
 
     public static UserLinks fromUser(final UriInfo uriInfo, final User user) {
         final UserLinks links = new UserLinks();
@@ -25,6 +27,8 @@ public class UserLinks {
         links.profilePictureUrl = user.getProfilePictureId() != null
                 ? UriUtils.getUserProfilePictureUri(uriInfo, user.getId())
                 : null;
+        links.createdEventsUrl = UriUtils.getUserCreatedEventsUri(uriInfo, user.getId());
+        links.attendedEventsUrl = UriUtils.getUserAttendedEventsUri(uriInfo, user.getId());
         if (user.hasActiveJourney()) {
             links.journeyUrl = UriUtils.getJourneyUri(uriInfo, user.getJourney().getId());
         }
@@ -36,4 +40,6 @@ public class UserLinks {
     public URI getUniversityUrl() { return universityUrl; }
     public URI getJourneyUrl() { return journeyUrl; }
     public URI getProfilePictureUrl() { return profilePictureUrl; }
+    public URI getCreatedEventsUrl() { return createdEventsUrl; }
+    public URI getAttendedEventsUrl() { return attendedEventsUrl; }
 }

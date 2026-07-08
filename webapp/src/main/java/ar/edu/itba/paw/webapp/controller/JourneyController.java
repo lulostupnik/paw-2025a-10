@@ -12,7 +12,7 @@ import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
 import ar.edu.itba.paw.webapp.auth.AuthUtils;
-import ar.edu.itba.paw.webapp.CustomMediaType;
+import ar.edu.itba.paw.webapp.GoTogetherMediaType;
 import ar.edu.itba.paw.webapp.dto.JourneyDto;
 import ar.edu.itba.paw.webapp.dto.JourneyResponseDto;
 import ar.edu.itba.paw.webapp.dto.TipDto;
@@ -20,6 +20,7 @@ import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 import ar.edu.itba.paw.webapp.form.CreateJourneyResponseForm;
 import ar.edu.itba.paw.webapp.form.CreateTipForm;
 import ar.edu.itba.paw.webapp.form.DeleteMessageForm;
+import ar.edu.itba.paw.webapp.form.PatchDeletionForm;
 import ar.edu.itba.paw.webapp.form.PatchTipForm;
 import ar.edu.itba.paw.webapp.form.UpdateJourneyForm;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
@@ -50,7 +51,7 @@ public class JourneyController {
 
 
     @GET
-    @Produces(CustomMediaType.APPLICATION_JOURNEY_LIST)
+    @Produces(GoTogetherMediaType.APPLICATION_JOURNEY_LIST)
     public Response listJourneys(
             @QueryParam("city") String city,
             @QueryParam("university") String university,
@@ -98,15 +99,15 @@ public class JourneyController {
 
     @GET
     @Path("/{id}")
-    @Produces(CustomMediaType.APPLICATION_JOURNEY)
+    @Produces(GoTogetherMediaType.APPLICATION_JOURNEY)
     public Response getJourneyById(@Context Request req, @PathParam("id") final long id) {
         final Journey journey = journeyService.findJourneyById(id).orElseThrow(() -> new JourneyNotFoundException(id));
         return CacheUtils.withEtag(req, journey, () -> JourneyDto.fromJourney(uriInfo, journey));
     }
 
     @POST
-    @Consumes(CustomMediaType.APPLICATION_JOURNEY)
-    @Produces(CustomMediaType.APPLICATION_JOURNEY)
+    @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY)
+    @Produces(GoTogetherMediaType.APPLICATION_JOURNEY)
     public Response createJourney(@Valid final CreateJourneyForm form) {
         final Long userId = AuthUtils.getCurrentUserId();
 
@@ -125,8 +126,8 @@ public class JourneyController {
 
     @PUT
     @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_JOURNEY)
-    @Produces(CustomMediaType.APPLICATION_JOURNEY)
+    @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY)
+    @Produces(GoTogetherMediaType.APPLICATION_JOURNEY)
     public Response updateJourney(@PathParam("id") final long id, @Valid final UpdateJourneyForm form) {
         final Journey journey = journeyService.updateJourney(
                 id,
@@ -141,10 +142,10 @@ public class JourneyController {
 
     @PATCH
     @Path("/{id}")
-    @Consumes(CustomMediaType.APPLICATION_JOURNEY)
+    @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY)
     @PreAuthorize("@accessHelper.canPatchJourney(#id, #form)")
-    public Response deleteJourney(@PathParam("id") final long id, @Valid final DeleteMessageForm form) {
-        journeyService.deleteJourney(id, form != null ? form.getMessage() : null);
+    public Response patchJourney(@PathParam("id") final long id, @Valid final PatchDeletionForm form) {
+        journeyService.patchJourney(id, form.getDeleted(), form.getDeletionMessage());
         return Response.noContent().build();
     }
 
@@ -153,7 +154,7 @@ public class JourneyController {
 
     @GET
     @Path("/{journeyId}/tips")
-    @Produces(CustomMediaType.APPLICATION_TIP_LIST)
+    @Produces(GoTogetherMediaType.APPLICATION_TIP_LIST)
     public Response listTips(
             @PathParam("journeyId") final long journeyId,
             @QueryParam("search") String search,
@@ -168,7 +169,7 @@ public class JourneyController {
 
     @GET
     @Path("/{journeyId}/tips/{tipId}")
-    @Produces(CustomMediaType.APPLICATION_TIP)
+    @Produces(GoTogetherMediaType.APPLICATION_TIP)
     public Response getTipById(
             @Context Request req,
             @PathParam("journeyId") final long journeyId,
@@ -180,8 +181,8 @@ public class JourneyController {
 
     @POST
     @Path("/{journeyId}/tips")
-    @Consumes(CustomMediaType.APPLICATION_TIP)
-    @Produces(CustomMediaType.APPLICATION_TIP)
+    @Consumes(GoTogetherMediaType.APPLICATION_TIP)
+    @Produces(GoTogetherMediaType.APPLICATION_TIP)
     public Response createTip(
             @PathParam("journeyId") final long journeyId,
             @Valid final CreateTipForm form
@@ -194,8 +195,8 @@ public class JourneyController {
 
     @PUT
     @Path("/{journeyId}/tips/{tipId}")
-    @Consumes(CustomMediaType.APPLICATION_TIP)
-    @Produces(CustomMediaType.APPLICATION_TIP)
+    @Consumes(GoTogetherMediaType.APPLICATION_TIP)
+    @Produces(GoTogetherMediaType.APPLICATION_TIP)
     public Response updateTip(
             @PathParam("journeyId") final long journeyId,
             @PathParam("tipId") final long tipId,
@@ -207,7 +208,7 @@ public class JourneyController {
 
     @PATCH
     @Path("/{journeyId}/tips/{tipId}")
-    @Consumes(CustomMediaType.APPLICATION_TIP)
+    @Consumes(GoTogetherMediaType.APPLICATION_TIP)
     public Response patchTip(
             @PathParam("journeyId") final long journeyId,
             @PathParam("tipId") final long tipId,
@@ -236,7 +237,7 @@ public class JourneyController {
 
     @GET
     @Path("/{journeyId}/responses")
-    @Produces(CustomMediaType.APPLICATION_JOURNEY_RESPONSE_LIST)
+    @Produces(GoTogetherMediaType.APPLICATION_JOURNEY_RESPONSE_LIST)
     public Response listJourneyResponses(
             @PathParam("journeyId") final long journeyId,
             @QueryParam("page") @DefaultValue("1") int page,
@@ -250,7 +251,7 @@ public class JourneyController {
 
     @GET
     @Path("/{journeyId}/responses/{responseId}")
-    @Produces(CustomMediaType.APPLICATION_JOURNEY_RESPONSE)
+    @Produces(GoTogetherMediaType.APPLICATION_JOURNEY_RESPONSE)
     public Response getJourneyResponseById(
             @Context Request req,
             @PathParam("journeyId") final long journeyId,
@@ -262,8 +263,8 @@ public class JourneyController {
 
     @POST
     @Path("/{journeyId}/responses")
-    @Consumes(CustomMediaType.APPLICATION_JOURNEY_RESPONSE)
-    @Produces(CustomMediaType.APPLICATION_JOURNEY_RESPONSE)
+    @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY_RESPONSE)
+    @Produces(GoTogetherMediaType.APPLICATION_JOURNEY_RESPONSE)
     public Response createJourneyResponse(
             @PathParam("journeyId") final long journeyId,
             @Valid final CreateJourneyResponseForm form

@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class MutuallyExclusiveFiltersException extends CustomRuntimeException {
+public class MutuallyExclusiveFiltersException extends BusinessException {
     public MutuallyExclusiveFiltersException(String... filterNames) {
-        super("exception.MutuallyExclusiveFiltersException", CustomRuntimeException.BAD_REQUEST);
+        super("exception.MutuallyExclusiveFiltersException", BusinessException.BAD_REQUEST);
     }
 }

@@ -4,7 +4,7 @@ import javax.validation.constraints.Size;
 
 public class PatchTipForm {
 
-    @Size
+    @Size(min = 1, max = 255)
     private String title;
 
     @Size(max = 2047)

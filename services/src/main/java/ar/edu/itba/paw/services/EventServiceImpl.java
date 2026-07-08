@@ -265,24 +265,14 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public Rating updateEventRating(User user, long eventId, double value) {
-        Rating rating = eventRatingDao.findRatingByUserAndEvent(user.getId(), eventId)
+    public Rating updateEventRating(long eventId, long ratingId, double value) {
+        Rating rating = findRatingById(eventId, ratingId)
                 .orElseThrow(() -> {
-                    LOGGER.warn("Rating not found for user {} and event {}", user.getId(), eventId);
-                    return new RatingNotFoundException(user.getId(), eventId);
+                    LOGGER.warn("Rating {} not found for event {}", ratingId, eventId);
+                    return new RatingNotFoundException(eventId, ratingId, true);
                 });
         rating.setRating(value);
         return rating;
-    }
-
-    @Transactional
-    @Override
-    public Rating updateEventRating(long userId, long eventId, double value) {
-        User user = userService.findUserById(userId).orElseThrow(() -> {
-            LOGGER.warn("User not found {}", userId);
-            return new UserNotFoundException(userId);
-        });
-        return updateEventRating(user, eventId, value);
     }
 
     @Override
@@ -451,6 +441,16 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.info("Event {} updated", eventId);
         return currentEvent;
+    }
+
+    @Override
+    @Transactional
+    public void patchEvent(final long id, final Boolean deleted, final String deletionMessage) {
+        LOGGER.debug("Patching event {}", id);
+
+        if (Boolean.TRUE.equals(deleted)) {
+            deleteEvent(id, deletionMessage);
+        }
     }
 
     @Override
@@ -642,7 +642,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void updateEventFlyer(long eventId, byte[] flyer) {
+    public Image updateEventFlyer(long eventId, byte[] flyer) {
         LOGGER.debug("Updating flyer for event {}", eventId);
         Event event = eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
         Long oldFlyerImageId = event.getFlyerImageId();
@@ -653,5 +653,6 @@ public class EventServiceImpl implements EventService {
         long newFlyerImageId = imageService.createImage(flyer);
         event.setFlyerImageId(newFlyerImageId);
         LOGGER.info("New flyer image {} created for event {}", newFlyerImageId, eventId);
+        return new Image(newFlyerImageId, flyer);
     }
 }

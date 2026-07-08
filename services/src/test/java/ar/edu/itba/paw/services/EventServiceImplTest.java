@@ -7,6 +7,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -641,52 +643,30 @@ public class EventServiceImplTest {
     public void testUpdateEventRating(){
         Rating newRating = new Rating(USER, EVENT, 2);
         when(
-            ratingDao.findRatingByUserAndEvent(
-                eq(USER_ID),
-                eq(EVENT_ID)
-            )
+            ratingDao.findById(eq(RATING_ID))
         ).thenReturn(Optional.of(newRating));
 
-        eventService.updateEventRating(USER, EVENT_ID, RATING_VALUE);
+        eventService.updateEventRating(EVENT_ID, RATING_ID, RATING_VALUE);
 
         assertEquals(RATING_VALUE, newRating.getRating(), 0.1);
     }
     @Test(expected = RatingNotFoundException.class)
     public void testUpdateEventRatingNotFound(){
         when(
-            ratingDao.findRatingByUserAndEvent(
-                eq(USER_ID),
-                eq(EVENT_ID)
-            )
+            ratingDao.findById(eq(RATING_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.updateEventRating(USER, EVENT_ID, RATING_VALUE);
+        eventService.updateEventRating(EVENT_ID, RATING_ID, RATING_VALUE);
     }
-
-    @Test
-    public void testUpdateEventRatingUserId(){
+    @Test(expected = RatingNotFoundException.class)
+    public void testUpdateEventRatingWrongEvent(){
         Rating newRating = new Rating(USER, EVENT, 2);
         when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.of(USER));
-        when(
-            ratingDao.findRatingByUserAndEvent(
-                eq(USER_ID),
-                eq(EVENT_ID)
-            )
+            ratingDao.findById(eq(RATING_ID))
         ).thenReturn(Optional.of(newRating));
 
-        eventService.updateEventRating(USER_ID, EVENT_ID, RATING_VALUE);
-
-        assertEquals(RATING_VALUE, newRating.getRating(), 0.1);
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testUpdateEventRatingUserIdNotFound(){
-        when(
-            userService.findUserById(eq(USER_ID))
-        ).thenReturn(Optional.empty());
-
-        eventService.updateEventRating(USER_ID, EVENT_ID, RATING_VALUE);
+        // RATING_ID belongs to EVENT (id EVENT_ID); asking for it under EVENT_2_ID must not honor the URN.
+        eventService.updateEventRating(EVENT_2_ID, RATING_ID, RATING_VALUE);
     }
 
     @Test
@@ -1245,6 +1225,30 @@ public class EventServiceImplTest {
 
         assertTrue(newEvent.isDeleted());
         assertEquals(DESCRIPTION, newEvent.getDeletionMessage());
+    }
+    @Test
+    public void testPatchEventDeletedTrue(){
+        Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
+        when(
+            eventDao.findById(eq(EVENT_ID))
+        ).thenReturn(Optional.of(newEvent));
+
+        eventService.patchEvent(EVENT_ID, true, DESCRIPTION);
+
+        assertTrue(newEvent.isDeleted());
+        assertEquals(DESCRIPTION, newEvent.getDeletionMessage());
+    }
+    @Test
+    public void testPatchEventDeletedFalseIsNoOp(){
+        eventService.patchEvent(EVENT_ID, false, DESCRIPTION);
+
+        verify(eventDao, never()).findById(EVENT_ID);
+    }
+    @Test
+    public void testPatchEventDeletedNullIsNoOp(){
+        eventService.patchEvent(EVENT_ID, null, null);
+
+        verify(eventDao, never()).findById(EVENT_ID);
     }
     @Test
     public void testDeleteEventEmptyMessage(){

@@ -1,7 +1,7 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class CareerAlreadyExistsException extends CustomRuntimeException {
+public class CareerAlreadyExistsException extends BusinessException {
     public CareerAlreadyExistsException(String name) {
-        super("exception.CareerAlreadyExistsException", CustomRuntimeException.CONFLICT);
+        super("exception.CareerAlreadyExistsException", BusinessException.CONFLICT);
     }
 }

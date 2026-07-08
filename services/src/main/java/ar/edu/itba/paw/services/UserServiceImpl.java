@@ -173,6 +173,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserRating getUserRating(long userId) {
+        userDao.findById(userId).orElseThrow(() -> {
+            LOGGER.error("User does not exist for ID: {}", userId);
+            return new UserNotFoundException(userId);
+        });
         final Double createdEventsRating = findAverageRatingForCreatedEvents(userId).orElse(null);
         final Double attendedEventsRating = findAverageRatingForAttendedEvents(userId).orElse(null);
         return new UserRating(userId, createdEventsRating, attendedEventsRating);
@@ -259,6 +263,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    // todo: ¿esta bien retornar la imagen? ¿o devolvemos a que retorne long/void?
     @Override
     @Transactional
     public Image updateProfilePicture(final long userId, final byte[] profilePicture) {

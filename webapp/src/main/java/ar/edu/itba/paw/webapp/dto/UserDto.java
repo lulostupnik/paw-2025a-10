@@ -7,6 +7,8 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -26,6 +28,10 @@ public class UserDto {
         dto.lastname = user.getLastname();
         dto.links = UserLinks.fromUser(uriInfo, user);
         return dto;
+    }
+
+    public static List<UserDto> fromUserCollection(final UriInfo uriInfo, final List<User> users) {
+        return users.stream().map(user -> fromUser(uriInfo, user)).collect(Collectors.toList());
     }
 
     public long getId() { return id; }

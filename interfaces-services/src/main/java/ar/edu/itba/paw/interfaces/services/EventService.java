@@ -20,6 +20,7 @@ public interface EventService {
                      String address,
                      Integer attendeesLimit);
     void deleteEvent(long id, String message);
+    void patchEvent(long id, Boolean deleted, String deletionMessage);
 
     Optional<Event> findEventById(long id);
 
@@ -31,8 +32,7 @@ public interface EventService {
 
     Rating rateEvent(User user, long eventId, double rating);
     Rating rateEvent(long userId, long eventId, double rating);
-    Rating updateEventRating(User user, long eventId, double rating);
-    Rating updateEventRating(long userId, long eventId, double rating);
+    Rating updateEventRating(long eventId, long ratingId, double rating);
     Optional<Rating> findRatingByUserAndEvent(long userId, long eventId);
     Optional<Rating> findRatingById(long eventId, long ratingId);
     Page<Rating> findRatingsByEventId(long eventId, PageParams pageParams);
@@ -70,6 +70,6 @@ public interface EventService {
     //Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
 
     Optional<Image> getEventFlyer(long eventId);
-    void updateEventFlyer(long eventId, byte[] flyer);
+    Image updateEventFlyer(long eventId, byte[] flyer);
 }
 
