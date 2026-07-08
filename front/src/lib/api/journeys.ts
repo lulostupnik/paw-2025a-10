@@ -137,7 +137,8 @@ export const updateJourney = async (
 };
 
 export const deleteJourney = async (id: string | number, payload?: { message?: string | null }, signal?: AbortSignal) => {
-    await apiClient.patch(`/journeys/${id}`, payload ?? {}, { signal, headers: { "Content-Type": ContentTypes.JOURNEY, Accept: ContentTypes.JOURNEY } });
+    const body = { deleted: true, ...(payload?.message ? { deletionMessage: payload.message } : {}) };
+    await apiClient.patch(`/journeys/${id}`, body, { signal, headers: { "Content-Type": ContentTypes.JOURNEY, Accept: ContentTypes.JOURNEY } });
 };
 
 export const getUserByUrl = async (url?: string | null, signal?: AbortSignal) => {

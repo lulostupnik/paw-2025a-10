@@ -333,7 +333,8 @@ export const createEvent = async (
 };
 
 export const deleteEvent = async (id: number, payload?: { message?: string | null }, signal?: AbortSignal) => {
-    await apiClient.patch(`/events/${id}`, payload ?? {}, { signal, headers: { "Content-Type": ContentTypes.EVENT, Accept: ContentTypes.EVENT } });
+    const body = { deleted: true, ...(payload?.message ? { deletionMessage: payload.message } : {}) };
+    await apiClient.patch(`/events/${id}`, body, { signal, headers: { "Content-Type": ContentTypes.EVENT, Accept: ContentTypes.EVENT } });
 };
 
 export const createEventResponse = async (eventId: number, payload: { message: string }, signal?: AbortSignal) => {

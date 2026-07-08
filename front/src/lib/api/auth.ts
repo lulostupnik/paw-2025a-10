@@ -167,12 +167,13 @@ export async function verifyEmailToken(payload: EmailVerificationPayload, signal
         throw new Error("missing-user");
     }
 
-    // The email carries a one-time token; the PATCH authenticates with Basic email:token and the
-    // server (AuthAnywhereFilter) verifies it against the token service and replies with the JWTs.
+    // The email carries a one-time token; authenticating with Basic email:token makes the server
+    // (AuthAnywhereFilter) verify the account, consume the token and reply with the JWTs. 'verified'
+    // is an authentication concern, not a user property, so the PATCH body carries no fields.
     const basic = encodeBasicCredentials({ email, password: token });
     await apiClient.patch(
         `/users/${payload.userId}`,
-        { verified: true },
+        {},
         { signal, headers: { "Content-Type": ContentTypes.USER, Accept: ContentTypes.USER_PUBLIC, Authorization: `Basic ${basic}` } },
     );
 
