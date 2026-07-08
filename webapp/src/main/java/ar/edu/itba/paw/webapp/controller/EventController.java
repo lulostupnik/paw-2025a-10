@@ -246,10 +246,9 @@ public class EventController {
     public Response deleteEventResponse(
             @PathParam("eventId") final long eventId,
             @PathParam("responseId") final long responseId,
-            @Valid final PatchDeletionForm form
+            @Valid @NotNull final PatchDeletionForm form
     ) {
-        final String message = form != null ? form.getDeletionMessage() : null;
-        eventService.deleteEventResponse(eventId, responseId, message);
+        eventService.deleteEventResponse(eventId, responseId, form.getDeletionMessage());
         return Response.noContent().build();
     }
 

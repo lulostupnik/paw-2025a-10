@@ -31,6 +31,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -281,10 +282,9 @@ public class JourneyController {
     public Response deleteJourneyResponse(
             @PathParam("journeyId") final long journeyId,
             @PathParam("responseId") final long responseId,
-            @Valid final PatchDeletionForm form
+            @Valid @NotNull final PatchDeletionForm form
     ) {
-        final String message = form != null ? form.getDeletionMessage() : null;
-        journeyService.deleteJourneyResponse(journeyId, responseId, message);
+        journeyService.deleteJourneyResponse(journeyId, responseId, form.getDeletionMessage());
         return Response.noContent().build();
     }
 
