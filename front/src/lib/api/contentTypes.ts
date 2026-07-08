@@ -25,9 +25,6 @@ export const ContentTypes = {
     EVENT_RATING: "application/vnd.gotogether.event-rating.v1+json",
     EVENT_RATING_LIST: "application/vnd.gotogether.event-rating-list.v1+json",
 
-    // --- EVENT DELETE ---
-    EVENT_DELETE: "application/vnd.gotogether.event-delete.v1+json",
-
     // --- JOURNEYS ---
     JOURNEY: "application/vnd.gotogether.journey.v1+json",
     JOURNEY_LIST: "application/vnd.gotogether.journey-list.v1+json",
@@ -35,9 +32,6 @@ export const ContentTypes = {
     // --- JOURNEY RESPONSES ---
     JOURNEY_RESPONSE: "application/vnd.gotogether.journey-response.v1+json",
     JOURNEY_RESPONSE_LIST: "application/vnd.gotogether.journey-response-list.v1+json",
-
-    // --- JOURNEY DELETE ---
-    JOURNEY_DELETE: "application/vnd.gotogether.journey-delete.v1+json",
 
     // --- TIPS ---
     TIP: "application/vnd.gotogether.tip.v1+json",

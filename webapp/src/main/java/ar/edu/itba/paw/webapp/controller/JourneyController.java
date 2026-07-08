@@ -19,7 +19,6 @@ import ar.edu.itba.paw.webapp.dto.TipDto;
 import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 import ar.edu.itba.paw.webapp.form.CreateJourneyResponseForm;
 import ar.edu.itba.paw.webapp.form.CreateTipForm;
-import ar.edu.itba.paw.webapp.form.DeleteMessageForm;
 import ar.edu.itba.paw.webapp.form.PatchDeletionForm;
 import ar.edu.itba.paw.webapp.form.PatchTipForm;
 import ar.edu.itba.paw.webapp.form.UpdateJourneyForm;
@@ -276,14 +275,15 @@ public class JourneyController {
                 .build();
     }
 
-    @DELETE
+    @PATCH
     @Path("/{journeyId}/responses/{responseId}")
+    @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY_RESPONSE)
     public Response deleteJourneyResponse(
             @PathParam("journeyId") final long journeyId,
             @PathParam("responseId") final long responseId,
-            @Valid final DeleteMessageForm form
+            @Valid final PatchDeletionForm form
     ) {
-        final String message = form != null ? form.getMessage() : null;
+        final String message = form != null ? form.getDeletionMessage() : null;
         journeyService.deleteJourneyResponse(journeyId, responseId, message);
         return Response.noContent().build();
     }

@@ -240,14 +240,15 @@ public class EventController {
                 .build();
     }
 
-    @DELETE
+    @PATCH
     @Path("/{eventId}/responses/{responseId}")
+    @Consumes(GoTogetherMediaType.APPLICATION_EVENT_RESPONSE)
     public Response deleteEventResponse(
             @PathParam("eventId") final long eventId,
             @PathParam("responseId") final long responseId,
-            @Valid final DeleteMessageForm form
+            @Valid final PatchDeletionForm form
     ) {
-        final String message = form != null ? form.getMessage() : null;
+        final String message = form != null ? form.getDeletionMessage() : null;
         eventService.deleteEventResponse(eventId, responseId, message);
         return Response.noContent().build();
     }

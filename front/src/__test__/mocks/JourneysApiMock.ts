@@ -76,7 +76,7 @@ export const journeysHandlers = [
         return HttpResponse.json({ id: 10, ...body, dateTime: "2026-08-01T10:30:00Z" }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.journey-response.v1+json" } });
     }),
 
-    http.delete(`${BASE_URL}/journeys/:journeyId/responses/:responseId`, () => {
+    http.patch(`${BASE_URL}/journeys/:journeyId/responses/:responseId`, () => {
         return new HttpResponse(null, { status: 204 });
     }),
 
