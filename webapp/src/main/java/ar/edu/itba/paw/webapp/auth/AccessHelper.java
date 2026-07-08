@@ -2,15 +2,13 @@ package ar.edu.itba.paw.webapp.auth;
 
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
-import ar.edu.itba.paw.models.Tip;
-import ar.edu.itba.paw.webapp.form.DeleteMessageForm;
+import ar.edu.itba.paw.webapp.form.PatchDeletionForm;
 import ar.edu.itba.paw.webapp.form.PatchUserForm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import java.util.Objects;
-import java.util.Optional;
 
 @Component
 public class AccessHelper {
@@ -34,7 +32,12 @@ public class AccessHelper {
         return auth != null && auth.getAuthorities().stream()
                 .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
     }
-    //@TODO verificar que no sea logica en controllers
+
+    private boolean isAnonymous() {
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth == null || auth instanceof AnonymousAuthenticationToken;
+    }
+
     public boolean canPatchUser(long userId, PatchUserForm form) {
         final boolean admin = isAdmin();
         final boolean self = isCurrentUser(userId);
@@ -51,52 +54,41 @@ public class AccessHelper {
     }
 
     public boolean isUserEventOwner(long eventId){
-        if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
+        if (isAnonymous()) return false;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return eventService.isEventOwnedByUser(email, eventId);
     }
 
     public boolean isUserJourneyOwner(long journeyId){
-        if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
+        if (isAnonymous()) return false;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return journeyService.isJourneyOwnedByUser(email, journeyId);
     }
 
-    //@TODO verificar que no sea logica en controllers 
-    public boolean canPatchJourney(long journeyId, DeleteMessageForm form) {
+    public boolean canPatchJourney(long journeyId, PatchDeletionForm form) {
         final boolean admin = isAdmin();
         if (!isUserJourneyOwner(journeyId) && !admin) {
             return false;
         }
-        return admin || !hasMessage(form);
+        return admin || !hasDeletionMessage(form);
     }
 
-    public boolean canPatchEvent(long eventId, DeleteMessageForm form) {
+    public boolean canPatchEvent(long eventId, PatchDeletionForm form) {
         final boolean admin = isAdmin();
         if (!isUserEventOwner(eventId) && !admin) {
             return false;
         }
-        return admin || !hasMessage(form);
+        return admin || !hasDeletionMessage(form);
     }
 
-    private boolean hasMessage(DeleteMessageForm form) {
-        return form != null && form.getMessage() != null && !form.getMessage().isBlank();
+    private boolean hasDeletionMessage(PatchDeletionForm form) {
+        return form != null && form.getDeletionMessage() != null && !form.getDeletionMessage().isBlank();
     }
 
 
     public boolean isUserTipOwner(long journeyId, long tipId) {
-        if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
+        if (isAnonymous()) return false;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return journeyService.isTipOwnedByUser(journeyId, tipId, email);
-    }
-
-
-    public boolean isUserTipOwner(long tipId) {
-        if (Objects.equals(SecurityContextHolder.getContext().getAuthentication().getName(), "AnonymousUser")) return false;
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<Tip> tip = journeyService.findTipById(tipId);
-        if (tip.isEmpty()) return false;
-        long journeyId = tip.get().getJourney().getId();
         return journeyService.isTipOwnedByUser(journeyId, tipId, email);
     }
 
