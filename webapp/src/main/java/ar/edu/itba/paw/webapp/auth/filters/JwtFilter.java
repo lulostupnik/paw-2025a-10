@@ -62,6 +62,11 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (!userDetails.isEnabled() || !userDetails.isAccountNonLocked()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // Check if refresh token was sent to refresh tokens
         if (jwtDetails.getTokenType().isRefreshToken()) {
             final Optional<User> maybeUser = userService.findUserByEmail(userDetails.getUsername());
