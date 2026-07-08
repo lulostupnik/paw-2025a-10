@@ -108,7 +108,7 @@ public class JourneyController {
     @POST
     @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY)
     @Produces(GoTogetherMediaType.APPLICATION_JOURNEY)
-    public Response createJourney(@Valid final CreateJourneyForm form) {
+    public Response createJourney(@Valid @NotNull final CreateJourneyForm form) {
         final Long userId = AuthUtils.getCurrentUserId();
 
         final Journey journey = journeyService.createJourney(
@@ -128,7 +128,7 @@ public class JourneyController {
     @Path("/{id}")
     @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY)
     @Produces(GoTogetherMediaType.APPLICATION_JOURNEY)
-    public Response updateJourney(@PathParam("id") final long id, @Valid final UpdateJourneyForm form) {
+    public Response updateJourney(@PathParam("id") final long id, @Valid @NotNull final UpdateJourneyForm form) {
         final Journey journey = journeyService.updateJourney(
                 id,
                 form.getDestinationUniversityId(),
@@ -144,7 +144,7 @@ public class JourneyController {
     @Path("/{id}")
     @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY)
     @PreAuthorize("@accessHelper.canPatchJourney(#id, #form)")
-    public Response patchJourney(@PathParam("id") final long id, @Valid final PatchDeletionForm form) {
+    public Response patchJourney(@PathParam("id") final long id, @Valid @NotNull final PatchDeletionForm form) {
         journeyService.patchJourney(id, form.getDeleted(), form.getDeletionMessage());
         return Response.noContent().build();
     }
@@ -185,7 +185,7 @@ public class JourneyController {
     @Produces(GoTogetherMediaType.APPLICATION_TIP)
     public Response createTip(
             @PathParam("journeyId") final long journeyId,
-            @Valid final CreateTipForm form
+            @Valid @NotNull final CreateTipForm form
     ) {
         final Tip tip = journeyService.createTip(journeyId, form.getTitle(), form.getContent());
         return Response.created(UriUtils.getJourneyTipUri(uriInfo, journeyId, tip.getId()))
@@ -200,7 +200,7 @@ public class JourneyController {
     public Response updateTip(
             @PathParam("journeyId") final long journeyId,
             @PathParam("tipId") final long tipId,
-            @Valid final CreateTipForm form
+            @Valid @NotNull final CreateTipForm form
     ) {
         final Tip tip = journeyService.updateTip(journeyId, tipId, form.getTitle(), form.getContent());
         return Response.ok(TipDto.fromTip(uriInfo, tip)).build();
@@ -212,7 +212,7 @@ public class JourneyController {
     public Response patchTip(
             @PathParam("journeyId") final long journeyId,
             @PathParam("tipId") final long tipId,
-            @Valid final PatchTipForm form
+            @Valid @NotNull final PatchTipForm form
     ) {
         final Tip tip = journeyService.patchTip(
                 journeyId,
@@ -267,7 +267,7 @@ public class JourneyController {
     @Produces(GoTogetherMediaType.APPLICATION_JOURNEY_RESPONSE)
     public Response createJourneyResponse(
             @PathParam("journeyId") final long journeyId,
-            @Valid final CreateJourneyResponseForm form
+            @Valid @NotNull final CreateJourneyResponseForm form
     ) {
         final Long userId = AuthUtils.getCurrentUserId();
         final JourneyResponse response = journeyService.createJourneyResponse(userId, journeyId, form.getMessage());

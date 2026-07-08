@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -59,7 +60,7 @@ public class CareerController {
     @POST
     @Consumes(GoTogetherMediaType.APPLICATION_CAREER)
     @Produces(GoTogetherMediaType.APPLICATION_CAREER)
-    public Response createCareer(@Valid final CreateCareerForm form) {
+    public Response createCareer(@Valid @NotNull final CreateCareerForm form) {
         final Career career = careerService.createCareer(form.getName());
         return Response.created(UriUtils.getCareerUri(uriInfo, career.getId()))
                 .entity(CareerDto.fromCareer(uriInfo, career))
@@ -72,7 +73,7 @@ public class CareerController {
     @Produces(GoTogetherMediaType.APPLICATION_CAREER)
     public Response updateCareer(
             @PathParam("id") final long id,
-            @Valid final UpdateCareerForm form
+            @Valid @NotNull final UpdateCareerForm form
     ) {
         final Career career = careerService.updateCareer(id, form.getName());
         return Response.ok(CareerDto.fromCareer(uriInfo, career)).build();
@@ -84,7 +85,7 @@ public class CareerController {
     @Produces(GoTogetherMediaType.APPLICATION_CAREER)
     public Response patchCareer(
             @PathParam("id") final long id,
-            @Valid final PatchCareerForm form
+            @Valid @NotNull final PatchCareerForm form
     ) {
         final Career career = careerService.patchCareer(id, form.getName());
         return Response.ok(CareerDto.fromCareer(uriInfo, career)).build();

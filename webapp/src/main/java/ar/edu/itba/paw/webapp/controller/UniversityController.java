@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -61,7 +62,7 @@ public class UniversityController {
     @POST
     @Consumes(GoTogetherMediaType.APPLICATION_UNIVERSITY)
     @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY)
-    public Response createUniversity(@Valid final CreateUniversityForm form) {
+    public Response createUniversity(@Valid @NotNull final CreateUniversityForm form) {
         final University university = universityService.createUniversity(form.getName(), form.getAbbreviation(), form.getCityId());
         return Response.created(UriUtils.getUniversityUri(uriInfo, university.getId()))
                 .entity(UniversityDto.fromUniversity(uriInfo, university))
@@ -74,7 +75,7 @@ public class UniversityController {
     @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY)
     public Response updateUniversity(
             @PathParam("id") final long id,
-            @Valid final UpdateUniversityForm form
+            @Valid @NotNull final UpdateUniversityForm form
     ) {
         final University university = universityService.updateUniversity(id, form.getName(), form.getAbbreviation(), form.getCityId());
         return Response.ok(UniversityDto.fromUniversity(uriInfo, university)).build();
@@ -86,7 +87,7 @@ public class UniversityController {
     @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY)
     public Response patchUniversity(
             @PathParam("id") final long id,
-            @Valid final PatchUniversityForm form
+            @Valid @NotNull final PatchUniversityForm form
     ) {
         final University university = universityService.patchUniversity(id, form.getName(), form.getAbbreviation(), form.getCityId());
         return Response.ok(UniversityDto.fromUniversity(uriInfo, university)).build();

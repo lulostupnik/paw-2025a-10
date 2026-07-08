@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -93,7 +94,7 @@ public class UserController {
     @POST
     @Consumes(GoTogetherMediaType.APPLICATION_USER)
     @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC)
-    public Response createUser(@Valid final CreateUserForm registerForm) {
+    public Response createUser(@Valid @NotNull final CreateUserForm registerForm) {
         final User user = us.createUser(
                 registerForm.getEmail(),
                 registerForm.getUsername(),
@@ -112,7 +113,7 @@ public class UserController {
 
     @POST
     @Consumes(GoTogetherMediaType.APPLICATION_USER_PASSWORD)
-    public Response requestPasswordReset(@Valid final ForgotPasswordForm form) {
+    public Response requestPasswordReset(@Valid @NotNull final ForgotPasswordForm form) {
         us.initiatePasswordReset(form.getEmail());
         return Response.noContent().build();
     }
@@ -122,7 +123,7 @@ public class UserController {
     @Consumes(GoTogetherMediaType.APPLICATION_USER)
     @PreAuthorize("@accessHelper.canPatchUser(#id, #form)")
     @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC)
-    public Response patchUser(@PathParam("id") final long id, @Valid PatchUserForm form) {
+    public Response patchUser(@PathParam("id") final long id, @Valid @NotNull PatchUserForm form) {
         final User user = us.patchUser(id, form.getUsername(), form.getFirstName(), form.getLastName(),
                 form.getUniversityId(), form.getCareerId(), form.getPassword(), form.getBlocked());
         return Response.ok(UserDto.fromUser(uriInfo, user)).build();
@@ -151,7 +152,7 @@ public class UserController {
     @Produces(GoTogetherMediaType.APPLICATION_USER_INTEREST)
     public Response addUserInterest(
             @PathParam("userId") final long userId,
-            @Valid final AddUserInterestForm form
+            @Valid @NotNull final AddUserInterestForm form
     ) {
         final UserInterest userInterest = interestService.addUserInterest(userId, form.getInterestId());
         return Response.created(UriUtils.getUserInterestUri(uriInfo, userId, form.getInterestId()))

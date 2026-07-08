@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -60,7 +61,7 @@ public class InterestController {
     @POST
     @Consumes(GoTogetherMediaType.APPLICATION_INTEREST)
     @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
-    public Response createInterest(@Valid final CreateInterestForm form) {
+    public Response createInterest(@Valid @NotNull final CreateInterestForm form) {
         final Interest interest = interestService.createInterest(form.getName());
         return Response.created(UriUtils.getInterestUri(uriInfo, interest.getId()))
                 .entity(InterestDto.fromInterest(uriInfo, interest))
@@ -73,7 +74,7 @@ public class InterestController {
     @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
     public Response updateInterest(
             @PathParam("id") final long id,
-            @Valid final UpdateInterestForm form
+            @Valid @NotNull final UpdateInterestForm form
     ) {
         final Interest interest = interestService.updateInterest(id, form.getName());
         return Response.ok(InterestDto.fromInterest(uriInfo, interest)).build();
@@ -85,7 +86,7 @@ public class InterestController {
     @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
     public Response patchInterest(
             @PathParam("id") final long id,
-            @Valid final PatchInterestForm form
+            @Valid @NotNull final PatchInterestForm form
     ) {
         final Interest interest = interestService.patchInterest(id, form.getName());
         return Response.ok(InterestDto.fromInterest(uriInfo, interest)).build();
