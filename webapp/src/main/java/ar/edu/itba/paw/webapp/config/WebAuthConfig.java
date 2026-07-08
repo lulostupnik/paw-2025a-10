@@ -151,7 +151,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#journeyId, #tipId) or hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.POST, "/api/journeys/{id}/responses").access("isAuthenticated()")
-                .antMatchers(HttpMethod.DELETE, "/api/journeys/*/responses/*").access("hasRole('ADMIN')")
+                .antMatchers(HttpMethod.PATCH, "/api/journeys/*/responses/*").access("hasRole('ADMIN')")
 
                 // Event attendance (específicos ANTES de la regla general)
                 .antMatchers(HttpMethod.GET, "/api/events/{eventId}/attendances").access("@accessHelper.isUserEventOwner(#eventId)")
@@ -161,7 +161,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
                 // Event responses (específicos ANTES de la regla general)
                 .antMatchers(HttpMethod.POST, "/api/events/*/responses").access("isAuthenticated()")
-                .antMatchers(HttpMethod.DELETE, "/api/events/*/responses/*").access("hasRole('ADMIN')")
+                .antMatchers(HttpMethod.PATCH, "/api/events/*/responses/*").access("hasRole('ADMIN')")
 
                 // Event ratings (específicos ANTES de la regla general)
                 .antMatchers(HttpMethod.POST, "/api/events/{eventId}/ratings").access("@accessHelper.isUserEventAttendee(#eventId)")

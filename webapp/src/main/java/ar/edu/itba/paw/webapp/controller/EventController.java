@@ -110,7 +110,7 @@ public class EventController {
     @POST
     @Consumes(GoTogetherMediaType.APPLICATION_EVENT)
     @Produces(GoTogetherMediaType.APPLICATION_EVENT)
-    public Response createEvent(@Valid final CreateEventForm form) {
+    public Response createEvent(@Valid @NotNull final CreateEventForm form) {
         final Long userId = AuthUtils.getCurrentUserId();
 
         final Event event = eventService.createEvent(
@@ -133,7 +133,7 @@ public class EventController {
     @Path("/{id}")
     @Consumes(GoTogetherMediaType.APPLICATION_EVENT)
     @Produces(GoTogetherMediaType.APPLICATION_EVENT)
-    public Response updateEvent(@PathParam("id") final long id, @Valid final EditEventForm form) {
+    public Response updateEvent(@PathParam("id") final long id, @Valid @NotNull final EditEventForm form) {
         final Event event = eventService.updateEvent(
                 id,
                 form.getCityId(),
@@ -152,7 +152,7 @@ public class EventController {
     @Path("/{id}")
     @Consumes(GoTogetherMediaType.APPLICATION_EVENT)
     @PreAuthorize("@accessHelper.canPatchEvent(#id, #form)")
-    public Response patchEvent(@PathParam("id") final long id, @Valid final PatchDeletionForm form) {
+    public Response patchEvent(@PathParam("id") final long id, @Valid @NotNull final PatchDeletionForm form) {
         eventService.patchEvent(id, form.getDeleted(), form.getDeletionMessage());
         return Response.noContent().build();
     }
@@ -240,15 +240,15 @@ public class EventController {
                 .build();
     }
 
-    @DELETE
+    @PATCH
     @Path("/{eventId}/responses/{responseId}")
+    @Consumes(GoTogetherMediaType.APPLICATION_EVENT_RESPONSE)
     public Response deleteEventResponse(
             @PathParam("eventId") final long eventId,
             @PathParam("responseId") final long responseId,
-            @Valid final DeleteMessageForm form
+            @Valid @NotNull final PatchDeletionForm form
     ) {
-        final String message = form != null ? form.getMessage() : null;
-        eventService.deleteEventResponse(eventId, responseId, message);
+        eventService.deleteEventResponse(eventId, responseId, form.getDeletionMessage());
         return Response.noContent().build();
     }
 
@@ -337,7 +337,7 @@ public class EventController {
     @Produces(GoTogetherMediaType.APPLICATION_EVENT_RATING)
     public Response createEventRating(
             @PathParam("eventId") final long eventId,
-            @Valid final CreateRatingForm form
+            @Valid @NotNull final CreateRatingForm form
     ) {
         final Long userId = AuthUtils.getCurrentUserId();
         final Rating rating = eventService.rateEvent(userId, eventId, form.getRating());
@@ -353,7 +353,7 @@ public class EventController {
     public Response updateEventRating(
             @PathParam("eventId") final long eventId,
             @PathParam("ratingId") final long ratingId,
-            @Valid final CreateRatingForm form
+            @Valid @NotNull final CreateRatingForm form
     ) {
         final Rating rating = eventService.updateEventRating(eventId, ratingId, form.getRating());
         return Response.ok(RatingDto.fromRating(uriInfo, rating)).build();

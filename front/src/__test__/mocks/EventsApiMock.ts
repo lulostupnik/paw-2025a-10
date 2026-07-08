@@ -65,7 +65,7 @@ export const eventsHandlers = [
         return HttpResponse.json({ id: 10, ...body, dateTime: "2026-06-15T20:30:00Z" }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.event-response.v1+json" } });
     }),
 
-    http.delete(`${BASE_URL}/events/:eventId/responses/:responseId`, () => {
+    http.patch(`${BASE_URL}/events/:eventId/responses/:responseId`, () => {
         return new HttpResponse(null, { status: 204 });
     }),
 

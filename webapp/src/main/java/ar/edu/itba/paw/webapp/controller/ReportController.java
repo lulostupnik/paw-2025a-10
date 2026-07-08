@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -62,7 +63,7 @@ public class ReportController {
     @POST
     @Consumes(GoTogetherMediaType.APPLICATION_REPORT)
     @Produces(GoTogetherMediaType.APPLICATION_REPORT)
-    public Response createReport(@Valid final CreateReportForm form) {
+    public Response createReport(@Valid @NotNull final CreateReportForm form) {
         final Long userId = AuthUtils.getCurrentUserId();
 
         final Report report = reportService.createReport(form.getReportType(),userId,form.getTargetId(),form.getDescription(),form.getReason());
@@ -76,7 +77,7 @@ public class ReportController {
     @Path("/{id}")
     @Consumes(GoTogetherMediaType.APPLICATION_REPORT)
     @Produces(GoTogetherMediaType.APPLICATION_REPORT)
-    public Response updateStatus(@PathParam("id") final long id, @Valid final UpdateReportStatusForm form) {
+    public Response updateStatus(@PathParam("id") final long id, @Valid @NotNull final UpdateReportStatusForm form) {
         final Report report = reportService.updateReportStatus(id,form.getStatus());
         return Response.ok(ReportDto.fromReport(uriInfo, report)).build();
     }

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -59,7 +60,7 @@ public class CityController {
     @POST
     @Consumes(GoTogetherMediaType.APPLICATION_CITY)
     @Produces(GoTogetherMediaType.APPLICATION_CITY)
-    public Response createCity(@Valid final CreateCityForm form) {
+    public Response createCity(@Valid @NotNull final CreateCityForm form) {
         final City city = cityService.createCity(form.getName(), form.getCountryId());
         return Response.created(UriUtils.getCityUri(uriInfo, city.getId()))
                 .entity(CityDto.fromCity(uriInfo, city))
@@ -72,7 +73,7 @@ public class CityController {
     @Produces(GoTogetherMediaType.APPLICATION_CITY)
     public Response updateCity(
             @PathParam("id") final long id,
-            @Valid final UpdateCityForm form
+            @Valid @NotNull final UpdateCityForm form
     ) {
         final City city = cityService.updateCity(id, form.getName(), form.getCountryId());
         return Response.ok(CityDto.fromCity(uriInfo, city)).build();
@@ -84,7 +85,7 @@ public class CityController {
     @Produces(GoTogetherMediaType.APPLICATION_CITY)
     public Response patchCity(
             @PathParam("id") final long id,
-            @Valid final PatchCityForm form
+            @Valid @NotNull final PatchCityForm form
     ) {
         final City city = cityService.patchCity(id, form.getName(), form.getCountryId());
         return Response.ok(CityDto.fromCity(uriInfo, city)).build();

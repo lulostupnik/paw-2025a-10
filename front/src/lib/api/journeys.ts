@@ -208,7 +208,8 @@ export const deleteJourneyResponse = async (
     payload?: { message?: string | null },
     signal?: AbortSignal
 ) => {
-    await apiClient.delete(`/journeys/${journeyId}/responses/${responseId}`, { data: payload, signal, headers: { "Content-Type": ContentTypes.JOURNEY_DELETE } });
+    const body = { deleted: true, deletionMessage: payload?.message ?? null };
+    await apiClient.patch(`/journeys/${journeyId}/responses/${responseId}`, body, { signal, headers: { "Content-Type": ContentTypes.JOURNEY_RESPONSE } });
 };
 
 export const listJourneyTips = async (journeyId: number, params?: { page?: number; size?: number }, signal?: AbortSignal): Promise<PageResult<TipApi>> => {
