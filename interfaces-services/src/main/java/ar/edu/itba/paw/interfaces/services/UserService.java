@@ -25,10 +25,10 @@ public interface UserService {
     void setBlockedStatus(long userId, boolean blocked);
 
     User patchUser(long userId, String username, String firstname, String lastname, Long universityId, Long careerId,
-                   String password, Boolean verified, Boolean blocked);
+                   String password, Boolean blocked);
 
-    long updateProfilePicture(long userId, byte[] profilePicture);
-    Optional<Image> getProfilePicture(long userId); // TODO: NOTE THAT THIS SHOULD THROW USERNOTFOUNDEXCEPTION IF THE USER IS NOT FOUND.
+    Image updateProfilePicture(long userId, byte[] profilePicture);
+    Optional<Image> getProfilePicture(long userId);
 
     Optional<Double> findAverageRatingForCreatedEvents(long userId);
     Optional<Double> findAverageRatingForAttendedEvents(long userId);

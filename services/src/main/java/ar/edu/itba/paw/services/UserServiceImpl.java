@@ -183,26 +183,17 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void initiatePasswordReset(final String email) {
         LOGGER.debug("Attempting to send forgot password email to: {}", email);
-        User user = userDao.findByEmail(email).orElseThrow(()-> new UserNotFoundException(email));
-        if (!user.isValidated()){
-            LOGGER.warn("User with email {} not validated", email);
-            throw new UserValidatedException(email);
+        // Siempre responde lo mismo, no revela si el mail existe o no.
+        Optional<User> maybeUser = userDao.findByEmail(email);
+        if (maybeUser.isEmpty()) {
+            LOGGER.info("Ignored password reset request for unknown email");
+            return;
         }
-
-        // TODO: fijense que opinan. Arriba mandamos excepciones. Abajo simplemente ignoramos para evitar USER ENUMERATION.
-//        Optional<User> maybeUser = userDao.findByEmail(email);
-//
-//        if (maybeUser.isEmpty()) {
-//            LOGGER.info("Ignored password reset request for unknown email");
-//            return;
-//        }
-//
-//        User user = maybeUser.get();
-//
-//        if(!user.isValidated()){
-//            LOGGER.info("Ignored password reset request for non-validated user");
-//            return;
-//        }
+        User user = maybeUser.get();
+        if (!user.isValidated()) {
+            LOGGER.info("Ignored password reset request for non-validated user");
+            return;
+        }
 
         String rawToken = tokenService.userTokenControl(user);
         emailService.sendForgotPassEmail(new EmailUser(user), rawToken);
@@ -228,7 +219,7 @@ public class UserServiceImpl implements UserService {
     public User patchUser(final long userId, final String username,
                           final String firstname, final String lastname,
                           final Long universityId, final Long careerId,
-                          final String password, final Boolean verified, final Boolean blocked) {
+                          final String password, final Boolean blocked) {
         LOGGER.debug("Patching user with ID: {}", userId);
 
         User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
@@ -259,10 +250,6 @@ public class UserServiceImpl implements UserService {
             user.setPassword(passwordEncoder.encode(password));
         }
 
-        if (verified != null) {
-            user.setValidated(verified);
-        }
-
         if (blocked != null) {
             // Reuses the block/unblock flow so the user still gets the notification email.
             setBlockedStatus(userId, blocked);
@@ -274,7 +261,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public long updateProfilePicture(final long userId, final byte[] profilePicture) {
+    public Image updateProfilePicture(final long userId, final byte[] profilePicture) {
         LOGGER.debug("Updating profile picture for user ID: {}", userId);
 
         User user = userDao.findById(userId)
@@ -283,12 +270,16 @@ public class UserServiceImpl implements UserService {
                     return new UserNotFoundException(userId);
                 });
 
+        final Long oldProfilePictureId = user.getProfilePictureId();
         long newProfilePictureId = imageService.createImage(profilePicture);
-
         user.setProfilePictureId(newProfilePictureId);
+        if (oldProfilePictureId != null) {
+            imageService.deleteImage(oldProfilePictureId);
+            LOGGER.info("Old profile picture {} deleted for user {}", oldProfilePictureId, userId);
+        }
 
         LOGGER.info("Profile picture updated successfully for user ID: {}", userId);
-        return newProfilePictureId;
+        return new Image(newProfilePictureId, profilePicture);
     }
 
     @Override

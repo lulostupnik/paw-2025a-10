@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -344,21 +345,25 @@ public class UserServiceImplTest {
     }
 
 
-    @Test(expected = UserValidatedException.class)
+    @Test
     public void testInitiatePasswordResetUserNotValidated(){
         when(
             userDao.findByEmail(eq(EMAIL))
         ).thenReturn(Optional.of(USER_NOT_VALIDATED));
 
         userService.initiatePasswordReset(EMAIL);
+
+        verify(emailService, never()).sendForgotPassEmail(any(), any());
     }
-    @Test(expected = UserNotFoundException.class)
-    public void testInitiatePasswordResetUserNotFound(){
+    @Test
+    public void testInitiatePasswordResetUnknownEmail(){
         when(
             userDao.findByEmail(eq(EMAIL))
         ).thenReturn(Optional.empty());
 
         userService.initiatePasswordReset(EMAIL);
+
+        verify(emailService, never()).sendForgotPassEmail(any(), any());
     }
 
     @Test
@@ -426,7 +431,6 @@ public class UserServiceImplTest {
             UNI_ID,
             CAREER_ID,
             null,
-            null,
             null
         );
 
@@ -466,7 +470,6 @@ public class UserServiceImplTest {
             null,
             CAREER_ID,
             null,
-            null,
             null
         );
     }
@@ -500,7 +503,6 @@ public class UserServiceImplTest {
             UNI_ID,
             null,
             null,
-            null,
             null
         );
     }
@@ -531,7 +533,6 @@ public class UserServiceImplTest {
             null,
             null,
             null,
-            null,
             null
         );
 
@@ -545,7 +546,7 @@ public class UserServiceImplTest {
     public void testPatchUserMissingUser(){
         when(userDao.findById(eq(USER_ID))).thenReturn(Optional.empty());
 
-        userService.patchUser(USER_ID, USERNAME, FIRSTNAME, LASTNAME, UNI_ID, CAREER_ID, null, null, null);
+        userService.patchUser(USER_ID, USERNAME, FIRSTNAME, LASTNAME, UNI_ID, CAREER_ID, null, null);
     }
 
     @Test
@@ -554,19 +555,9 @@ public class UserServiceImplTest {
         when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(u));
         when(passwordEncoder.encode(eq(PASSWORD))).thenReturn("ENCODED");
 
-        userService.patchUser(USER_ID, null, null, null, null, null, PASSWORD, null, null);
+        userService.patchUser(USER_ID, null, null, null, null, null, PASSWORD, null);
 
         assertEquals("ENCODED", u.getPassword());
-    }
-
-    @Test
-    public void testPatchUserSetsVerified(){
-        User u = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE_ID, LOCALE, false, false);
-        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(u));
-
-        userService.patchUser(USER_ID, null, null, null, null, null, null, true, null);
-
-        assertTrue(u.isValidated());
     }
 
     @Test
@@ -574,7 +565,7 @@ public class UserServiceImplTest {
         User u = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE_ID, LOCALE, false, true);
         when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(u));
 
-        userService.patchUser(USER_ID, null, null, null, null, null, null, null, true);
+        userService.patchUser(USER_ID, null, null, null, null, null, null, true);
 
         assertTrue(u.isBlocked());
         verify(emailService).sendUserBlockedNotification(any());
