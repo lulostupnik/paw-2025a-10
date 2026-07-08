@@ -444,7 +444,6 @@ export default function RegisterPage() {
                 email: form.email.trim(),
                 username: form.username.trim(),
                 password: form.password,
-                confirmPassword: form.confirmPassword,
                 firstName: form.firstName.trim(),
                 lastName: form.lastName.trim(),
                 careerId: form.career?.id ?? 0,

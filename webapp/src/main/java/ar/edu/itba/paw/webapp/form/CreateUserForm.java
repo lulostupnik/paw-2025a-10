@@ -6,7 +6,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-@PasswordsMatch(optional = true)
 public class CreateUserForm {
 
     @Email
@@ -31,11 +30,6 @@ public class CreateUserForm {
     @Size(min = 8, max = 100)
     @NotNull
     private String password;
-
-//    TODO: para mi esto no va, esa validacion si es de front, no?
-    @Size(min = 8, max = 100)
-    // @NotNull
-    private String confirmPassword;
 
     @Size(min = 2, max = 100)
     @NotNull
@@ -109,12 +103,6 @@ public class CreateUserForm {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
     }
 
     @Override

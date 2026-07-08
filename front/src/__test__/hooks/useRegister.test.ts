@@ -14,7 +14,6 @@ describe("useRegister", () => {
         firstName: "New",
         lastName: "User",
         password: "Password123",
-        confirmPassword: "Password123",
         careerId: 1,
         universityId: 1,
         interestIds: [1],
