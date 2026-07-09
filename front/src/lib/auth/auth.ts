@@ -4,6 +4,7 @@ const USERNAME_KEY = "username";
 const IS_ADMIN_KEY = "isAdmin";
 const USER_ID_KEY = "userId";
 const EMAIL_KEY = "email";
+const PROFILE_PICTURE_URL_KEY = "profilePictureUrl";
 
 type AuthStorage = "local" | "session";
 
@@ -58,6 +59,10 @@ export function getUserId(): number | null {
     return Number.isFinite(parsed) ? parsed : null;
 }
 
+export function getProfilePictureUrl(): string | null {
+    return getStoredValue(PROFILE_PICTURE_URL_KEY);
+}
+
 export function getAuthToken(): string | null {
     return getStoredValue(AUTH_TOKEN_KEY);
 }
@@ -85,6 +90,7 @@ export function setSession(session: {
     email?: string | null;
     isAdmin?: boolean | null;
     userId?: number | null;
+    profilePictureUrl?: string | null;
     storage?: AuthStorage;
 }) {
     const storage = session.storage ?? getActiveStorage();
@@ -100,10 +106,16 @@ export function setSession(session: {
     if (typeof session.userId === "number" && Number.isFinite(session.userId)) {
         setStoredValue(USER_ID_KEY, String(session.userId), storage);
     }
+    if (session.profilePictureUrl) {
+        setStoredValue(PROFILE_PICTURE_URL_KEY, session.profilePictureUrl, storage);
+    } else if (session.profilePictureUrl === null) {
+        clearStoredValue(PROFILE_PICTURE_URL_KEY, "local");
+        clearStoredValue(PROFILE_PICTURE_URL_KEY, "session");
+    }
 }
 
 export function logout() {
-    [AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY, USERNAME_KEY, IS_ADMIN_KEY, USER_ID_KEY, EMAIL_KEY].forEach((key) => {
+    [AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY, USERNAME_KEY, IS_ADMIN_KEY, USER_ID_KEY, EMAIL_KEY, PROFILE_PICTURE_URL_KEY].forEach((key) => {
         clearStoredValue(key, "local");
         clearStoredValue(key, "session");
     });

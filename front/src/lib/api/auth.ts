@@ -22,6 +22,9 @@ interface PrivateUserDto {
     lastname?: string | null;
     email?: string;
     isAdmin?: boolean;
+    links?: {
+        profilePictureUrl?: string | null;
+    } | null;
 }
 
 interface JwtPayload {
@@ -111,7 +114,7 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
     const email = data.email ?? credentials.email;
     const username = data.username ?? email;
     const isAdmin = data.isAdmin ?? false;
-    setSession({ username, email, isAdmin, userId: data.id, storage });
+    setSession({ username, email, isAdmin, userId: data.id, profilePictureUrl: data.links?.profilePictureUrl ?? null, storage });
     return { id: data.id, username, email, isAdmin };
 }
 
@@ -142,7 +145,7 @@ async function hydrateSessionFromStoredToken(signal?: AbortSignal): Promise<void
         });
         const email = data.email ?? undefined;
         const username = data.username ?? email;
-        setSession({ username, email, isAdmin: data.isAdmin ?? false, userId: data.id });
+        setSession({ username, email, isAdmin: data.isAdmin ?? false, userId: data.id, profilePictureUrl: data.links?.profilePictureUrl ?? null });
     } catch {
         // Ignore — session hydration is non-critical.
     }

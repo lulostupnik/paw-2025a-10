@@ -4,6 +4,7 @@ import {
     isAdmin,
     getUsername,
     getUserId,
+    getProfilePictureUrl,
     getAuthToken,
     getRefreshToken,
     setAuthTokens,
@@ -64,6 +65,11 @@ describe("Auth module", () => {
         it("should store userId as string", () => {
             setSession({ userId: 42 });
             expect(localStorage.getItem("userId")).toBe("42");
+        });
+
+        it("should store profilePictureUrl when provided", () => {
+            setSession({ profilePictureUrl: "/webapp/api/users/42/profilePicture" });
+            expect(getProfilePictureUrl()).toBe("/webapp/api/users/42/profilePicture");
         });
 
         it("should use session storage when session tokens exist", () => {
@@ -167,6 +173,7 @@ describe("Auth module", () => {
             localStorage.setItem("username", "u");
             localStorage.setItem("isAdmin", "true");
             localStorage.setItem("userId", "1");
+            localStorage.setItem("profilePictureUrl", "/webapp/api/users/1/profilePicture");
             sessionStorage.setItem("authToken", "st");
 
             logout();
@@ -176,6 +183,7 @@ describe("Auth module", () => {
             expect(localStorage.getItem("username")).toBeNull();
             expect(localStorage.getItem("isAdmin")).toBeNull();
             expect(localStorage.getItem("userId")).toBeNull();
+            expect(localStorage.getItem("profilePictureUrl")).toBeNull();
             expect(sessionStorage.getItem("authToken")).toBeNull();
         });
     });

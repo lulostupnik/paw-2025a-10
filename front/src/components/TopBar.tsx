@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Button from "./ui/Button";
-import { getUserId, getUsername, isAdmin, isLoggedIn, logout } from "@/lib/auth/auth";
+import { getProfilePictureUrl, getUsername, isAdmin, isLoggedIn, logout } from "@/lib/auth/auth";
 import { classNames } from "@/lib/utils/classNames";
 import { useI18n } from "@/lib/i18n";
 import Logo from "./Logo";
-import { apiBaseUrl } from "@/lib/api/client";
 
 const linkClassName = ({ isActive }: { isActive: boolean }) => classNames("top-bar__link", isActive && "is-active");
 
@@ -22,15 +21,14 @@ export default function TopBar() {
     const nav = useNavigate();
     const logged = isLoggedIn();
     const username = getUsername();
-    const userId = logged ? getUserId() : null;
+    const profilePictureUrl = logged ? getProfilePictureUrl() : null;
     const { t } = useI18n();
     const [navOpen, setNavOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [avatarError, setAvatarError] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLElement | null>(null);
-    const profilePictureSrc = logged && userId ? `${apiBaseUrl}/users/${userId}/profilePicture` : null;
-    const showProfilePicture = Boolean(profilePictureSrc && !avatarError);
+    const showProfilePicture = Boolean(profilePictureUrl && !avatarError);
 
     const updateTopBarOffset = useCallback(() => {
         if (typeof window === "undefined" || !headerRef.current) {
@@ -137,7 +135,7 @@ export default function TopBar() {
                             <span className="top-bar__avatar" aria-hidden="true">
                                 {showProfilePicture ? (
                                     <img
-                                        src={profilePictureSrc ?? ""}
+                                        src={profilePictureUrl ?? ""}
                                         alt=""
                                         className="top-bar__avatar-image"
                                         onError={() => setAvatarError(true)}
