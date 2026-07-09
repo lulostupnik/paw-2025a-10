@@ -11,13 +11,32 @@ export const setApiLocale = (locale: string) => {
 
 interface ApiErrorBody {
     message?: string;
-    errors?: Array<{ message?: string }>;
+    errors?: Array<{ field?: string; message?: string }>;
 }
 
 /**
  * Mensaje de error para mostrar al usuario: prefiere el `message`/`errors` del
  * ErrorDto de la API (ya localizado por Accept-Language) y cae al fallback genérico.
  */
+/** Status HTTP de un error de API, si lo hay. */
+export const apiErrorStatus = (error: unknown): number | undefined =>
+    isAxiosError(error) ? error.response?.status : undefined;
+
+/** Errores de campo del ErrorDto de la API como {campo: mensaje}; vacío si no hay. */
+export const apiFieldErrors = (error: unknown): Record<string, string> => {
+    if (!isAxiosError(error)) {
+        return {};
+    }
+    const data = error.response?.data as ApiErrorBody | undefined;
+    const result: Record<string, string> = {};
+    for (const fieldError of data?.errors ?? []) {
+        if (fieldError.field && fieldError.message) {
+            result[fieldError.field] = fieldError.message;
+        }
+    }
+    return result;
+};
+
 export const apiErrorMessage = (error: unknown, fallback: string): string => {
     if (isAxiosError(error)) {
         const data = error.response?.data as ApiErrorBody | undefined;

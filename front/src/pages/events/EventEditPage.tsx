@@ -10,7 +10,7 @@ import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField
 import { useI18n } from "@/lib/i18n";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { updateEvent, updateEventFlyer } from "@/lib/api/events";
-import { apiErrorMessage } from "@/lib/api/client";
+import { apiErrorMessage, apiErrorStatus, apiFieldErrors } from "@/lib/api/client";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -31,6 +31,17 @@ interface FormState {
 
 type FormField = "name" | "city" | "date" | "time" | "description" | "address" | "participantLimit" | "flyer";
 type FormErrors = Partial<Record<FormField, string>>;
+
+// Campo del ErrorDto de la API → campo del formulario.
+const API_FIELD_TO_FORM_FIELD: Record<string, FormField> = {
+    title: "name",
+    cityId: "city",
+    date: "date",
+    time: "time",
+    description: "description",
+    address: "address",
+    attendeesLimit: "participantLimit",
+};
 type TouchedState = Partial<Record<FormField, boolean>>;
 
 const INITIAL_FORM: FormState = {
@@ -251,7 +262,22 @@ export default function EventEditPage() {
             navigate(`/events/${id}`);
         } catch (err) {
             console.error("Failed to update event", err);
-            setSubmitError(apiErrorMessage(err, t("event.edit.error", { defaultValue: "Error al actualizar el evento." })));
+            const serverErrors: FormErrors = {};
+            for (const [apiField, message] of Object.entries(apiFieldErrors(err))) {
+                const formField = API_FIELD_TO_FORM_FIELD[apiField];
+                if (formField) {
+                    serverErrors[formField] = message;
+                }
+            }
+            if (apiErrorStatus(err) === 409) {
+                // Único conflicto de estado del update: el límite quedó bajo los asistentes actuales.
+                serverErrors.participantLimit = apiErrorMessage(err, t("event.edit.error", { defaultValue: "Error al actualizar el evento." }));
+            }
+            if (Object.keys(serverErrors).length > 0) {
+                setErrors((prev) => ({ ...prev, ...serverErrors }));
+            } else {
+                setSubmitError(apiErrorMessage(err, t("event.edit.error", { defaultValue: "Error al actualizar el evento." })));
+            }
         } finally {
             setSubmitting(false);
         }
