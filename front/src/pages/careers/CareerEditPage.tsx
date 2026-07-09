@@ -1,4 +1,4 @@
-import { apiErrorMessage } from "@/lib/api/client";
+import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -10,6 +10,11 @@ import { updateCareer } from "@/lib/api/careers";
 interface CareerFormState {
     name: string;
 }
+
+// Campo del ErrorDto de la API → campo del formulario.
+const API_FIELD_TO_FORM_FIELD: Record<string, keyof CareerFormState> = {
+    name: "name",
+};
 
 const formatTitleCase = (value: string) =>
     value
@@ -26,6 +31,7 @@ export default function CareerEditPage() {
     const [form, setForm] = useState<CareerFormState>({ name: "" });
     const [touched, setTouched] = useState({ name: false });
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [serverErrors, setServerErrors] = useState<Partial<Record<keyof CareerFormState, string>>>({});
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -35,17 +41,25 @@ export default function CareerEditPage() {
         setForm({ name: career.name ?? "" });
     }, [career]);
 
-    const errors = useMemo(
+    const clientErrors = useMemo(
         () => ({
             name: form.name.trim() ? "" : t("NotNull.createCareer.name", { defaultValue: "Campo obligatorio." }),
         }),
         [form, t]
     );
 
+    const errors = useMemo(
+        () => ({
+            name: clientErrors.name || serverErrors.name || "",
+        }),
+        [clientErrors, serverErrors]
+    );
+
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setTouched({ name: true });
-        if (errors.name) {
+        setServerErrors({});
+        if (clientErrors.name) {
             return;
         }
         if (!id) {
@@ -58,7 +72,18 @@ export default function CareerEditPage() {
             .then(() => navigate(`/careers/${id}`))
             .catch((error) => {
                 console.error("Failed to update career", error);
-                setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
+                const nextServerErrors: Partial<Record<keyof CareerFormState, string>> = {};
+                for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
+                    const formField = API_FIELD_TO_FORM_FIELD[apiField];
+                    if (formField) {
+                        nextServerErrors[formField] = message;
+                    }
+                }
+                if (Object.keys(nextServerErrors).length > 0) {
+                    setServerErrors(nextServerErrors);
+                } else {
+                    setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
+                }
             })
             .finally(() => setSubmitting(false));
     };

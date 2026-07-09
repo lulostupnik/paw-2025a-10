@@ -1399,6 +1399,22 @@ public class EventServiceImplTest {
         assertTrue(maybeReply.isPresent());
     }
     @Test
+    public void testIsEventResponseOwnedByUser(){
+        when(
+            replyDao.findById(eq(RESPONSE_ID))
+        ).thenReturn(Optional.of(REPLY));
+
+        assertTrue(eventService.isEventResponseOwnedByUser(EVENT_ID, RESPONSE_ID, USER_ID));
+    }
+    @Test
+    public void testIsEventResponseOwnedByUserOtherUser(){
+        when(
+            replyDao.findById(eq(RESPONSE_ID))
+        ).thenReturn(Optional.of(REPLY));
+
+        assertFalse(eventService.isEventResponseOwnedByUser(EVENT_ID, RESPONSE_ID, USER_ID + 1));
+    }
+    @Test
     public void testFindEventResponseByIdDifferentEvent(){
         when(
             replyDao.findById(eq(RESPONSE_ID))

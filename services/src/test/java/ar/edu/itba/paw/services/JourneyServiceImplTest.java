@@ -1250,6 +1250,22 @@ public class JourneyServiceImplTest {
         assertEquals(REPLY, maybeResponse.get());
     }
     @Test
+    public void testIsJourneyResponseOwnedByUser(){
+        when(
+            replyDao.findById(eq(REPLY_ID))
+        ).thenReturn(Optional.of(REPLY));
+
+        assertTrue(journeyService.isJourneyResponseOwnedByUser(JOURNEY_ID, REPLY_ID, USER_ID));
+    }
+    @Test
+    public void testIsJourneyResponseOwnedByUserOtherUser(){
+        when(
+            replyDao.findById(eq(REPLY_ID))
+        ).thenReturn(Optional.of(REPLY));
+
+        assertFalse(journeyService.isJourneyResponseOwnedByUser(JOURNEY_ID, REPLY_ID, USER_ID + 1));
+    }
+    @Test
     public void testFindJourneyResponseByIdJourneyIDNotRelated(){
         when(
             replyDao.findById(eq(REPLY_ID))

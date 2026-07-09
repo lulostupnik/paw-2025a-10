@@ -350,6 +350,13 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
+    public boolean isJourneyResponseOwnedByUser(final long journeyId, final long responseId, final long userId) {
+        LOGGER.debug("Checking if response {} for journey {} is owned by user {}", responseId, journeyId, userId);
+        Optional<JourneyResponse> response = findJourneyResponseById(journeyId, responseId);
+        return response.isPresent() && response.get().getUser().getId() == userId;
+    }
+
+    @Override
     public Optional<JourneyResponse> findJourneyResponseById(final long journeyId, final long responseId) {
         Optional<JourneyResponse> maybeResponse = journeyResponseDao.findById(responseId);
         if (maybeResponse.isPresent() && maybeResponse.get().getJourney().getId() != journeyId) {

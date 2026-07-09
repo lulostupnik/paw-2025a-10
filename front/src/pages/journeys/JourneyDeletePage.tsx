@@ -6,9 +6,10 @@ import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { deleteJourney } from "@/lib/api/journeys";
 import { getUserId } from "@/lib/auth/auth";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { parseApiDate } from "@/lib/utils/date";
 
 const formatDate = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }

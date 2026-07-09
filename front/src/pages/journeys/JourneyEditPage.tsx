@@ -1,4 +1,4 @@
-import { apiErrorMessage } from "@/lib/api/client";
+import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
@@ -26,6 +26,14 @@ const INITIAL_FORM: JourneyFormState = {
     endDate: "",
     destination: null,
     description: "",
+};
+
+// Campo del ErrorDto de la API → campo del formulario.
+const API_FIELD_TO_FORM_FIELD: Record<string, JourneyField> = {
+    startDate: "startDate",
+    endDate: "endDate",
+    destinationUniversityId: "destination",
+    description: "description",
 };
 
 const addDays = (dateValue: string, days: number) => {
@@ -154,7 +162,18 @@ export default function JourneyEditPage() {
             navigate(`/journeys/${id}`);
         } catch (err) {
             console.error("Failed to update journey", err);
-            setSubmitError(apiErrorMessage(err, t("journey.edit.error", { defaultValue: "Error al actualizar el viaje." })));
+            const serverErrors: JourneyErrors = {};
+            for (const [apiField, message] of Object.entries(apiFieldErrors(err))) {
+                const formField = API_FIELD_TO_FORM_FIELD[apiField];
+                if (formField) {
+                    serverErrors[formField] = message;
+                }
+            }
+            if (Object.keys(serverErrors).length > 0) {
+                setErrors((prev) => ({ ...prev, ...serverErrors }));
+            } else {
+                setSubmitError(apiErrorMessage(err, t("journey.edit.error", { defaultValue: "Error al actualizar el viaje." })));
+            }
         } finally {
             setSubmitting(false);
         }

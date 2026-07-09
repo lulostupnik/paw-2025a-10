@@ -26,6 +26,7 @@ vi.mock("@/hooks/useAuthGate", () => ({
 
 vi.mock("@/lib/auth/auth", () => ({
     getUserId: () => null,
+    getUsername: () => null,
     isAdmin: () => false,
     isLoggedIn: () => false,
 }));

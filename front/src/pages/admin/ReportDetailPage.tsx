@@ -12,6 +12,7 @@ import { deleteJourney, deleteJourneyResponse } from "@/lib/api/journeys";
 import { deleteReport, getReportDetail, updateReportStatus, type ReportDetail, type ReportStatus } from "@/lib/api/reports";
 import { updateUserBlocked } from "@/lib/api/users";
 import ActionMenu, { type ActionMenuItem } from "@/components/ui/ActionMenu";
+import { parseApiDate } from "@/lib/utils/date";
 
 type ReportReason =
     | "SPAM"
@@ -26,7 +27,7 @@ type ReportReason =
 const REPORTS_LIST_PATH = "/admin/reports";
 
 const formatDateTime = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }

@@ -243,6 +243,7 @@ public class EventController {
     @PATCH
     @Path("/{eventId}/responses/{responseId}")
     @Consumes(GoTogetherMediaType.APPLICATION_EVENT_RESPONSE)
+    @PreAuthorize("@accessHelper.canPatchEventResponse(#eventId, #responseId, #form)")
     public Response patchEventResponse(
             @PathParam("eventId") final long eventId,
             @PathParam("responseId") final long responseId,

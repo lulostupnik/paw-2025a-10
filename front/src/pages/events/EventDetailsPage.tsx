@@ -15,9 +15,10 @@ import { useAuthGate } from "@/hooks/useAuthGate";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import { getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment } from "@/types/event";
+import { parseApiDate } from "@/lib/utils/date";
 
 const formatDate = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -25,7 +26,7 @@ const formatDate = (value: string, locale: string) => {
 };
 
 const formatDateTime = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -1012,7 +1013,7 @@ return (
                                                                                     </svg>
                                                                                     <span>{t("comment.report")}</span>
                                                                                 </Link>
-                                                                                    {admin && (
+                                                                                    {(admin || response.user.username === username) && (
                                                                                         <Link
                                                                                             to={`/events/reply/${response.id}/delete?eventId=${id}`}
                                                                                             style={{

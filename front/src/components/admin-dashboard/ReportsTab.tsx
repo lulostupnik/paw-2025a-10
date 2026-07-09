@@ -5,6 +5,7 @@ import Pagination from "../listing/Pagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
 import type { PageResult } from "@/types/pagination";
+import { parseApiDate } from "@/lib/utils/date";
 
 interface ReportsTabProps {
     data: PageResult<ReportListItem>;
@@ -83,7 +84,7 @@ const formatDate = (value: string | null | undefined, locale: string) => {
     if (!value) {
         return "—";
     }
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }

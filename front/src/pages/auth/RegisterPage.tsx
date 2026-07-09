@@ -12,6 +12,7 @@ import {
     type CatalogSearchFn,
 } from "@/lib/api/catalog";
 import { useRegister } from "@/hooks/useRegister";
+import { apiFieldErrors } from "@/lib/api/client";
 
 type RegisterField =
     | "email"
@@ -70,6 +71,18 @@ const initialTouchedState: Record<RegisterField, boolean> = {
     career: false,
     university: false,
     interests: false,
+};
+
+// Campo del ErrorDto de la API → campo del formulario.
+const API_FIELD_TO_FORM_FIELD: Record<string, RegisterField> = {
+    email: "email",
+    username: "username",
+    password: "password",
+    firstName: "firstName",
+    lastName: "lastName",
+    universityId: "university",
+    careerId: "career",
+    interestIds: "interests",
 };
 
 function evaluatePassword(value: string): PasswordStrength {
@@ -400,11 +413,13 @@ export default function RegisterPage() {
 
     const [form, setForm] = useState(initialForm);
     const [touched, setTouched] = useState<Record<RegisterField, boolean>>(initialTouchedState);
+    const [serverErrors, setServerErrors] = useState<ValidationResult>({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const passwordStrength = useMemo(() => evaluatePassword(form.password), [form.password]);
-    const errors = useMemo(() => validateForm(form, t), [form, t]);
+    const clientErrors = useMemo(() => validateForm(form, t), [form, t]);
+    const errors = useMemo(() => ({ ...serverErrors, ...clientErrors }), [serverErrors, clientErrors]);
     const loginTarget = useMemo(() => {
         const query = nextPath ? `?next=${encodeURIComponent(nextPath)}` : "";
         return `/login${query}`;
@@ -434,8 +449,9 @@ export default function RegisterPage() {
             interests: true,
         };
         setTouched(touchedState);
+        setServerErrors({});
 
-        if (Object.keys(errors).length > 0) {
+        if (Object.keys(clientErrors).length > 0) {
             return;
         }
 
@@ -452,8 +468,19 @@ export default function RegisterPage() {
             });
             setForm(initialForm);
             setTouched(initialTouchedState);
-        } catch {
-            // Error is handled by the hook
+        } catch (err) {
+            const nextServerErrors: ValidationResult = {};
+            for (const [apiField, message] of Object.entries(apiFieldErrors(err))) {
+                const formField = API_FIELD_TO_FORM_FIELD[apiField];
+                if (formField) {
+                    nextServerErrors[formField] = message;
+                }
+            }
+            if (Object.keys(nextServerErrors).length > 0) {
+                setServerErrors(nextServerErrors);
+                // Con errores por campo no mostramos el banner global del hook.
+                reset();
+            }
         }
     };
 

@@ -331,6 +331,7 @@ public class JourneyController {
     @PATCH
     @Path("/{journeyId}/responses/{responseId}")
     @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY_RESPONSE)
+    @PreAuthorize("@accessHelper.canPatchJourneyResponse(#journeyId, #responseId, #form)")
     public Response patchJourneyResponse(
             @PathParam("journeyId") final long journeyId,
             @PathParam("responseId") final long responseId,

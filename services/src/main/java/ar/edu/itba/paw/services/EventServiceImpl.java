@@ -528,6 +528,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public boolean isEventResponseOwnedByUser(final long eventId, final long responseId, final long userId) {
+        LOGGER.debug("Checking if response {} for event {} is owned by user {}", responseId, eventId, userId);
+        Optional<EventResponse> response = findEventResponseById(eventId, responseId);
+        return response.isPresent() && response.get().getUser().getId() == userId;
+    }
+
+    @Override
     public Optional<EventResponse> findEventResponseById(final long eventId, final long responseId) {
         LOGGER.debug("Getting event response by id {} for event {}", responseId, eventId);
         Optional<EventResponse> maybeResponse = eventResponseDao.findById(responseId);

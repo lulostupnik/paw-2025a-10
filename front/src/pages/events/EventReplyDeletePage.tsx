@@ -5,9 +5,11 @@ import { useI18n } from "@/lib/i18n";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { deleteEventResponse } from "@/lib/api/events";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { parseApiDate } from "@/lib/utils/date";
+import { isAdmin } from "@/lib/auth/auth";
 
 const formatDateTime = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -142,6 +144,7 @@ export default function EventReplyDeletePage() {
                                     <p>{t("eventResponse.deleteWarning")}</p>
                                 </div>
 
+                                {isAdmin() && (
                                 <div className="form-group">
                                     <label className="form-label" htmlFor="event-reply-delete-message">
                                         {t("delete.reason.label")}
@@ -155,6 +158,7 @@ export default function EventReplyDeletePage() {
                                         rows={4}
                                     />
                                 </div>
+                                )}
 
                                 {submitError && <p className="error-message">{submitError}</p>}
 

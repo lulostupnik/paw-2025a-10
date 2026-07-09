@@ -81,6 +81,34 @@ public class AccessHelper {
         return admin || !hasDeletionMessage(form);
     }
 
+    public boolean canPatchEventResponse(long eventId, long responseId, PatchDeletionForm form) {
+        final boolean admin = isAdmin();
+        if (!admin && !isUserEventResponseOwner(eventId, responseId)) {
+            return false;
+        }
+        return admin || !hasDeletionMessage(form);
+    }
+
+    public boolean canPatchJourneyResponse(long journeyId, long responseId, PatchDeletionForm form) {
+        final boolean admin = isAdmin();
+        if (!admin && !isUserJourneyResponseOwner(journeyId, responseId)) {
+            return false;
+        }
+        return admin || !hasDeletionMessage(form);
+    }
+
+    private boolean isUserEventResponseOwner(long eventId, long responseId) {
+        Long userId = AuthUtils.getCurrentUserId();
+        if (userId == null) return false;
+        return eventService.isEventResponseOwnedByUser(eventId, responseId, userId);
+    }
+
+    private boolean isUserJourneyResponseOwner(long journeyId, long responseId) {
+        Long userId = AuthUtils.getCurrentUserId();
+        if (userId == null) return false;
+        return journeyService.isJourneyResponseOwnedByUser(journeyId, responseId, userId);
+    }
+
     private boolean hasDeletionMessage(PatchDeletionForm form) {
         return form != null && form.getDeletionMessage() != null && !form.getDeletionMessage().isBlank();
     }

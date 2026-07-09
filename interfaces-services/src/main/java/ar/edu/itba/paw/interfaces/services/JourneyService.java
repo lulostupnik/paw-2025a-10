@@ -32,6 +32,7 @@ public interface JourneyService {
     Optional<JourneyResponse> findJourneyResponseById(long id);
 
     Optional<JourneyResponse> findJourneyResponseById(long journeyId, long responseId);
+    boolean isJourneyResponseOwnedByUser(long journeyId, long responseId, long userId);
     Page<JourneyResponse> findJourneyResponses(long journeyId, PageParams pageParams);
 
     Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams);

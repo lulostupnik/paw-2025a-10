@@ -60,6 +60,7 @@ public interface EventService {
     Page<EventResponse> findEventResponses(long eventId, PageParams pageParams);
     Optional<EventResponse> findEventResponseById(long id);
     Optional<EventResponse> findEventResponseById(long eventId, long responseId);
+    boolean isEventResponseOwnedByUser(long eventId, long responseId, long userId);
 
     void sendEventReminders();
 
