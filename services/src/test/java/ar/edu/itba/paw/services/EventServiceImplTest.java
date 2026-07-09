@@ -56,6 +56,7 @@ import ar.edu.itba.paw.models.exceptions.EventNotInTheFutureException;
 import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
 import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
+import ar.edu.itba.paw.models.exceptions.MutuallyExclusiveFiltersException;
 import ar.edu.itba.paw.models.exceptions.RatingNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserAlreadyAttendingException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
@@ -914,6 +915,7 @@ public class EventServiceImplTest {
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
             null,
+            null,
             SortFieldEvent.from("attendees"),
             SortDirection.from("desc"),
             CITY_NAME,
@@ -930,6 +932,97 @@ public class EventServiceImplTest {
         assertNotNull(page);
         assertEquals(EVENTS_PAGE, page);
     }
+
+    @Test
+    public void testSearchEventsWithFiltersUsesDefaultSortWhenNotProvided(){
+        when(
+            eventDao.findAllWithFilters(
+                any(),
+                any(),
+                eq(SortFieldEvent.DATE),
+                eq(SortDirection.ASC),
+                any(),
+                any(LocalDate.class),
+                any(LocalDate.class),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                eq(PAGE_1_DEFAULT)
+            )
+        ).thenReturn(EVENTS_PAGE);
+
+        Page<Event> page = eventService.searchEventsWithFilters(
+            TITLE,
+            null,
+            USER_ID,
+            null,
+            null,
+            CITY_NAME,
+            EVENT_DATE,
+            EVENT_DATE,
+            INTEREST,
+            null,
+            UNI_NAME,
+            (int) RATING_VALUE,
+            true,
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(EVENTS_PAGE, page);
+    }
+
+    @Test
+    public void testSearchRecommendedEvents(){
+        when(
+            eventDao.findRecommended(eq(USER_ID), eq(PAGE_1_DEFAULT))
+        ).thenReturn(EVENTS_PAGE);
+
+        Page<Event> page = eventService.searchEventsWithFilters(
+            null,
+            USER_ID,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(EVENTS_PAGE, page);
+    }
+
+    @Test(expected = MutuallyExclusiveFiltersException.class)
+    public void testSearchRecommendedEventsWithExclusiveFilter(){
+        eventService.searchEventsWithFilters(
+            null,
+            USER_ID,
+            null,
+            SortFieldEvent.DATE,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            PAGE_1_DEFAULT
+        );
+    }
+
     @Test
     public void testSearchEventsWithFilters(){
         when(
@@ -954,6 +1047,7 @@ public class EventServiceImplTest {
 
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
+            null,
             USER_ID,
             SortFieldEvent.from(""),
             SortDirection.from(""),
@@ -995,6 +1089,7 @@ public class EventServiceImplTest {
 
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
+            null,
             USER_ID,
             SortFieldEvent.from(""),
             SortDirection.from(""),
@@ -1036,6 +1131,7 @@ public class EventServiceImplTest {
 
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
+            null,
             USER_ID,
             SortFieldEvent.from(""),
             SortDirection.from(""),
@@ -1077,6 +1173,7 @@ public class EventServiceImplTest {
 
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
+            null,
             USER_ID,
             SortFieldEvent.from(""),
             SortDirection.from(""),
@@ -1118,6 +1215,7 @@ public class EventServiceImplTest {
 
         Page<Event> page = eventService.searchEventsWithFilters(
             TITLE,
+            null,
             USER_ID,
             SortFieldEvent.from(""),
             SortDirection.from(""),

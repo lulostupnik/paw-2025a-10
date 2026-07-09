@@ -223,6 +223,9 @@ public class JourneyServiceImpl implements JourneyService {
 
         validateMutuallyExclusiveTimeFilters(isPast, isUpcoming, isOngoing);
 
+        final SortFieldJourney effectiveSortBy = sortBy == null ? SortFieldJourney.START_DATE : sortBy;
+        final SortDirection effectiveDirection = direction == null ? SortDirection.ASC : direction;
+
         LocalDate adjustedStartDate = startDate;
         LocalDate adjustedEndDate = endDate;
         LocalDate today = LocalDate.now();
@@ -240,8 +243,8 @@ public class JourneyServiceImpl implements JourneyService {
                 search,
                 excludeUserId,
                 destinationCityId,
-                sortBy,
-                direction,
+                effectiveSortBy,
+                effectiveDirection,
                 city,
                 university,
                 adjustedStartDate,

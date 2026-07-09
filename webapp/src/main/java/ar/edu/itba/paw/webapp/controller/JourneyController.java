@@ -74,8 +74,8 @@ public class JourneyController {
     ) {
         final LocalDate startDate = DateUtils.parseDate(startDateStr);
         final LocalDate endDate = DateUtils.parseDate(endDateStr);
-        final SortFieldJourney sortField = SortFieldJourney.from(sort);
-        final SortDirection sortDirection = SortDirection.from(direction);
+        final SortFieldJourney sortField = sort == null || sort.isBlank() ? null : SortFieldJourney.from(sort);
+        final SortDirection sortDirection = direction == null || direction.isBlank() ? null : SortDirection.from(direction);
 
         final Page<Journey> journeys = journeyService.findJourneys(
                 search,

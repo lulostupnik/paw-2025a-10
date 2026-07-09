@@ -96,6 +96,7 @@ export interface FetchEventsParams {
     direction?: "asc" | "desc";
     page?: number;
     size?: number;
+    recommendedForUser?: number;
     attendedBy?: number;
     university?: string;
     minRating?: number;

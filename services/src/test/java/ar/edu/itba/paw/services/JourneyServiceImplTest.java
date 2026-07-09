@@ -451,6 +451,48 @@ public class JourneyServiceImplTest {
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
     }
+
+    @Test
+    public void testFindJourneysUsesDefaultSortWhenNotProvided(){
+        when(
+            journeyDao.search(
+                eq(DESCRIPTION),
+                eq(USER_ID_2),
+                any(),
+                eq(SortFieldJourney.START_DATE),
+                eq(SortDirection.ASC),
+                eq(CITY_NAME),
+                eq(UNI_NAME),
+                eq(START_DATE),
+                eq(END_DATE),
+                eq(INTEREST_NAME),
+                eq(false),
+                eq(false),
+                eq(PAGE_1_DEFAULT)
+            )
+        ).thenReturn(JOURNEY_PAGE);
+
+        Page<Journey> page = journeyService.findJourneys(
+            DESCRIPTION,
+            USER_ID_WITH_JOURNEY,
+            null,
+            null,
+            null,
+            CITY_NAME,
+            UNI_NAME,
+            START_DATE,
+            END_DATE,
+            INTEREST_NAME,
+            false,
+            false,
+            false,
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(JOURNEY_PAGE, page);
+    }
+
     @Test(expected = MutuallyExclusiveFiltersException.class)
     public void testFindJourneysMultiTimeFilter(){
         journeyService.findJourneys(

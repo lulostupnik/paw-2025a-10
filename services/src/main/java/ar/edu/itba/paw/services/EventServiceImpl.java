@@ -396,17 +396,24 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<Event> searchEventsWithFilters(final String search, final Long creatorId, final SortFieldEvent sortBy, final SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
+    public Page<Event> searchEventsWithFilters(final String search, final Long recommendedForUser, final Long creatorId, final SortFieldEvent sortBy, final SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
                                               Long attendedByUserId,
                                                String university, Integer minRating, Boolean hasCapacity, final PageParams pageParams) {
-        LOGGER.debug("Getting events with search {}, creatorId {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, attendedByUserId {}", search, creatorId, sortBy, direction, destination, startDate, endDate, interest, attendedByUserId);
+        LOGGER.debug("Getting events with search {}, recommendedForUser {}, creatorId {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, attendedByUserId {}", search, recommendedForUser, creatorId, sortBy, direction, destination, startDate, endDate, interest, attendedByUserId);
 
+        if (recommendedForUser != null) {
+            validateRecommendedEventsFilters(search, creatorId, sortBy, direction, destination, startDate, endDate, interest, attendedByUserId, university, minRating, hasCapacity);
+            return eventDao.findRecommended(recommendedForUser, pageParams);
+        }
+
+        final SortFieldEvent effectiveSortBy = sortBy == null ? SortFieldEvent.DATE : sortBy;
+        final SortDirection effectiveDirection = direction == null ? SortDirection.ASC : direction;
 
         return eventDao.findAllWithFilters(
                 creatorId,
                 search,
-                sortBy,
-                direction,
+                effectiveSortBy,
+                effectiveDirection,
                 destination,
                 startDate,
                 endDate,
@@ -420,6 +427,16 @@ public class EventServiceImpl implements EventService {
                 pageParams
         );
 
+    }
+
+    private void validateRecommendedEventsFilters(final String search, final Long creatorId, final SortFieldEvent sortBy, final SortDirection direction, final String destination,
+                                                  final LocalDate startDate, final LocalDate endDate, final String interest, final Long attendedByUserId,
+                                                  final String university, final Integer minRating, final Boolean hasCapacity) {
+        if (search != null || creatorId != null || sortBy != null || direction != null || destination != null
+                || startDate != null || endDate != null || interest != null || attendedByUserId != null
+                || university != null || minRating != null || hasCapacity != null) {
+            throw new MutuallyExclusiveFiltersException("recommendedForUser");
+        }
     }
 
     @Override

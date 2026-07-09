@@ -47,7 +47,7 @@ public interface EventService {
     boolean isUserEventAttendee(long userId, long eventId);
     boolean isRatingOwnedByUser(long eventId, long ratingId, long userId);
 
-    Page<Event> searchEventsWithFilters(String search, Long creatorId,
+    Page<Event> searchEventsWithFilters(String search, Long recommendedForUser, Long creatorId,
                                         SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
                                         Long attendedByUserId,
                                         String university, Integer minRating, Boolean hasCapacity, PageParams pageParams);
@@ -72,4 +72,3 @@ public interface EventService {
     Optional<Image> getEventFlyer(long eventId);
     Image updateEventFlyer(long eventId, byte[] flyer);
 }
-

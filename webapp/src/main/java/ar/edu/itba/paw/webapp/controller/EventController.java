@@ -26,6 +26,7 @@ import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -54,7 +55,9 @@ public class EventController {
 
     @GET
     @Produces(GoTogetherMediaType.APPLICATION_EVENT_LIST)
+    @PreAuthorize("#recommendedForUser == null or @accessHelper.isCurrentUser(#recommendedForUser)")
     public Response listEvents(
+            @QueryParam("recommendedForUser") @P("recommendedForUser") Long recommendedForUser,
             @QueryParam("destination") String destination,
             @QueryParam("interest") String interest,
             @QueryParam("afterDate") String afterDateStr,
@@ -73,12 +76,13 @@ public class EventController {
     ) {
         final LocalDate startDate = DateUtils.parseDate(afterDateStr);
         final LocalDate endDate = DateUtils.parseDate(beforeDateStr);
-        final SortFieldEvent sortField = SortFieldEvent.from(sort);
-        final SortDirection sortDirection = SortDirection.from(direction);
+        final SortFieldEvent sortField = sort == null || sort.isBlank() ? null : SortFieldEvent.from(sort);
+        final SortDirection sortDirection = direction == null || direction.isBlank() ? null : SortDirection.from(direction);
 
 
         final Page<Event> eventsPage = eventService.searchEventsWithFilters(
                 search,
+                recommendedForUser,
                 creatorId,
                 sortField,
                 sortDirection,
