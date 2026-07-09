@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -102,7 +103,13 @@ public class UserInterestHibernateDao implements UserInterestDao {
     public void createUserInterests(List<Long> interestIds, long userId) {
         User user = userDao.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-        for (long interestId : interestIds) {
+        if (interestIds == null) {
+            return;
+        }
+        for (Long interestId : new LinkedHashSet<>(interestIds)) {
+            if (interestId == null) {
+                continue;
+            }
             Interest i = interestDao.findById(interestId)
                     .orElseThrow(() -> new InterestsNotFoundException(interestId));
             create(user, i);

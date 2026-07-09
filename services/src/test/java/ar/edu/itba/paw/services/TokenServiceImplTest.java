@@ -46,6 +46,7 @@ public class TokenServiceImplTest {
         assertEquals(user, user.getToken().getUser());
         assertNotNull(user.getToken().getExpirationDate());
         assertNotEquals(rawToken, user.getToken().getToken());   // stored hashed, never the raw
+        assertTrue(user.getToken().getToken().length() <= 100);
     }
 
     @Test

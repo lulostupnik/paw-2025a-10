@@ -205,6 +205,25 @@ public class UserInterestHibernateDaoTest {
             assertEqualsInterest(INTEREST_DATA.get(i.getId()), i)
         );
     }
+
+    @Test
+    public void testCreateUserInterestsDeduplicatesRepeatedIds(){
+        interestDao.createUserInterests(
+            List.of(INTEREST_1_ID, INTEREST_1_ID, INTEREST_2_ID),
+            USER_2_ID
+        );
+        em.flush();
+
+        assertEquals(
+            TOTAL_USER_INTERESTS + 2,
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, USER_INTEREST_TABLE)
+        );
+        List<Interest> interests = jdbcTemplate.query(INTEREST_SELECT_BY_USER_ID,
+            INTEREST_ROW_MAPPER, USER_2_ID
+        );
+        assertEquals(2, interests.size());
+    }
+
     @Test(expected = UserNotFoundException.class)
     public void testCreateUserInterestsWrongUser(){
         interestDao.createUserInterests(

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -21,6 +22,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.CareerService;
@@ -141,6 +144,102 @@ public class UserServiceImplTest {
         assertNotNull(user);
         assertEquals(USER, user);
     }
+
+    @Test
+    public void testCreateUserDeduplicatesInterestIds(){
+        when(
+            universityService.findById(eq(UNI_ID))
+        ).thenReturn(Optional.of(UNIVERSITY));
+        when(
+            careerService.findCareerById(eq(CAREER_ID))
+        ).thenReturn(Optional.of(CAREER));
+        when(
+            passwordEncoder.encode(eq(PASSWORD))
+        ).thenReturn(PASSWORD);
+        when(
+            userDao.create(
+                eq(EMAIL),
+                eq(USERNAME),
+                eq(FIRSTNAME),
+                eq(LASTNAME),
+                eq(UNIVERSITY),
+                eq(CAREER),
+                eq(null),
+                eq(PASSWORD),
+                eq(LOCALE),
+                any(Boolean.class)
+            )
+        ).thenReturn(USER);
+        when(
+            tokenService.userTokenControl(USER)
+        ).thenReturn(TOKEN_VALUE);
+
+        userService.createUser(
+            EMAIL,
+            USERNAME,
+            FIRSTNAME,
+            LASTNAME,
+            UNI_ID,
+            CAREER_ID,
+            Arrays.asList(INTEREST_ID, INTEREST_ID, null, NEW_IMAGE_ID, NEW_IMAGE_ID),
+            PASSWORD,
+            LOCALE
+        );
+
+        verify(interestService).createUserInterests(eq(List.of(INTEREST_ID, NEW_IMAGE_ID)), eq(USER_ID));
+    }
+
+    @Test
+    public void testCreateUserSendsValidationEmailAfterCommit(){
+        when(
+            universityService.findById(eq(UNI_ID))
+        ).thenReturn(Optional.of(UNIVERSITY));
+        when(
+            careerService.findCareerById(eq(CAREER_ID))
+        ).thenReturn(Optional.of(CAREER));
+        when(
+            passwordEncoder.encode(eq(PASSWORD))
+        ).thenReturn(PASSWORD);
+        when(
+            userDao.create(
+                eq(EMAIL),
+                eq(USERNAME),
+                eq(FIRSTNAME),
+                eq(LASTNAME),
+                eq(UNIVERSITY),
+                eq(CAREER),
+                eq(null),
+                eq(PASSWORD),
+                eq(LOCALE),
+                any(Boolean.class)
+            )
+        ).thenReturn(USER);
+        when(
+            tokenService.userTokenControl(USER)
+        ).thenReturn(TOKEN_VALUE);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userService.createUser(
+                EMAIL,
+                USERNAME,
+                FIRSTNAME,
+                LASTNAME,
+                UNI_ID,
+                CAREER_ID,
+                List.of(INTEREST_ID),
+                PASSWORD,
+                LOCALE
+            );
+
+            verify(emailService, never()).sendValidationEmail(any(), any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendValidationEmail(any(), eq(TOKEN_VALUE));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
     @Test(expected = InvalidReferenceException.class)
     public void testCreateUserMissingCareer(){
         when(

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import java.util.*;
 
 @Service
@@ -57,12 +59,32 @@ public class UserServiceImpl implements UserService {
 
         User user = userDao.create(email, username, firstname, lastname, university, career, null, passwordEncoder.encode(password), Locale.of(locale.getLanguage()), false);
         LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
-        interestService.createUserInterests(interestIds, user.getId());
+        final List<Long> uniqueInterestIds = interestIds == null
+                ? List.of()
+                : interestIds.stream().filter(Objects::nonNull).distinct().toList();
+        interestService.createUserInterests(uniqueInterestIds, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
         String rawToken = tokenService.userTokenControl(user);
-        emailService.sendValidationEmail(new EmailUser(user), rawToken);
-        LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
+        sendValidationEmailAfterCommit(user, rawToken);
         return user;
+    }
+
+    private void sendValidationEmailAfterCommit(final User user, final String rawToken) {
+        final EmailUser emailUser = new EmailUser(user);
+        final Runnable sendEmail = () -> {
+            emailService.sendValidationEmail(emailUser, rawToken);
+            LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
+        };
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            sendEmail.run();
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                sendEmail.run();
+            }
+        });
     }
 
 

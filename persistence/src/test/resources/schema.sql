@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS users(
     username VARCHAR(50) NOT NULL UNIQUE,
     university BIGINT NOT NULL,
     career_id BIGINT NOT NULL,
-    profile_picture_id BIGINT NOT NULL,
+    profile_picture_id BIGINT,
     password VARCHAR(100) DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK' NOT NULL,
     language VARCHAR(2) DEFAULT 'en' NOT NULL,
     roles VARCHAR(50) DEFAULT 'user' NOT NULL,
