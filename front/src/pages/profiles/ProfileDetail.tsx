@@ -41,7 +41,7 @@ export default function ProfileDetail() {
         enabled: activeTab === "interests",
     });
 
-    const updateSearch = (updates: Record<string, string>) => {
+    const updateSearch = useCallback((updates: Record<string, string>) => {
         const next = new URLSearchParams(searchParams);
         Object.entries(updates).forEach(([key, value]) => {
             if (!value) {
@@ -50,8 +50,8 @@ export default function ProfileDetail() {
                 next.set(key, value);
             }
         });
-        setSearchParams(next, { replace: true });
-    };
+        setSearchParams(next);
+    }, [searchParams, setSearchParams]);
 
     const returnPathKey = `profile:return:${profileId}`;
     const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
@@ -79,13 +79,13 @@ export default function ProfileDetail() {
                     const next = new URLSearchParams(prev);
                     next.set('page', pageNumber);
                     return next;
-                }, { replace: true });
+                });
             } else {
                 setSearchParams((prev) => {
                     const next = new URLSearchParams(prev);
                     next.set("page", page.toString());
                     return next;
-                }, { replace: true });
+                });
             }
         },
         [setSearchParams]
@@ -176,7 +176,10 @@ export default function ProfileDetail() {
                                         created={profileEvents.created ?? emptyPage()}
                                         attending={profileEvents.attending ?? emptyPage()}
                                         finished={profileEvents.finished ?? emptyPage()}
-                                        onTabChange={(nextTab) => updateSearch({ eventsTab: nextTab })}
+                                        onTabChange={(nextTab) => updateSearch({
+                                            eventsTab: nextTab === "created" ? "" : nextTab,
+                                            page: "",
+                                        })}
                                         onCreatedPageChange={handlePageChange}
                                         onAttendingPageChange={handlePageChange}
                                         onFinishedPageChange={handlePageChange}
