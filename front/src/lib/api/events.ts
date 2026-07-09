@@ -2,6 +2,7 @@ import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import { getCareerByUrl, getCityByUrl, getUniversityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment, EventDetail, EventRating, ProfileEvent } from "@/types/event";
+import { parseApiDate } from "@/lib/utils/date";
 import { emptyPage, mapPageList, toPaged, type PageResult } from "@/types/pagination";
 
 interface EventLinks {
@@ -28,6 +29,12 @@ export interface EventDto {
     rating?: number | null;
     links?: EventLinks | null;
 }
+
+export const isEventFull = (attendeesCount?: number | null, attendeesLimit?: number | null): boolean =>
+    attendeesLimit ? (attendeesCount ?? 0) >= attendeesLimit : false;
+
+export const isEventFuture = (date?: string | null, time?: string | null): boolean =>
+    date ? parseApiDate(time ? `${date}T${time}` : date).getTime() > Date.now() : false;
 
 export interface EventSummary {
     id: number;
@@ -166,25 +173,6 @@ export const listEventRatings = async (
     return toPaged(response);
 };
 
-const getEventDateTime = (date?: string | null, time?: string | null): Date | null => {
-    if (!date) {
-        return null;
-    }
-    const eventDateTime = new Date(`${date}T${time || "00:00:00"}`);
-    return Number.isNaN(eventDateTime.getTime()) ? null : eventDateTime;
-};
-
-export const calculateEventIsFuture = (date?: string | null, time?: string | null): boolean => {
-    const eventDateTime = getEventDateTime(date, time);
-    return eventDateTime !== null && eventDateTime.getTime() > Date.now();
-};
-
-const calculateEventIsFull = (attendeesCount?: number | null, attendeesLimit?: number | null): boolean =>
-    typeof attendeesCount === "number" &&
-    typeof attendeesLimit === "number" &&
-    attendeesLimit > 0 &&
-    attendeesCount >= attendeesLimit;
-
 export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     id: dto.id,
     title: dto.title,
@@ -194,8 +182,8 @@ export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     address: dto.address ?? undefined,
     attendeesLimit: typeof dto.attendeesLimit === "number" ? dto.attendeesLimit : undefined,
     attendeesCount: typeof dto.attendeesCount === "number" ? dto.attendeesCount : undefined,
-    isFull: calculateEventIsFull(dto.attendeesCount, dto.attendeesLimit),
-    isFuture: calculateEventIsFuture(dto.date, dto.time),
+    isFull: isEventFull(dto.attendeesCount, dto.attendeesLimit),
+    isFuture: isEventFuture(dto.date, dto.time),
     flyerUrl: dto.links?.flyerUrl ?? undefined,
     imageUrl: dto.links?.flyerUrl ?? undefined,
 });
@@ -214,7 +202,7 @@ export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal
                 date: event.date ?? "",
                 attendeesLimit: typeof event.attendeesLimit === "number" ? event.attendeesLimit : undefined,
                 attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : undefined,
-                isFull: calculateEventIsFull(event.attendeesCount, event.attendeesLimit),
+                isFull: isEventFull(event.attendeesCount, event.attendeesLimit),
                 flyerImageUrl: event.links?.flyerUrl ?? undefined,
                 city: { name: city?.name ?? "" },
                 user: {
@@ -300,7 +288,7 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
         flyerImageUrl: event.links?.flyerUrl ?? null,
         attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : attendeesList.length,
         attendeesLimit: event.attendeesLimit ?? null,
-        isFuture: calculateEventIsFuture(event.date, event.time),
+        isFuture: isEventFuture(event.date, event.time),
         user: {
             id: creator?.id ?? 0,
             firstname: creator?.firstname ?? creator?.username ?? "—",

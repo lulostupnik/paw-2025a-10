@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -5,9 +6,10 @@ import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { deleteEvent } from "@/lib/api/events";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { getUserId } from "@/lib/auth/auth";
+import { parseApiDate } from "@/lib/utils/date";
 
 const formatDate = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -49,7 +51,7 @@ export default function EventDeletePage() {
             navigate("/events");
         } catch (err) {
             console.error("Failed to delete event", err);
-            setSubmitError(t("event.deleteWarning", { defaultValue: "Error al eliminar el evento." }));
+            setSubmitError(apiErrorMessage(err, t("event.deleteWarning", { defaultValue: "Error al eliminar el evento." })));
         } finally {
             setSubmitting(false);
         }

@@ -1,3 +1,4 @@
+import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
 import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -20,6 +21,13 @@ const initialForm: UniversityFormState = {
     city: "",
 };
 
+// Campo del ErrorDto de la API → campo del formulario.
+const API_FIELD_TO_FORM_FIELD: Record<string, keyof UniversityFormState> = {
+    name: "name",
+    abbreviation: "abbreviation",
+    cityId: "city",
+};
+
 const formatTitleCase = (value: string) =>
     value
         .split(" ")
@@ -36,6 +44,7 @@ export default function UniversityCreatePage() {
     const [selectedCity, setSelectedCity] = useState<string | null>(null);
     const [cityOpen, setCityOpen] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [serverErrors, setServerErrors] = useState<Partial<Record<keyof UniversityFormState, string>>>({});
     const [submitting, setSubmitting] = useState(false);
 
     const citiesQuery = useQuery({
@@ -61,7 +70,7 @@ export default function UniversityCreatePage() {
         [cities]
     );
 
-    const errors = useMemo(
+    const clientErrors = useMemo(
         () => ({
             name: form.name.trim() ? "" : t("NotNull.createUniversity.name", { defaultValue: "Campo obligatorio." }),
             abbreviation: form.abbreviation.trim()
@@ -76,10 +85,20 @@ export default function UniversityCreatePage() {
         [form, t, resolveCityId]
     );
 
+    const errors = useMemo(
+        () => ({
+            name: clientErrors.name || serverErrors.name || "",
+            abbreviation: clientErrors.abbreviation || serverErrors.abbreviation || "",
+            city: clientErrors.city || serverErrors.city || "",
+        }),
+        [clientErrors, serverErrors]
+    );
+
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setTouched({ name: true, abbreviation: true, city: true });
-        if (errors.name || errors.abbreviation || errors.city) {
+        setServerErrors({});
+        if (clientErrors.name || clientErrors.abbreviation || clientErrors.city) {
             return;
         }
         const cityId = resolveCityId(form.city);
@@ -96,7 +115,18 @@ export default function UniversityCreatePage() {
             .then((created) => navigate(`/universities/${created.id}`))
             .catch((error) => {
                 console.error("Failed to create university", error);
-                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                const nextServerErrors: Partial<Record<keyof UniversityFormState, string>> = {};
+                for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
+                    const formField = API_FIELD_TO_FORM_FIELD[apiField];
+                    if (formField) {
+                        nextServerErrors[formField] = message;
+                    }
+                }
+                if (Object.keys(nextServerErrors).length > 0) {
+                    setServerErrors(nextServerErrors);
+                } else {
+                    setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
+                }
             })
             .finally(() => setSubmitting(false));
     };

@@ -1,15 +1,15 @@
 package ar.edu.itba.paw.webapp.validation;
 
-import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
+import ar.edu.itba.paw.webapp.form.DateRangeForm;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class DateRangeValidator implements ConstraintValidator<ValidDateRange, CreateJourneyForm> {
+public class DateRangeValidator implements ConstraintValidator<ValidDateRange, DateRangeForm> {
     @Override
     public void initialize(ValidDateRange constraintAnnotation) {}
 
     @Override
-    public boolean isValid(CreateJourneyForm form, ConstraintValidatorContext context) {
+    public boolean isValid(DateRangeForm form, ConstraintValidatorContext context) {
         if (form.getStartDate() == null || form.getEndDate() == null) {
             return true; // @NotNull should handle nulls
         }

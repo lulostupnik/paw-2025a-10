@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -117,7 +118,7 @@ export default function CityDetailPage() {
                                         navigate("/admin/cities");
                                     } catch (error) {
                                         console.error("Failed to delete city", error);
-                                        setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                                        setActionError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
                                         setActionSubmitting(false);
                                     }
                                 }}

@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
@@ -90,7 +91,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
             handleBack();
         } catch (error) {
             console.error("Failed to submit report", error);
-            setServerError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            setServerError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
         } finally {
             setSubmitting(false);
         }

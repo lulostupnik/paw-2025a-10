@@ -22,7 +22,7 @@ export default function TopBar() {
     const logged = isLoggedIn();
     const username = getUsername();
     const profilePictureUrl = logged ? getProfilePictureUrl() : null;
-    const { t } = useI18n();
+    const { t, locale, setLocale } = useI18n();
     const [navOpen, setNavOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [avatarError, setAvatarError] = useState(false);
@@ -114,6 +114,14 @@ export default function TopBar() {
             </nav>
 
             <div className="top-bar__actions">
+                <Button
+                    size="sm"
+                    variant="ghost"
+                    aria-label={t("nav.language", { defaultValue: "Change language" })}
+                    onClick={() => setLocale(locale === "en" ? "es" : "en")}
+                >
+                    {locale === "en" ? "ES" : "EN"}
+                </Button>
                 {!logged ? (
                     <>
                         <Button size="sm" variant="ghost" onClick={() => nav("/login")}>

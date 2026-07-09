@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { setApiLocale } from "@/lib/api/client";
 import en from "./messages/en.json";
 import es from "./messages/es.json";
 
@@ -37,9 +38,18 @@ const formatTemplate = (template: string, values?: Record<string | number, strin
     }, template);
 };
 
+const LOCALE_STORAGE_KEY = "gotogether.locale";
+
 const detectInitialLocale = (preferred?: Locale): Locale => {
     if (preferred && isLocale(preferred)) {
         return preferred;
+    }
+
+    if (typeof localStorage !== "undefined") {
+        const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+        if (isLocale(stored)) {
+            return stored;
+        }
     }
 
     if (typeof navigator !== "undefined") {
@@ -65,6 +75,13 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
             setLocale(initialLocale);
         }
     }, [initialLocale, locale]);
+
+    useEffect(() => {
+        setApiLocale(locale);
+        if (typeof localStorage !== "undefined") {
+            localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+        }
+    }, [locale]);
 
     const value = useMemo<I18nContextValue>(() => {
         const dictionary = catalogs[locale];

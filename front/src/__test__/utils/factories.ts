@@ -27,7 +27,7 @@ export function createMockEvent(overrides: Partial<MockEventDto> = {}): MockEven
         id: 1,
         title: "Test Event",
         description: "A test event description",
-        date: "2027-06-15",
+        date: "2030-06-15",
         time: "18:00",
         address: "123 Test Street",
         attendeesLimit: 50,

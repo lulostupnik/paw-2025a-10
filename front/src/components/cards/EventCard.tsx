@@ -86,7 +86,6 @@ export default function EventCard({ event }: EventCardProps) {
         >
             <BaseCard imageUrl={imageUrl} badge={event.isFull ? t("events.card.status.full") : undefined}>
                 <h3 className="listing-card__title">{event.title}</h3>
-                <p className="listing-card__subtitle">{locationLabel}</p>
                 {event.description && <p className="listing-card__description">{event.description}</p>}
                 <div className="listing-card__meta">
                     <CardMetaRow icon={<ClockIcon />} label={t("events.card.date")} value={`${dateLabel} • ${timeLabel}`} />

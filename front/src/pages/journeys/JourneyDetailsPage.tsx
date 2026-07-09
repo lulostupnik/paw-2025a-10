@@ -1,8 +1,9 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
-import { getUserId, isAdmin } from "@/lib/auth/auth";
+import { getUserId, getUsername, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
 import Pagination from "@/components/listing/Pagination";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
@@ -16,6 +17,7 @@ import LoginRequiredModal from "@/components/LoginRequiredModal";
 import NotFoundPage from "@/pages/errors/NotFoundPage";
 import type { JourneyComment, JourneyEvent, JourneyTip } from "@/types/journey";
 import type { ProfileInterest } from "@/types/profile";
+import { parseApiDate } from "@/lib/utils/date";
 
 const TIPS_PAGE_PARAM = "tipsPage";
 const COMMENTS_PAGE_PARAM = "commentsPage";
@@ -28,7 +30,7 @@ const parsePageParam = (value: string | null) => {
 };
 
 const formatDate = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -36,7 +38,7 @@ const formatDate = (value: string, locale: string) => {
 };
 
 const formatDateTime = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -118,6 +120,7 @@ export default function JourneyDetailPage() {
 
     const isOwner = data?.user?.id === getUserId();
     const admin = isAdmin();
+    const currentUsername = getUsername();
 
     const interestsPageSize = 8;
     const tipsPageSize = TIPS_PAGE_SIZE;
@@ -471,7 +474,7 @@ export default function JourneyDetailPage() {
                 refetch();
             } catch (err) {
                 console.error("Failed to submit journey response", err);
-                setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setReplyError(apiErrorMessage(err, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             } finally {
                 setReplySubmitting(false);
             }
@@ -1109,7 +1112,7 @@ export default function JourneyDetailPage() {
                                                                             <span>{t("comment.report")}</span>
                                                                         </button>
                                                                     }
-                                                                    {admin && (
+                                                                    {(admin || response.user.username === currentUsername) && (
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => handleDeleteComment(response.id)}

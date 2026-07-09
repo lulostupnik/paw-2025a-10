@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -111,7 +112,7 @@ export default function JourneyTipEditPage() {
             navigate(tipsPage ? `/journeys/${journeyId}?tipsPage=${tipsPage}` : `/journeys/${journeyId}`);
         } catch (err) {
             console.error("Failed to update tip", err);
-            setSubmitError(t("journey.edit.error", { defaultValue: "No se pudo actualizar el consejo." }));
+            setSubmitError(apiErrorMessage(err, t("journey.edit.error", { defaultValue: "No se pudo actualizar el consejo." })));
         } finally {
             setSubmitting(false);
         }

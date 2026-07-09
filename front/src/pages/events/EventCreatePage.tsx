@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { useI18n } from "@/lib/i18n";
 import { createEvent, updateEventFlyer } from "@/lib/api/events";
+import { apiFieldErrors } from "@/lib/api/client";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -30,6 +31,17 @@ interface FormState {
 type FormField = "name" | "city" | "date" | "time" | "description" | "address" | "participantLimit" | "flyer";
 type FormErrors = Partial<Record<FormField, string>>;
 type TouchedState = Partial<Record<FormField, boolean>>;
+
+// Campo del ErrorDto de la API → campo del formulario.
+const API_FIELD_TO_FORM_FIELD: Record<string, FormField> = {
+    title: "name",
+    cityId: "city",
+    date: "date",
+    time: "time",
+    description: "description",
+    address: "address",
+    attendeesLimit: "participantLimit",
+};
 
 const INITIAL_FORM: FormState = {
     name: "",
@@ -314,7 +326,18 @@ export default function EventCreatePage() {
             navigate(`/events/${eventResponse.id}`);
         } catch (error) {
             console.error("Failed to create event", error);
-            setSubmitError(resolveSubmitError(error));
+            const serverErrors: FormErrors = {};
+            for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
+                const formField = API_FIELD_TO_FORM_FIELD[apiField];
+                if (formField) {
+                    serverErrors[formField] = message;
+                }
+            }
+            if (Object.keys(serverErrors).length > 0) {
+                setErrors((prev) => ({ ...prev, ...serverErrors }));
+            } else {
+                setSubmitError(resolveSubmitError(error));
+            }
         } finally {
             setSubmitting(false);
         }

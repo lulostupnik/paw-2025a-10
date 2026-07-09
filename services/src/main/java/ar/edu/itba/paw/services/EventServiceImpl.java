@@ -448,6 +448,10 @@ public class EventServiceImpl implements EventService {
 
         City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
 
+        if (attendeesLimit != null && currentEvent.getAttendeesCount() > attendeesLimit) {
+            throw new AttendeesLimitBelowCurrentException(eventId);
+        }
+
         currentEvent.setTitle(title);
         currentEvent.setDescription(description);
         currentEvent.setTime(time);
@@ -508,6 +512,16 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
+    public void patchEventResponse(final long eventId, final long responseId, final Boolean deleted, final String deletionMessage) {
+        LOGGER.debug("Patching event response {} for event {}", responseId, eventId);
+
+        if (Boolean.TRUE.equals(deleted)) {
+            deleteEventResponse(eventId, responseId, deletionMessage);
+        }
+    }
+
+    @Override
+    @Transactional
     public void deleteEventResponse(final long eventId, final long responseId, final String message) {
         LOGGER.debug("Deleting event response {} for event {}", responseId, eventId);
         EventResponse eventResponse = findEventResponseById(eventId, responseId)
@@ -528,6 +542,13 @@ public class EventServiceImpl implements EventService {
     public Optional<EventResponse> findEventResponseById(final long id){
         LOGGER.debug("Getting event response by id {}", id);
         return eventResponseDao.findById(id);
+    }
+
+    @Override
+    public boolean isEventResponseOwnedByUser(final long eventId, final long responseId, final long userId) {
+        LOGGER.debug("Checking if response {} for event {} is owned by user {}", responseId, eventId, userId);
+        Optional<EventResponse> response = findEventResponseById(eventId, responseId);
+        return response.isPresent() && response.get().getUser().getId() == userId;
     }
 
     @Override

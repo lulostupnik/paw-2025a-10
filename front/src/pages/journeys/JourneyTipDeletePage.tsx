@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -5,11 +6,12 @@ import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { deleteJourneyTip, getJourneyTip, listJourneyTips } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { parseApiDate } from "@/lib/utils/date";
 
 const TIPS_PAGE_SIZE = 4;
 
 const formatDate = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -120,7 +122,7 @@ export default function JourneyTipDeletePage() {
             navigate(destinationPage > 1 ? `/journeys/${journeyId}?tipsPage=${destinationPage}` : `/journeys/${journeyId}`);
         } catch (err) {
             console.error("Failed to delete tip", err);
-            setSubmitError(t("tip.deleteWarning", { defaultValue: "No se pudo eliminar el consejo." }));
+            setSubmitError(apiErrorMessage(err, t("tip.deleteWarning", { defaultValue: "No se pudo eliminar el consejo." })));
         } finally {
             setSubmitting(false);
         }

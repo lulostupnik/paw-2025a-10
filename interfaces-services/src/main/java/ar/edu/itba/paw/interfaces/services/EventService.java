@@ -56,9 +56,11 @@ public interface EventService {
     EventResponse createEventResponse(long userId, long eventId, String message);
     void deleteEventResponse(EventResponse eventResponse, String message);
     void deleteEventResponse(long eventId, long responseId, String message);
+    void patchEventResponse(long eventId, long responseId, Boolean deleted, String deletionMessage);
     Page<EventResponse> findEventResponses(long eventId, PageParams pageParams);
     Optional<EventResponse> findEventResponseById(long id);
     Optional<EventResponse> findEventResponseById(long eventId, long responseId);
+    boolean isEventResponseOwnedByUser(long eventId, long responseId, long userId);
 
     void sendEventReminders();
 

@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,9 +15,10 @@ import { useAuthGate } from "@/hooks/useAuthGate";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import { getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment } from "@/types/event";
+import { parseApiDate } from "@/lib/utils/date";
 
 const formatDate = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -24,7 +26,7 @@ const formatDate = (value: string, locale: string) => {
 };
 
 const formatDateTime = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -408,7 +410,7 @@ export default function EventDetailPage() {
                 queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
             } catch (error) {
                 console.error("Failed to submit rating", error);
-                setRatingError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setRatingError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             } finally {
                 setRatingSubmitting(false);
             }
@@ -429,7 +431,7 @@ export default function EventDetailPage() {
                 await queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
             } catch (error) {
                 console.error("Failed to delete rating", error);
-                setRatingError(t("event.rating.delete.error", { defaultValue: "We couldn't remove your rating." }));
+                setRatingError(apiErrorMessage(error, t("event.rating.delete.error", { defaultValue: "We couldn't remove your rating." })));
             } finally {
                 setRatingSubmitting(false);
             }
@@ -470,7 +472,7 @@ export default function EventDetailPage() {
                 ]);
             } catch (error) {
                 console.error("Failed to submit event response", error);
-                setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setReplyError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             } finally {
                 setReplySubmitting(false);
             }
@@ -1011,7 +1013,7 @@ return (
                                                                                     </svg>
                                                                                     <span>{t("comment.report")}</span>
                                                                                 </Link>
-                                                                                    {admin && (
+                                                                                    {(admin || response.user.username === username) && (
                                                                                         <Link
                                                                                             to={`/events/reply/${response.id}/delete?eventId=${id}`}
                                                                                             style={{

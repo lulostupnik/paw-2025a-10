@@ -14,7 +14,7 @@ export interface CityDto {
 
 export interface CityPayload {
     name: string;
-    /** Id of the country resource (bodies reference related resources by id, like menumate/vitae). */
+    /** Id of the country resource. */
     countryId: number;
 }
 

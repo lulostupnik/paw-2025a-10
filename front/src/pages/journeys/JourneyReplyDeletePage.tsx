@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -5,6 +6,8 @@ import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { deleteJourneyResponse, getJourneyResponse, getJourneyResponses, getUserByUrl } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { parseApiDate } from "@/lib/utils/date";
+import { isAdmin } from "@/lib/auth/auth";
 
 const COMMENTS_PAGE_SIZE = 4;
 
@@ -14,7 +17,7 @@ const parsePageParam = (value: string | null) => {
 };
 
 const formatDateTime = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }
@@ -151,7 +154,7 @@ export default function JourneyReplyDeletePage() {
             );
         } catch (err) {
             console.error("Failed to delete journey response", err);
-            setSubmitError(t("journeyResponse.deleteWarning", { defaultValue: "Error al eliminar el comentario." }));
+            setSubmitError(apiErrorMessage(err, t("journeyResponse.deleteWarning", { defaultValue: "Error al eliminar el comentario." })));
         } finally {
             setSubmitting(false);
         }
@@ -217,6 +220,7 @@ export default function JourneyReplyDeletePage() {
                                     <p>{t("journeyResponse.deleteWarning")}</p>
                                 </div>
 
+                                {isAdmin() && (
                                 <div className="form-group">
                                     <label className="form-label" htmlFor="journey-reply-delete-message">
                                         {t("delete.reason.label")}
@@ -230,6 +234,7 @@ export default function JourneyReplyDeletePage() {
                                         rows={4}
                                     />
                                 </div>
+                                )}
 
                                 {submitError && <p className="error-message">{submitError}</p>}
 

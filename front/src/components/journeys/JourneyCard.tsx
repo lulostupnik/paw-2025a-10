@@ -3,13 +3,14 @@ import { useMemo } from "react";
 import type { JourneySummary } from "@/types/journey";
 import { useI18n } from "@/lib/i18n";
 import { pushToNavigationStack } from "@/lib/utils/navigationStack";
+import { parseApiDate } from "@/lib/utils/date";
 
 interface JourneyCardProps {
     journey: JourneySummary;
 }
 
 const formatDate = (value: string, locale: string) => {
-    const date = new Date(value);
+    const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
         return value;
     }

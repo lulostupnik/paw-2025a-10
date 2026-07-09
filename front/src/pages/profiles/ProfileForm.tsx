@@ -10,6 +10,7 @@ import { listUniversities } from "@/lib/api/universities";
 import { emptyPage } from "@/types/pagination";
 import { useToast } from "@/components/ui/ToastProvider";
 import { sanitizeInternalPath } from "@/lib/utils/internalPath";
+import { apiErrorMessage } from "@/lib/api/client";
 
 interface ProfileFormState {
     firstName: string;
@@ -102,9 +103,12 @@ export default function ProfileForm() {
             navigate(returnPath ?? fallbackPath, { replace: true });
         } catch (err) {
             setSubmitError(
-                err instanceof Error
-                    ? err.message
-                    : t("admin.dashboard.error", { defaultValue: "Error guardando los cambios." })
+                apiErrorMessage(
+                    err,
+                    err instanceof Error
+                        ? err.message
+                        : t("admin.dashboard.error", { defaultValue: "Error guardando los cambios." })
+                )
             );
         }
     };

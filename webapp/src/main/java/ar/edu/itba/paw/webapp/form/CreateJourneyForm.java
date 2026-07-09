@@ -9,7 +9,7 @@ import ar.edu.itba.paw.webapp.validation.ValidDateRange;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @ValidDateRange
-public class CreateJourneyForm {
+public class CreateJourneyForm implements DateRangeForm {
 
     @NotNull
     @FutureDate

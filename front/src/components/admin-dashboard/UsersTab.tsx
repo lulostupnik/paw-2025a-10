@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useEffect, useId, useState, type MouseEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -221,7 +222,7 @@ export default function UsersTab({
                                         closeModal();
                                     } catch (error) {
                                         console.error("Failed to update user status", error);
-                                        setActionError(t("admin.dashboard.error", { defaultValue: "No se pudieron cargar los datos." }));
+                                        setActionError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "No se pudieron cargar los datos." })));
                                         setActionSubmitting(false);
                                     }
                                 }}

@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -112,7 +113,7 @@ export default function CareerDetailPage() {
                                         navigate("/admin/careers");
                                     } catch (error) {
                                         console.error("Failed to delete career", error);
-                                        setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                                        setActionError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
                                         setActionSubmitting(false);
                                     }
                                 }}
