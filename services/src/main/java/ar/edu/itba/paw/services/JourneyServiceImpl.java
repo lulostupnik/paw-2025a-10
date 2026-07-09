@@ -208,6 +208,19 @@ public class JourneyServiceImpl implements JourneyService {
                                       final String university, final LocalDate startDate, final LocalDate endDate, final String interest,
                                       final boolean isPast, final boolean isUpcoming, final boolean isOngoing,
                                       final PageParams pageParams) {
+        return findJourneys(search, null, excludeUserId, destinationCityId, sortBy, direction, city, university, startDate, endDate, interest, isPast, isUpcoming, isOngoing, pageParams);
+    }
+
+    @Override
+    public Page<Journey> findJourneys(final String search, final Long recommendedForUser, final Long excludeUserId, final Long destinationCityId, final SortFieldJourney sortBy, final SortDirection direction, final String city,
+                                      final String university, final LocalDate startDate, final LocalDate endDate, final String interest,
+                                      final boolean isPast, final boolean isUpcoming, final boolean isOngoing,
+                                      final PageParams pageParams) {
+        if (recommendedForUser != null) {
+            validateRecommendedJourneysFilters(search, excludeUserId, destinationCityId, sortBy, direction, city, university, startDate, endDate, interest, isPast, isUpcoming, isOngoing);
+            return findRecommendedJourneys(recommendedForUser, pageParams);
+        }
+
         validateMutuallyExclusiveTimeFilters(isPast, isUpcoming, isOngoing);
 
         LocalDate adjustedStartDate = startDate;
@@ -241,6 +254,16 @@ public class JourneyServiceImpl implements JourneyService {
 
     }
 
+    private void validateRecommendedJourneysFilters(final String search, final Long excludeUserId, final Long destinationCityId, final SortFieldJourney sortBy, final SortDirection direction,
+                                                    final String city, final String university, final LocalDate startDate, final LocalDate endDate, final String interest,
+                                                    final boolean isPast, final boolean isUpcoming, final boolean isOngoing) {
+        if (city != null || university != null || startDate != null || endDate != null || interest != null
+                || isPast || isUpcoming || isOngoing || destinationCityId != null || excludeUserId != null
+                || search != null || sortBy != null || direction != null) {
+            throw new MutuallyExclusiveFiltersException("recommendedForUser");
+        }
+    }
+
 
 
     @Override
@@ -253,8 +276,7 @@ public class JourneyServiceImpl implements JourneyService {
         return user.hasActiveJourney();
     }
 
-    @Override
-    public Page<Journey> findRecommendedJourneys(final long userId, final PageParams pageParams) {
+    private Page<Journey> findRecommendedJourneys(final long userId, final PageParams pageParams) {
         LOGGER.debug("Getting recommended journeys for user {}", userId);
 
         final User user = userService.findUserById(userId).orElseThrow(() -> {

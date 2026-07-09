@@ -933,6 +933,26 @@ public class JourneyServiceImplTest {
     }
 
 
+    private Page<Journey> findRecommendedJourneys(final long userId, final PageParams pageParams) {
+        return journeyService.findJourneys(
+                null,
+                userId,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                false,
+                false,
+                false,
+                pageParams
+        );
+    }
+
     @Test
     public void testFindRecommendedJourneysWithActiveJourney(){
         when(
@@ -942,7 +962,7 @@ public class JourneyServiceImplTest {
             journeyDao.findRecommended(eq(EMAIL_2), eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> journeys = journeyService.findRecommendedJourneys(USER_ID_WITH_JOURNEY, PAGE_1_DEFAULT);
+        Page<Journey> journeys = findRecommendedJourneys(USER_ID_WITH_JOURNEY, PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
         assertEquals(JOURNEYS, journeys.getContent());
@@ -956,7 +976,7 @@ public class JourneyServiceImplTest {
             journeyDao.findByOriginCity(eq(CITY_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> journeys = journeyService.findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
+        Page<Journey> journeys = findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
         assertEquals(JOURNEYS, journeys.getContent());
@@ -973,7 +993,7 @@ public class JourneyServiceImplTest {
             journeyDao.findAll(eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        Page<Journey> journeys = journeyService.findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
+        Page<Journey> journeys = findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
         assertEquals(JOURNEYS, journeys.getContent());
@@ -984,11 +1004,32 @@ public class JourneyServiceImplTest {
             userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
+        findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
     }
     @Test(expected = InvalidPaginationParamsException.class)
     public void testFindRecommendedJourneysWrongLimit(){
-        journeyService.findRecommendedJourneys(USER_ID, new PageParams(1, 0));
+        findRecommendedJourneys(USER_ID, new PageParams(1, 0));
+    }
+
+    @Test(expected = MutuallyExclusiveFiltersException.class)
+    public void testFindRecommendedJourneysWithExclusiveFilter(){
+        journeyService.findJourneys(
+                DESCRIPTION,
+                USER_ID,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                false,
+                false,
+                false,
+                PAGE_1_DEFAULT
+        );
     }
 
     @Test

@@ -4,7 +4,6 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 public interface JourneyService {
@@ -20,7 +19,7 @@ public interface JourneyService {
 
     Page<Journey> findJourneys(String search, PageParams pageParams);
     Page<Journey> findJourneys(String search, Long excludeUserId, Long destinationCityId, SortFieldJourney sortBy, SortDirection direction, String city, String university, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isOngoing, PageParams pageParams);
-    Page<Journey> findRecommendedJourneys(long userId, PageParams pageParams);
+    Page<Journey> findJourneys(String search, Long recommendedForUser, Long excludeUserId, Long destinationCityId, SortFieldJourney sortBy, SortDirection direction, String city, String university, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isOngoing, PageParams pageParams);
     Optional<Journey> findJourneyById(long id);
 
     boolean existsByUserEmail(String email);
@@ -42,4 +41,3 @@ public interface JourneyService {
     Optional<Tip> findTipById(long journeyId, long tipId);
     boolean isTipOwnedByUser(long journeyId, long tipId, String email);
 }
-

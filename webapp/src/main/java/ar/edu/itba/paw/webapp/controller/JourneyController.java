@@ -8,7 +8,6 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Tip;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
-import ar.edu.itba.paw.models.exceptions.MutuallyExclusiveFiltersException;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
 import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
@@ -73,32 +72,6 @@ public class JourneyController {
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("8") int size
     ) {
-        if (recommendedForUser != null) {
-            validateRecommendedJourneysFilters(
-                    city,
-                    university,
-                    startDateStr,
-                    endDateStr,
-                    interest,
-                    upcoming,
-                    past,
-                    ongoing,
-                    destinationCity,
-                    excludeUser,
-                    search,
-                    sort,
-                    direction
-            );
-
-            final Page<Journey> recommendedJourneys = journeyService.findRecommendedJourneys(
-                    recommendedForUser,
-                    new PageParams(page, size)
-            );
-            final List<JourneyDto> journeyDtos = JourneyDto.fromJourneyCollection(uriInfo, recommendedJourneys.getContent());
-            final ResponseBuilder response = Response.ok(new GenericEntity<>(journeyDtos) {});
-            return PagingUtils.insertPaginationLinks(response, uriInfo, recommendedJourneys).build();
-        }
-
         final LocalDate startDate = DateUtils.parseDate(startDateStr);
         final LocalDate endDate = DateUtils.parseDate(endDateStr);
         final SortFieldJourney sortField = SortFieldJourney.from(sort);
@@ -106,6 +79,7 @@ public class JourneyController {
 
         final Page<Journey> journeys = journeyService.findJourneys(
                 search,
+                recommendedForUser,
                 excludeUser,
                 destinationCity,
                 sortField,
@@ -124,28 +98,6 @@ public class JourneyController {
         final List<JourneyDto> journeyDtos = JourneyDto.fromJourneyCollection(uriInfo, journeys.getContent());
         final ResponseBuilder response = Response.ok(new GenericEntity<>(journeyDtos) {});
         return PagingUtils.insertPaginationLinks(response, uriInfo, journeys).build();
-    }
-
-    private void validateRecommendedJourneysFilters(
-            final String city,
-            final String university,
-            final String startDateStr,
-            final String endDateStr,
-            final String interest,
-            final boolean upcoming,
-            final boolean past,
-            final boolean ongoing,
-            final Long destinationCity,
-            final Long excludeUser,
-            final String search,
-            final String sort,
-            final String direction
-    ) {
-        if (city != null || university != null || startDateStr != null || endDateStr != null || interest != null
-                || upcoming || past || ongoing || destinationCity != null || excludeUser != null
-                || search != null || sort != null || direction != null) {
-            throw new MutuallyExclusiveFiltersException("recommendedForUser");
-        }
     }
 
 
