@@ -53,6 +53,13 @@ public class AccessHelper {
         return true;
     }
 
+    public boolean canListUsers(final String search, final Boolean blocked) {
+        if (isAdmin()) {
+            return true;
+        }
+        return blocked == null && (search == null || search.isBlank());
+    }
+
     public boolean isUserEventOwner(long eventId){
         if (isAnonymous()) return false;
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

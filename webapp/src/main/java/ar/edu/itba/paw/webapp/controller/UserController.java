@@ -28,6 +28,7 @@ import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
 
@@ -55,13 +56,14 @@ public class UserController {
 
     @GET
     @Produces(GoTogetherMediaType.APPLICATION_USER_LIST)
+    @PreAuthorize("@accessHelper.canListUsers(#search, #blocked)")
     public Response listUsers(
             @QueryParam("attendingEvent") Long attendingEventId,
             @QueryParam("university") Long universityId,
             @QueryParam("career") Long careerId,
             @QueryParam("interest") Long interestId,
-            @QueryParam("search") String search,
-            @QueryParam("blocked") Boolean blocked,
+            @QueryParam("search") @P("search") String search,
+            @QueryParam("blocked") @P("blocked") Boolean blocked,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("10") int size
     ) {
