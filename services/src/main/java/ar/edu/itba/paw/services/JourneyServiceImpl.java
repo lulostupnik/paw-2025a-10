@@ -386,18 +386,18 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public void deleteJourneyResponse(final long journeyId, final long responseId, final String message) {
         LOGGER.debug("Deleting journey response {} for journey {}", responseId, journeyId);
-        JourneyResponse journeyResponse = findJourneyResponseById(journeyId, responseId).orElseThrow(() -> new JourneyResponseNotFoundException(journeyId, responseId));
+        findJourneyResponseById(journeyId, responseId).orElseThrow(() -> new JourneyResponseNotFoundException(journeyId, responseId));
+        deleteJourneyResponse(responseId, message);
+    }
 
-        User commentAuthor = journeyResponse.getUser();
+    @Override
+    @Transactional
+    public void patchJourneyResponse(final long journeyId, final long responseId, final Boolean deleted, final String deletionMessage) {
+        LOGGER.debug("Patching journey response {} for journey {}", responseId, journeyId);
 
-        emailService.sendJourneyCommentDeletionNotification(journeyResponse, new EmailJourney(journeyResponse.getJourney()), new EmailUser(commentAuthor), message);
-        LOGGER.info("Journey response deletion notification sent to user {}", commentAuthor.getEmail());
-
-        journeyResponse.setDeletionMessage(message);
-        LOGGER.info("Journey response deletion message updated: {}", message);
-
-        journeyResponse.setDeleted(true);
-        LOGGER.info("Journey response deleted: {}", responseId);
+        if (Boolean.TRUE.equals(deleted)) {
+            deleteJourneyResponse(journeyId, responseId, deletionMessage);
+        }
     }
 
 

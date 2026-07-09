@@ -50,6 +50,7 @@ import ar.edu.itba.paw.models.exceptions.InvalidDateException;
 import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
 import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
 import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
+import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.MutuallyExclusiveFiltersException;
 import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
@@ -1284,7 +1285,7 @@ public class JourneyServiceImplTest {
         assertEquals(DESCRIPTION, newReply.getDeletionMessage());
     }
     @Test
-    public void testDeleteJourneyJourneyResponseMissingJourney(){
+    public void testDeleteJourneyJourneyResponseMissing(){
         JourneyResponse newReply = new JourneyResponse(USER, JOURNEY, CAREER_NAME);
         when(
             replyDao.findById(eq(REPLY_ID))
@@ -1307,17 +1308,37 @@ public class JourneyServiceImplTest {
         assertTrue(newReply.isDeleted());
         assertEquals(DESCRIPTION, newReply.getDeletionMessage());
     }
-    @Test
+    @Test(expected = JourneyResponseNotFoundException.class)
     public void testDeleteJourneyJourneyResponseWithJourneyIDMissingJourney(){
-        JourneyResponse newReply = new JourneyResponse(USER, JOURNEY, CAREER_NAME);
         when(
             replyDao.findById(eq(REPLY_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
+        journeyService.deleteJourneyResponse(JOURNEY_ID, REPLY_ID, DESCRIPTION);
+    }
+    @Test
+    public void testPatchJourneyResponseDeletedTrue(){
+        JourneyResponse newReply = new JourneyResponse(USER, JOURNEY, CAREER_NAME);
+        when(
+            replyDao.findById(eq(REPLY_ID))
+        ).thenReturn(Optional.of(newReply));
 
-        assertFalse(newReply.isDeleted());
-        assertNull(newReply.getDeletionMessage());
+        journeyService.patchJourneyResponse(JOURNEY_ID, REPLY_ID, true, DESCRIPTION);
+
+        assertTrue(newReply.isDeleted());
+        assertEquals(DESCRIPTION, newReply.getDeletionMessage());
+    }
+    @Test
+    public void testPatchJourneyResponseDeletedFalseIsNoOp(){
+        journeyService.patchJourneyResponse(JOURNEY_ID, REPLY_ID, false, DESCRIPTION);
+
+        verify(replyDao, never()).findById(REPLY_ID);
+    }
+    @Test
+    public void testPatchJourneyResponseDeletedNullIsNoOp(){
+        journeyService.patchJourneyResponse(JOURNEY_ID, REPLY_ID, null, null);
+
+        verify(replyDao, never()).findById(REPLY_ID);
     }
 
     @Test

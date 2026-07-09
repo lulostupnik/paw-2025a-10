@@ -331,12 +331,12 @@ public class JourneyController {
     @PATCH
     @Path("/{journeyId}/responses/{responseId}")
     @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY_RESPONSE)
-    public Response deleteJourneyResponse(
+    public Response patchJourneyResponse(
             @PathParam("journeyId") final long journeyId,
             @PathParam("responseId") final long responseId,
             @Valid @NotNull final PatchDeletionForm form
     ) {
-        journeyService.deleteJourneyResponse(journeyId, responseId, form.getDeletionMessage());
+        journeyService.patchJourneyResponse(journeyId, responseId, form.getDeleted(), form.getDeletionMessage());
         return Response.noContent().build();
     }
 

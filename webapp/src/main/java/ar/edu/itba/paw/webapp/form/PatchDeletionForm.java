@@ -1,11 +1,13 @@
 package ar.edu.itba.paw.webapp.form;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class PatchDeletionForm {
 
     @NotNull
+    @AssertTrue
     private Boolean deleted;
 
     @Size(max = 1000)

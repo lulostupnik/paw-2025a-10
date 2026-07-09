@@ -491,6 +491,16 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
+    public void patchEventResponse(final long eventId, final long responseId, final Boolean deleted, final String deletionMessage) {
+        LOGGER.debug("Patching event response {} for event {}", responseId, eventId);
+
+        if (Boolean.TRUE.equals(deleted)) {
+            deleteEventResponse(eventId, responseId, deletionMessage);
+        }
+    }
+
+    @Override
+    @Transactional
     public void deleteEventResponse(final long eventId, final long responseId, final String message) {
         LOGGER.debug("Deleting event response {} for event {}", responseId, eventId);
         EventResponse eventResponse = findEventResponseById(eventId, responseId)

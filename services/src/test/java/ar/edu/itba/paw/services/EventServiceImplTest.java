@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -454,7 +455,7 @@ public class EventServiceImplTest {
             userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
-            attendanceDao.exists(eq(USER), eq(EVENT_FULL))
+            attendanceDao.exists(eq(USER), eq(EVENT))
         ).thenReturn(false);
         when(
             attendanceDao.create(eq(USER), eq(EVENT))
@@ -473,7 +474,7 @@ public class EventServiceImplTest {
             userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
-            attendanceDao.exists(eq(USER), eq(EVENT_FULL))
+            attendanceDao.exists(eq(USER), eq(EVENT_NO_LIMIT))
         ).thenReturn(false);
         when(
             attendanceDao.create(eq(USER), eq(EVENT_NO_LIMIT))
@@ -1314,6 +1315,30 @@ public class EventServiceImplTest {
 
         eventService.deleteEventResponse(EVENT_ID, RESPONSE_ID, DESCRIPTION);
     }
+    @Test
+    public void testPatchEventResponseDeletedTrue(){
+        EventResponse resp = new EventResponse(USER, EVENT, ADDRESS);
+        when(
+            replyDao.findById(eq(RESPONSE_ID))
+        ).thenReturn(Optional.of(resp));
+
+        eventService.patchEventResponse(EVENT_ID, RESPONSE_ID, true, DESCRIPTION);
+
+        assertTrue(resp.isDeleted());
+        assertEquals(DESCRIPTION, resp.getDeletionMessage());
+    }
+    @Test
+    public void testPatchEventResponseDeletedFalseIsNoOp(){
+        eventService.patchEventResponse(EVENT_ID, RESPONSE_ID, false, DESCRIPTION);
+
+        verify(replyDao, never()).findById(RESPONSE_ID);
+    }
+    @Test
+    public void testPatchEventResponseDeletedNullIsNoOp(){
+        eventService.patchEventResponse(EVENT_ID, RESPONSE_ID, null, null);
+
+        verify(replyDao, never()).findById(RESPONSE_ID);
+    }
 
     @Test
     public void testFindEventResponses(){
@@ -1405,6 +1430,59 @@ public class EventServiceImplTest {
         assertEquals(1, events);
     }
 
+    @Test
+    public void testSendEventRemindersPaginatesEvents(){
+        when(
+            eventDao.findAllBetweenDates(any(LocalDate.class), any(LocalDate.class), any(PageParams.class))
+        ).thenReturn(new Page<>(EVENTS, 1, 1, 2))
+        .thenReturn(new Page<>(EVENTS, 2, 1, 2));
+        when(
+            attendanceDao.findAttendeesByEventId(eq(EVENT_ID), any(PageParams.class))
+        ).thenReturn(new Page<>(USERS, 1, 1, 1));
+
+        eventService.sendEventReminders();
+
+        verify(eventDao, times(2)).findAllBetweenDates(any(LocalDate.class), any(LocalDate.class), any(PageParams.class));
+        verify(emailService, times(2)).sendEventReminderNotification(any(), any());
+    }
+    @Test
+    public void testSendEventRemindersPaginatesAttendees(){
+        when(
+            eventDao.findAllBetweenDates(any(LocalDate.class), any(LocalDate.class), any(PageParams.class))
+        ).thenReturn(new Page<>(EVENTS, 1, 1, 1));
+        when(
+            attendanceDao.findAttendeesByEventId(eq(EVENT_ID), any(PageParams.class))
+        ).thenReturn(new Page<>(USERS, 1, 1, 2))
+        .thenReturn(new Page<>(USERS, 2, 1, 2));
+
+        eventService.sendEventReminders();
+
+        verify(emailService, times(2)).sendEventReminderNotification(any(), any());
+    }
+    @Test
+    public void testSendEventRemindersNoAttendees(){
+        when(
+            eventDao.findAllBetweenDates(any(LocalDate.class), any(LocalDate.class), any(PageParams.class))
+        ).thenReturn(new Page<>(EVENTS, 1, 1, 1));
+        when(
+            attendanceDao.findAttendeesByEventId(eq(EVENT_ID), any(PageParams.class))
+        ).thenReturn(new Page<>(List.of(), 1, 1, 0));
+
+        eventService.sendEventReminders();
+
+        verify(emailService, never()).sendEventReminderNotification(any(), any());
+    }
+    @Test
+    public void testSendEventRemindersNoEvents(){
+        when(
+            eventDao.findAllBetweenDates(any(LocalDate.class), any(LocalDate.class), any(PageParams.class))
+        ).thenReturn(new Page<>(List.of(), 1, 1, 0));
+
+        eventService.sendEventReminders();
+
+        verify(attendanceDao, never()).findAttendeesByEventId(eq(EVENT_ID), any(PageParams.class));
+        verify(emailService, never()).sendEventReminderNotification(any(), any());
+    }
 
     @Test
     public void testGetEventFlyer(){
