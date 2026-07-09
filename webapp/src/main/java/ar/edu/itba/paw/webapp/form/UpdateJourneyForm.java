@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @ValidDateRange
-public class UpdateJourneyForm {
+public class UpdateJourneyForm implements DateRangeForm {
 
     @NotNull
     @FutureDate

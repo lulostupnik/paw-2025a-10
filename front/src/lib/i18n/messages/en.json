@@ -1471,7 +1471,6 @@
   "city.delete.confirm": "Confirm",
   "city.delete.cancel": "Cancel",
   "users.back": "Go Back",
-  "CurrentAttendees.editEventForm": "The maximum number of attendees cannot be reduced because more people are already registered than the entered number.",
   "InterestNotExists.createInterestForm.name": "This interest already exists",
   "CareerNotExists.createCareerForm.name": "This career already exists",
   "UniversityNotExists.createUniversityForm.name": "This university already exists",

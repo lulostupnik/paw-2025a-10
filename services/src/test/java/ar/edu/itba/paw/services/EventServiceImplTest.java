@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,6 +51,7 @@ import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.models.exceptions.AttendeesLimitBelowCurrentException;
 import ar.edu.itba.paw.models.exceptions.EventAttendanceNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventIsFullException;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
@@ -1176,6 +1178,28 @@ public class EventServiceImplTest {
         assertEquals("TITLE", event.getTitle());
         assertEquals("ADDRESS", event.getAddress());
         assertNull(event.getAttendeesLimit());
+    }
+    @Test(expected = AttendeesLimitBelowCurrentException.class)
+    public void testUpdateEventAttendeesLimitBelowCurrent(){
+        Event fullEvent = mock(Event.class);
+        when(fullEvent.getAttendeesCount()).thenReturn(5);
+        when(
+            eventDao.findById(eq(EVENT_ID))
+        ).thenReturn(Optional.of(fullEvent));
+        when(
+            cityService.findCityById(eq(CITY_ID))
+        ).thenReturn(Optional.of(CITY));
+
+        eventService.updateEvent(
+            EVENT_ID,
+            CITY_ID,
+            EVENT_DATE,
+            DESCRIPTION,
+            TITLE,
+            TIME,
+            ADDRESS,
+            1
+        );
     }
     @Test(expected = InvalidReferenceException.class)
     public void testUpdateEventMissingCity(){

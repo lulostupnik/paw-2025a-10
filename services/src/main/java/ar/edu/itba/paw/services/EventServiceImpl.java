@@ -431,6 +431,10 @@ public class EventServiceImpl implements EventService {
 
         City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
 
+        if (attendeesLimit != null && currentEvent.getAttendeesCount() > attendeesLimit) {
+            throw new AttendeesLimitBelowCurrentException(eventId);
+        }
+
         currentEvent.setTitle(title);
         currentEvent.setDescription(description);
         currentEvent.setTime(time);

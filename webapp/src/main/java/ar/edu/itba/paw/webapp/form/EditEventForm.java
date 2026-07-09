@@ -7,11 +7,7 @@ import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@CurrentAttendees
 public class EditEventForm {
-
-    @PositiveOrZero
-    private long id;
 
     @NotNull
     @ExistingCity
@@ -63,10 +59,6 @@ public class EditEventForm {
         return description;
     }
 
-    public long getId() {
-        return id;
-    }
-
     public void setDescription(String description) {
         this.description = description;
     }
@@ -93,9 +85,6 @@ public class EditEventForm {
     }
     public void setAttendeesLimit(Integer attendeesLimit) {
         this.attendeesLimit = attendeesLimit;
-    }
-    public void setId(long id) {
-        this.id = id;
     }
     @Override
     public String toString(){
