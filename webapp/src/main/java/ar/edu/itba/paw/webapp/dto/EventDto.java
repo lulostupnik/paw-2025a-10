@@ -26,8 +26,6 @@ public class EventDto {
     private Integer attendeesLimit;
     private int attendeesCount;
     private Double rating;
-    private boolean isFull;
-    private boolean isFuture;
 
     private Links links;
 
@@ -42,8 +40,6 @@ public class EventDto {
         dto.attendeesLimit = event.getAttendeesLimit();
         dto.attendeesCount = event.getAttendeesCount();
         dto.rating = event.getRating();
-        dto.isFull = event.getFull();
-        dto.isFuture = event.getIsFuture();
 
         final Links links = new Links();
         links.selfUrl = UriUtils.getEventUri(uriInfo, event.getId());
@@ -72,8 +68,6 @@ public class EventDto {
     public Integer getAttendeesLimit() { return attendeesLimit; }
     public int getAttendeesCount() { return attendeesCount; }
     public Double getRating() { return rating; }
-    public boolean isFull() { return isFull; }
-    public boolean isFuture() { return isFuture; }
     public Links getLinks() { return links; }
 
     @XmlAccessorType(XmlAccessType.FIELD)

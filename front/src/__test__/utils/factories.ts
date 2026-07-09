@@ -10,8 +10,6 @@ export interface MockEventDto {
     attendeesLimit?: number | null;
     attendeesCount?: number | null;
     rating?: number | null;
-    isFull?: boolean;
-    isFuture?: boolean;
     links?: {
         selfUrl?: string | null;
         creatorUrl?: string | null;
@@ -29,14 +27,12 @@ export function createMockEvent(overrides: Partial<MockEventDto> = {}): MockEven
         id: 1,
         title: "Test Event",
         description: "A test event description",
-        date: "2026-06-15",
+        date: "2030-06-15",
         time: "18:00",
         address: "123 Test Street",
         attendeesLimit: 50,
         attendeesCount: 10,
         rating: 4.5,
-        isFull: false,
-        isFuture: true,
         links: {
             selfUrl: `${BASE_URL}/events/1`,
             creatorUrl: `${BASE_URL}/users/1`,

@@ -186,7 +186,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint((request, response, ex) -> {
-                    response.addHeader("WWW-Authenticate", "Basic realm=\"GoTogether\", Bearer realm=\"GoTogether\"");
                     writeErrorResponse(response, Response.Status.UNAUTHORIZED, ex.getMessage());
                 })
 

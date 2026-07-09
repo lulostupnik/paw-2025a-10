@@ -28,7 +28,7 @@ describe("useEvents", () => {
         expect(event.id).toBe(1);
         expect(event.title).toBe("Test Event");
         expect(event.description).toBe("A test event description");
-        expect(event.date).toBe("2026-06-15");
+        expect(event.date).toBe("2030-06-15");
         expect(event.time).toBe("18:00");
         expect(event.attendeesCount).toBe(10);
         expect(event.attendeesLimit).toBe(50);
