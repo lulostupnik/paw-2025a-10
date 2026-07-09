@@ -26,8 +26,6 @@ export interface EventDto {
     attendeesLimit?: number | null;
     attendeesCount?: number | null;
     rating?: number | null;
-    isFull?: boolean;
-    isFuture?: boolean;
     links?: EventLinks | null;
 }
 
@@ -167,6 +165,25 @@ export const listEventRatings = async (
     return toPaged(response);
 };
 
+const getEventDateTime = (date?: string | null, time?: string | null): Date | null => {
+    if (!date) {
+        return null;
+    }
+    const eventDateTime = new Date(`${date}T${time || "00:00:00"}`);
+    return Number.isNaN(eventDateTime.getTime()) ? null : eventDateTime;
+};
+
+export const calculateEventIsFuture = (date?: string | null, time?: string | null): boolean => {
+    const eventDateTime = getEventDateTime(date, time);
+    return eventDateTime !== null && eventDateTime.getTime() > Date.now();
+};
+
+const calculateEventIsFull = (attendeesCount?: number | null, attendeesLimit?: number | null): boolean =>
+    typeof attendeesCount === "number" &&
+    typeof attendeesLimit === "number" &&
+    attendeesLimit > 0 &&
+    attendeesCount >= attendeesLimit;
+
 export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     id: dto.id,
     title: dto.title,
@@ -176,8 +193,8 @@ export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     address: dto.address ?? undefined,
     attendeesLimit: typeof dto.attendeesLimit === "number" ? dto.attendeesLimit : undefined,
     attendeesCount: typeof dto.attendeesCount === "number" ? dto.attendeesCount : undefined,
-    isFull: dto.isFull ?? false,
-    isFuture: dto.isFuture ?? false,
+    isFull: calculateEventIsFull(dto.attendeesCount, dto.attendeesLimit),
+    isFuture: calculateEventIsFuture(dto.date, dto.time),
     flyerUrl: dto.links?.flyerUrl ?? undefined,
     imageUrl: dto.links?.flyerUrl ?? undefined,
 });
@@ -196,7 +213,7 @@ export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal
                 date: event.date ?? "",
                 attendeesLimit: typeof event.attendeesLimit === "number" ? event.attendeesLimit : undefined,
                 attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : undefined,
-                isFull: event.isFull ?? false,
+                isFull: calculateEventIsFull(event.attendeesCount, event.attendeesLimit),
                 flyerImageUrl: event.links?.flyerUrl ?? undefined,
                 city: { name: city?.name ?? "" },
                 user: {
@@ -282,7 +299,7 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
         flyerImageUrl: event.links?.flyerUrl ?? null,
         attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : attendeesList.length,
         attendeesLimit: event.attendeesLimit ?? null,
-        isFuture: event.isFuture ?? false,
+        isFuture: calculateEventIsFuture(event.date, event.time),
         user: {
             id: creator?.id ?? 0,
             firstname: creator?.firstname ?? creator?.username ?? "—",
