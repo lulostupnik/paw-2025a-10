@@ -1,6 +1,39 @@
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { getAuthToken, getRefreshToken, setAuthTokens } from "@/lib/auth/auth";
+
+let apiLocale = "en";
+
+/** Keeps the Accept-Language header in sync with the app locale so API errors arrive localized. */
+export const setApiLocale = (locale: string) => {
+    apiLocale = locale;
+};
+
+interface ApiErrorBody {
+    message?: string;
+    errors?: Array<{ message?: string }>;
+}
+
+/**
+ * Mensaje de error para mostrar al usuario: prefiere el `message`/`errors` del
+ * ErrorDto de la API (ya localizado por Accept-Language) y cae al fallback genérico.
+ */
+export const apiErrorMessage = (error: unknown, fallback: string): string => {
+    if (isAxiosError(error)) {
+        const data = error.response?.data as ApiErrorBody | undefined;
+        const fieldMessages = data?.errors
+            ?.map((fieldError) => fieldError.message)
+            .filter(Boolean)
+            .join(". ");
+        if (fieldMessages) {
+            return fieldMessages;
+        }
+        if (data?.message && data.message !== "Validation failed") {
+            return data.message;
+        }
+    }
+    return fallback;
+};
 
 const DEFAULT_API_BASE_URL = import.meta.env.DEV ? "/webapp_war_exploded/api" : "/paw-2025a-10/api";
 export const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(/\/$/, "");
@@ -83,6 +116,10 @@ function storeTokensFromHeaders(headers: AxiosResponse["headers"] | undefined) {
 }
 
 apiClient.interceptors.request.use((config) => {
+    config.headers = config.headers ?? {};
+    if (!config.headers["Accept-Language"]) {
+        config.headers["Accept-Language"] = apiLocale;
+    }
     const typedConfig = config as RetriableRequestConfig;
     if (typedConfig._useRefreshToken) {
         const refreshToken = getRefreshToken();

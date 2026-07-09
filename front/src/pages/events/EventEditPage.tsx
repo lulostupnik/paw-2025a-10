@@ -10,6 +10,7 @@ import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField
 import { useI18n } from "@/lib/i18n";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { updateEvent, updateEventFlyer } from "@/lib/api/events";
+import { apiErrorMessage } from "@/lib/api/client";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -250,7 +251,7 @@ export default function EventEditPage() {
             navigate(`/events/${id}`);
         } catch (err) {
             console.error("Failed to update event", err);
-            setSubmitError(t("event.edit.error", { defaultValue: "Error al actualizar el evento." }));
+            setSubmitError(apiErrorMessage(err, t("event.edit.error", { defaultValue: "Error al actualizar el evento." })));
         } finally {
             setSubmitting(false);
         }

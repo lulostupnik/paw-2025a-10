@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -47,7 +48,7 @@ export default function CareerCreatePage() {
             .then((created) => navigate(`/careers/${created.id}`))
             .catch((error) => {
                 console.error("Failed to create career", error);
-                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             })
             .finally(() => setSubmitting(false));
     };

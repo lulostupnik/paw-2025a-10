@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -49,7 +50,7 @@ export default function EventDeletePage() {
             navigate("/events");
         } catch (err) {
             console.error("Failed to delete event", err);
-            setSubmitError(t("event.deleteWarning", { defaultValue: "Error al eliminar el evento." }));
+            setSubmitError(apiErrorMessage(err, t("event.deleteWarning", { defaultValue: "Error al eliminar el evento." })));
         } finally {
             setSubmitting(false);
         }

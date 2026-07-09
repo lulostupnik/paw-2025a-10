@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -100,7 +101,7 @@ export default function CityEditPage() {
             .then(() => navigate(`/cities/${id}`))
             .catch((error) => {
                 console.error("Failed to update city", error);
-                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             })
             .finally(() => setSubmitting(false));
     };

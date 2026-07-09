@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
@@ -171,7 +172,7 @@ export default function UserDetailPage() {
                                         setModalOpen(false);
                                     } catch (error) {
                                         console.error("Failed to update user status", error);
-                                        setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                                        setActionError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
                                         setActionSubmitting(false);
                                     }
                                 }}

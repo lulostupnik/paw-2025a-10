@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -471,7 +472,7 @@ export default function JourneyDetailPage() {
                 refetch();
             } catch (err) {
                 console.error("Failed to submit journey response", err);
-                setReplyError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setReplyError(apiErrorMessage(err, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             } finally {
                 setReplySubmitting(false);
             }

@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -70,7 +71,7 @@ export default function InterestEditPage() {
         },
         onError: (error) => {
             console.error("Failed to update interest", error);
-            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
         },
     });
 

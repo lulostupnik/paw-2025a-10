@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -44,7 +45,7 @@ export default function InterestCreatePage() {
         },
         onError: (error) => {
             console.error("Failed to create interest", error);
-            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
         },
     });
 

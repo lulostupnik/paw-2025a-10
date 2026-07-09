@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -75,7 +76,7 @@ export default function EventReplyDeletePage() {
             navigate(`/events/${eventId}`);
         } catch (err) {
             console.error("Failed to delete event response", err);
-            setSubmitError(t("eventResponse.deleteWarning", { defaultValue: "Error al eliminar el comentario." }));
+            setSubmitError(apiErrorMessage(err, t("eventResponse.deleteWarning", { defaultValue: "Error al eliminar el comentario." })));
         } finally {
             setSubmitting(false);
         }

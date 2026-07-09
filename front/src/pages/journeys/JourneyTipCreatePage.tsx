@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useState, type FormEvent } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
@@ -71,7 +72,7 @@ export default function JourneyTipCreatePage() {
             navigate(destination);
         } catch (err) {
             console.error("Failed to create tip", err);
-            setSubmitError(t("journey.edit.error", { defaultValue: "No se pudo crear el consejo." }));
+            setSubmitError(apiErrorMessage(err, t("journey.edit.error", { defaultValue: "No se pudo crear el consejo." })));
         } finally {
             setSubmitting(false);
         }

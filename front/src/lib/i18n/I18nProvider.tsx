@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { setApiLocale } from "@/lib/api/client";
 import en from "./messages/en.json";
 import es from "./messages/es.json";
 
@@ -65,6 +66,10 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
             setLocale(initialLocale);
         }
     }, [initialLocale, locale]);
+
+    useEffect(() => {
+        setApiLocale(locale);
+    }, [locale]);
 
     const value = useMemo<I18nContextValue>(() => {
         const dictionary = catalogs[locale];

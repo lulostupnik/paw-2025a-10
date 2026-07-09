@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 import Button from "@/components/ui/Button";
 import { login } from "@/lib/api/auth";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
 import { INTERNAL_PATH_FALLBACK, sanitizeInternalPath } from "@/lib/utils/internalPath";
@@ -73,7 +74,7 @@ export default function LoginPage() {
                 nav("/not-verified", { replace: true, state: { email: form.email.trim() } });
                 return;
             }
-            setAuthError(t("login.error.description"));
+            setAuthError(apiErrorMessage(error, t("login.error.description")));
         } finally {
             setSubmitting(false);
         }

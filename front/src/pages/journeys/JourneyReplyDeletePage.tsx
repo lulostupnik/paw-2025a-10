@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -151,7 +152,7 @@ export default function JourneyReplyDeletePage() {
             );
         } catch (err) {
             console.error("Failed to delete journey response", err);
-            setSubmitError(t("journeyResponse.deleteWarning", { defaultValue: "Error al eliminar el comentario." }));
+            setSubmitError(apiErrorMessage(err, t("journeyResponse.deleteWarning", { defaultValue: "Error al eliminar el comentario." })));
         } finally {
             setSubmitting(false);
         }

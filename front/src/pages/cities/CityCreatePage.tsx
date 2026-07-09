@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -86,7 +87,7 @@ export default function CityCreatePage() {
             .then((created) => navigate(`/cities/${created.id}`))
             .catch((error) => {
                 console.error("Failed to create city", error);
-                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             })
             .finally(() => setSubmitting(false));
     };

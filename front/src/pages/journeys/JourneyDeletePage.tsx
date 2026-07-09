@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -50,7 +51,7 @@ export default function JourneyDeletePage() {
             navigate("/journeys");
         } catch (err) {
             console.error("Failed to delete journey", err);
-            setSubmitError(t("journey.deleteWarning", { defaultValue: "Error al eliminar el viaje." }));
+            setSubmitError(apiErrorMessage(err, t("journey.deleteWarning", { defaultValue: "Error al eliminar el viaje." })));
         } finally {
             setSubmitting(false);
         }

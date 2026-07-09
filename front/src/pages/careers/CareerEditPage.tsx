@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -57,7 +58,7 @@ export default function CareerEditPage() {
             .then(() => navigate(`/careers/${id}`))
             .catch((error) => {
                 console.error("Failed to update career", error);
-                setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             })
             .finally(() => setSubmitting(false));
     };

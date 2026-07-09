@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
@@ -136,7 +137,7 @@ export default function ReportDetailPage() {
                     return;
                 }
                 console.error("Failed to load report detail", error);
-                setErrorMessage(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setErrorMessage(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             })
             .finally(() => {
                 if (!active) {
@@ -189,7 +190,7 @@ export default function ReportDetailPage() {
             })
             .catch((error) => {
                 console.error("Failed to update report status", error);
-                setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setActionError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             });
     };
 
@@ -227,7 +228,7 @@ export default function ReportDetailPage() {
             }
         } catch (error) {
             console.error("Failed to delete reported content", error);
-            setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            setActionError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
         }
     };
 
@@ -246,7 +247,7 @@ export default function ReportDetailPage() {
             })
             .catch((error) => {
                 console.error("Failed to update user status", error);
-                setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setActionError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             })
             .finally(() => {
                 setBlockModalOpen(false);
@@ -267,7 +268,7 @@ export default function ReportDetailPage() {
             navigate(REPORTS_LIST_PATH, { replace: true });
         } catch (error) {
             console.error("Failed to delete report", error);
-            setActionError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            setActionError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
         }
     };
 

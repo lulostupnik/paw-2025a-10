@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -120,7 +121,7 @@ export default function JourneyTipDeletePage() {
             navigate(destinationPage > 1 ? `/journeys/${journeyId}?tipsPage=${destinationPage}` : `/journeys/${journeyId}`);
         } catch (err) {
             console.error("Failed to delete tip", err);
-            setSubmitError(t("tip.deleteWarning", { defaultValue: "No se pudo eliminar el consejo." }));
+            setSubmitError(apiErrorMessage(err, t("tip.deleteWarning", { defaultValue: "No se pudo eliminar el consejo." })));
         } finally {
             setSubmitting(false);
         }

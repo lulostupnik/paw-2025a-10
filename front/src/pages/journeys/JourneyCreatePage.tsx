@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
@@ -140,7 +141,7 @@ export default function JourneyCreatePage() {
                 return;
             }
             console.error("Failed to create journey", err);
-            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+            setSubmitError(apiErrorMessage(err, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
         } finally {
             setSubmitting(false);
         }

@@ -1,3 +1,4 @@
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
@@ -153,7 +154,7 @@ export default function JourneyEditPage() {
             navigate(`/journeys/${id}`);
         } catch (err) {
             console.error("Failed to update journey", err);
-            setSubmitError(t("journey.edit.error", { defaultValue: "Error al actualizar el viaje." }));
+            setSubmitError(apiErrorMessage(err, t("journey.edit.error", { defaultValue: "Error al actualizar el viaje." })));
         } finally {
             setSubmitting(false);
         }
