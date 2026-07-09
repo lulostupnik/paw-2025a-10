@@ -346,7 +346,7 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
                 </Button>
             </header>
 
-            <form className="filters-form" onSubmit={handleSubmit}>
+            <form className="filters-form" onSubmit={handleSubmit} noValidate>
                 <div className="filters-grid">
                     <CatalogSelectField
                         label={labels.cityLabel}
