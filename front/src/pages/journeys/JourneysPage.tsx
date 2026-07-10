@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getCityByUrl, getJourneyById, getUniversityByUrl } from "@/lib/api/journeys";
 import ListingLayout from "@/components/listing/ListingLayout";
@@ -17,6 +17,7 @@ import { useUrlSyncedListingFilters, type ListingFiltersState } from "@/hooks/us
 import { isLoggedIn } from "@/lib/auth/auth";
 import Pagination from "@/components/listing/Pagination";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
+import { prefetchJourneyDetail } from "@/lib/utils/prefetchDetail";
 
 const DEFAULT_SORT = "journey-start-asc";
 
@@ -31,6 +32,7 @@ const parseIdFromUrl = (url?: string | null) => {
 export default function JourneysListPage() {
     const { t } = useI18n();
     const nav = useNavigate();
+    const queryClient = useQueryClient();
     const [searchParams, setSearchParams] = useSearchParams();
     const gate = useAuthGate();
     const logged = isLoggedIn();
@@ -138,6 +140,12 @@ export default function JourneysListPage() {
         page: parseInt(searchParams.get("page") ?? "1"),
         size: 12,
     });
+
+    useEffect(() => {
+        journeys.content.slice(0, 3).forEach((journey) => {
+            prefetchJourneyDetail(queryClient, journey.id);
+        });
+    }, [journeys.content, queryClient]);
 
     const handleCreate = () => {
         gate.runOrPrompt(() => nav(journeyId ? `/journeys/${journeyId}` : "/journeys/create"));
