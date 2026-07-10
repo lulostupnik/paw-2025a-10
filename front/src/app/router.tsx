@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "@app/layouts/MainLayout";
 import RequireAuth from "@app/guards/RequireAuth";
+import HomeRoute from "@app/guards/HomeRoute";
 
 import NotFoundPage from "@/pages/errors/NotFoundPage";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
@@ -9,7 +10,6 @@ import BadRequestPage from "@/pages/errors/BadRequestPage";
 import MethodNotAllowedPage from "@/pages/errors/MethodNotAllowedPage";
 import UnsupportedMediaPage from "@/pages/errors/UnsupportedMediaPage";
 
-import LandingPage from "@/pages/landing/LandingPage";
 import ExplorePage from "@/pages/explore/ExplorePage";
 
 import JourneysListPage from "@/pages/journeys/JourneysPage";
@@ -67,7 +67,7 @@ export const router = createBrowserRouter([
         element: <MainLayout />,
         children: [
             // PUBLIC
-            { index: true, element: <LandingPage /> },
+            { index: true, element: <HomeRoute /> },
 
             { path: "journeys", element: <JourneysListPage /> },
             { path: "journeys/:id", element: <JourneyDetailPage /> },

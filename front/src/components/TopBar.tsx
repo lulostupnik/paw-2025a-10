@@ -79,7 +79,7 @@ export default function TopBar() {
 
     return (
         <header className="top-bar" ref={headerRef}>
-            <NavLink to="/" className="top-bar__brand" aria-label={t("app.name")}>
+            <NavLink to={logged ? "/explore" : "/"} className="top-bar__brand" aria-label={t("app.name")}>
                 <Logo text={t("app.name")} />
             </NavLink>
 
