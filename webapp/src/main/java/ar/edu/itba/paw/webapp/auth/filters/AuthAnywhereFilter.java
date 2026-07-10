@@ -13,11 +13,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,6 +32,7 @@ import java.util.Optional;
 
 @Component
 public class AuthAnywhereFilter extends OncePerRequestFilter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthAnywhereFilter.class);
     private static final String AUTH_HEADER_TYPE = "Basic";
 
     @Autowired
@@ -45,6 +49,9 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -75,18 +82,25 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                     tokenService.delete(maybeToken.get());
                     issueTokens(request, response, user);
                 } else if (maybeToken.isEmpty()) {
-                    // Password login. The AuthenticationManager rejects unverified (disabled) or blocked
-                    // (locked) accounts; that just leaves the request anonymous.
-                    final Authentication auth = authenticationManager.authenticate(
-                            new UsernamePasswordAuthenticationToken(email, credentials)
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                    issueTokens(request, response, user);
+                    if (!user.isValidated() && passwordEncoder.matches(credentials, user.getPassword())) {
+                        userService.resendVerificationEmail(user.getEmail());
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        return;
+                    } else {
+                        // Password login. The AuthenticationManager rejects unverified (disabled) or blocked
+                        // (locked) accounts; that just leaves the request anonymous.
+                        final Authentication auth = authenticationManager.authenticate(
+                                new UsernamePasswordAuthenticationToken(email, credentials)
+                        );
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                        issueTokens(request, response, user);
+                    }
                 }
 
             }
         } catch (Exception e) {
             // Si el token no es válido esto pasa a ser una request anonima
+            LOGGER.debug("Basic authentication attempt could not be completed", e);
             SecurityContextHolder.clearContext();
         }
 
