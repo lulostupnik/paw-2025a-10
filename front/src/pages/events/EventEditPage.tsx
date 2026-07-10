@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { useI18n } from "@/lib/i18n";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
+import PageStatus from "@/components/ui/PageStatus";
 import { updateEvent, updateEventFlyer } from "@/lib/api/events";
 import { apiErrorMessage, apiErrorStatus, apiFieldErrors } from "@/lib/api/client";
 
@@ -295,14 +296,14 @@ export default function EventEditPage() {
     const limitFieldDisabled = form.unlimited;
 
     if (isLoading) {
-        return <div className="event-create-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="event-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError) {
-        return <div className="event-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="event-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
     if (!data) {
-        return <div className="event-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="event-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     return (

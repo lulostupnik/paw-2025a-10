@@ -6,6 +6,7 @@ import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminCareerDetailData } from "@/hooks/useAdminDetailData";
 import { deleteCareer } from "@/lib/api/careers";
+import PageStatus from "@/components/ui/PageStatus";
 
 export default function CareerDetailPage() {
     const { t } = useI18n();
@@ -21,15 +22,15 @@ export default function CareerDetailPage() {
     }
 
     if (isLoading) {
-        return <div className="entity-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="entity-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError) {
-        return <div className="entity-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="entity-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     if (!career) {
-        return <div className="entity-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="entity-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     return (

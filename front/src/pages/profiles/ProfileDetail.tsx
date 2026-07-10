@@ -11,6 +11,7 @@ import ProfileEventsTab from "@/components/profiles/ProfileEventsTab";
 import { useProfileInterests } from "@/hooks/profiles/useProfileInterests";
 import { emptyPage } from "@/types/pagination";
 import { sanitizeInternalPath } from "@/lib/utils/internalPath";
+import PageStatus from "@/components/ui/PageStatus";
 
 export default function ProfileDetail() {
     const { t } = useI18n();
@@ -92,25 +93,7 @@ export default function ProfileDetail() {
     );
 
     if (isLoading) {
-        return (
-            <div className="profile-page">
-                <div className="layout-container">
-                    <div className="main-content">
-                        <div className="content-container">
-                            <div className="error-container">
-                                <div className="status-icon status-icon--loading" aria-hidden="true">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M21 12a9 9 0 1 1-2.64-6.36" />
-                                        <path d="M21 3v6h-6" />
-                                    </svg>
-                                </div>
-                                <p>{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+        return <PageStatus className="profile-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError || !profile) {

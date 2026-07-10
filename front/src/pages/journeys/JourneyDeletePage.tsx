@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
+import PageStatus from "@/components/ui/PageStatus";
 import { deleteJourney } from "@/lib/api/journeys";
 import { getUserId } from "@/lib/auth/auth";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
@@ -59,7 +60,7 @@ export default function JourneyDeletePage() {
     };
 
     if (isLoading) {
-        return <div className="journey-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="journey-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isNotFound) {
@@ -67,10 +68,10 @@ export default function JourneyDeletePage() {
     }
 
     if (isError) {
-        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
     if (!data) {
-        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     return (

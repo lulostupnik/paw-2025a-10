@@ -7,6 +7,7 @@ import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminInterestDetailData } from "@/hooks/useAdminDetailData";
 import { deleteInterest } from "@/lib/api/interests";
+import PageStatus from "@/components/ui/PageStatus";
 
 export default function InterestDetailPage() {
     const { t } = useI18n();
@@ -34,15 +35,15 @@ export default function InterestDetailPage() {
     }
 
     if (isLoading) {
-        return <div className="entity-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="entity-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError) {
-        return <div className="entity-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="entity-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     if (!interest) {
-        return <div className="entity-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="entity-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     return (

@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { searchInterests, type CatalogOption, type CatalogSearchFn } from "@/lib/api/catalog";
 import { useToast } from "@/components/ui/ToastProvider";
 import { sanitizeInternalPath } from "@/lib/utils/internalPath";
+import PageStatus from "@/components/ui/PageStatus";
 
 interface MultiSelectFieldProps {
     label: string;
@@ -211,7 +212,7 @@ export default function ProfileInterestsEdit() {
     };
 
     if (isLoading) {
-        return <div className="profile-form-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="profile-form-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError || !profile) {

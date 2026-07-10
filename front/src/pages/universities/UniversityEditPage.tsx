@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { updateUniversity } from "@/lib/api/universities";
 import { listCities } from "@/lib/api/cities";
 import { emptyPage } from "@/types/pagination";
+import PageStatus from "@/components/ui/PageStatus";
 
 interface UniversityFormState {
     name: string;
@@ -169,14 +170,14 @@ export default function UniversityEditPage() {
     }
 
     if (isLoading) {
-        return <div className="entity-create-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError) {
-        return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
     if (!university) {
-        return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     return (

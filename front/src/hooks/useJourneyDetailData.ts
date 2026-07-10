@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { buildJourneyDetail, getJourneyById } from "@/lib/api/journeys";
 import type { JourneyDetail } from "@/types/journey";
+import { DETAIL_QUERY_OPTIONS } from "@/lib/utils/queryDefaults";
 
 interface JourneyDetailParams {
     journeyId?: string;
@@ -17,6 +18,7 @@ export const useJourneyDetailData = ({ journeyId }: JourneyDetailParams = {}) =>
             return buildJourneyDetail(journey, signal);
         },
         placeholderData: keepPreviousData,
+        ...DETAIL_QUERY_OPTIONS,
         enabled: Boolean(journeyId),
     });
 

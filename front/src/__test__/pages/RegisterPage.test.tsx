@@ -17,6 +17,10 @@ vi.mock("@/lib/i18n", () => ({
 }));
 
 const mockRegister = vi.fn();
+const mockSearchInterests = vi.fn().mockResolvedValue([
+    { id: 1, name: "Hiking" },
+    { id: 2, name: "Photography" },
+]);
 vi.mock("@/hooks/useRegister", () => ({
     useRegister: () => ({
         register: mockRegister,
@@ -31,7 +35,7 @@ vi.mock("@/hooks/useRegister", () => ({
 vi.mock("@/lib/api/catalog", () => ({
     searchCareers: vi.fn().mockResolvedValue([]),
     searchUniversities: vi.fn().mockResolvedValue([]),
-    searchInterests: vi.fn().mockResolvedValue([]),
+    searchInterests: (...args: unknown[]) => mockSearchInterests(...args),
 }));
 
 function renderRegisterPage() {
@@ -108,5 +112,23 @@ describe("RegisterPage", () => {
 
         await user.click(showButtons[0]);
         expect(screen.getAllByLabelText("register.password.hide").length).toBeGreaterThan(0);
+    });
+
+    it("should keep searching interests after selecting one", async () => {
+        const user = userEvent.setup();
+        renderRegisterPage();
+
+        const interestInput = screen.getByPlaceholderText("register.interestsPlaceholder");
+        await user.click(interestInput);
+
+        const hikingOption = await screen.findByRole("button", { name: "Hiking" });
+        await user.click(hikingOption);
+
+        mockSearchInterests.mockClear();
+
+        await user.type(interestInput, "p");
+
+        await screen.findByRole("button", { name: "Photography" });
+        expect(mockSearchInterests).toHaveBeenCalledWith("p", expect.anything());
     });
 });

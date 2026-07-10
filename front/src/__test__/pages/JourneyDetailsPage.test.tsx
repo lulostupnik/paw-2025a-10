@@ -117,6 +117,18 @@ describe("JourneyDetailsPage", () => {
         expect(screen.getByText("@testtraveler")).toBeInTheDocument();
     });
 
+    it("should link the creator card to the public profile page", () => {
+        mockUseJourneyDetailData.mockReturnValue({
+            data: baseMockData,
+            ...baseResult,
+        });
+
+        const { container } = renderPage();
+        const creatorLink = container.querySelector(".profile-card-link");
+
+        expect(creatorLink).toHaveAttribute("href", "/profiles/1/info");
+    });
+
     it("should show section headers for content areas", () => {
         mockUseJourneyDetailData.mockReturnValue({
             data: baseMockData,

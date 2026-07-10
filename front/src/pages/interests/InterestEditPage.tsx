@@ -7,6 +7,7 @@ import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminInterestDetailData } from "@/hooks/useAdminDetailData";
 import { updateInterest, type InterestPayload } from "@/lib/api/interests";
+import PageStatus from "@/components/ui/PageStatus";
 
 interface InterestFormState {
     name: string;
@@ -105,14 +106,14 @@ export default function InterestEditPage() {
     }
 
     if (isLoading) {
-        return <div className="entity-create-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError) {
-        return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
     if (!interest) {
-        return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     return (

@@ -12,6 +12,7 @@ import { deleteJourney, deleteJourneyResponse } from "@/lib/api/journeys";
 import { deleteReport, getReportDetail, updateReportStatus, type ReportDetail, type ReportStatus } from "@/lib/api/reports";
 import { updateUserBlocked } from "@/lib/api/users";
 import ActionMenu, { type ActionMenuItem } from "@/components/ui/ActionMenu";
+import PageStatus from "@/components/ui/PageStatus";
 import { parseApiDate } from "@/lib/utils/date";
 
 type ReportReason =
@@ -158,7 +159,7 @@ export default function ReportDetailPage() {
     }
 
     if (loading) {
-        return <div className="report-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="report-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (errorMessage) {

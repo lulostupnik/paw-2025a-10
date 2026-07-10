@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { updateCity } from "@/lib/api/cities";
 import { listCountries, type CountryDto } from "@/lib/api/countries";
 import { useNavigate } from "react-router-dom";
+import PageStatus from "@/components/ui/PageStatus";
 
 interface CityFormState {
     name: string;
@@ -152,14 +153,14 @@ export default function CityEditPage() {
     }
 
     if (isLoading) {
-        return <div className="entity-create-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError) {
-        return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
     if (!city) {
-        return <div className="entity-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     return (

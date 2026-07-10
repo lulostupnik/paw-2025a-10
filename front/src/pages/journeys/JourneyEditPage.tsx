@@ -6,6 +6,7 @@ import { classNames } from "@/lib/utils/classNames";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { searchUniversities, type CatalogOption } from "@/lib/api/catalog";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
+import PageStatus from "@/components/ui/PageStatus";
 import { updateJourney } from "@/lib/api/journeys";
 import { useI18n } from "@/lib/i18n";
 import { getTodayIsoDate } from "@/lib/utils/date";
@@ -192,7 +193,7 @@ export default function JourneyEditPage() {
         : today;
 
     if (isLoading) {
-        return <div className="journey-create-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="journey-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isNotFound) {
@@ -200,10 +201,10 @@ export default function JourneyEditPage() {
     }
 
     if (isError) {
-        return <div className="journey-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="journey-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
     if (!data) {
-        return <div className="journey-create-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="journey-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     return (

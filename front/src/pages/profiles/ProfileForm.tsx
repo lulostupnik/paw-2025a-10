@@ -11,6 +11,7 @@ import { emptyPage } from "@/types/pagination";
 import { useToast } from "@/components/ui/ToastProvider";
 import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 import { apiErrorMessage } from "@/lib/api/client";
+import PageStatus from "@/components/ui/PageStatus";
 
 interface ProfileFormState {
     firstName: string;
@@ -114,7 +115,7 @@ export default function ProfileForm() {
     };
 
     if (isLoading) {
-        return <div className="profile-form-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="profile-form-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError || !profile) {

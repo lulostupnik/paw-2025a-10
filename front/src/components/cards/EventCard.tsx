@@ -1,11 +1,13 @@
 import { useMemo, type ReactElement } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import BaseCard from "./BaseCard";
 import CardMetaRow from "./CardMetaRow";
 import type { EventSummary } from "@/lib/api/events";
 import type { ProfileEvent } from "@/types/event";
 import { useI18n } from "@/lib/i18n";
 import { pushToNavigationStack } from "@/lib/utils/navigationStack";
+import { prefetchEventDetail } from "@/lib/utils/prefetchDetail";
 
 interface EventCardProps {
     event: EventSummary | ProfileEvent;
@@ -43,6 +45,7 @@ const UserIcon = () => (
 export default function EventCard({ event }: EventCardProps) {
     const { t, locale } = useI18n();
     const location = useLocation();
+    const queryClient = useQueryClient();
 
     const dateFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }), [locale]);
     const timeFormatter = useMemo(() => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }), [locale]);
@@ -77,11 +80,14 @@ export default function EventCard({ event }: EventCardProps) {
     } else {
         capacityLabel = t("events.card.capacity.unlimited");
     }
+    const handlePrefetch = () => prefetchEventDetail(queryClient, event.id);
 
     return (
         <Link
             to={`/events/${event.id}`}
             className="listing-card-link"
+            onMouseEnter={handlePrefetch}
+            onFocus={handlePrefetch}
             onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
         >
             <BaseCard imageUrl={imageUrl} badge={event.isFull ? t("events.card.status.full") : undefined}>

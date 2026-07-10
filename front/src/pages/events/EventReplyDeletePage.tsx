@@ -2,6 +2,7 @@ import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
+import PageStatus from "@/components/ui/PageStatus";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { deleteEventResponse } from "@/lib/api/events";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
@@ -85,14 +86,14 @@ export default function EventReplyDeletePage() {
     };
 
     if (isLoading) {
-        return <div className="event-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="event-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError) {
-        return <div className="event-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="event-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
     if (!data) {
-        return <div className="event-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="event-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     return (

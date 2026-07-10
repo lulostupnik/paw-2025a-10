@@ -4,6 +4,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
+import PageStatus from "@/components/ui/PageStatus";
 import { createJourneyTip, listJourneyTips } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
@@ -79,14 +80,14 @@ export default function JourneyTipCreatePage() {
     };
 
     if (isLoading) {
-        return <div className="journey-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="journey-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError) {
-        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
     if (!data) {
-        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     return (

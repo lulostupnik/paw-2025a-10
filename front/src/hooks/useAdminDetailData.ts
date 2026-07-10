@@ -12,6 +12,7 @@ import { getInterestById } from "@/lib/api/interests";
 import { getUniversityById, getUniversityByUrl } from "@/lib/api/universities";
 import { getCareerByUrl, getUserPrivateById } from "@/lib/api/users";
 import { getCityByUrl } from "@/lib/api/journeys";
+import { DETAIL_QUERY_OPTIONS } from "@/lib/utils/queryDefaults";
 
 interface AdminDetailParams {
     id?: string;
@@ -44,6 +45,7 @@ export const useAdminUserDetailData = (params?: AdminDetailParams) => {
             } satisfies AdminUserDetail;
         },
         placeholderData: keepPreviousData,
+        ...DETAIL_QUERY_OPTIONS,
         enabled: Boolean(userId),
     });
     return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };
@@ -67,6 +69,7 @@ export const useAdminUniversityDetailData = (params?: AdminDetailParams) => {
             } satisfies AdminUniversityDetail;
         },
         placeholderData: keepPreviousData,
+        ...DETAIL_QUERY_OPTIONS,
         enabled: Boolean(universityId),
     });
     return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };
@@ -87,6 +90,7 @@ export const useAdminInterestDetailData = (params?: AdminDetailParams) => {
             } satisfies AdminInterestDetail;
         },
         placeholderData: keepPreviousData,
+        ...DETAIL_QUERY_OPTIONS,
         enabled: Boolean(interestId),
     });
     return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };
@@ -108,6 +112,7 @@ export const useAdminCityDetailData = (params?: AdminDetailParams) => {
             } satisfies AdminCityDetail;
         },
         placeholderData: keepPreviousData,
+        ...DETAIL_QUERY_OPTIONS,
         enabled: Boolean(cityId),
     });
     return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };
@@ -128,6 +133,7 @@ export const useAdminCareerDetailData = (params?: AdminDetailParams) => {
             } satisfies AdminCareerDetail;
         },
         placeholderData: keepPreviousData,
+        ...DETAIL_QUERY_OPTIONS,
         enabled: Boolean(careerId),
     });
     return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };

@@ -9,6 +9,7 @@ import { createJourney } from "@/lib/api/journeys";
 import { useI18n } from "@/lib/i18n";
 import { getTodayIsoDate } from "@/lib/utils/date";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
+import PageStatus from "@/components/ui/PageStatus";
 
 interface JourneyFormState {
     startDate: string;
@@ -177,7 +178,7 @@ export default function JourneyCreatePage() {
         : today;
 
     if (profileLoading || journeyId) {
-        return <div className="journey-create-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="journey-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     return (

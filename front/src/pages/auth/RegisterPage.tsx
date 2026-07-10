@@ -296,7 +296,12 @@ function MultiSelectField({
                     className={classNames("input-control", showError && "input-control--error")}
                     value={query}
                     onFocus={() => setOpen(true)}
-                    onChange={(event) => setQuery(event.target.value)}
+                    onChange={(event) => {
+                        setQuery(event.target.value);
+                        if (!open) {
+                            setOpen(true);
+                        }
+                    }}
                     placeholder={placeholder}
                     autoComplete="off"
                 />

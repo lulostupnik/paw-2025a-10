@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { buildEventDetail, getEventById } from "@/lib/api/events";
 import type { EventDetail } from "@/types/event";
+import { DETAIL_QUERY_OPTIONS } from "@/lib/utils/queryDefaults";
 
 interface EventDetailParams {
     eventId?: string;
@@ -17,6 +18,7 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
             return buildEventDetail(event, signal);
         },
         placeholderData: keepPreviousData,
+        ...DETAIL_QUERY_OPTIONS,
         enabled: Boolean(eventId),
     });
 

@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import { useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { JourneySummary } from "@/types/journey";
 import { useI18n } from "@/lib/i18n";
 import { pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
+import { prefetchJourneyDetail } from "@/lib/utils/prefetchDetail";
 
 interface JourneyCardProps {
     journey: JourneySummary;
@@ -20,15 +22,19 @@ const formatDate = (value: string, locale: string) => {
 export default function JourneyCard({ journey }: JourneyCardProps) {
     const { t, locale } = useI18n();
     const location = useLocation();
+    const queryClient = useQueryClient();
     const startLabel = useMemo(() => formatDate(journey.startDate, locale), [journey.startDate, locale]);
     const endLabel = useMemo(() => formatDate(journey.endDate, locale), [journey.endDate, locale]);
     const profilePictureUrl = journey.profilePictureUrl ?? null;
+    const handlePrefetch = () => prefetchJourneyDetail(queryClient, journey.id);
 
     return (
         <div className="event-card-wrapper">
             <Link
                 to={`/journeys/${journey.id}`}
                 className="event-card-link"
+                onMouseEnter={handlePrefetch}
+                onFocus={handlePrefetch}
                 onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
             >
                 <div className="featured-event-card">
