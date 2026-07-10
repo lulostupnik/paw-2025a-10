@@ -66,6 +66,7 @@ const setParam = (params: URLSearchParams, key: string, value: string | null) =>
 
 const applyFiltersToParams = (source: URLSearchParams, next: ListingFiltersState): URLSearchParams => {
     const params = new URLSearchParams(source);
+    params.delete("page");
     setParam(params, "city", next.cityId ? String(next.cityId) : null);
     setParam(params, "cityName", next.cityId && next.cityName ? next.cityName : null);
     setParam(params, "university", next.universityId ? String(next.universityId) : null);

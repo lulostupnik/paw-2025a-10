@@ -203,6 +203,7 @@ export default function EventsListPage() {
                 } else {
                     next.set("sort", id);
                 }
+                next.delete("page");
                 return next;
             });
         },
@@ -218,6 +219,7 @@ export default function EventsListPage() {
                 } else {
                     next.set("tab", tab);
                 }
+                next.delete("page");
                 return next;
             });
         },

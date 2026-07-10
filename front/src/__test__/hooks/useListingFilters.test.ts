@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
+import { createElement, type ReactNode } from "react";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import { renderHook, act } from "../setup/utils";
-import { useListingFilters, EMPTY_LISTING_FILTERS, type ListingFiltersState } from "@/hooks/useListingFilters";
+import { useListingFilters, useUrlSyncedListingFilters, EMPTY_LISTING_FILTERS, type ListingFiltersState } from "@/hooks/useListingFilters";
 
 describe("useListingFilters", () => {
     it("should start with empty filters by default", () => {
@@ -67,5 +69,54 @@ describe("useListingFilters", () => {
 
         expect(result.current.filters.afterDate).toBe("2026-01-01");
         expect(result.current.filters.beforeDate).toBe("2026-12-31");
+    });
+
+    it("should reset page when applying URL-synced filters", () => {
+        const wrapper = ({ children }: { children: ReactNode }) =>
+            createElement(MemoryRouter, { initialEntries: ["/events?page=8&sort=event-date-desc"] }, children);
+        const { result } = renderHook(
+            () => {
+                const controller = useUrlSyncedListingFilters();
+                const location = useLocation();
+                return { ...controller, location };
+            },
+            { wrapper },
+        );
+
+        act(() => {
+            result.current.applyFilters({
+                ...EMPTY_LISTING_FILTERS,
+                cityId: 2,
+                cityName: "Boston",
+            });
+        });
+
+        const params = new URLSearchParams(result.current.location.search);
+        expect(params.get("page")).toBeNull();
+        expect(params.get("sort")).toBe("event-date-desc");
+        expect(params.get("city")).toBe("2");
+        expect(params.get("cityName")).toBe("Boston");
+    });
+
+    it("should reset page when clearing URL-synced filters", () => {
+        const wrapper = ({ children }: { children: ReactNode }) =>
+            createElement(MemoryRouter, { initialEntries: ["/events?page=8&city=2&cityName=Boston"] }, children);
+        const { result } = renderHook(
+            () => {
+                const controller = useUrlSyncedListingFilters();
+                const location = useLocation();
+                return { ...controller, location };
+            },
+            { wrapper },
+        );
+
+        act(() => {
+            result.current.resetFilters();
+        });
+
+        const params = new URLSearchParams(result.current.location.search);
+        expect(params.get("page")).toBeNull();
+        expect(params.get("city")).toBeNull();
+        expect(params.get("cityName")).toBeNull();
     });
 });

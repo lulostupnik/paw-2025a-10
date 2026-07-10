@@ -164,6 +164,7 @@ export default function JourneysListPage() {
             } else {
                 next.set("sort", id);
             }
+            next.delete("page");
             return next;
         });
     }, [closeSort, setSearchParams]);
@@ -177,6 +178,7 @@ export default function JourneysListPage() {
                 } else {
                     next.set("tab", tab);
                 }
+                next.delete("page");
                 return next;
             });
         },

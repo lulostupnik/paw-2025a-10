@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import JourneysListPage from "@/pages/journeys/JourneysPage";
@@ -42,17 +43,18 @@ vi.mock("@/hooks/useListingFilters", () => ({
     }),
 }));
 
-function renderPage() {
+function renderPage(initialEntry = "/journeys") {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const router = createMemoryRouter(
         [{ path: "/journeys", element: <JourneysListPage /> }],
-        { initialEntries: ["/journeys"] },
+        { initialEntries: [initialEntry] },
     );
-    return render(
+    const result = render(
         <QueryClientProvider client={queryClient}>
             <RouterProvider router={router} />
         </QueryClientProvider>,
     );
+    return { ...result, router };
 }
 
 describe("JourneysPage", () => {
@@ -114,5 +116,42 @@ describe("JourneysPage", () => {
 
         renderPage();
         expect(screen.queryByText("MIT")).not.toBeInTheDocument();
+    });
+
+    it("should reset page when changing tab", async () => {
+        mockUseJourneys.mockReturnValue({
+            journeys: emptyPage(),
+            loading: false,
+            error: null,
+            refetch: vi.fn(),
+        });
+        const user = userEvent.setup();
+        const { router } = renderPage("/journeys?page=8&sort=journey-end-desc");
+
+        await user.click(screen.getByRole("tab", { name: "journey.tabs.upcoming" }));
+
+        const params = new URLSearchParams(router.state.location.search);
+        expect(params.get("page")).toBeNull();
+        expect(params.get("tab")).toBe("upcoming");
+        expect(params.get("sort")).toBe("journey-end-desc");
+    });
+
+    it("should reset page when changing sort", async () => {
+        mockUseJourneys.mockReturnValue({
+            journeys: emptyPage(),
+            loading: false,
+            error: null,
+            refetch: vi.fn(),
+        });
+        const user = userEvent.setup();
+        const { router } = renderPage("/journeys?page=8&tab=upcoming");
+
+        await user.click(screen.getByRole("button", { name: "listing.sort" }));
+        await user.click(screen.getByRole("menuitemradio", { name: "journey.sort.endDate.desc" }));
+
+        const params = new URLSearchParams(router.state.location.search);
+        expect(params.get("page")).toBeNull();
+        expect(params.get("sort")).toBe("journey-end-desc");
+        expect(params.get("tab")).toBe("upcoming");
     });
 });
