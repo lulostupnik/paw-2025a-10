@@ -83,7 +83,7 @@ interface UserRatingApi {
 }
 
 export const listUsers = async (params: ListUsersParams = {}, signal?: AbortSignal): Promise<PageResult<UserPrivateApi>> => {
-    const response = await apiClient.get<UserPrivateApi[]>("/users", { params, signal, headers: { Accept: ContentTypes.USER_LIST } });
+    const response = await apiClient.get<UserPrivateApi[]>("/users", { params, signal, headers: { Accept: ContentTypes.USER_PRIVATE_LIST } });
     return toPaged(response);
 };
 

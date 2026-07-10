@@ -74,6 +74,25 @@ public class UserController {
     }
 
     @GET
+    @Produces(GoTogetherMediaType.APPLICATION_USER_PRIVATE_LIST)
+    @PreAuthorize("hasRole('ADMIN')")
+    public Response listUsersAdmin(
+            @QueryParam("attendingEvent") Long attendingEventId,
+            @QueryParam("university") Long universityId,
+            @QueryParam("career") Long careerId,
+            @QueryParam("interest") Long interestId,
+            @QueryParam("search") String search,
+            @QueryParam("blocked") Boolean blocked,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("10") int size
+    ) {
+        final Page<User> allUsers = us.findUsers(search, new PageParams(page, size), attendingEventId, universityId, careerId, interestId, blocked);
+        final List<UserPrivateDto> userDtos = UserPrivateDto.fromUserCollection(uriInfo, allUsers.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(userDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, allUsers).build();
+    }
+
+    @GET
     @Path("/{id}")
     @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC)
     public Response getById(@Context Request req, @PathParam("id") final long id) {

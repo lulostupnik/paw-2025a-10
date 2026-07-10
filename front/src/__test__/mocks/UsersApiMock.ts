@@ -22,7 +22,7 @@ export const usersHandlers = [
     http.get(`${BASE_URL}/users`, () => {
         return HttpResponse.json([defaultUser, secondUser], {
             headers: {
-                "Content-Type": "application/vnd.gotogether.user-list.v1+json",
+                "Content-Type": "application/vnd.gotogether.user-private-list.v1+json",
                 "x-total-count": "2",
                 link: `<${BASE_URL}/users?page=1>; rel="first", <${BASE_URL}/users?page=1>; rel="last"`,
             },

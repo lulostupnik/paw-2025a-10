@@ -54,6 +54,7 @@ describe("useAdminTabData", () => {
             await waitFor(() => expect(result.current.isLoading).toBe(false));
 
             const user = result.current.data.content[0];
+            expect(user.email).toBeDefined();
             expect(user.university).toBeDefined();
         });
     });

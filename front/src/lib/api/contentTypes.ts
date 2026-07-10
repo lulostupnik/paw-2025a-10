@@ -3,6 +3,7 @@ export const ContentTypes = {
     USER: "application/vnd.gotogether.user.v1+json",
     USER_PUBLIC: "application/vnd.gotogether.user-public.v1+json",
     USER_LIST: "application/vnd.gotogether.user-list.v1+json",
+    USER_PRIVATE_LIST: "application/vnd.gotogether.user-private-list.v1+json",
     USER_PASSWORD: "application/vnd.gotogether.user-password.v1+json",
     USER_INTEREST: "application/vnd.gotogether.user-interest.v1+json",
     USER_INTEREST_LIST: "application/vnd.gotogether.user-interest-list.v1+json",
