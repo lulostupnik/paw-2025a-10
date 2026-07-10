@@ -5,6 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ExplorePage from "@/pages/explore/ExplorePage";
 import { emptyPage } from "@/types/pagination";
 
+const { mockUseEvents, mockGetUserId } = vi.hoisted(() => ({
+    mockUseEvents: vi.fn(),
+    mockGetUserId: vi.fn(),
+}));
+
 vi.mock("@/lib/i18n", () => ({
     useI18n: () => ({
         t: (key: string) => key,
@@ -17,12 +22,7 @@ vi.mock("@/lib/i18n", () => ({
 }));
 
 vi.mock("@/hooks/useEvents", () => ({
-    useEvents: () => ({
-        events: emptyPage(),
-        loading: false,
-        error: null,
-        refetch: vi.fn(),
-    }),
+    useEvents: (...args: unknown[]) => mockUseEvents(...args),
 }));
 
 vi.mock("@/hooks/useJourneys", () => ({
@@ -39,7 +39,7 @@ vi.mock("@/hooks/profiles/useProfileDetail", () => ({
 }));
 
 vi.mock("@/lib/auth/auth", () => ({
-    getUserId: () => null,
+    getUserId: () => mockGetUserId(),
     isLoggedIn: () => false,
 }));
 
@@ -59,6 +59,13 @@ function renderPage() {
 describe("ExplorePage", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockGetUserId.mockReturnValue(null);
+        mockUseEvents.mockReturnValue({
+            events: emptyPage(),
+            loading: false,
+            error: null,
+            refetch: vi.fn(),
+        });
     });
 
     it("should render explore page title", () => {
@@ -70,5 +77,27 @@ describe("ExplorePage", () => {
         renderPage();
         expect(screen.getAllByText("dashboard.recommended.events").length).toBeGreaterThan(0);
         expect(screen.getAllByText("dashboard.recommended.journeys").length).toBeGreaterThan(0);
+    });
+
+    it("should request top events when the user is anonymous", () => {
+        renderPage();
+
+        expect(mockUseEvents).toHaveBeenCalledWith({
+            page: 1,
+            size: 6,
+            top: true,
+        });
+    });
+
+    it("should request recommended events when the user is logged in", () => {
+        mockGetUserId.mockReturnValue(7);
+
+        renderPage();
+
+        expect(mockUseEvents).toHaveBeenCalledWith({
+            page: 1,
+            size: 6,
+            recommendedForUser: 7,
+        });
     });
 });

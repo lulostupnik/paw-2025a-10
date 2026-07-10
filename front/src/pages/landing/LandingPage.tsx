@@ -70,7 +70,7 @@ export default function LandingPage() {
         events: featuredEvents,
         loading: featuredEventsLoading,
         error: featuredEventsError,
-    } = useEvents({ size: 3 });
+    } = useEvents({ page: 1, size: 3, top: true });
     const gate = useAuthGate();
 
     const handleCreateEvent = () => {

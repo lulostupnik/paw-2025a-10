@@ -72,6 +72,7 @@ public class EventController {
             @QueryParam("university") String university,
             @QueryParam("minRating") Integer minRating, //TODO: check, anda raro
             @QueryParam("hasCapacity") Boolean hasCapacity,
+            @QueryParam("top") Boolean top,
             @QueryParam("creatorId") Long creatorId
     ) {
         final LocalDate startDate = DateUtils.parseDate(afterDateStr);
@@ -94,6 +95,7 @@ public class EventController {
                 university,
                 minRating,
                 hasCapacity,
+                top,
                 new PageParams(page, size)
         );
 

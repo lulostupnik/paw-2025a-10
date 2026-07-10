@@ -398,12 +398,17 @@ public class EventServiceImpl implements EventService {
     @Override
     public Page<Event> searchEventsWithFilters(final String search, final Long recommendedForUser, final Long creatorId, final SortFieldEvent sortBy, final SortDirection direction, final String destination, final LocalDate startDate, final LocalDate endDate, final String interest,
                                               Long attendedByUserId,
-                                               String university, Integer minRating, Boolean hasCapacity, final PageParams pageParams) {
+                                               String university, Integer minRating, Boolean hasCapacity, final Boolean top, final PageParams pageParams) {
         LOGGER.debug("Getting events with search {}, recommendedForUser {}, creatorId {}, sortBy {}, direction {}, destination {}, startDate {}, endDate {}, interest {}, attendedByUserId {}", search, recommendedForUser, creatorId, sortBy, direction, destination, startDate, endDate, interest, attendedByUserId);
 
         if (recommendedForUser != null) {
-            validateRecommendedEventsFilters(search, creatorId, sortBy, direction, destination, startDate, endDate, interest, attendedByUserId, university, minRating, hasCapacity);
+            validateRecommendedEventsFilters(search, creatorId, sortBy, direction, destination, startDate, endDate, interest, attendedByUserId, university, minRating, hasCapacity, top);
             return eventDao.findRecommended(recommendedForUser, pageParams);
+        }
+
+        if (Boolean.TRUE.equals(top)) {
+            validateTopEventsFilters(search, creatorId, sortBy, direction, destination, startDate, endDate, interest, attendedByUserId, university, minRating, hasCapacity);
+            return eventDao.findTop(pageParams);
         }
 
         final SortFieldEvent effectiveSortBy = sortBy == null ? SortFieldEvent.DATE : sortBy;
@@ -431,11 +436,21 @@ public class EventServiceImpl implements EventService {
 
     private void validateRecommendedEventsFilters(final String search, final Long creatorId, final SortFieldEvent sortBy, final SortDirection direction, final String destination,
                                                   final LocalDate startDate, final LocalDate endDate, final String interest, final Long attendedByUserId,
-                                                  final String university, final Integer minRating, final Boolean hasCapacity) {
+                                                  final String university, final Integer minRating, final Boolean hasCapacity, final Boolean top) {
+        if (search != null || creatorId != null || sortBy != null || direction != null || destination != null
+                || startDate != null || endDate != null || interest != null || attendedByUserId != null
+                || university != null || minRating != null || hasCapacity != null || Boolean.TRUE.equals(top)) {
+            throw new MutuallyExclusiveFiltersException("recommendedForUser");
+        }
+    }
+
+    private void validateTopEventsFilters(final String search, final Long creatorId, final SortFieldEvent sortBy, final SortDirection direction, final String destination,
+                                          final LocalDate startDate, final LocalDate endDate, final String interest, final Long attendedByUserId,
+                                          final String university, final Integer minRating, final Boolean hasCapacity) {
         if (search != null || creatorId != null || sortBy != null || direction != null || destination != null
                 || startDate != null || endDate != null || interest != null || attendedByUserId != null
                 || university != null || minRating != null || hasCapacity != null) {
-            throw new MutuallyExclusiveFiltersException("recommendedForUser");
+            throw new MutuallyExclusiveFiltersException("top");
         }
     }
 

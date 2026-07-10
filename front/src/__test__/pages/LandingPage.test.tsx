@@ -5,6 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LandingPage from "@/pages/landing/LandingPage";
 import { emptyPage } from "@/types/pagination";
 
+const { mockUseEvents } = vi.hoisted(() => ({
+    mockUseEvents: vi.fn(),
+}));
+
 vi.mock("@/lib/i18n", () => ({
     useI18n: () => ({
         t: (key: string) => key,
@@ -17,12 +21,7 @@ vi.mock("@/lib/i18n", () => ({
 }));
 
 vi.mock("@/hooks/useEvents", () => ({
-    useEvents: () => ({
-        events: emptyPage(),
-        loading: false,
-        error: null,
-        refetch: vi.fn(),
-    }),
+    useEvents: (...args: unknown[]) => mockUseEvents(...args),
 }));
 
 vi.mock("@/hooks/useAuthGate", () => ({
@@ -45,6 +44,12 @@ function renderPage() {
 describe("LandingPage", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockUseEvents.mockReturnValue({
+            events: emptyPage(),
+            loading: false,
+            error: null,
+            refetch: vi.fn(),
+        });
     });
 
     it("should render landing page content", () => {
@@ -62,5 +67,15 @@ describe("LandingPage", () => {
     it("should show call to action buttons", () => {
         renderPage();
         expect(screen.getByText("landing.cta.button")).toBeInTheDocument();
+    });
+
+    it("should request top events for featured events", () => {
+        renderPage();
+
+        expect(mockUseEvents).toHaveBeenCalledWith({
+            page: 1,
+            size: 3,
+            top: true,
+        });
     });
 });

@@ -108,6 +108,7 @@ export interface FetchEventsParams {
     university?: string;
     minRating?: number;
     hasCapacity?: boolean;
+    top?: boolean;
     journeyId?: number;
     creatorId?: number;
 }

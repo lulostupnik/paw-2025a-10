@@ -50,7 +50,7 @@ public interface EventService {
     Page<Event> searchEventsWithFilters(String search, Long recommendedForUser, Long creatorId,
                                         SortFieldEvent sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest,
                                         Long attendedByUserId,
-                                        String university, Integer minRating, Boolean hasCapacity, PageParams pageParams);
+                                        String university, Integer minRating, Boolean hasCapacity, Boolean top, PageParams pageParams);
 
     EventResponse createEventResponse(String email, long eventId, String message);
     EventResponse createEventResponse(long userId, long eventId, String message);

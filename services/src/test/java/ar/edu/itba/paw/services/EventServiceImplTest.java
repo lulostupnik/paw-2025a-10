@@ -929,6 +929,7 @@ public class EventServiceImplTest {
             UNI_NAME,
             (int)RATING_VALUE,
             true,
+            null,
             PAGE_1_DEFAULT
         );
 
@@ -972,6 +973,7 @@ public class EventServiceImplTest {
             UNI_NAME,
             (int) RATING_VALUE,
             true,
+            null,
             PAGE_1_DEFAULT
         );
 
@@ -988,6 +990,7 @@ public class EventServiceImplTest {
         Page<Event> page = eventService.searchEventsWithFilters(
             null,
             USER_ID,
+            null,
             null,
             null,
             null,
@@ -1022,6 +1025,57 @@ public class EventServiceImplTest {
             null,
             null,
             null,
+            null,
+            PAGE_1_DEFAULT
+        );
+    }
+
+    @Test
+    public void testSearchTopEvents(){
+        when(
+            eventDao.findTop(eq(PAGE_1_DEFAULT))
+        ).thenReturn(EVENTS_PAGE);
+
+        Page<Event> page = eventService.searchEventsWithFilters(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true,
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(EVENTS_PAGE, page);
+        verify(eventDao, times(1)).findTop(PAGE_1_DEFAULT);
+    }
+
+    @Test(expected = MutuallyExclusiveFiltersException.class)
+    public void testSearchTopEventsWithExclusiveFilter(){
+        eventService.searchEventsWithFilters(
+            TITLE,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true,
             PAGE_1_DEFAULT
         );
     }
@@ -1062,6 +1116,7 @@ public class EventServiceImplTest {
             UNI_NAME,
             (int)RATING_VALUE,
             true,
+            null,
             PAGE_1_DEFAULT
         );
 
@@ -1104,6 +1159,7 @@ public class EventServiceImplTest {
             UNI_NAME,
             (int)RATING_VALUE,
             true,
+            null,
             PAGE_1_DEFAULT
         );
 
@@ -1146,6 +1202,7 @@ public class EventServiceImplTest {
             UNI_NAME,
             (int)RATING_VALUE,
             true,
+            null,
             PAGE_1_DEFAULT
         );
 
@@ -1188,6 +1245,7 @@ public class EventServiceImplTest {
             UNI_NAME,
             (int)RATING_VALUE,
             true,
+            null,
             PAGE_1_DEFAULT
         );
 
@@ -1230,6 +1288,7 @@ public class EventServiceImplTest {
             UNI_NAME,
             (int)RATING_VALUE,
             true,
+            null,
             PAGE_1_DEFAULT
         );
 
