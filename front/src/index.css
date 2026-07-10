@@ -70,6 +70,11 @@ picture {
   display: block;
 }
 
+.avatar-fallback-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
 button,
 input,
 select,
@@ -5631,8 +5636,13 @@ textarea.input-control {
 /* Creator card */
 .journey-detail-page .profile-card-link,
 .event-detail-page .profile-card-link {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
 }
 
 .journey-detail-page .event-creator,
@@ -6379,7 +6389,38 @@ textarea.input-control {
   margin: 0;
 }
 
-.profile-page .status-icon {
+.page-status {
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-gray-600);
+}
+
+.page-status__message {
+  margin: 0;
+}
+
+.page-status--compact {
+  min-height: 0;
+  padding: 1rem 0;
+}
+
+.page-status--compact .status-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 0.5rem;
+}
+
+.page-status--compact .status-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.status-icon {
   width: 56px;
   height: 56px;
   margin: 0 auto 0.75rem;
@@ -6391,17 +6432,17 @@ textarea.input-control {
   color: var(--color-primary);
 }
 
-.profile-page .status-icon svg {
+.status-icon svg {
   width: 28px;
   height: 28px;
 }
 
-.profile-page .status-icon--error {
+.status-icon--error {
   background-color: rgba(239, 68, 68, 0.12);
   color: var(--color-error);
 }
 
-.profile-page .status-icon--loading svg {
+.status-icon--loading svg {
   animation: profile-spin 1.1s linear infinite;
   transform-origin: 50% 50%;
 }

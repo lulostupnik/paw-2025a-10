@@ -1,27 +1,19 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import type { ProfileDetail } from "@/types/profile";
 import { classNames } from "@/lib/utils/classNames";
+import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 
 interface ProfileHeaderProps {
     profile: ProfileDetail;
 }
-
-const getInitials = (firstname: string, lastname: string) =>
-    [firstname, lastname]
-        .filter(Boolean)
-        .map((part) => part[0])
-        .join("")
-        .toUpperCase();
 
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     const { t } = useI18n();
     const [menuOpen, setMenuOpen] = useState(false);
     const location = useLocation();
     const returnState = { from: `${location.pathname}${location.search}` };
-    const initials = useMemo(() => getInitials(profile.firstname, profile.lastname), [profile.firstname, profile.lastname]);
-
     return (
         <div className="profile-header">
             <div className="profile-avatar-container">
@@ -29,7 +21,9 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
                     {profile.links?.profilePictureUrl ? (
                         <img src={profile.links.profilePictureUrl} alt={profile.username} className="avatar-image" />
                     ) : (
-                        <div className="avatar-placeholder">{initials}</div>
+                        <div className="avatar-placeholder">
+                            <AvatarFallbackIcon size={30} />
+                        </div>
                     )}
 
                     {profile.isMine && (

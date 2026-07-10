@@ -8,6 +8,7 @@ import CreatorCard from "@/components/detail/CreatorCard";
 import Pagination from "@/components/listing/Pagination";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 import NotFoundPage from "@/pages/errors/NotFoundPage";
+import PageStatus from "@/components/ui/PageStatus";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { attendEvent, createEventRating, createEventResponse, deleteEventRating, getEventAttendance, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
@@ -16,6 +17,7 @@ import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import { getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment } from "@/types/event";
 import { parseApiDate } from "@/lib/utils/date";
+import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 
 const formatDate = (value: string, locale: string) => {
     const date = parseApiDate(value);
@@ -323,11 +325,11 @@ export default function EventDetailPage() {
     }
 
     if (isLoading) {
-        return <div className="event-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="event-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError || !data) {
-        return <div className="event-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="event-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     const handleBack = () => {
@@ -850,7 +852,7 @@ return (
                                                             </div>
                                                         </div>
                                                         {statsQuery.isLoading && (
-                                                            <p className="section__helper">{t("event.stats.loading", { defaultValue: "Loading statistics..." })}</p>
+                                                            <PageStatus compact message={t("event.stats.loading", { defaultValue: "Loading statistics..." })} />
                                                         )}
                                                         {statsQuery.isError && (
                                                             <p className="section__helper">{t("event.stats.error", { defaultValue: "We couldn't load statistics." })}</p>
@@ -862,7 +864,7 @@ return (
                                                     <>
                                                         <div id="attendees-list" className="attendees-grid">
                                                             {attendeesQuery.isLoading ? (
-                                                                <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                                                <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
                                                             ) : attendeesQuery.isError ? (
                                                                 <p className="section__helper">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
                                                             ) : attendeesPageData.content.length === 0 ? (
@@ -881,14 +883,13 @@ return (
                                                                 attendeesPageData.content.map((attendee) => (
                                                                     <div key={attendee.id} className="attendee-card">
                                                                         <div className="attendee-avatar">
-                                                                            {attendee.profilePictureUrl ? (
-                                                                                <img src={attendee.profilePictureUrl} alt="Profile" className="detail-avatar-img" />
-                                                                            ) : (
-                                                                                <div className="avatar-placeholder">
-                                                                                    {attendee.firstname[0]}
-                                                                                    {attendee.lastname[0]}
-                                                                                </div>
-                                                                            )}
+                                                                        {attendee.profilePictureUrl ? (
+                                                                            <img src={attendee.profilePictureUrl} alt="Profile" className="detail-avatar-img" />
+                                                                        ) : (
+                                                                            <div className="avatar-placeholder">
+                                                                                <AvatarFallbackIcon size={18} />
+                                                                            </div>
+                                                                        )}
                                                                         </div>
                                                                         <div className="attendee-info">
                                                                             <h3 className="attendee-name">
@@ -933,7 +934,7 @@ return (
 
                                                 <div id="chat-list" className="chat-list">
                                                     {commentsQuery.isLoading ? (
-                                                        <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                                        <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
                                                     ) : commentsPageData.content.length === 0 ? (
                                                         <div className="empty-state">
                                                             <div className="empty-icon">
@@ -948,9 +949,11 @@ return (
                                                             <div key={response.id} className="chat-message">
                                                                 <div className="message-header">
                                                                     <div className="message-user">
-                                                                        <div className="message-avatar">
-                                                                            <div className="avatar-placeholder">{response.user.username.slice(0, 1)}</div>
-                                                                        </div>
+                                                            <div className="message-avatar">
+                                                                <div className="avatar-placeholder">
+                                                                    <AvatarFallbackIcon size={18} />
+                                                                </div>
+                                                            </div>
                                                                         <div className="message-user-info">
                                                                             <h3 className="message-username">{response.user.username}</h3>
                                                                             <p className="message-date">{formatDateTime(response.dateTime, locale)}</p>

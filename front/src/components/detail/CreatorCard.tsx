@@ -1,6 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { pushToNavigationStack } from "@/lib/utils/navigationStack";
+import { prefetchProfileDetail } from "@/lib/utils/prefetchDetail";
+import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 
 interface CreatorCardProps {
     creator: {
@@ -16,22 +19,19 @@ interface CreatorCardProps {
     showName?: boolean;
 }
 
-const getInitials = (firstname: string, lastname: string) =>
-    [firstname, lastname]
-        .filter(Boolean)
-        .map((part) => part[0])
-        .join("")
-        .toUpperCase();
-
 export default function CreatorCard({ creator, isJourneyCreator = false, showName = true }: CreatorCardProps) {
     const { t } = useI18n();
     const location = useLocation();
+    const queryClient = useQueryClient();
+    const handlePrefetch = () => prefetchProfileDetail(queryClient, creator.id);
 
     return (
         <Link
             to={`/profiles/${creator.id}/info`}
             state={{ from: `${location.pathname}${location.search}` }}
             className="profile-card-link"
+            onMouseEnter={handlePrefetch}
+            onFocus={handlePrefetch}
             onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
         >
             <div className="event-creator">
@@ -55,7 +55,7 @@ export default function CreatorCard({ creator, isJourneyCreator = false, showNam
                             </div>
                         ) : (
                             <div className="creator-avatar-placeholder">
-                                <span>{getInitials(creator.firstname, creator.lastname)}</span>
+                                <AvatarFallbackIcon size={28} />
                             </div>
                         )}
                     </div>

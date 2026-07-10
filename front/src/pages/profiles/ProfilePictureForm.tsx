@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
+import PageStatus from "@/components/ui/PageStatus";
+import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 
 export default function ProfilePictureForm() {
     const { t } = useI18n();
@@ -21,20 +23,13 @@ export default function ProfilePictureForm() {
         return () => URL.revokeObjectURL(objectUrl);
     }, [file]);
 
-    const initials = useMemo(() => {
-        if (!profile) {
-            return "";
-        }
-        return `${profile.firstname[0] ?? ""}${profile.lastname[0] ?? ""}`.toUpperCase();
-    }, [profile]);
-
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         await updatePicture({ picture: file });
     };
 
     if (isLoading) {
-        return <div className="profile-form-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="profile-form-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isError || !profile) {
@@ -72,7 +67,7 @@ export default function ProfilePictureForm() {
                                         />
                                     ) : (
                                         <div className="avatar-placeholder" id="avatarPlaceholder">
-                                            {initials}
+                                            <AvatarFallbackIcon size={42} />
                                         </div>
                                     )}
                                 </div>

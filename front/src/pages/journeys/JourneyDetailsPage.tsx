@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { getUserId, getUsername, isAdmin } from "@/lib/auth/auth";
 import CreatorCard from "@/components/detail/CreatorCard";
 import Pagination from "@/components/listing/Pagination";
+import PageStatus from "@/components/ui/PageStatus";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import { createJourneyResponse, getCityByUrl, getJourneyResponses, getUserByUrl, listJourneyTips } from "@/lib/api/journeys";
 import { fetchEvents, type EventDto } from "@/lib/api/events";
@@ -18,6 +19,7 @@ import NotFoundPage from "@/pages/errors/NotFoundPage";
 import type { JourneyComment, JourneyEvent, JourneyTip } from "@/types/journey";
 import type { ProfileInterest } from "@/types/profile";
 import { parseApiDate } from "@/lib/utils/date";
+import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 
 const TIPS_PAGE_PARAM = "tipsPage";
 const COMMENTS_PAGE_PARAM = "commentsPage";
@@ -365,7 +367,7 @@ export default function JourneyDetailPage() {
     }
 
     if (isLoading) {
-        return <div className="journey-detail-page">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</div>;
+        return <PageStatus className="journey-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
     if (isNotFound) {
@@ -386,10 +388,10 @@ export default function JourneyDetailPage() {
     }
 
     if (isError) {
-        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
     if (!data) {
-        return <div className="journey-detail-page">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</div>;
+        return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
     const handleBack = () => {
@@ -667,7 +669,7 @@ export default function JourneyDetailPage() {
                                 </div>
                                 <div className="section-content">
                                     {interestsQuery.isLoading ? (
-                                        <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                        <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
                                     ) : interestsPageData.content.length === 0 ? (
                                         <div className="empty-state">
                                             <div className="empty-icon">
@@ -753,7 +755,7 @@ export default function JourneyDetailPage() {
                                             </button>
                                         </div>
                                         {eventsLoading ? (
-                                            <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                            <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
                                         ) : activeEventsPage.content.length === 0 ? (
                                             <div className="empty-state">
                                                 <div className="empty-icon">
@@ -861,7 +863,7 @@ export default function JourneyDetailPage() {
                                 </div>
                                 <div className="section-content">
                                     {tipsQuery.isLoading ? (
-                                        <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                        <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
                                     ) : tipsPageData.content.length === 0 ? (
                                         <div className="empty-state">
                                             <div className="empty-icon">
@@ -1026,7 +1028,7 @@ export default function JourneyDetailPage() {
                                 {commentsOpen && (
                                     <div id="comments-list" className="section-content responses-list">
                                         {commentsQuery.isLoading ? (
-                                            <p className="section__helper">{t("admin.dashboard.loading", { defaultValue: "Cargando..." })}</p>
+                                            <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
                                         ) : commentsPageData.content.length === 0 ? (
                                             <div className="empty-state">
                                                 <div className="empty-icon">
@@ -1042,7 +1044,9 @@ export default function JourneyDetailPage() {
                                                     <div className="response-header">
                                                         <div className="response-user">
                                                             <div className="response-avatar">
-                                                                <div className="avatar-placeholder">{response.user.username.slice(0, 1)}</div>
+                                                                <div className="avatar-placeholder">
+                                                                    <AvatarFallbackIcon size={18} />
+                                                                </div>
                                                             </div>
                                                             <div className="response-user-info">
                                                                 <h3 className="response-username">{response.user.username}</h3>

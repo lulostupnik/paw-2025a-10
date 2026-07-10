@@ -5,17 +5,9 @@ import { getProfilePictureUrl, getUsername, isAdmin, isLoggedIn, logout } from "
 import { classNames } from "@/lib/utils/classNames";
 import { useI18n } from "@/lib/i18n";
 import Logo from "./Logo";
+import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 
 const linkClassName = ({ isActive }: { isActive: boolean }) => classNames("top-bar__link", isActive && "is-active");
-
-const getInitials = (value: string) =>
-    value
-        .split(" ")
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((chunk) => chunk[0])
-        .join("")
-        .toUpperCase();
 
 export default function TopBar() {
     const nav = useNavigate();
@@ -149,7 +141,7 @@ export default function TopBar() {
                                         onError={() => setAvatarError(true)}
                                     />
                                 ) : (
-                                    getInitials(username)
+                                    <AvatarFallbackIcon size={16} />
                                 )}
                             </span>
                             <span className="top-bar__profile-name">{username}</span>
