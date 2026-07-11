@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "ratings", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "event_id"}, name = "unique_user_event_rating"))
-public class Rating {
+public class Rating implements Etaggable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ratings_id_seq")
     @SequenceGenerator(sequenceName = "ratings_id_seq", name = "ratings_id_seq", allocationSize = 1)
@@ -54,8 +54,15 @@ public class Rating {
     }
     @Override
     public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public Object etagValue() {
         return Objects.hash(
                 id,
+                user != null ? user.getId() : null,
+                event != null ? event.getId() : null,
                 rating
         );
     }

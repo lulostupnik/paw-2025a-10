@@ -12,7 +12,7 @@
     @Getter
     @Entity
     @Table(name="events")
-    public class Event {
+    public class Event implements Etaggable {
         @Id
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "events_id_seq")
         @SequenceGenerator(sequenceName = "events_id_seq", name = "events_id_seq", allocationSize = 1)
@@ -152,8 +152,14 @@
 
         @Override
         public int hashCode() {
+            return Objects.hashCode(id);
+        }
+
+        @Override
+        public Object etagValue() {
             return Objects.hash(
                     id,
+                    user != null ? user.getId() : null,
                     date,
                     description,
                     flyerImageId,
