@@ -8,6 +8,8 @@ public class RootIndexDto {
     private String usersUrl;
     private String eventsUrl;
     private String journeysUrl;
+    private String recommendedEventsUrl;
+    private String recommendedJourneysUrl;
     private String reportsUrl;
     private String interestsUrl;
     private String universitiesUrl;
@@ -54,8 +56,10 @@ public class RootIndexDto {
 
         // Top-level collection URLs with query param templates
         dto.usersUrl = baseUri + "users{?attendingEvent,university,career,interest,search,blocked,page,size}";
-        dto.eventsUrl = baseUri + "events{?destination,interest,afterDate,beforeDate,search,sort,direction,page,size,attendedBy,university,minRating,hasCapacity,creatorId}";
-        dto.journeysUrl = baseUri + "journeys{?city,university,startDate,endDate,interest,upcoming,past,ongoing,destinationCity,excludeUser,search,sort,direction,page,size}";
+        dto.eventsUrl = baseUri + "events{?recommendedForUser,destination,interest,afterDate,beforeDate,search,sort,direction,page,size,attendedBy,university,minRating,hasCapacity,creatorId}";
+        dto.journeysUrl = baseUri + "journeys{?recommendedForUser,city,university,startDate,endDate,interest,upcoming,past,ongoing,destinationCity,excludeUser,search,sort,direction,page,size}";
+        dto.recommendedEventsUrl = baseUri + "events{?recommendedForUser,page,size}";
+        dto.recommendedJourneysUrl = baseUri + "journeys{?recommendedForUser,page,size}";
         dto.reportsUrl = baseUri + "reports{?search,page,size}";
         dto.interestsUrl = baseUri + "interests{?search,page,size}";
         dto.universitiesUrl = baseUri + "universities{?search,page,size}";
@@ -108,6 +112,12 @@ public class RootIndexDto {
 
     public String getJourneysUrl() { return journeysUrl; }
     public void setJourneysUrl(String journeysUrl) { this.journeysUrl = journeysUrl; }
+
+    public String getRecommendedEventsUrl() { return recommendedEventsUrl; }
+    public void setRecommendedEventsUrl(String recommendedEventsUrl) { this.recommendedEventsUrl = recommendedEventsUrl; }
+
+    public String getRecommendedJourneysUrl() { return recommendedJourneysUrl; }
+    public void setRecommendedJourneysUrl(String recommendedJourneysUrl) { this.recommendedJourneysUrl = recommendedJourneysUrl; }
 
     public String getReportsUrl() { return reportsUrl; }
     public void setReportsUrl(String reportsUrl) { this.reportsUrl = reportsUrl; }

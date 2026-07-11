@@ -52,6 +52,10 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(JOURNEYS_URL).build();
     }
 
+    public static URI getUserRecommendedJourneysUri(final UriInfo uriInfo, final long userId) {
+        return uriInfo.getBaseUriBuilder().path(JOURNEYS_URL).queryParam("recommendedForUser", userId).build();
+    }
+
     public static URI getJourneyUri(final UriInfo uriInfo, final long journeyId) {
         return uriInfo.getBaseUriBuilder().path(JOURNEYS_URL).path(String.valueOf(journeyId)).build();
     }
@@ -80,6 +84,10 @@ public final class UriUtils {
 
     public static URI getEventsUri(final UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).build();
+    }
+
+    public static URI getUserRecommendedEventsUri(final UriInfo uriInfo, final long userId) {
+        return uriInfo.getBaseUriBuilder().path(EVENTS_URL).queryParam("recommendedForUser", userId).build();
     }
 
     public static URI getEventUri(final UriInfo uriInfo, final long eventId) {
