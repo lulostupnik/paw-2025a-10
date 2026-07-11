@@ -1,6 +1,6 @@
 import axios, { isAxiosError } from "axios";
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { getAuthToken, getRefreshToken, setAuthTokens } from "@/lib/auth/auth";
+import { getAuthToken, getRefreshToken, logout, setAuthTokens } from "@/lib/auth/auth";
 
 let apiLocale = "en";
 
@@ -178,6 +178,7 @@ apiClient.interceptors.response.use(
 
         const refreshToken = getRefreshToken();
         if (!refreshToken) {
+            logout();
             return Promise.reject(error);
         }
 
@@ -190,6 +191,7 @@ apiClient.interceptors.response.use(
             const response = await apiClient.request(originalRequest);
             return response;
         } catch (retryError) {
+            logout();
             return Promise.reject(retryError);
         }
     }

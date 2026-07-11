@@ -56,5 +56,27 @@ describe("apiClient auth interceptor", () => {
             response: { status: 401 },
         });
         expect(attempts).toBe(1);
+        expect(localStorage.getItem("authToken")).toBeNull();
+    });
+
+    it("clears local session when the refresh retry also fails", async () => {
+        localStorage.setItem("authToken", "expired-access");
+        localStorage.setItem("refreshToken", "expired-refresh");
+        const authorizations: Array<string | null> = [];
+
+        server.use(
+            http.get(`${BASE_URL}/protected`, ({ request }) => {
+                authorizations.push(request.headers.get("Authorization"));
+                return new HttpResponse(null, { status: 401 });
+            }),
+        );
+
+        await expect(apiClient.get("/protected")).rejects.toMatchObject({
+            response: { status: 401 },
+        });
+
+        expect(authorizations).toEqual(["Bearer expired-access", "Bearer expired-refresh"]);
+        expect(localStorage.getItem("authToken")).toBeNull();
+        expect(localStorage.getItem("refreshToken")).toBeNull();
     });
 });
