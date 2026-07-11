@@ -131,18 +131,13 @@ public class JourneyHibernateDao implements JourneyDao {
         final List<String> filters = new ArrayList<>();
         final Map<String, Object> paramMap = new HashMap<>();
 
-        StringBuilder countSql = new StringBuilder("SELECT COUNT(DISTINCT j.id) FROM journeys j");
-
-        StringBuilder idSql = new StringBuilder("SELECT id FROM (SELECT j.id as id, j.start_date, j.end_date FROM journeys j");
+        StringBuilder sqlBody = new StringBuilder("FROM journeys j");
 
         boolean joinedUsers = false;
         boolean joinedUnis = false;
 
         if (interest != null && !interest.isEmpty()) {
-            countSql.append(" JOIN users u ON j.user_id = u.id")
-                    .append(" JOIN user_interest ui ON u.id = ui.user_id")
-                    .append(" JOIN category c ON ui.category_id = c.id ");
-            idSql.append(" JOIN users u ON j.user_id = u.id")
+            sqlBody.append(" JOIN users u ON j.user_id = u.id")
                     .append(" JOIN user_interest ui ON u.id = ui.user_id")
                     .append(" JOIN category c ON ui.category_id = c.id ");
             filters.add("c.name = :interest");
@@ -151,9 +146,7 @@ public class JourneyHibernateDao implements JourneyDao {
         }
 
         if (city != null && !city.isEmpty()) {
-            countSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
-                    .append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
-            idSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
+            sqlBody.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
                     .append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
             filters.add("ci2.name = :city");
             paramMap.put("city", city);
@@ -162,8 +155,7 @@ public class JourneyHibernateDao implements JourneyDao {
 
         if (university != null && !university.isEmpty()) {
             if (!joinedUnis) {
-                countSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id");
-                idSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id");
+                sqlBody.append(" JOIN universities un2 ON j.destination_university_id = un2.id");
                 joinedUnis = true;
             }
             filters.add("un2.name = :university");
@@ -193,15 +185,12 @@ public class JourneyHibernateDao implements JourneyDao {
 
         if (searchTerm != null && !searchTerm.isEmpty()) {
             if (!joinedUnis) {
-                countSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
-                        .append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
-                idSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
+                sqlBody.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
                         .append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
                 joinedUnis = true;
             }
             if (!joinedUsers) {
-                countSql.append(" JOIN users u ON j.user_id = u.id ");
-                idSql.append(" JOIN users u ON j.user_id = u.id ");
+                sqlBody.append(" JOIN users u ON j.user_id = u.id ");
                 joinedUsers = true;
             }
             filters.add("""
@@ -217,9 +206,7 @@ public class JourneyHibernateDao implements JourneyDao {
 
         if (destinationCityId != null) {
             if (!joinedUnis){
-                countSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
-                        .append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
-                idSql.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
+                sqlBody.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
                         .append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
                 joinedUnis = true;
             }
@@ -227,25 +214,27 @@ public class JourneyHibernateDao implements JourneyDao {
             paramMap.put("destinationCityId", destinationCityId);
         }
 
-        countSql.append(" WHERE j.deleted = FALSE ");
-        idSql.append(" WHERE j.deleted = FALSE ");
+        sqlBody.append(" WHERE j.deleted = FALSE ");
         if (!filters.isEmpty()) {
             String whereClause = " AND " + String.join(" AND ", filters);
-            countSql.append(whereClause);
-            idSql.append(whereClause);
+            sqlBody.append(whereClause);
         }
 
+        final String countSql = "SELECT COUNT(DISTINCT j.id) " + sqlBody;
         String orderColumn = getOrderByColumn(orderBy, false);
         String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
 
-
-        idSql.append(" GROUP BY j.id, j.start_date, j.end_date");
-
-        idSql.append(" ORDER BY ").append(orderColumn).append(" ").append(dir).append(")");
+        final String idSql = "SELECT id FROM (SELECT j.id as id, j.start_date, j.end_date "
+                + sqlBody
+                + " GROUP BY j.id, j.start_date, j.end_date ORDER BY "
+                + orderColumn
+                + " "
+                + dir
+                + ")";
 
         String jpqlFetch = "FROM Journey j WHERE j.id IN :ids ORDER BY " + getOrderByColumn(orderBy, true)  + " " + dir;
 
-        return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Journey.class, pageParams,Map.of());
+        return fetchPageByIds(em, countSql, idSql, paramMap, jpqlFetch, Journey.class, pageParams,Map.of());
     }
 
 

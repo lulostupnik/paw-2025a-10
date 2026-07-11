@@ -371,16 +371,7 @@ public class EventHibernateDao implements EventDao {
         List<String> filters = new ArrayList<>();
         Map<String, Object> paramMap = new HashMap<>();
 
-        StringBuilder countSql = new StringBuilder("""
-        SELECT COUNT(DISTINCT e.id)
-        FROM events e
-        JOIN users us ON e.user_id = us.id
-        JOIN universities un ON us.university = un.id
-        JOIN cities ci ON un.city_id = ci.id
-        """);
-
-        StringBuilder idSql = new StringBuilder("""
-        SELECT e.id
+        StringBuilder sqlBody = new StringBuilder("""
         FROM events e
         JOIN users us ON e.user_id = us.id
         JOIN universities un ON us.university = un.id
@@ -388,15 +379,13 @@ public class EventHibernateDao implements EventDao {
         """);
 
         if (interest != null && !interest.isEmpty()) {
-            countSql.append(" JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
-            idSql.append(" JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
+            sqlBody.append(" JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
             filters.add("c.name = :interest");
             paramMap.put("interest", interest);
         }
 
         if (destination != null && !destination.isEmpty()) {
-            countSql.append(" JOIN cities cd ON e.city_id = cd.id ");
-            idSql.append(" JOIN cities cd ON e.city_id = cd.id ");
+            sqlBody.append(" JOIN cities cd ON e.city_id = cd.id ");
             filters.add("cd.name = :destination");
             paramMap.put("destination", destination);
         }
@@ -446,8 +435,7 @@ public class EventHibernateDao implements EventDao {
         }
 
         if (attendedByUserId != null) {
-            countSql.append(" JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :attendedByUserId ");
-            idSql.append(" JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :attendedByUserId ");
+            sqlBody.append(" JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :attendedByUserId ");
             paramMap.put("attendedByUserId", attendedByUserId);
         }
 
@@ -469,22 +457,19 @@ public class EventHibernateDao implements EventDao {
 
 
         // Build WHERE clause
-        countSql.append(" WHERE e.deleted = FALSE ");
-        idSql.append(" WHERE e.deleted = FALSE ");
+        sqlBody.append(" WHERE e.deleted = FALSE ");
         if (!filters.isEmpty()) {
             String clause =  String.join(" AND ", filters);
-
-            countSql.append(" AND ").append(clause);
-            idSql.append(" AND " ).append(clause);
+            sqlBody.append(" AND ").append(clause);
         }
 
+        final String countSql = "SELECT COUNT(DISTINCT e.id) " + sqlBody;
         String sortColumn = getSortColumn(sortBy, false);
         String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
-
-        idSql.append(" ORDER BY ").append(sortColumn).append(" ").append(dir);
+        final String idSql = "SELECT e.id " + sqlBody + " ORDER BY " + sortColumn + " " + dir;
 
         final String jpqlFetch = "FROM Event e WHERE e.id IN :ids ORDER BY " + getSortColumn(sortBy, true) + " " + dir;
 
-        return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Event.class, pageParams, Map.of());
+        return fetchPageByIds(em, countSql, idSql, paramMap, jpqlFetch, Event.class, pageParams, Map.of());
     }
 }
