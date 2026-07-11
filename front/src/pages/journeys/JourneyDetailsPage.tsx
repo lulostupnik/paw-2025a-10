@@ -24,12 +24,23 @@ import type { QueryClient } from "@tanstack/react-query";
 
 const TIPS_PAGE_PARAM = "tipsPage";
 const COMMENTS_PAGE_PARAM = "commentsPage";
+const INTERESTS_PAGE_PARAM = "interestsPage";
+const EVENTS_TAB_PARAM = "eventsTab";
+const CREATED_EVENTS_PAGE_PARAM = "createdEventsPage";
+const ATTENDING_EVENTS_PAGE_PARAM = "attendingEventsPage";
 const TIPS_PAGE_SIZE = 4;
 const COMMENTS_PAGE_SIZE = 4;
 
 const parsePageParam = (value: string | null) => {
     const raw = Number(value ?? "1");
     return Number.isFinite(raw) && raw > 0 ? raw : 1;
+};
+
+const parseEventsTabParam = (value: string | null): "created" | "attending" => {
+    if (value === "attending") {
+        return value;
+    }
+    return "created";
 };
 
 const formatDate = (value: string, locale: string) => {
@@ -122,10 +133,10 @@ export default function JourneyDetailPage() {
     const [eventsOpen, setEventsOpen] = useState(true);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
     const [openTipMenuId, setOpenTipMenuId] = useState<number | null>(null);
-    const [interestsPage, setInterestsPage] = useState(1);
-    const [eventsSubtab, setEventsSubtab] = useState<"created" | "attending">("created");
-    const [createdEventsPage, setCreatedEventsPage] = useState(1);
-    const [attendingEventsPage, setAttendingEventsPage] = useState(1);
+    const [interestsPage, setInterestsPage] = useState(() => parsePageParam(searchParams.get(INTERESTS_PAGE_PARAM)));
+    const [eventsSubtab, setEventsSubtab] = useState<"created" | "attending">(() => parseEventsTabParam(searchParams.get(EVENTS_TAB_PARAM)));
+    const [createdEventsPage, setCreatedEventsPage] = useState(() => parsePageParam(searchParams.get(CREATED_EVENTS_PAGE_PARAM)));
+    const [attendingEventsPage, setAttendingEventsPage] = useState(() => parsePageParam(searchParams.get(ATTENDING_EVENTS_PAGE_PARAM)));
     const [tipsPage, setTipsPage] = useState(() => parsePageParam(searchParams.get(TIPS_PAGE_PARAM)));
     const [commentsPage, setCommentsPage] = useState(() => parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM)));
     const [replyMessage, setReplyMessage] = useState("");
@@ -242,10 +253,43 @@ export default function JourneyDetailPage() {
             } else {
                 nextParams.delete(paramName);
             }
-            setSearchParams(nextParams, { replace: true });
+            setSearchParams(nextParams);
         },
         [searchParams, setSearchParams]
     );
+
+    const updateEventsTabParam = useCallback(
+        (tab: "created" | "attending") => {
+            const nextParams = new URLSearchParams(searchParams);
+            if (tab === "created") {
+                nextParams.delete(EVENTS_TAB_PARAM);
+            } else {
+                nextParams.set(EVENTS_TAB_PARAM, tab);
+            }
+            setSearchParams(nextParams);
+        },
+        [searchParams, setSearchParams]
+    );
+
+    useEffect(() => {
+        const nextPage = parsePageParam(searchParams.get(INTERESTS_PAGE_PARAM));
+        setInterestsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
+    }, [searchParams]);
+
+    useEffect(() => {
+        const nextTab = parseEventsTabParam(searchParams.get(EVENTS_TAB_PARAM));
+        setEventsSubtab((currentTab) => (currentTab === nextTab ? currentTab : nextTab));
+    }, [searchParams]);
+
+    useEffect(() => {
+        const nextPage = parsePageParam(searchParams.get(CREATED_EVENTS_PAGE_PARAM));
+        setCreatedEventsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
+    }, [searchParams]);
+
+    useEffect(() => {
+        const nextPage = parsePageParam(searchParams.get(ATTENDING_EVENTS_PAGE_PARAM));
+        setAttendingEventsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
+    }, [searchParams]);
 
     useEffect(() => {
         const nextPage = parsePageParam(searchParams.get(TIPS_PAGE_PARAM));
@@ -338,23 +382,37 @@ export default function JourneyDetailPage() {
 
     const handleCreatedEventsPageChange = useCallback(
         (page: number | string) => {
-            setCreatedEventsPage(parsePageFromLink(page));
+            const parsedPage = parsePageFromLink(page);
+            setCreatedEventsPage(parsedPage);
+            updatePageParam(CREATED_EVENTS_PAGE_PARAM, parsedPage);
         },
-        [parsePageFromLink]
+        [parsePageFromLink, updatePageParam]
     );
 
     const handleAttendingEventsPageChange = useCallback(
         (page: number | string) => {
-            setAttendingEventsPage(parsePageFromLink(page));
+            const parsedPage = parsePageFromLink(page);
+            setAttendingEventsPage(parsedPage);
+            updatePageParam(ATTENDING_EVENTS_PAGE_PARAM, parsedPage);
         },
-        [parsePageFromLink]
+        [parsePageFromLink, updatePageParam]
     );
 
     const handleInterestsPageChange = useCallback(
         (page: number | string) => {
-            setInterestsPage(parsePageFromLink(page));
+            const parsedPage = parsePageFromLink(page);
+            setInterestsPage(parsedPage);
+            updatePageParam(INTERESTS_PAGE_PARAM, parsedPage);
         },
-        [parsePageFromLink]
+        [parsePageFromLink, updatePageParam]
+    );
+
+    const handleEventsSubtabChange = useCallback(
+        (tab: "created" | "attending") => {
+            setEventsSubtab(tab);
+            updateEventsTabParam(tab);
+        },
+        [updateEventsTabParam]
     );
 
     const handleTipsPageChange = useCallback(
@@ -764,18 +822,18 @@ export default function JourneyDetailPage() {
 
                                 {eventsOpen && (
                                     <div id="events-list" className="section-content events-list">
-                                        <div className="events-filter-subtabs">
+                                                <div className="events-filter-subtabs">
                                             <button
                                                 type="button"
                                                 className={`events-subtab ${eventsSubtab === "created" ? "active" : ""}`}
-                                                onClick={() => setEventsSubtab("created")}
+                                                onClick={() => handleEventsSubtabChange("created")}
                                             >
                                                 {t("journey.events.created", { defaultValue: "Created" })}
                                             </button>
                                             <button
                                                 type="button"
                                                 className={`events-subtab ${eventsSubtab === "attending" ? "active" : ""}`}
-                                                onClick={() => setEventsSubtab("attending")}
+                                                onClick={() => handleEventsSubtabChange("attending")}
                                             >
                                                 {t("journey.events.attending", { defaultValue: "Attending" })}
                                             </button>

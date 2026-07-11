@@ -55,10 +55,12 @@ public class InterestHibernateDao implements InterestDao {
         final String idSql = """
                 SELECT i.id
                 FROM category i
+                ORDER BY i.id
                 """;
         final String jpqlFetch = """
                 FROM Interest i
                 WHERE i.id IN :ids
+                ORDER BY i.id
                 """;
 
         return fetchPageByIds(
@@ -93,11 +95,13 @@ public class InterestHibernateDao implements InterestDao {
                 SELECT i.id
                 FROM category i
                 WHERE LOWER(i.name) LIKE LOWER( :pattern )
+                ORDER BY i.id
                 """;
 
         final String jpqlFetch = """
                 FROM Interest i
                 WHERE i.id IN :ids
+                ORDER BY i.id
                 """;
         return fetchPageByIds(
                 em,

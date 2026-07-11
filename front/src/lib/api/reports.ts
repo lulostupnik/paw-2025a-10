@@ -40,10 +40,7 @@ export interface ReportDto {
         selfUrl?: string | null;
         reportedUserUrl?: string | null;
         reportingUserUrl?: string | null;
-        journeyUrl?: string | null;
-        eventUrl?: string | null;
-        journeyResponseUrl?: string | null;
-        eventResponseUrl?: string | null;
+        targetUrl?: string | null;
     } | null;
 }
 
@@ -155,6 +152,34 @@ const parseIdFromUrl = (url?: string | null) => {
     return match ? Number(match[1]) : null;
 };
 
+type ReportTargetKind = "journey" | "event" | "journeyResponse" | "eventResponse" | "unknown";
+
+interface ReportTarget {
+    kind: ReportTargetKind;
+    url: string;
+    id: number | null;
+}
+
+const parseReportTarget = (url?: string | null): ReportTarget | null => {
+    if (!url) {
+        return null;
+    }
+    const normalized = normalizeApiPath(url);
+    if (/\/journeys\/\d+\/responses\/\d+\/?$/.test(normalized)) {
+        return { kind: "journeyResponse", url, id: parseIdFromUrl(url) };
+    }
+    if (/\/events\/\d+\/responses\/\d+\/?$/.test(normalized)) {
+        return { kind: "eventResponse", url, id: parseIdFromUrl(url) };
+    }
+    if (/\/journeys\/\d+\/?$/.test(normalized)) {
+        return { kind: "journey", url, id: parseIdFromUrl(url) };
+    }
+    if (/\/events\/\d+\/?$/.test(normalized)) {
+        return { kind: "event", url, id: parseIdFromUrl(url) };
+    }
+    return { kind: "unknown", url, id: parseIdFromUrl(url) };
+};
+
 const fetchByUrl = async <T>(url: string | null | undefined, accept: string, signal?: AbortSignal): Promise<T | null> => {
     if (!url) {
         return null;
@@ -173,19 +198,7 @@ const mapUser = (user: UserDto | null): ReportUser => ({
 });
 
 const resolveContentType = (report: ReportDto): ReportListItem["contentType"] => {
-    if (report.links?.journeyUrl) {
-        return "journey";
-    }
-    if (report.links?.eventUrl) {
-        return "event";
-    }
-    if (report.links?.journeyResponseUrl) {
-        return "journeyResponse";
-    }
-    if (report.links?.eventResponseUrl) {
-        return "eventResponse";
-    }
-    return "unknown";
+    return parseReportTarget(report.links?.targetUrl)?.kind ?? "unknown";
 };
 
 export const listReports = async (params: ListReportsParams = {}, signal?: AbortSignal): Promise<PageResult<ReportDto>> => {
@@ -232,18 +245,21 @@ export const getReportDetail = async (id: number, signal?: AbortSignal): Promise
         fetchByUrl<UserDto>(report.links?.reportingUserUrl, ContentTypes.USER_PUBLIC, signal),
     ]);
 
-    const journeyId = parseIdFromUrl(report.links?.journeyUrl);
-    const eventId = parseIdFromUrl(report.links?.eventUrl);
+    const target = parseReportTarget(report.links?.targetUrl);
 
     const [journeyData, eventData, journeyResponseData, eventResponseData] = await Promise.all([
-        journeyId
-            ? getJourneyById(journeyId, signal)
-            : report.links?.journeyUrl
-              ? fetchByUrl<JourneySummary>(report.links.journeyUrl, ContentTypes.JOURNEY, signal)
-              : null,
-        eventId ? getEventById(eventId, signal) : report.links?.eventUrl ? fetchByUrl<EventDto>(report.links.eventUrl, ContentTypes.EVENT, signal) : null,
-        fetchByUrl<JourneyResponseDto>(report.links?.journeyResponseUrl, ContentTypes.JOURNEY_RESPONSE, signal),
-        fetchByUrl<EventResponseDto>(report.links?.eventResponseUrl, ContentTypes.EVENT_RESPONSE, signal),
+        target?.kind === "journey"
+            ? (target.id ? getJourneyById(target.id, signal) : fetchByUrl<JourneySummary>(target.url, ContentTypes.JOURNEY, signal))
+            : null,
+        target?.kind === "event"
+            ? (target.id ? getEventById(target.id, signal) : fetchByUrl<EventDto>(target.url, ContentTypes.EVENT, signal))
+            : null,
+        target?.kind === "journeyResponse"
+            ? fetchByUrl<JourneyResponseDto>(target.url, ContentTypes.JOURNEY_RESPONSE, signal)
+            : null,
+        target?.kind === "eventResponse"
+            ? fetchByUrl<EventResponseDto>(target.url, ContentTypes.EVENT_RESPONSE, signal)
+            : null,
     ]);
 
     const journeyResponseJourney = journeyResponseData?.links?.journeyUrl

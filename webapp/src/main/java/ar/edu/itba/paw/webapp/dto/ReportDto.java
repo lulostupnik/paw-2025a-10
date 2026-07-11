@@ -38,27 +38,34 @@ public class ReportDto {
         links.selfUrl = UriUtils.getReportUri(uriInfo, report.getId());
         links.reportedUserUrl = UriUtils.getUserUri(uriInfo, report.getReportedUser().getId());
         links.reportingUserUrl = UriUtils.getUserUri(uriInfo, report.getReportingUser().getId());
-
-        // TODO: revisar. ¿No deberían ser else if en realidad?
-        if (report.getJourney() != null) {
-            links.journeyUrl = UriUtils.getJourneyUri(uriInfo, report.getJourney().getId());
-        }
-        if (report.getEvent() != null) {
-            links.eventUrl = UriUtils.getEventUri(uriInfo, report.getEvent().getId());
-        }
-        if (report.getJourneyResponse() != null) {
-            links.journeyResponseUrl = UriUtils.getJourneyResponseUri(uriInfo,
-                    report.getJourneyResponse().getJourney().getId(),
-                    report.getJourneyResponse().getId());
-        }
-        if (report.getEventResponse() != null) {
-            links.eventResponseUrl = UriUtils.getEventResponseUri(uriInfo,
-                    report.getEventResponse().getEvent().getId(),
-                    report.getEventResponse().getId());
-        }
+        links.targetUrl = resolveTargetUri(uriInfo, report);
         dto.links = links;
 
         return dto;
+    }
+
+    private static URI resolveTargetUri(final UriInfo uriInfo, final Report report) {
+        if (report.getJourneyResponse() != null) {
+            return UriUtils.getJourneyResponseUri(
+                    uriInfo,
+                    report.getJourneyResponse().getJourney().getId(),
+                    report.getJourneyResponse().getId()
+            );
+        }
+        if (report.getEventResponse() != null) {
+            return UriUtils.getEventResponseUri(
+                    uriInfo,
+                    report.getEventResponse().getEvent().getId(),
+                    report.getEventResponse().getId()
+            );
+        }
+        if (report.getJourney() != null) {
+            return UriUtils.getJourneyUri(uriInfo, report.getJourney().getId());
+        }
+        if (report.getEvent() != null) {
+            return UriUtils.getEventUri(uriInfo, report.getEvent().getId());
+        }
+        return null;
     }
 
     public static List<ReportDto> fromReportCollection(final UriInfo uriInfo, final Collection<Report> reports) {
@@ -78,17 +85,11 @@ public class ReportDto {
         private URI selfUrl;
         private URI reportedUserUrl;
         private URI reportingUserUrl;
-        private URI journeyUrl;
-        private URI eventUrl;
-        private URI journeyResponseUrl;
-        private URI eventResponseUrl;
+        private URI targetUrl;
 
         public URI getSelfUrl() { return selfUrl; }
         public URI getReportedUserUrl() { return reportedUserUrl; }
         public URI getReportingUserUrl() { return reportingUserUrl; }
-        public URI getJourneyUrl() { return journeyUrl; }
-        public URI getEventUrl() { return eventUrl; }
-        public URI getJourneyResponseUrl() { return journeyResponseUrl; }
-        public URI getEventResponseUrl() { return eventResponseUrl; }
+        public URI getTargetUrl() { return targetUrl; }
     }
 }
