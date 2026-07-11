@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import Pagination from "@/components/listing/Pagination";
+import PageStatus from "@/components/ui/PageStatus";
 import EventCard from "@/components/cards/EventCard";
 import type { PageResult } from "@/types/pagination";
 import type { ProfileEvent } from "@/types/event";
@@ -12,6 +13,7 @@ interface ProfileEventsTabProps {
     created: PageResult<ProfileEvent>;
     attending: PageResult<ProfileEvent>;
     finished: PageResult<ProfileEvent>;
+    isLoading?: boolean;
     onTabChange: (tab: "created" | "attending" | "finished") => void;
     onCreatedPageChange: (page: number | string) => void;
     onAttendingPageChange: (page: number | string) => void;
@@ -24,6 +26,7 @@ export default function ProfileEventsTab({
     created,
     attending,
     finished,
+    isLoading = false,
     onTabChange,
     onCreatedPageChange,
     onAttendingPageChange,
@@ -76,7 +79,9 @@ export default function ProfileEventsTab({
 
                 <div className={classNames("events-tab-content", activeTab === "created" && "active")} id="created-events">
                     <div className="cards-grid">
-                        {created.content.length === 0 ? (
+                        {isLoading ? (
+                            <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
+                        ) : created.content.length === 0 ? (
                             <div className="empty-state">
                                 <div className="empty-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,7 +117,9 @@ export default function ProfileEventsTab({
 
                 <div className={classNames("events-tab-content", activeTab === "attending" && "active")} id="attending-events">
                     <div className="cards-grid">
-                        {attending.content.length === 0 ? (
+                        {isLoading ? (
+                            <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
+                        ) : attending.content.length === 0 ? (
                             <div className="empty-state">
                                 <div className="empty-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -146,7 +153,9 @@ export default function ProfileEventsTab({
 
                 <div className={classNames("events-tab-content", activeTab === "finished" && "active")} id="finished-events">
                     <div className="cards-grid">
-                        {finished.content.length === 0 ? (
+                        {isLoading ? (
+                            <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
+                        ) : finished.content.length === 0 ? (
                             <div className="empty-state">
                                 <div className="empty-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="empty-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

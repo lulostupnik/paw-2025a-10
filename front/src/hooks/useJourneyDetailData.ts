@@ -1,37 +1,99 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
-import { buildJourneyDetail, getJourneyById } from "@/lib/api/journeys";
-import type { JourneyDetail } from "@/types/journey";
-import { DETAIL_QUERY_OPTIONS } from "@/lib/utils/queryDefaults";
+import { buildJourneyCreator, buildJourneyDestination, getJourneyById } from "@/lib/api/journeys";
+import type { JourneyCreator, JourneyDetail } from "@/types/journey";
 
 interface JourneyDetailParams {
     journeyId?: string;
 }
 
+const parseIdFromUrl = (url?: string | null): number | null => {
+    if (!url) {
+        return null;
+    }
+    const match = url.match(/(\d+)\/?$/);
+    return match ? Number(match[1]) : null;
+};
+
+// Splits the journey detail into a fast core fetch (GET /journeys/{id}) and slower
+// secondary lookups (host, destination university). The page can render its main
+// information as soon as the core resolves; each secondary block reports its own
+// loading/error state so it can fill in independently.
 export const useJourneyDetailData = ({ journeyId }: JourneyDetailParams = {}) => {
     const queryClient = useQueryClient();
-    const query = useQuery({
+
+    const journeyQuery = useQuery({
         queryKey: ["journeyDetail", journeyId],
-        queryFn: async ({ signal }) => {
+        queryFn: ({ signal }) => {
             if (!journeyId) {
                 throw new Error("missing-journey-id");
             }
-            const journey = await getJourneyById(journeyId, signal);
-            return buildJourneyDetail(journey, signal, queryClient);
+            return getJourneyById(journeyId, signal);
         },
         placeholderData: keepPreviousData,
-        ...DETAIL_QUERY_OPTIONS,
         enabled: Boolean(journeyId),
     });
 
-    const status = (query.error as { response?: { status?: number } } | undefined)?.response?.status;
+    const journey = journeyQuery.data ?? null;
+    const userUrl = journey?.links?.userUrl ?? null;
+    const destinationUrl = journey?.links?.destinationUniversityUrl ?? null;
+
+    const creatorQuery = useQuery({
+        queryKey: ["journeyCreator", journeyId, userUrl],
+        queryFn: ({ signal }) => buildJourneyCreator(journey!, signal, queryClient),
+        enabled: Boolean(journey && userUrl),
+        placeholderData: keepPreviousData,
+    });
+
+    const destinationQuery = useQuery({
+        queryKey: ["journeyDestination", journeyId, destinationUrl],
+        queryFn: ({ signal }) => buildJourneyDestination(journey!, signal, queryClient),
+        enabled: Boolean(journey && destinationUrl),
+        placeholderData: keepPreviousData,
+    });
+
+    // Host id is derivable from its URL, so ownership-dependent controls can
+    // resolve immediately without waiting for the host profile fetch.
+    const fallbackCreator: JourneyCreator = {
+        id: parseIdFromUrl(userUrl) ?? 0,
+        firstname: "",
+        lastname: "",
+        username: "",
+        profilePictureUrl: journey?.profilePictureUrl ?? null,
+        university: null,
+        career: null,
+    };
+
+    const data: JourneyDetail | null = journey
+        ? {
+              id: journey.id,
+              description: journey.description,
+              startDate: journey.startDate,
+              endDate: journey.endDate,
+              links: journey.links ?? null,
+              destinationUniversity: destinationQuery.data ?? { name: "", city: "" },
+              user: creatorQuery.data ?? fallbackCreator,
+              interests: [],
+              events: [],
+              tips: [],
+              comments: [],
+          }
+        : null;
+
+    const status = (journeyQuery.error as { response?: { status?: number } } | undefined)?.response?.status;
     const isNotFound = status === 404;
 
     return {
-        data: (query.data ?? null) as JourneyDetail | null,
-        isLoading: query.isLoading,
-        isError: query.isError && !isNotFound,
+        data,
+        isLoading: journeyQuery.isLoading,
+        isError: journeyQuery.isError && !isNotFound,
         isNotFound,
-        refetch: query.refetch,
-        isFetching: query.isFetching,
+        refetch: journeyQuery.refetch,
+        isFetching: journeyQuery.isFetching,
+        creatorLoading: creatorQuery.isLoading,
+        creatorError: creatorQuery.isError,
+        creatorReady: Boolean(creatorQuery.data),
+        destinationLoading: destinationQuery.isLoading,
+        destinationError: destinationQuery.isError,
+        destinationReady: Boolean(destinationQuery.data),
     };
 };

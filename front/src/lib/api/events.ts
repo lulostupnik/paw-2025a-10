@@ -2,9 +2,9 @@ import type { QueryClient } from "@tanstack/react-query";
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import { getCareerByUrl, getCityByUrl, getUniversityByUrl, getUserByUrl } from "@/lib/api/journeys";
-import type { EventAttendee, EventComment, EventDetail, EventRating, ProfileEvent } from "@/types/event";
+import type { EventAttendee, EventCreator, EventRating, ProfileEvent } from "@/types/event";
 import { parseApiDate } from "@/lib/utils/date";
-import { emptyPage, mapPageList, toPaged, type PageResult } from "@/types/pagination";
+import { mapPageList, toPaged, type PageResult } from "@/types/pagination";
 
 interface EventLinks {
     selfUrl?: string | null;
@@ -220,92 +220,50 @@ export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal
     return results;
 };
 
-export const buildEventDetail = async (event: EventDto, signal?: AbortSignal, queryClient?: QueryClient): Promise<EventDetail> => {
-    const listAttendeesSafe = async () => {
-        try {
-            return await listEventAttendees(event.id, { page: 1, size: 10 }, signal, queryClient);
-        } catch (error) {
-            const status = (error as { response?: { status?: number } } | undefined)?.response?.status;
-            if (status === 401 || status === 403) {
-                return emptyPage<EventAttendee>();
-            }
-            throw error;
-        }
-    };
-
-    const [creator, city, responses, attendees, ratings] = await Promise.all([
-        event.links?.creatorUrl ? getUserByUrl(event.links.creatorUrl, signal, queryClient) : Promise.resolve(null),
-        event.links?.cityUrl ? getCityByUrl(event.links.cityUrl, signal, queryClient) : Promise.resolve(null),
-        listEventResponses(event.id, { page: 1, size: 10 }, signal),
-        listAttendeesSafe(),
-        listEventRatings(event.id, { page: 1, size: 10 }, signal),
-    ]);
+// Resolves the event creator plus their university/career. Kept separate from the
+// core event fetch so the page can render before these lookups complete.
+export const buildEventCreator = async (
+    event: EventDto,
+    signal?: AbortSignal,
+    queryClient?: QueryClient
+): Promise<EventCreator> => {
+    const creator = event.links?.creatorUrl
+        ? await getUserByUrl(event.links.creatorUrl, signal, queryClient)
+        : null;
     const [creatorUniversity, creatorCareer] = await Promise.all([
         creator?.links?.universityUrl ? getUniversityByUrl(creator.links.universityUrl, signal, queryClient) : Promise.resolve(null),
         creator?.links?.careerUrl ? getCareerByUrl(creator.links.careerUrl, signal, queryClient) : Promise.resolve(null),
     ]);
+    return {
+        id: creator?.id ?? 0,
+        firstname: creator?.firstname ?? creator?.username ?? "—",
+        lastname: creator?.lastname ?? "",
+        username: creator?.username ?? "—",
+        profilePictureUrl: creator?.links?.profilePictureUrl ?? null,
+        university: creatorUniversity ? { name: creatorUniversity.name } : null,
+        career: creatorCareer ? { name: creatorCareer.name } : null,
+    };
+};
 
-    const responseUsers = await Promise.all(
-        responses.content.map((response) =>
-            response.links?.authorUrl ? getUserByUrl(normalizeApiPath(response.links.authorUrl), signal, queryClient) : Promise.resolve(null)
-        )
-    );
+// Resolves the event ratings plus the username of each rater. Separate lookup so
+// the rating tab can show its own loading state without blocking the page.
+export const buildEventRatings = async (
+    eventId: number,
+    signal?: AbortSignal,
+    queryClient?: QueryClient
+): Promise<EventRating[]> => {
+    const ratings = await listEventRatings(eventId, { page: 1, size: 10 }, signal);
     const ratingUsers = await Promise.all(
         ratings.content.map((rating) =>
             rating.links?.userUrl ? getUserByUrl(normalizeApiPath(rating.links.userUrl), signal, queryClient) : Promise.resolve(null)
         )
     );
-
-    const comments: EventComment[] = responses.content.map((response, index) => ({
-        id: response.id,
-        message: response.message,
-        dateTime: response.dateTime,
-        user: {
-            username: responseUsers[index]?.username ?? "—",
-        },
-    }));
-
-    const attendeesList: EventAttendee[] = attendees.content;
-
-    const ratingsList: EventRating[] = ratings.content.map((rating, index) => ({
+    return ratings.content.map((rating, index) => ({
         id: rating.id,
         rating: rating.rating,
         dateTime: new Date().toISOString(),
         user: { username: ratingUsers[index]?.username ?? "—" },
     }));
-
-    const averageRating = typeof event.rating === "number"
-        ? event.rating
-        : ratingsList.length > 0
-          ? ratingsList.reduce((sum, rating) => sum + rating.rating, 0) / ratingsList.length
-          : null;
-
-    return {
-        id: event.id,
-        title: event.title,
-        description: event.description ?? "",
-        city: { id: city?.id, name: city?.name ?? "—" },
-        date: event.date ?? "",
-        time: event.time ?? null,
-        address: event.address ?? null,
-        flyerImageUrl: event.links?.flyerUrl ?? null,
-        attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : attendeesList.length,
-        attendeesLimit: event.attendeesLimit ?? null,
-        isFuture: isEventFuture(event.date, event.time),
-        user: {
-            id: creator?.id ?? 0,
-            firstname: creator?.firstname ?? creator?.username ?? "—",
-            lastname: creator?.lastname ?? "",
-            username: creator?.username ?? "—",
-            profilePictureUrl: creator?.links?.profilePictureUrl ?? null,
-            university: creatorUniversity ? { name: creatorUniversity.name } : null,
-            career: creatorCareer ? { name: creatorCareer.name } : null,
-        },
-        comments,
-        attendees: attendeesList,
-        ratings: ratingsList,
-        averageRating,
-    };
 };
 
 export const updateEvent = async (

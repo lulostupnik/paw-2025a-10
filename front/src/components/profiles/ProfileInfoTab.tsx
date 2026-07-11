@@ -1,8 +1,10 @@
 import type { ProfileDetail } from "@/types/profile";
 import { useI18n } from "@/lib/i18n";
+import PageStatus from "@/components/ui/PageStatus";
 
 interface ProfileInfoTabProps {
     profile: ProfileDetail;
+    infoLoading?: boolean;
 }
 
 const renderStars = (rating: number) =>
@@ -35,7 +37,7 @@ const renderStars = (rating: number) =>
         );
     });
 
-export default function ProfileInfoTab({ profile }: ProfileInfoTabProps) {
+export default function ProfileInfoTab({ profile, infoLoading = false }: ProfileInfoTabProps) {
     const { t } = useI18n();
     const createdRating = profile.ratingStats.averageCreatedEventsRating ?? 0;
     const attendedRating = profile.ratingStats.averageAttendedEventsRating ?? 0;
@@ -86,6 +88,9 @@ export default function ProfileInfoTab({ profile }: ProfileInfoTabProps) {
                     {t("profile.rating.statistics")}
                 </h2>
 
+                {infoLoading ? (
+                    <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
+                ) : (
                 <div className="rating-statistics-container">
                     <div className="rating-stat-item">
                         <div className="rating-stat-header">
@@ -145,6 +150,7 @@ export default function ProfileInfoTab({ profile }: ProfileInfoTabProps) {
                         )}
                     </div>
                 </div>
+                )}
             </div>
         </div>
     );

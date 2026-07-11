@@ -89,6 +89,12 @@ const baseResult = {
     isNotFound: false,
     isFetching: false,
     refetch: vi.fn(),
+    creatorLoading: false,
+    creatorError: false,
+    creatorReady: true,
+    destinationLoading: false,
+    destinationError: false,
+    destinationReady: true,
 };
 
 describe("JourneyDetailsPage", () => {

@@ -14,7 +14,7 @@ export default function UserDetailPage() {
     const { t } = useI18n();
     const queryClient = useQueryClient();
     const { id } = useParams();
-    const { data: user, isLoading, isError } = useAdminUserDetailData({ id });
+    const { data: user, isLoading, isError, universityLoading, careerLoading } = useAdminUserDetailData({ id });
     const [modalOpen, setModalOpen] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
     const [actionSubmitting, setActionSubmitting] = useState(false);
@@ -69,12 +69,20 @@ export default function UserDetailPage() {
 
                                     <div className="feature-card">
                                         <h3 className="feature-title">{t("user.detail.university")}</h3>
-                                        <p className="feature-description">{user.university?.name ?? ""}</p>
+                                        {universityLoading ? (
+                                            <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
+                                        ) : (
+                                            <p className="feature-description">{user.university?.name ?? ""}</p>
+                                        )}
                                     </div>
 
                                     <div className="feature-card">
                                         <h3 className="feature-title">{t("user.detail.career")}</h3>
-                                        <p className="feature-description">{user.career?.name ?? ""}</p>
+                                        {careerLoading ? (
+                                            <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
+                                        ) : (
+                                            <p className="feature-description">{user.career?.name ?? ""}</p>
+                                        )}
                                     </div>
 
                                     <div className="feature-card">

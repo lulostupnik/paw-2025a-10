@@ -37,33 +37,15 @@ describe("useJourneyDetailData", () => {
         expect(result.current.data!.destinationUniversity!.name).toBe("MIT");
     });
 
-    it("should include comments", async () => {
+    it("should not bundle comments/tips/interests (loaded separately by the page)", async () => {
         const { result } = renderHook(() => useJourneyDetailData({ journeyId: "1" }));
 
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-        expect(result.current.data!.comments).toHaveLength(1);
-        expect(result.current.data!.comments[0].message).toBe("Nice journey!");
-    });
-
-    it("should include tips", async () => {
-        const { result } = renderHook(() => useJourneyDetailData({ journeyId: "1" }));
-
-        await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-        expect(result.current.data!.tips).toHaveLength(1);
-        expect(result.current.data!.tips[0].title).toBe("Tip 1");
-        expect(result.current.data!.tips[0].content).toBe("Pack light");
-    });
-
-    it("should include user interests array", async () => {
-        const { result } = renderHook(() => useJourneyDetailData({ journeyId: "1" }));
-
-        await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-        expect(result.current.data!.interests).toBeDefined();
-        expect(Array.isArray(result.current.data!.interests)).toBe(true);
-        expect(result.current.data!.interests).toHaveLength(2);
+        // These collections are fetched by the page's own paginated queries, not the detail hook.
+        expect(result.current.data!.comments).toEqual([]);
+        expect(result.current.data!.tips).toEqual([]);
+        expect(result.current.data!.interests).toEqual([]);
     });
 
     it("should be disabled when no journeyId is provided", () => {

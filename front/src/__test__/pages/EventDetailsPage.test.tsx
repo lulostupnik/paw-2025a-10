@@ -102,6 +102,12 @@ describe("EventDetailsPage", () => {
             isLoading: false,
             isError: false,
             isFetching: false,
+            creatorLoading: false,
+            creatorError: false,
+            creatorReady: true,
+            cityLoading: false,
+            ratingsLoading: false,
+            ratingsError: false,
         });
 
         renderPage();
@@ -140,6 +146,12 @@ describe("EventDetailsPage", () => {
             isLoading: false,
             isError: false,
             isFetching: false,
+            creatorLoading: false,
+            creatorError: false,
+            creatorReady: true,
+            cityLoading: false,
+            ratingsLoading: false,
+            ratingsError: false,
         });
 
         renderPage();
@@ -169,6 +181,12 @@ describe("EventDetailsPage", () => {
             isLoading: false,
             isError: false,
             isFetching: false,
+            creatorLoading: false,
+            creatorError: false,
+            creatorReady: true,
+            cityLoading: false,
+            ratingsLoading: false,
+            ratingsError: false,
         });
 
         renderPage();

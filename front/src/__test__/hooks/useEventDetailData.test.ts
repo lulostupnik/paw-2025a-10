@@ -37,13 +37,13 @@ describe("useEventDetailData", () => {
         expect(result.current.data!.city.name).toBe("Buenos Aires");
     });
 
-    it("should include comments", async () => {
+    it("should not bundle comments (loaded separately by the page)", async () => {
         const { result } = renderHook(() => useEventDetailData({ eventId: "1" }));
 
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-        expect(result.current.data!.comments).toHaveLength(1);
-        expect(result.current.data!.comments[0].message).toBe("Great event!");
+        // Comments are fetched by the page's own paginated query, not the detail hook.
+        expect(result.current.data!.comments).toEqual([]);
     });
 
     it("should include ratings", async () => {

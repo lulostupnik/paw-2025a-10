@@ -108,7 +108,18 @@ export default function EventDetailPage() {
     const hasValidId = Number.isInteger(numericId) && numericId > 0 && numericId <= Number.MAX_SAFE_INTEGER;
     const queryClient = useQueryClient();
     const gate = useAuthGate();
-    const { data, isLoading, isError, isFetching } = useEventDetailData({ eventId: hasValidId ? id : undefined });
+    const {
+        data,
+        isLoading,
+        isError,
+        isFetching,
+        creatorLoading,
+        creatorError,
+        creatorReady,
+        cityLoading,
+        ratingsLoading,
+        ratingsError,
+    } = useEventDetailData({ eventId: hasValidId ? id : undefined });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<"details" | "chat" | "rating">("details");
@@ -411,6 +422,7 @@ export default function EventDetailPage() {
                     await createEventRating(Number(id), { rating: ratingValue });
                 }
                 queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
+                queryClient.invalidateQueries({ queryKey: ["eventRatings", id] });
             } catch (error) {
                 console.error("Failed to submit rating", error);
                 setRatingError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
@@ -432,6 +444,7 @@ export default function EventDetailPage() {
                 setRatingValue(0);
                 setHoverRating(null);
                 await queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
+                await queryClient.invalidateQueries({ queryKey: ["eventRatings", id] });
             } catch (error) {
                 console.error("Failed to delete rating", error);
                 setRatingError(apiErrorMessage(error, t("event.rating.delete.error", { defaultValue: "We couldn't remove your rating." })));
@@ -698,7 +711,7 @@ return (
                                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
                                             <circle cx="12" cy="10" r="3"></circle>
                                         </svg>
-                                        <span>{data.city.name}</span>
+                                        <span>{data.city.name || (cityLoading ? "…" : "")}</span>
                                     </div>
                                     <div className="meta-item">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -728,7 +741,13 @@ return (
                                     )}
                                 </div>
 
-                                <CreatorCard creator={data.user} />
+                                {creatorReady ? (
+                                    <CreatorCard creator={data.user} />
+                                ) : creatorError ? (
+                                    <p className="section__helper">{t("event.creator.error", { defaultValue: "We couldn't load the organizer." })}</p>
+                                ) : creatorLoading ? (
+                                    <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
+                                ) : null}
 
                                 <div className="event-flyer">
                                     {data.flyerImageUrl ? (
@@ -1113,13 +1132,19 @@ return (
                                                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                                                         </svg>
                                                         {t("event.rating")}
-                                                        {data.averageRating && (
+                                                        {data.averageRating && !ratingsLoading && (
                                                             <span className="count">({data.ratings.length} {t("event.rating.reviews")})</span>
                                                         )}
                                                     </h2>
                                                 </div>
 
                                                 <div className="rating-content">
+                                                    {ratingsLoading && (
+                                                        <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
+                                                    )}
+                                                    {ratingsError && (
+                                                        <p className="section__helper">{t("event.rating.load.error", { defaultValue: "We couldn't load ratings." })}</p>
+                                                    )}
                                                     {data.averageRating ? (
                                                         <div className="rating-summary">
                                                             <div className="average-rating">

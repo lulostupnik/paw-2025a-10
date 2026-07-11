@@ -19,7 +19,7 @@ export default function ProfileDetail() {
     const location = useLocation();
     const { profileId = "me", tab } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
-    const { data: profile, isLoading, isError } = useProfileDetail({ profileId });
+    const { data: profile, isLoading, isError, infoLoading } = useProfileDetail({ profileId });
 
     const activeTab = tab === "interests" || tab === "events" ? tab : "info";
     const rawEventsTab = searchParams.get("eventsTab");
@@ -144,11 +144,12 @@ export default function ProfileDetail() {
                             <ProfileTabs profile={profile} activeTab={activeTab} />
 
                             <div className="profile-content">
-                                {activeTab === "info" && <ProfileInfoTab profile={profile} />}
+                                {activeTab === "info" && <ProfileInfoTab profile={profile} infoLoading={infoLoading} />}
                                 {activeTab === "interests" && (
                                     <ProfileInterestsTab
                                         isMine={profile.isMine}
                                         page={pagedInterests.data ?? emptyPage()}
+                                        isLoading={pagedInterests.isLoading}
                                         onPageChange={handlePageChange}
                                     />
                                 )}
@@ -156,6 +157,7 @@ export default function ProfileDetail() {
                                     <ProfileEventsTab
                                         isMine={profile.isMine}
                                         activeTab={eventsTab}
+                                        isLoading={profileEvents.isLoading}
                                         created={profileEvents.created ?? emptyPage()}
                                         attending={profileEvents.attending ?? emptyPage()}
                                         finished={profileEvents.finished ?? emptyPage()}

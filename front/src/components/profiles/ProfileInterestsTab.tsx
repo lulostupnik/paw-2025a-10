@@ -1,18 +1,21 @@
 import { Link, useLocation } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import Pagination from "@/components/listing/Pagination";
+import PageStatus from "@/components/ui/PageStatus";
 import type { ProfileInterest } from "@/types/profile";
 import type { PageResult } from "@/types/pagination";
 
 interface ProfileInterestsTabProps {
     isMine: boolean;
     page: PageResult<ProfileInterest>
+    isLoading?: boolean;
     onPageChange: (page: number | string) => void;
 }
 
 export default function ProfileInterestsTab({
-    isMine, 
+    isMine,
     page,
+    isLoading = false,
     onPageChange,
 }: ProfileInterestsTabProps) {
     const { t } = useI18n();
@@ -24,7 +27,9 @@ export default function ProfileInterestsTab({
             <div className="profile-card">
                 <h2 className="section-title">{t("profile.home.interest")}</h2>
                 <div className="info-list">
-                    {page.content?.length > 0 ? (
+                    {isLoading ? (
+                        <PageStatus compact message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />
+                    ) : page.content?.length > 0 ? (
                         <>
                             {page.content.map((interest) => (
                                 <div key={interest.id} className="info-item">

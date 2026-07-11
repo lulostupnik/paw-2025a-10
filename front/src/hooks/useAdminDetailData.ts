@@ -21,35 +21,61 @@ interface AdminDetailParams {
 export const useAdminUserDetailData = (params?: AdminDetailParams) => {
     const userId = params?.id;
     const queryClient = useQueryClient();
-    const query = useQuery({
+    // Core user record renders immediately; the university/career lookups load
+    // separately so they don't block the rest of the profile.
+    const userQuery = useQuery({
         queryKey: ["adminUserDetail", userId],
-        queryFn: async ({ signal }) => {
+        queryFn: ({ signal }) => {
             if (!userId) {
                 throw new Error("missing-user-id");
             }
-            const user = await getUserPrivateById(userId, signal);
-            const [university, career] = await Promise.all([
-                getUniversityByUrl(user.links?.universityUrl, signal, queryClient),
-                getCareerByUrl(user.links?.careerUrl, signal, queryClient),
-            ]);
-            return {
-                id: user.id,
-                firstname: user.firstname ?? "",
-                lastname: user.lastname ?? "",
-                username: user.username ?? "",
-                email: user.email,
-                university: university ? { name: university.name } : null,
-                career: career ? { name: career.name } : null,
-                locale: null,
-                profilePictureUrl: user.links?.profilePictureUrl ?? null,
-                blocked: user.blocked,
-            } satisfies AdminUserDetail;
+            return getUserPrivateById(userId, signal);
         },
         placeholderData: keepPreviousData,
         ...DETAIL_QUERY_OPTIONS,
         enabled: Boolean(userId),
     });
-    return { data: query.data ?? null, isLoading: query.isLoading, isError: query.isError };
+
+    const user = userQuery.data ?? null;
+    const universityUrl = user?.links?.universityUrl ?? null;
+    const careerUrl = user?.links?.careerUrl ?? null;
+
+    const universityQuery = useQuery({
+        queryKey: ["adminUserUniversity", userId, universityUrl],
+        queryFn: ({ signal }) => getUniversityByUrl(universityUrl, signal, queryClient),
+        enabled: Boolean(universityUrl),
+        placeholderData: keepPreviousData,
+    });
+
+    const careerQuery = useQuery({
+        queryKey: ["adminUserCareer", userId, careerUrl],
+        queryFn: ({ signal }) => getCareerByUrl(careerUrl, signal, queryClient),
+        enabled: Boolean(careerUrl),
+        placeholderData: keepPreviousData,
+    });
+
+    const data: AdminUserDetail | null = user
+        ? ({
+              id: user.id,
+              firstname: user.firstname ?? "",
+              lastname: user.lastname ?? "",
+              username: user.username ?? "",
+              email: user.email,
+              university: universityQuery.data ? { name: universityQuery.data.name } : null,
+              career: careerQuery.data ? { name: careerQuery.data.name } : null,
+              locale: null,
+              profilePictureUrl: user.links?.profilePictureUrl ?? null,
+              blocked: user.blocked,
+          } satisfies AdminUserDetail)
+        : null;
+
+    return {
+        data,
+        isLoading: userQuery.isLoading,
+        isError: userQuery.isError,
+        universityLoading: Boolean(universityUrl) && universityQuery.isLoading,
+        careerLoading: Boolean(careerUrl) && careerQuery.isLoading,
+    };
 };
 
 export const useAdminUniversityDetailData = (params?: AdminDetailParams) => {

@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import type { JourneyComment, JourneyDetail, JourneySummary } from "@/types/journey";
+import type { JourneyCreator, JourneySummary } from "@/types/journey";
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import { toPaged, type PageResult } from "@/types/pagination";
@@ -260,64 +260,42 @@ export const resolveJourneySummary = async (journey: JourneySummary, signal?: Ab
     };
 };
 
-export const buildJourneyDetail = async (journey: JourneySummary, signal?: AbortSignal, queryClient?: QueryClient): Promise<JourneyDetail> => {
-    const [user, university] = await Promise.all([
-        getUserByUrl(journey.links?.userUrl, signal, queryClient),
-        getUniversityByUrl(journey.links?.destinationUniversityUrl, signal, queryClient),
-    ]);
-    const [city, creatorUniversity, creatorCareer] = await Promise.all([
-        university?.links?.cityUrl ? getCityByUrl(university.links.cityUrl, signal, queryClient) : Promise.resolve(null),
+// Resolves the journey host plus their university/career. Kept separate from the
+// core journey fetch so the page can render before these lookups complete.
+export const buildJourneyCreator = async (
+    journey: JourneySummary,
+    signal?: AbortSignal,
+    queryClient?: QueryClient
+): Promise<JourneyCreator> => {
+    const user = journey.links?.userUrl ? await getUserByUrl(journey.links.userUrl, signal, queryClient) : null;
+    const [creatorUniversity, creatorCareer] = await Promise.all([
         user?.links?.universityUrl ? getUniversityByUrl(user.links.universityUrl, signal, queryClient) : Promise.resolve(null),
         user?.links?.careerUrl ? getCareerByUrl(user.links.careerUrl, signal, queryClient) : Promise.resolve(null),
     ]);
-
-    const userId = user?.id ?? parseIdFromUrl(journey.links?.userUrl);
-    const [interests, responses, tips] = await Promise.all([
-        userId ? getUserInterests(userId, signal) : Promise.resolve([]),
-        getJourneyResponses(journey.id, { page: 1, size: 4 }, signal),
-        listJourneyTips(journey.id, { page: 1, size: 4 }, signal),
-    ]);
-
-    const responseUsers = await Promise.all(
-        responses.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal, queryClient) : Promise.resolve(null)))
-    );
-
-    const comments: JourneyComment[] = responses.content.map((response, index) => ({
-        id: response.id,
-        message: response.message,
-        dateTime: response.dateTime,
-        user: {
-            username: responseUsers[index]?.username ?? "—",
-        },
-    }));
-
     return {
-        id: journey.id,
-        description: journey.description,
-        startDate: journey.startDate,
-        endDate: journey.endDate,
-        links: journey.links ?? null,
-        destinationUniversity: {
-            name: university?.name ?? "—",
-            city: city?.name ?? "—",
-        },
-        user: {
-            id: user?.id ?? 0,
-            firstname: user?.firstname ?? user?.username ?? "—",
-            lastname: user?.lastname ?? "",
-            username: user?.username ?? "—",
-            profilePictureUrl: user?.links?.profilePictureUrl ?? journey.profilePictureUrl ?? null,
-            university: creatorUniversity ? { name: creatorUniversity.name } : null,
-            career: creatorCareer ? { name: creatorCareer.name } : null,
-        },
-        interests: interests.map((interest) => interest.name),
-        events: [],
-        tips: tips.content.map((tip) => ({
-            id: tip.id,
-            title: tip.title,
-            content: tip.content,
-            dateTime: tip.dateTime,
-        })),
-        comments,
+        id: user?.id ?? parseIdFromUrl(journey.links?.userUrl) ?? 0,
+        firstname: user?.firstname ?? user?.username ?? "—",
+        lastname: user?.lastname ?? "",
+        username: user?.username ?? "—",
+        profilePictureUrl: user?.links?.profilePictureUrl ?? journey.profilePictureUrl ?? null,
+        university: creatorUniversity ? { name: creatorUniversity.name } : null,
+        career: creatorCareer ? { name: creatorCareer.name } : null,
+    };
+};
+
+// Resolves the destination university and its city. Separate lookup so its
+// section can show its own loading state without blocking the page.
+export const buildJourneyDestination = async (
+    journey: JourneySummary,
+    signal?: AbortSignal,
+    queryClient?: QueryClient
+): Promise<{ name: string; city: string }> => {
+    const university = journey.links?.destinationUniversityUrl
+        ? await getUniversityByUrl(journey.links.destinationUniversityUrl, signal, queryClient)
+        : null;
+    const city = university?.links?.cityUrl ? await getCityByUrl(university.links.cityUrl, signal, queryClient) : null;
+    return {
+        name: university?.name ?? "—",
+        city: city?.name ?? "—",
     };
 };

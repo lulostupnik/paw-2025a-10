@@ -3,7 +3,6 @@ import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import type { ProfileDetail, ProfileEditPayload, ProfileInterest, ProfileRatingStats } from "@/types/profile";
 import { getUniversityByUrl } from "./journeys";
-import { getEmail, getUserId } from "../auth/auth";
 import { toPaged, mapPageList, type PageResult } from "@/types/pagination";
 import { fetchByUrl } from "@/lib/utils/fetchByUrl";
 
@@ -226,24 +225,18 @@ export const invalidateCurrentUserInterestQueries = async (queryClient: QueryCli
     ]);
 };
 
-export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSignal, queryClient?: QueryClient): Promise<ProfileDetail> => {
+// Resolves the profile's rating stats, university and career. Kept separate from
+// the core profile fetch so the profile header can render before these complete.
+export const buildProfileInfo = async (
+    user: Pick<ProfileDetail, "id" | "links">,
+    signal?: AbortSignal,
+    queryClient?: QueryClient
+): Promise<Pick<ProfileDetail, "ratingStats" | "university" | "career">> => {
     const [ratingStats, university, career] = await Promise.all([
         getUserRatingStats(user.id, signal),
         getUniversityByUrl(user.links?.universityUrl, signal, queryClient),
         getCareerByUrl(user.links?.careerUrl, signal, queryClient),
     ]);
 
-    const isMine = user.id == getUserId();
-    return {
-        id: user.id,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        username: user.username,
-        email: isMine ? getEmail() : null,
-        links: user.links ?? null,
-        ratingStats: ratingStats,
-        isMine,
-        career,
-        university
-    };
-}
+    return { ratingStats, university, career };
+};
