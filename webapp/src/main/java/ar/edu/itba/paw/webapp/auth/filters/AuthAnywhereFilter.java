@@ -77,6 +77,10 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                 final Optional<Token> maybeToken = tokenService.getByToken(credentials);
 
                 if (maybeToken.isPresent() && tokenService.isTokenValid(maybeToken.get(), user.getId())) {
+                    if (user.isBlocked()) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        return;
+                    }
                     userService.verifyUser(user.getId());
                     authenticateAs(request, user.getEmail());
                     tokenService.delete(maybeToken.get());
