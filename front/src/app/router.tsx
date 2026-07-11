@@ -1,7 +1,9 @@
+import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "@app/layouts/MainLayout";
 import RequireAuth from "@app/guards/RequireAuth";
 import HomeRoute from "@app/guards/HomeRoute";
+import PageStatus from "@/components/ui/PageStatus";
 
 import NotFoundPage from "@/pages/errors/NotFoundPage";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
@@ -10,56 +12,58 @@ import BadRequestPage from "@/pages/errors/BadRequestPage";
 import MethodNotAllowedPage from "@/pages/errors/MethodNotAllowedPage";
 import UnsupportedMediaPage from "@/pages/errors/UnsupportedMediaPage";
 
-import ExplorePage from "@/pages/explore/ExplorePage";
-
 import JourneysListPage from "@/pages/journeys/JourneysPage";
-import JourneyDetailPage from "@/pages/journeys/JourneyDetailsPage";
-import JourneyCreatePage from "@/pages/journeys/JourneyCreatePage";
-import JourneyEditPage from "@/pages/journeys/JourneyEditPage";
-import JourneyDeletePage from "@/pages/journeys/JourneyDeletePage";
-import JourneyReplyDeletePage from "@/pages/journeys/JourneyReplyDeletePage";
-import JourneyTipCreatePage from "@/pages/journeys/JourneyTipCreatePage";
-import JourneyTipEditPage from "@/pages/journeys/JourneyTipEditPage";
-import JourneyTipDeletePage from "@/pages/journeys/JourneyTipDeletePage";
-
 import EventsListPage from "@/pages/events/EventsPage";
-import EventDetailPage from "@/pages/events/EventDetailsPage";
-import EventCreatePage from "@/pages/events/EventCreatePage";
-import EventEditPage from "@/pages/events/EventEditPage";
-import EventDeletePage from "@/pages/events/EventDeletePage";
-import EventReplyDeletePage from "@/pages/events/EventReplyDeletePage";
+const ExplorePage = lazy(() => import("@/pages/explore/ExplorePage"));
+const JourneyDetailPage = lazy(() => import("@/pages/journeys/JourneyDetailsPage"));
+const JourneyCreatePage = lazy(() => import("@/pages/journeys/JourneyCreatePage"));
+const JourneyEditPage = lazy(() => import("@/pages/journeys/JourneyEditPage"));
+const JourneyDeletePage = lazy(() => import("@/pages/journeys/JourneyDeletePage"));
+const JourneyReplyDeletePage = lazy(() => import("@/pages/journeys/JourneyReplyDeletePage"));
+const JourneyTipCreatePage = lazy(() => import("@/pages/journeys/JourneyTipCreatePage"));
+const JourneyTipEditPage = lazy(() => import("@/pages/journeys/JourneyTipEditPage"));
+const JourneyTipDeletePage = lazy(() => import("@/pages/journeys/JourneyTipDeletePage"));
+const EventDetailPage = lazy(() => import("@/pages/events/EventDetailsPage"));
+const EventCreatePage = lazy(() => import("@/pages/events/EventCreatePage"));
+const EventEditPage = lazy(() => import("@/pages/events/EventEditPage"));
+const EventDeletePage = lazy(() => import("@/pages/events/EventDeletePage"));
+const EventReplyDeletePage = lazy(() => import("@/pages/events/EventReplyDeletePage"));
+const ProfileDetail = lazy(() => import("@/pages/profiles/ProfileDetail"));
+const ProfileForm = lazy(() => import("@/pages/profiles/ProfileForm"));
+const ProfilePictureForm = lazy(() => import("@/pages/profiles/ProfilePictureForm"));
+const ProfilePasswordForm = lazy(() => import("@/pages/profiles/ProfilePasswordForm"));
+const ProfileInterestsEdit = lazy(() => import("@/pages/profiles/ProfileInterestsEdit"));
+const ProfileRedirect = lazy(() => import("@/pages/profiles/ProfileRedirect"));
+const AdminPage = lazy(() => import("@/pages/admin/AdminPage"));
+const ReportDetailPage = lazy(() => import("@/pages/admin/ReportDetailPage"));
+const ReportCreatePage = lazy(() => import("@/pages/reports/ReportCreatePage"));
+const UserDetailPage = lazy(() => import("@/pages/users/UserDetailPage"));
+const UniversityDetailPage = lazy(() => import("@/pages/universities/UniversityDetailPage"));
+const UniversityCreatePage = lazy(() => import("@/pages/universities/UniversityCreatePage"));
+const UniversityEditPage = lazy(() => import("@/pages/universities/UniversityEditPage"));
+const InterestDetailPage = lazy(() => import("@/pages/interests/InterestDetailPage"));
+const InterestCreatePage = lazy(() => import("@/pages/interests/InterestCreatePage"));
+const InterestEditPage = lazy(() => import("@/pages/interests/InterestEditPage"));
+const CityDetailPage = lazy(() => import("@/pages/cities/CityDetailPage"));
+const CityCreatePage = lazy(() => import("@/pages/cities/CityCreatePage"));
+const CityEditPage = lazy(() => import("@/pages/cities/CityEditPage"));
+const CareerDetailPage = lazy(() => import("@/pages/careers/CareerDetailPage"));
+const CareerCreatePage = lazy(() => import("@/pages/careers/CareerCreatePage"));
+const CareerEditPage = lazy(() => import("@/pages/careers/CareerEditPage"));
+const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
+const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage"));
+const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPasswordPage"));
+const EmailVerificationPage = lazy(() => import("@/pages/auth/EmailVerificationPage"));
+const PasswordResetPage = lazy(() => import("@/pages/auth/PasswordResetPage"));
+const PasswordResetConfirmationPage = lazy(() => import("@/pages/auth/PasswordResetConfirmationPage"));
+const BlockedAccountPage = lazy(() => import("@/pages/auth/BlockedAccountPage"));
+const NotVerifiedPage = lazy(() => import("@/pages/auth/NotVerifiedPage"));
 
-import ProfileDetail from "@/pages/profiles/ProfileDetail";
-import ProfileForm from "@/pages/profiles/ProfileForm";
-import ProfilePictureForm from "@/pages/profiles/ProfilePictureForm";
-import ProfilePasswordForm from "@/pages/profiles/ProfilePasswordForm";
-import ProfileInterestsEdit from "@/pages/profiles/ProfileInterestsEdit";
-import ProfileRedirect from "@/pages/profiles/ProfileRedirect";
-import AdminPage from "@/pages/admin/AdminPage";
-import ReportDetailPage from "@/pages/admin/ReportDetailPage";
-import ReportCreatePage from "@/pages/reports/ReportCreatePage";
-import UserDetailPage from "@/pages/users/UserDetailPage";
-import UniversityDetailPage from "@/pages/universities/UniversityDetailPage";
-import UniversityCreatePage from "@/pages/universities/UniversityCreatePage";
-import UniversityEditPage from "@/pages/universities/UniversityEditPage";
-import InterestDetailPage from "@/pages/interests/InterestDetailPage";
-import InterestCreatePage from "@/pages/interests/InterestCreatePage";
-import InterestEditPage from "@/pages/interests/InterestEditPage";
-import CityDetailPage from "@/pages/cities/CityDetailPage";
-import CityCreatePage from "@/pages/cities/CityCreatePage";
-import CityEditPage from "@/pages/cities/CityEditPage";
-import CareerDetailPage from "@/pages/careers/CareerDetailPage";
-import CareerCreatePage from "@/pages/careers/CareerCreatePage";
-import CareerEditPage from "@/pages/careers/CareerEditPage";
-
-import LoginPage from "@/pages/auth/LoginPage";
-import RegisterPage from "@/pages/auth/RegisterPage";
-import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
-import EmailVerificationPage from "@/pages/auth/EmailVerificationPage";
-import PasswordResetPage from "@/pages/auth/PasswordResetPage";
-import PasswordResetConfirmationPage from "@/pages/auth/PasswordResetConfirmationPage";
-import BlockedAccountPage from "@/pages/auth/BlockedAccountPage";
-import NotVerifiedPage from "@/pages/auth/NotVerifiedPage";
+const withSuspense = (element: ReactNode) => (
+    <Suspense fallback={<PageStatus className="route-loading" message="Loading..." />}>
+        {element}
+    </Suspense>
+);
 
 export const router = createBrowserRouter([
     {
@@ -70,19 +74,19 @@ export const router = createBrowserRouter([
             { index: true, element: <HomeRoute /> },
 
             { path: "journeys", element: <JourneysListPage /> },
-            { path: "journeys/:id", element: <JourneyDetailPage /> },
+            { path: "journeys/:id", element: withSuspense(<JourneyDetailPage />) },
 
             { path: "events", element: <EventsListPage /> },
-            { path: "events/:id", element: <EventDetailPage /> },
+            { path: "events/:id", element: withSuspense(<EventDetailPage />) },
 
-            { path: "login", element: <LoginPage /> },
-            { path: "register", element: <RegisterPage /> },
-            { path: "forgot-password", element: <ForgotPasswordPage /> },
-            { path: "validate", element: <EmailVerificationPage /> },
-            { path: "reset-password", element: <PasswordResetPage /> },
-            { path: "password/reset/confirmation", element: <PasswordResetConfirmationPage /> },
-            { path: "blocked", element: <BlockedAccountPage /> },
-            { path: "not-verified", element: <NotVerifiedPage /> },
+            { path: "login", element: withSuspense(<LoginPage />) },
+            { path: "register", element: withSuspense(<RegisterPage />) },
+            { path: "forgot-password", element: withSuspense(<ForgotPasswordPage />) },
+            { path: "validate", element: withSuspense(<EmailVerificationPage />) },
+            { path: "reset-password", element: withSuspense(<PasswordResetPage />) },
+            { path: "password/reset/confirmation", element: withSuspense(<PasswordResetConfirmationPage />) },
+            { path: "blocked", element: withSuspense(<BlockedAccountPage />) },
+            { path: "not-verified", element: withSuspense(<NotVerifiedPage />) },
             { path: "error/400", element: <BadRequestPage /> },
             { path: "error/403", element: <ForbiddenPage /> },
             { path: "error/405", element: <MethodNotAllowedPage /> },
@@ -93,44 +97,44 @@ export const router = createBrowserRouter([
             {
                 element: <RequireAuth />,
                 children: [
-                    { path: "explore", element: <ExplorePage /> },
-                    { path: "journeys/create", element: <JourneyCreatePage /> },
-                    { path: "journeys/:id/update", element: <JourneyEditPage /> },
-                    { path: "journeys/:id/delete", element: <JourneyDeletePage /> },
-                    { path: "journeys/reply/:responseId/delete", element: <JourneyReplyDeletePage /> },
-                    { path: "journeys/:journeyId/tips/create", element: <JourneyTipCreatePage /> },
-                    { path: "journeys/tips/:tipId/update", element: <JourneyTipEditPage /> },
-                    { path: "journeys/tips/:tipId/delete", element: <JourneyTipDeletePage /> },
-                    { path: "events/create", element: <EventCreatePage /> },
-                    { path: "events/:id/update", element: <EventEditPage /> },
-                    { path: "events/:id/delete", element: <EventDeletePage /> },
-                    { path: "events/reply/:responseId/delete", element: <EventReplyDeletePage /> },
-                    { path: "profiles/:profileId", element: <ProfileRedirect /> },
-                    { path: "profiles/:profileId/:tab", element: <ProfileDetail /> },
-                    { path: "profiles/me/edit", element: <ProfileForm /> },
-                    { path: "profiles/me/edit-picture", element: <ProfilePictureForm /> },
-                    { path: "profiles/me/change-password", element: <ProfilePasswordForm /> },
-                    { path: "profiles/me/interests/edit", element: <ProfileInterestsEdit /> },
-                    { path: "admin", element: <AdminPage /> },
-                    { path: "admin/:tab", element: <AdminPage /> },
-                    { path: "reports/:id", element: <ReportDetailPage /> },
-                    { path: "reports/journeys/:id/create", element: <ReportCreatePage reportType="JOURNEY" /> },
-                    { path: "reports/events/:id/create", element: <ReportCreatePage reportType="EVENT" /> },
-                    { path: "reports/journey-responses/:id/create", element: <ReportCreatePage reportType="JOURNEY_RESPONSE" /> },
-                    { path: "reports/event-responses/:id/create", element: <ReportCreatePage reportType="EVENT_RESPONSE" /> },
-                    { path: "users/:id", element: <UserDetailPage /> },
-                    { path: "universities/create", element: <UniversityCreatePage /> },
-                    { path: "universities/:id/edit", element: <UniversityEditPage /> },
-                    { path: "universities/:id", element: <UniversityDetailPage /> },
-                    { path: "interests/create", element: <InterestCreatePage /> },
-                    { path: "interests/:id/edit", element: <InterestEditPage /> },
-                    { path: "interests/:id", element: <InterestDetailPage /> },
-                    { path: "cities/create", element: <CityCreatePage /> },
-                    { path: "cities/:id/edit", element: <CityEditPage /> },
-                    { path: "cities/:id", element: <CityDetailPage /> },
-                    { path: "careers/create", element: <CareerCreatePage /> },
-                    { path: "careers/:id/edit", element: <CareerEditPage /> },
-                    { path: "careers/:id", element: <CareerDetailPage /> },
+                    { path: "explore", element: withSuspense(<ExplorePage />) },
+                    { path: "journeys/create", element: withSuspense(<JourneyCreatePage />) },
+                    { path: "journeys/:id/update", element: withSuspense(<JourneyEditPage />) },
+                    { path: "journeys/:id/delete", element: withSuspense(<JourneyDeletePage />) },
+                    { path: "journeys/reply/:responseId/delete", element: withSuspense(<JourneyReplyDeletePage />) },
+                    { path: "journeys/:journeyId/tips/create", element: withSuspense(<JourneyTipCreatePage />) },
+                    { path: "journeys/tips/:tipId/update", element: withSuspense(<JourneyTipEditPage />) },
+                    { path: "journeys/tips/:tipId/delete", element: withSuspense(<JourneyTipDeletePage />) },
+                    { path: "events/create", element: withSuspense(<EventCreatePage />) },
+                    { path: "events/:id/update", element: withSuspense(<EventEditPage />) },
+                    { path: "events/:id/delete", element: withSuspense(<EventDeletePage />) },
+                    { path: "events/reply/:responseId/delete", element: withSuspense(<EventReplyDeletePage />) },
+                    { path: "profiles/:profileId", element: withSuspense(<ProfileRedirect />) },
+                    { path: "profiles/:profileId/:tab", element: withSuspense(<ProfileDetail />) },
+                    { path: "profiles/me/edit", element: withSuspense(<ProfileForm />) },
+                    { path: "profiles/me/edit-picture", element: withSuspense(<ProfilePictureForm />) },
+                    { path: "profiles/me/change-password", element: withSuspense(<ProfilePasswordForm />) },
+                    { path: "profiles/me/interests/edit", element: withSuspense(<ProfileInterestsEdit />) },
+                    { path: "admin", element: withSuspense(<AdminPage />) },
+                    { path: "admin/:tab", element: withSuspense(<AdminPage />) },
+                    { path: "reports/:id", element: withSuspense(<ReportDetailPage />) },
+                    { path: "reports/journeys/:id/create", element: withSuspense(<ReportCreatePage reportType="JOURNEY" />) },
+                    { path: "reports/events/:id/create", element: withSuspense(<ReportCreatePage reportType="EVENT" />) },
+                    { path: "reports/journey-responses/:id/create", element: withSuspense(<ReportCreatePage reportType="JOURNEY_RESPONSE" />) },
+                    { path: "reports/event-responses/:id/create", element: withSuspense(<ReportCreatePage reportType="EVENT_RESPONSE" />) },
+                    { path: "users/:id", element: withSuspense(<UserDetailPage />) },
+                    { path: "universities/create", element: withSuspense(<UniversityCreatePage />) },
+                    { path: "universities/:id/edit", element: withSuspense(<UniversityEditPage />) },
+                    { path: "universities/:id", element: withSuspense(<UniversityDetailPage />) },
+                    { path: "interests/create", element: withSuspense(<InterestCreatePage />) },
+                    { path: "interests/:id/edit", element: withSuspense(<InterestEditPage />) },
+                    { path: "interests/:id", element: withSuspense(<InterestDetailPage />) },
+                    { path: "cities/create", element: withSuspense(<CityCreatePage />) },
+                    { path: "cities/:id/edit", element: withSuspense(<CityEditPage />) },
+                    { path: "cities/:id", element: withSuspense(<CityDetailPage />) },
+                    { path: "careers/create", element: withSuspense(<CareerCreatePage />) },
+                    { path: "careers/:id/edit", element: withSuspense(<CareerEditPage />) },
+                    { path: "careers/:id", element: withSuspense(<CareerDetailPage />) },
                 ],
             },
 
