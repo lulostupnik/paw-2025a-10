@@ -1030,7 +1030,7 @@ class TestUtils {
         assertNotNull(actual.getId());
         if (expected.getId() != null)
             assertEquals(expected.getId(), actual.getId());
-        assertEquals(expected.getDescription(), expected.getDescription());
+        assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getReason(), actual.getReason());
         assertEquals(expected.isDeleted(), actual.isDeleted());
         assertEquals(expected.getStatus(), actual.getStatus());

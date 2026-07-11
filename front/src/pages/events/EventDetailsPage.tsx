@@ -1,6 +1,6 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { getUserId, getUsername, isAdmin } from "@/lib/auth/auth";
@@ -19,6 +19,22 @@ import type { EventAttendee, EventComment } from "@/types/event";
 import { parseApiDate } from "@/lib/utils/date";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 import type { QueryClient } from "@tanstack/react-query";
+
+const TAB_PARAM = "tab";
+const ATTENDEES_PAGE_PARAM = "attendeesPage";
+const COMMENTS_PAGE_PARAM = "commentsPage";
+
+const parsePageParam = (value: string | null) => {
+    const raw = Number(value ?? "1");
+    return Number.isFinite(raw) && raw > 0 ? raw : 1;
+};
+
+const parseTabParam = (value: string | null): "details" | "chat" | "rating" => {
+    if (value === "chat" || value === "rating") {
+        return value;
+    }
+    return "details";
+};
 
 const formatDate = (value: string, locale: string) => {
     const date = parseApiDate(value);
@@ -103,6 +119,7 @@ export default function EventDetailPage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
     const location = useLocation();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { id } = useParams();
     const numericId = Number(id);
     const hasValidId = Number.isInteger(numericId) && numericId > 0 && numericId <= Number.MAX_SAFE_INTEGER;
@@ -111,9 +128,9 @@ export default function EventDetailPage() {
     const { data, isLoading, isError, isFetching } = useEventDetailData({ eventId: hasValidId ? id : undefined });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
-    const [activeTab, setActiveTab] = useState<"details" | "chat" | "rating">("details");
-    const [attendeesPage, setAttendeesPage] = useState(1);
-    const [commentsPage, setCommentsPage] = useState(1);
+    const [activeTab, setActiveTab] = useState<"details" | "chat" | "rating">(() => parseTabParam(searchParams.get(TAB_PARAM)));
+    const [attendeesPage, setAttendeesPage] = useState(() => parsePageParam(searchParams.get(ATTENDEES_PAGE_PARAM)));
+    const [commentsPage, setCommentsPage] = useState(() => parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM)));
     const [attendingOverride, setAttendingOverride] = useState<boolean | null>(null);
     const [attendeesCountOverride, setAttendeesCountOverride] = useState<number | null>(null);
     const [attendSubmitting, setAttendSubmitting] = useState(false);
@@ -210,6 +227,41 @@ export default function EventDetailPage() {
     const createdEventsLabel = stats ? String(toSafeNumber(stats.eventsCreatedByOrganizer)) : "—";
     const attendedEventsLabel = stats ? String(toSafeNumber(stats.eventsOrganizerAttends)) : "—";
 
+    const updateEventSearchParams = useCallback(
+        (updater: (params: URLSearchParams) => void) => {
+            const nextParams = new URLSearchParams(searchParams);
+            updater(nextParams);
+            setSearchParams(nextParams);
+        },
+        [searchParams, setSearchParams]
+    );
+
+    const updateTabParam = useCallback(
+        (tab: "details" | "chat" | "rating") => {
+            updateEventSearchParams((params) => {
+                if (tab === "details") {
+                    params.delete(TAB_PARAM);
+                    return;
+                }
+                params.set(TAB_PARAM, tab);
+            });
+        },
+        [updateEventSearchParams]
+    );
+
+    const updatePageParam = useCallback(
+        (paramName: string, page: number) => {
+            updateEventSearchParams((params) => {
+                if (page > 1) {
+                    params.set(paramName, String(page));
+                } else {
+                    params.delete(paramName);
+                }
+            });
+        },
+        [updateEventSearchParams]
+    );
+
     const refreshEventViews = () => {
         if (!id) {
             return;
@@ -268,6 +320,47 @@ export default function EventDetailPage() {
         return page;
     };
 
+    const handleTabChange = useCallback(
+        (tab: "details" | "chat" | "rating") => {
+            setActiveTab(tab);
+            updateTabParam(tab);
+        },
+        [updateTabParam]
+    );
+
+    const handleAttendeesPageChange = useCallback(
+        (page: number | string) => {
+            const parsedPage = parsePageFromLink(page);
+            setAttendeesPage(parsedPage);
+            updatePageParam(ATTENDEES_PAGE_PARAM, parsedPage);
+        },
+        [updatePageParam]
+    );
+
+    const handleCommentsPageChange = useCallback(
+        (page: number | string) => {
+            const parsedPage = parsePageFromLink(page);
+            setCommentsPage(parsedPage);
+            updatePageParam(COMMENTS_PAGE_PARAM, parsedPage);
+        },
+        [updatePageParam]
+    );
+
+    useEffect(() => {
+        const nextTab = parseTabParam(searchParams.get(TAB_PARAM));
+        setActiveTab((currentTab) => (currentTab === nextTab ? currentTab : nextTab));
+    }, [searchParams]);
+
+    useEffect(() => {
+        const nextPage = parsePageParam(searchParams.get(ATTENDEES_PAGE_PARAM));
+        setAttendeesPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
+    }, [searchParams]);
+
+    useEffect(() => {
+        const nextPage = parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM));
+        setCommentsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
+    }, [searchParams]);
+
     useEffect(() => {
         if (commentsQuery.isLoading || commentsQuery.isFetching) {
             return;
@@ -276,6 +369,7 @@ export default function EventDetailPage() {
             const fallbackPage = Math.max(1, Math.min(commentsPage - 1, commentsPageData.totalPages || commentsPage - 1));
             if (fallbackPage !== commentsPage) {
                 setCommentsPage(fallbackPage);
+                updatePageParam(COMMENTS_PAGE_PARAM, fallbackPage);
             }
         }
     }, [
@@ -285,7 +379,15 @@ export default function EventDetailPage() {
         commentsPageData.totalElements,
         commentsPageData.totalPages,
         commentsPage,
+        updatePageParam,
     ]);
+
+    useEffect(() => {
+        if (data?.isFuture && activeTab === "rating") {
+            setActiveTab("details");
+            updateTabParam("details");
+        }
+    }, [activeTab, data?.isFuture, updateTabParam]);
 
     useEffect(() => {
         setAttendingOverride(null);
@@ -465,6 +567,7 @@ export default function EventDetailPage() {
                 );
                 const targetCommentsPage = Math.max(1, refreshedCommentsPage.totalPages || 1);
                 setCommentsPage(targetCommentsPage);
+                updatePageParam(COMMENTS_PAGE_PARAM, targetCommentsPage);
                 await Promise.all([
                     queryClient.invalidateQueries({
                         predicate: (query) =>
@@ -767,7 +870,7 @@ return (
                                         id="details-tab"
                                         className={`tab-btn ${activeTab === "details" ? "active" : ""}`}
                                         data-tab="details"
-                                        onClick={() => setActiveTab("details")}
+                                        onClick={() => handleTabChange("details")}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -782,7 +885,7 @@ return (
                                         id="chat-tab"
                                         className={`tab-btn ${activeTab === "chat" ? "active" : ""}`}
                                         data-tab="chat"
-                                        onClick={() => setActiveTab("chat")}
+                                        onClick={() => handleTabChange("chat")}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -796,7 +899,7 @@ return (
                                             id="rating-tab"
                                             className={`tab-btn ${activeTab === "rating" ? "active" : ""}`}
                                             data-tab="rating"
-                                            onClick={() => setActiveTab("rating")}
+                                            onClick={() => handleTabChange("rating")}
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M12 17l-5.5 3.5L8 14l-4-3h5L12 4l3 7h5l-4 3 1.5 6.5z"></path>
@@ -910,7 +1013,7 @@ return (
                                                             prevPage={attendeesPageData.prev}
                                                             firstPage={attendeesPageData.first}
                                                             lastPage={attendeesPageData.last}
-                                                            onPageChange={(page) => setAttendeesPage(parsePageFromLink(page))}
+                                                            onPageChange={handleAttendeesPageChange}
                                                             previousLabel={t("pagination.prev")}
                                                             nextLabel={t("pagination.next")}
                                                         />
@@ -1056,7 +1159,7 @@ return (
                                                     prevPage={commentsPageData.prev}
                                                     firstPage={commentsPageData.first}
                                                     lastPage={commentsPageData.last}
-                                                    onPageChange={(page) => setCommentsPage(parsePageFromLink(page))}
+                                                    onPageChange={handleCommentsPageChange}
                                                     previousLabel={t("pagination.prev")}
                                                     nextLabel={t("pagination.next")}
                                                 />

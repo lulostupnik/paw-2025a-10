@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import JourneyDetailsPage from "@/pages/journeys/JourneyDetailsPage";
@@ -16,6 +16,11 @@ vi.mock("@/lib/i18n", () => ({
 }));
 
 const mockUseJourneyDetailData = vi.fn();
+const mockGetJourneyResponses = vi.fn();
+const mockListJourneyTips = vi.fn();
+const mockFetchEvents = vi.fn();
+const mockGetUserInterests = vi.fn();
+
 vi.mock("@/hooks/useJourneyDetailData", () => ({
     useJourneyDetailData: (...args: unknown[]) => mockUseJourneyDetailData(...args),
 }));
@@ -39,30 +44,31 @@ vi.mock("@/lib/utils/navigationStack", () => ({
 vi.mock("@/lib/api/journeys", () => ({
     createJourneyResponse: vi.fn(),
     getCityByUrl: vi.fn(),
-    getJourneyResponses: vi.fn().mockResolvedValue({ content: [], totalPages: 0, currentPage: 1, pageSize: 4, totalElements: 0, next: null, prev: null, first: null, last: null }),
+    getJourneyResponses: (...args: unknown[]) => mockGetJourneyResponses(...args),
     getUserByUrl: vi.fn(),
-    listJourneyTips: vi.fn().mockResolvedValue({ content: [], totalPages: 0, currentPage: 1, pageSize: 4, totalElements: 0, next: null, prev: null, first: null, last: null }),
+    listJourneyTips: (...args: unknown[]) => mockListJourneyTips(...args),
 }));
 
 vi.mock("@/lib/api/events", () => ({
-    fetchEvents: vi.fn().mockResolvedValue({ content: [], totalPages: 0, currentPage: 1, pageSize: 6, totalElements: 0, next: null, prev: null, first: null, last: null }),
+    fetchEvents: (...args: unknown[]) => mockFetchEvents(...args),
 }));
 
 vi.mock("@/lib/api/users", () => ({
-    getUserInterests: vi.fn().mockResolvedValue({ content: [], totalPages: 0, currentPage: 1, pageSize: 10, totalElements: 0, next: null, prev: null, first: null, last: null }),
+    getUserInterests: (...args: unknown[]) => mockGetUserInterests(...args),
 }));
 
-function renderPage(journeyId = "1") {
+function renderPage(initialEntry = "/journeys/1") {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const router = createMemoryRouter(
         [{ path: "/journeys/:id", element: <JourneyDetailsPage /> }],
-        { initialEntries: [`/journeys/${journeyId}`] },
+        { initialEntries: [initialEntry] },
     );
-    return render(
+    const rendered = render(
         <QueryClientProvider client={queryClient}>
             <RouterProvider router={router} />
         </QueryClientProvider>,
     );
+    return { router, ...rendered };
 }
 
 const baseMockData = {
@@ -94,6 +100,10 @@ const baseResult = {
 describe("JourneyDetailsPage", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockGetJourneyResponses.mockResolvedValue({ content: [], totalPages: 0, currentPage: 1, pageSize: 4, totalElements: 0, next: null, prev: null, first: null, last: null });
+        mockListJourneyTips.mockResolvedValue({ content: [], totalPages: 0, currentPage: 1, pageSize: 4, totalElements: 0, next: null, prev: null, first: null, last: null });
+        mockFetchEvents.mockResolvedValue({ content: [], totalPages: 0, currentPage: 1, pageSize: 6, totalElements: 0, next: null, prev: null, first: null, last: null });
+        mockGetUserInterests.mockResolvedValue({ content: [], totalPages: 0, currentPage: 1, pageSize: 10, totalElements: 0, next: null, prev: null, first: null, last: null });
     });
 
     it("should render journey detail with description and destination", () => {
@@ -163,5 +173,42 @@ describe("JourneyDetailsPage", () => {
 
         renderPage();
         expect(screen.queryByText("An amazing exchange journey")).not.toBeInTheDocument();
+    });
+
+    it("should initialize page and tab state from search params", async () => {
+        mockGetUserInterests.mockResolvedValue({ content: [], totalPages: 0, currentPage: 2, pageSize: 8, totalElements: 0, next: null, prev: null, first: null, last: null });
+        mockListJourneyTips.mockResolvedValue({ content: [], totalPages: 0, currentPage: 2, pageSize: 4, totalElements: 0, next: null, prev: null, first: null, last: null });
+        mockGetJourneyResponses.mockResolvedValue({ content: [], totalPages: 0, currentPage: 4, pageSize: 4, totalElements: 0, next: null, prev: null, first: null, last: null });
+        mockFetchEvents.mockResolvedValue({ content: [], totalPages: 0, currentPage: 3, pageSize: 6, totalElements: 0, next: null, prev: null, first: null, last: null });
+        mockUseJourneyDetailData.mockReturnValue({
+            data: baseMockData,
+            ...baseResult,
+        });
+
+        renderPage("/journeys/1?interestsPage=2&eventsTab=attending&attendingEventsPage=3&tipsPage=2&commentsPage=4");
+
+        await waitFor(() => {
+            expect(mockGetUserInterests).toHaveBeenCalledWith(1, { page: 2, size: 8 }, expect.anything());
+            expect(mockListJourneyTips).toHaveBeenCalledWith(1, { page: 2, size: 4 }, expect.anything());
+            expect(mockGetJourneyResponses).toHaveBeenCalledWith(1, { page: 4, size: 4 }, expect.anything());
+            expect(mockFetchEvents).toHaveBeenCalledWith(
+                expect.objectContaining({ attendedBy: 1, page: 3, size: 6 }),
+                expect.anything()
+            );
+        });
+        expect(screen.getByRole("button", { name: /journey.events.attending/i })).toHaveClass("active");
+    });
+
+    it("should write events subtab state into the url", () => {
+        mockUseJourneyDetailData.mockReturnValue({
+            data: baseMockData,
+            ...baseResult,
+        });
+
+        const { router } = renderPage();
+
+        fireEvent.click(screen.getByRole("button", { name: /journey.events.attending/i }));
+
+        expect(router.state.location.search).toBe("?eventsTab=attending");
     });
 });
