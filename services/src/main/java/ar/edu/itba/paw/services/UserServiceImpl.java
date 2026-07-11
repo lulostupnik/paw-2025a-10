@@ -65,24 +65,22 @@ public class UserServiceImpl implements UserService {
         interestService.createUserInterests(uniqueInterestIds, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
         String rawToken = tokenService.userTokenControl(user);
-        sendValidationEmailAfterCommit(user, rawToken);
+        runAfterCommit(() -> {
+            emailService.sendValidationEmail(new EmailUser(user), rawToken);
+            LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
+        });
         return user;
     }
 
-    private void sendValidationEmailAfterCommit(final User user, final String rawToken) {
-        final EmailUser emailUser = new EmailUser(user);
-        final Runnable sendEmail = () -> {
-            emailService.sendValidationEmail(emailUser, rawToken);
-            LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
-        };
+    private void runAfterCommit(final Runnable action) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            sendEmail.run();
+            action.run();
             return;
         }
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                sendEmail.run();
+                action.run();
             }
         });
     }
@@ -153,9 +151,8 @@ public class UserServiceImpl implements UserService {
             return new UserNotFoundException(userId);
         });
 
-        emailService.sendUserBlockedNotification(new EmailUser(user));
-
         user.setBlocked(true);
+        runAfterCommit(() -> emailService.sendUserBlockedNotification(new EmailUser(user)));
         LOGGER.info("User blocked successfully with ID: {}", userId);
     }
 
@@ -168,8 +165,8 @@ public class UserServiceImpl implements UserService {
             LOGGER.error("User does not exist for ID: {}", userId);
             return new UserNotFoundException(userId);
         });
-        emailService.sendUserUnblockedNotification(new EmailUser(user));
         user.setBlocked(false);
+        runAfterCommit(() -> emailService.sendUserUnblockedNotification(new EmailUser(user)));
         LOGGER.info("User unblocked successfully with ID: {}", userId);
     }
 
@@ -222,7 +219,7 @@ public class UserServiceImpl implements UserService {
         }
 
         String rawToken = tokenService.userTokenControl(user);
-        emailService.sendForgotPassEmail(new EmailUser(user), rawToken);
+        runAfterCommit(() -> emailService.sendForgotPassEmail(new EmailUser(user), rawToken));
         LOGGER.info("Forgot password email sent successfully to: {}", email);
     }
 

@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -135,12 +137,13 @@ public class EventServiceImpl implements EventService {
                     .toList();
 
             if (!responders.isEmpty()) {
-                emailService.answerEventNotification(
-                        responders,
+                List<EmailUser> respondersSnapshot = List.copyOf(responders);
+                runAfterCommit(() -> emailService.answerEventNotification(
+                        respondersSnapshot,
                         message,
                         emailResponder,
                         emailEvent
-                );
+                ));
             }
 
             page++;
@@ -472,7 +475,7 @@ public class EventServiceImpl implements EventService {
     public Event updateEvent(final long eventId, final long cityId, final LocalDate date, final String description,
                             final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
         LOGGER.debug("Editing event {}", eventId);
-        Event currentEvent = eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
+        Event currentEvent = eventDao.findByIdForUpdate(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
 
         City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
 
@@ -514,7 +517,7 @@ public class EventServiceImpl implements EventService {
         Event event = maybeEvent.get();
         if(message != null && !message.isEmpty()){
             event.setDeletionMessage(message);
-            emailService.sendEventDeletionNotification(new EmailEvent(event),message);
+            runAfterCommit(() -> emailService.sendEventDeletionNotification(new EmailEvent(event), message));
         }
         event.setDeleted(true);
         LOGGER.info("Event {} deleted", id);
@@ -530,7 +533,12 @@ public class EventServiceImpl implements EventService {
         }
         Event event = eventResponse.getEvent();
         User commentAuthor = eventResponse.getUser();
-        emailService.sendEventCommentDeletionNotification(eventResponse,new EmailEvent(event),new EmailUser(commentAuthor), message );
+        runAfterCommit(() -> emailService.sendEventCommentDeletionNotification(
+                eventResponse,
+                new EmailEvent(event),
+                new EmailUser(commentAuthor),
+                message
+        ));
         LOGGER.info("Email notification sent for the event response {}", eventResponse);
         eventResponse.setDeletionMessage(message);
         LOGGER.info("Event response {} updated", eventResponse);

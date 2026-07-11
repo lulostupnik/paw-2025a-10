@@ -389,6 +389,24 @@ public class UserServiceImplTest {
 
         assertTrue(newUser.isBlocked());
     }
+
+    @Test
+    public void testBlockUserSendsEmailAfterCommit(){
+        User newUser = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, CAREER_ID, LOCALE, false);
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(newUser));
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userService.blockUser(USER_ID);
+
+            verify(emailService, never()).sendUserBlockedNotification(any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendUserBlockedNotification(any());
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
     @Test(expected = UserNotFoundException.class)
     public void testBlockUserNotFound(){
         when(
@@ -410,6 +428,25 @@ public class UserServiceImplTest {
 
         assertFalse(newUser.isBlocked());
     }
+
+    @Test
+    public void testUnblockUserSendsEmailAfterCommit(){
+        User newUser = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, CAREER_ID, LOCALE, false);
+        newUser.setBlocked(true);
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(newUser));
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userService.unblockUser(USER_ID);
+
+            verify(emailService, never()).sendUserUnblockedNotification(any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendUserUnblockedNotification(any());
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
     @Test(expected = UserNotFoundException.class)
     public void testUnblockUserNotFound(){
         when(
@@ -463,6 +500,23 @@ public class UserServiceImplTest {
         userService.initiatePasswordReset(EMAIL);
 
         verify(emailService, never()).sendForgotPassEmail(any(), any());
+    }
+
+    @Test
+    public void testInitiatePasswordResetSendsEmailAfterCommit(){
+        when(userDao.findByEmail(eq(EMAIL))).thenReturn(Optional.of(USER));
+        when(tokenService.userTokenControl(USER)).thenReturn(TOKEN_VALUE);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userService.initiatePasswordReset(EMAIL);
+
+            verify(emailService, never()).sendForgotPassEmail(any(), any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendForgotPassEmail(any(), eq(TOKEN_VALUE));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 
     @Test

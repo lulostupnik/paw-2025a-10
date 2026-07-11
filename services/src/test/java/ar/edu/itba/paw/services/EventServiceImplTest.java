@@ -25,6 +25,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import ar.edu.itba.paw.interfaces.persistence.EventAttendanceDao;
 import ar.edu.itba.paw.interfaces.persistence.EventDao;
@@ -298,6 +300,28 @@ public class EventServiceImplTest {
         assertEquals(USER, response.getUser());
         assertEquals(DESCRIPTION, response.getMessage());
     }
+
+    @Test
+    public void testCreateEventResponseSendsEmailsAfterCommit(){
+        when(eventDao.findById(EVENT_ID)).thenReturn(Optional.of(EVENT));
+        when(userService.findUserByEmail(EMAIL)).thenReturn(Optional.of(USER));
+        when(replyDao.findRespondersByEventId(eq(EVENT_ID), any(PageParams.class)))
+                .thenReturn(new Page<>(USERS, 1, 1, 1));
+        when(replyDao.create(eq(USER), eq(EVENT), eq(DESCRIPTION))).thenReturn(REPLY);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
+
+            verify(emailService, never()).answerEventNotification(any(), eq(DESCRIPTION), any(), any());
+            verify(emailService, never()).answerEventOwnerNotification(eq(DESCRIPTION), any(), any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).answerEventNotification(any(), eq(DESCRIPTION), any(), any());
+            verify(emailService).answerEventOwnerNotification(eq(DESCRIPTION), any(), any());
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
     @Test
     public void testCreateEventResponseWithUserID(){
         when(
@@ -452,7 +476,7 @@ public class EventServiceImplTest {
     @Test()
     public void testCreateEventAttendanceId(){
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         when(
             userService.findUserById(eq(USER_ID))
@@ -1341,7 +1365,7 @@ public class EventServiceImplTest {
         Event fullEvent = mock(Event.class);
         when(fullEvent.getAttendeesCount()).thenReturn(5);
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.of(fullEvent));
         when(
             cityService.findCityById(eq(CITY_ID))
@@ -1361,7 +1385,7 @@ public class EventServiceImplTest {
     @Test(expected = InvalidReferenceException.class)
     public void testUpdateEventMissingCity(){
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         when(
             cityService.findCityById(eq(CITY_ID))
@@ -1381,7 +1405,7 @@ public class EventServiceImplTest {
     @Test(expected = EventNotFoundException.class)
     public void testUpdateEventMissingEvent(){
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
         eventService.updateEvent(
@@ -1407,6 +1431,23 @@ public class EventServiceImplTest {
 
         assertTrue(newEvent.isDeleted());
         assertEquals(DESCRIPTION, newEvent.getDeletionMessage());
+    }
+
+    @Test
+    public void testDeleteEventSendsEmailAfterCommit(){
+        Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
+        when(eventDao.findById(eq(EVENT_ID))).thenReturn(Optional.of(newEvent));
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            eventService.deleteEvent(EVENT_ID, DESCRIPTION);
+
+            verify(emailService, never()).sendEventDeletionNotification(any(), eq(DESCRIPTION));
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendEventDeletionNotification(any(), eq(DESCRIPTION));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
     @Test
     public void testPatchEventDeletedTrue(){
@@ -1474,6 +1515,22 @@ public class EventServiceImplTest {
 
         assertTrue(resp.isDeleted());
         assertEquals(DESCRIPTION, resp.getDeletionMessage());
+    }
+
+    @Test
+    public void testDeleteEventResponseSendsEmailAfterCommit(){
+        EventResponse resp = new EventResponse(USER, EVENT, ADDRESS);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            eventService.deleteEventResponse(resp, DESCRIPTION);
+
+            verify(emailService, never()).sendEventCommentDeletionNotification(eq(resp), any(), any(), eq(DESCRIPTION));
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendEventCommentDeletionNotification(eq(resp), any(), any(), eq(DESCRIPTION));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 
     @Test
