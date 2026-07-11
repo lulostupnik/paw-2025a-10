@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { buildEventDetail, getEventById } from "@/lib/api/events";
 import type { EventDetail } from "@/types/event";
 import { DETAIL_QUERY_OPTIONS } from "@/lib/utils/queryDefaults";
@@ -8,6 +8,7 @@ interface EventDetailParams {
 }
 
 export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
+    const queryClient = useQueryClient();
     const query = useQuery({
         queryKey: ["eventDetail", eventId],
         queryFn: async ({ signal }) => {
@@ -15,7 +16,7 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
                 throw new Error("missing-event-id");
             }
             const event = await getEventById(eventId, signal);
-            return buildEventDetail(event, signal);
+            return buildEventDetail(event, signal, queryClient);
         },
         placeholderData: keepPreviousData,
         ...DETAIL_QUERY_OPTIONS,

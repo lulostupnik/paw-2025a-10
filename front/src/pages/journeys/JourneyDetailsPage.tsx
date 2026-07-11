@@ -20,6 +20,7 @@ import type { JourneyComment, JourneyEvent, JourneyTip } from "@/types/journey";
 import type { ProfileInterest } from "@/types/profile";
 import { parseApiDate } from "@/lib/utils/date";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
+import type { QueryClient } from "@tanstack/react-query";
 
 const TIPS_PAGE_PARAM = "tipsPage";
 const COMMENTS_PAGE_PARAM = "commentsPage";
@@ -53,9 +54,9 @@ const formatDateTime = (value: string, locale: string) => {
     }).format(date);
 };
 
-const mapEventPageToJourneyEvents = async (page: PageResult<EventDto>, signal?: AbortSignal): Promise<PageResult<JourneyEvent>> => {
+const mapEventPageToJourneyEvents = async (page: PageResult<EventDto>, signal?: AbortSignal, queryClient?: QueryClient): Promise<PageResult<JourneyEvent>> => {
     const cities = await Promise.all(
-        page.content.map((event) => (event.links?.cityUrl ? getCityByUrl(event.links.cityUrl, signal) : Promise.resolve(null)))
+        page.content.map((event) => (event.links?.cityUrl ? getCityByUrl(event.links.cityUrl, signal, queryClient) : Promise.resolve(null)))
     );
     const mapped = page.content.map((event, index) => ({
         id: event.id,
@@ -78,9 +79,9 @@ interface JourneyResponseApi {
     } | null;
 }
 
-const mapJourneyResponsesPage = async (page: PageResult<JourneyResponseApi>, signal?: AbortSignal): Promise<PageResult<JourneyComment>> => {
+const mapJourneyResponsesPage = async (page: PageResult<JourneyResponseApi>, signal?: AbortSignal, queryClient?: QueryClient): Promise<PageResult<JourneyComment>> => {
     const users = await Promise.all(
-        page.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal) : Promise.resolve(null)))
+        page.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal, queryClient) : Promise.resolve(null)))
     );
     const mapped = page.content.map((response, index) => ({
         id: response.id,
@@ -161,7 +162,7 @@ export default function JourneyDetailPage() {
                 return Promise.resolve(emptyPage<JourneyComment>());
             }
             const page = await getJourneyResponses(Number(id), { page: commentsPage, size: commentsPageSize }, signal);
-            return mapJourneyResponsesPage(page, signal);
+            return mapJourneyResponsesPage(page, signal, queryClient);
         },
         enabled: hasValidId,
         placeholderData: keepPreviousData,
@@ -183,7 +184,7 @@ export default function JourneyDetailPage() {
                 },
                 signal
             );
-            return mapEventPageToJourneyEvents(page, signal);
+            return mapEventPageToJourneyEvents(page, signal, queryClient);
         },
         enabled: Boolean(journeyOwnerId && data?.startDate && data?.endDate),
         placeholderData: keepPreviousData,
@@ -205,7 +206,7 @@ export default function JourneyDetailPage() {
                 },
                 signal
             );
-            return mapEventPageToJourneyEvents(page, signal);
+            return mapEventPageToJourneyEvents(page, signal, queryClient);
         },
         enabled: Boolean(journeyOwnerId && data?.startDate && data?.endDate),
         placeholderData: keepPreviousData,

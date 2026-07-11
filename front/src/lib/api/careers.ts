@@ -1,6 +1,8 @@
-import { apiClient } from "@/lib/api/client";
+import type { QueryClient } from "@tanstack/react-query";
+import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import { toPaged, type PageResult } from "@/types/pagination";
+import { fetchByUrl } from "@/lib/utils/fetchByUrl";
 
 export interface CareerDto {
     id: number;
@@ -29,6 +31,12 @@ export const getCareerById = async (id: number | string, signal?: AbortSignal): 
     const response = await apiClient.get<CareerDto>(`/careers/${id}`, { signal, headers: { Accept: ContentTypes.CAREER } });
     return response.data;
 };
+
+export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal, queryClient?: QueryClient): Promise<CareerDto | null> =>
+    fetchByUrl(queryClient, "career", url, async (fetchSignal) => {
+        const response = await apiClient.get<CareerDto>(normalizeApiPath(url as string), { signal: fetchSignal, headers: { Accept: ContentTypes.CAREER } });
+        return response.data ?? null;
+    }, signal);
 
 export const createCareer = async (payload: CareerPayload, signal?: AbortSignal): Promise<CareerDto> => {
     const response = await apiClient.post<CareerDto>("/careers", payload, { signal, headers: { "Content-Type": ContentTypes.CAREER, Accept: ContentTypes.CAREER } });

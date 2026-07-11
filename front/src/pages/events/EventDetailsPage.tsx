@@ -18,6 +18,7 @@ import { getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventComment } from "@/types/event";
 import { parseApiDate } from "@/lib/utils/date";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
+import type { QueryClient } from "@tanstack/react-query";
 
 const formatDate = (value: string, locale: string) => {
     const date = parseApiDate(value);
@@ -83,9 +84,9 @@ interface EventResponseApi {
     } | null;
 }
 
-const mapEventResponsesPage = async (page: PageResult<EventResponseApi>, signal?: AbortSignal): Promise<PageResult<EventComment>> => {
+const mapEventResponsesPage = async (page: PageResult<EventResponseApi>, signal?: AbortSignal, queryClient?: QueryClient): Promise<PageResult<EventComment>> => {
     const users = await Promise.all(
-        page.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal) : Promise.resolve(null)))
+        page.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal, queryClient) : Promise.resolve(null)))
     );
     const mapped = page.content.map((response, index) => ({
         id: response.id,
@@ -168,7 +169,7 @@ export default function EventDetailPage() {
             if (!id) {
                 return emptyPage<EventAttendee>();
             }
-            return listEventAttendees(Number(id), { page: attendeesPage, size: attendeesPageSize }, signal);
+            return listEventAttendees(Number(id), { page: attendeesPage, size: attendeesPageSize }, signal, queryClient);
         },
         enabled: hasValidId && canViewAttendees,
         placeholderData: keepPreviousData,
@@ -180,7 +181,7 @@ export default function EventDetailPage() {
                 return emptyPage<EventComment>();
             }
             const page = await listEventResponses(Number(id), { page: commentsPage, size: commentsPageSize }, signal);
-            return mapEventResponsesPage(page, signal);
+            return mapEventResponsesPage(page, signal, queryClient);
         },
         enabled: hasValidId,
         placeholderData: keepPreviousData,

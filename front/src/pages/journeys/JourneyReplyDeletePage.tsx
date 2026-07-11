@@ -75,7 +75,7 @@ export default function JourneyReplyDeletePage() {
                 throw new Error("missing-identifiers");
             }
             const response = await getJourneyResponse(parsedJourneyId, parsedResponseId, signal);
-            const user = response.links?.authorUrl ? await getUserByUrl(response.links.authorUrl, signal) : null;
+            const user = response.links?.authorUrl ? await getUserByUrl(response.links.authorUrl, signal, queryClient) : null;
             return {
                 id: response.id,
                 message: response.message,

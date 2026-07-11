@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { buildJourneyDetail, getJourneyById } from "@/lib/api/journeys";
 import type { JourneyDetail } from "@/types/journey";
 import { DETAIL_QUERY_OPTIONS } from "@/lib/utils/queryDefaults";
@@ -8,6 +8,7 @@ interface JourneyDetailParams {
 }
 
 export const useJourneyDetailData = ({ journeyId }: JourneyDetailParams = {}) => {
+    const queryClient = useQueryClient();
     const query = useQuery({
         queryKey: ["journeyDetail", journeyId],
         queryFn: async ({ signal }) => {
@@ -15,7 +16,7 @@ export const useJourneyDetailData = ({ journeyId }: JourneyDetailParams = {}) =>
                 throw new Error("missing-journey-id");
             }
             const journey = await getJourneyById(journeyId, signal);
-            return buildJourneyDetail(journey, signal);
+            return buildJourneyDetail(journey, signal, queryClient);
         },
         placeholderData: keepPreviousData,
         ...DETAIL_QUERY_OPTIONS,

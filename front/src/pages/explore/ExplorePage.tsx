@@ -1,5 +1,4 @@
-import { useEffect, useMemo } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import EmptyState from "@/components/EmptyState";
@@ -11,7 +10,6 @@ import { useJourneys } from "@/hooks/useJourneys";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useI18n } from "@/lib/i18n";
 import { getUserId } from "@/lib/auth/auth";
-import { prefetchEventDetail } from "@/lib/utils/prefetchDetail";
 
 const parseIdFromUrl = (url?: string | null) => {
     if (!url) {
@@ -61,7 +59,6 @@ function ActionIcon({ name }: ActionIconProps) {
 
 export default function ExplorePage() {
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { t } = useI18n();
     const currentUserId = getUserId();
     const { data: profile, isLoading: profileLoading } = useProfileDetail({ profileId: "me", enabled: Boolean(currentUserId) });
@@ -88,14 +85,6 @@ export default function ExplorePage() {
                 .slice(0, 4),
         [currentUserId, journeys.content]
     );
-    const eventsToPrefetch = useMemo(() => events.content.slice(0, 4), [events.content]);
-
-    useEffect(() => {
-        eventsToPrefetch.forEach((event) => {
-            prefetchEventDetail(queryClient, event.id);
-        });
-    }, [queryClient, eventsToPrefetch]);
-
     const quickActions = [
         {
             id: "create-journey",

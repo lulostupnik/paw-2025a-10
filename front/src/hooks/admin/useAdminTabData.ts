@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
     AdminCareer,
     AdminCity,
@@ -101,6 +101,7 @@ export const useAdminUsers = ({
     career,
     interest,
 }: AdminTabParams & { blocked?: boolean; university?: number; career?: number; interest?: number } = {}): AdminTabResult<AdminUser> => {
+    const queryClient = useQueryClient();
     const safePage = Math.max(1, page);
     const safePageSize = Math.max(1, pageSize);
     const params = useMemo(
@@ -123,7 +124,7 @@ export const useAdminUsers = ({
             const users = await listUsers(params, signal);
             const adminUsers = await Promise.all(
                 users.content.map(async (user: UserPrivateApi): Promise<AdminUser> => {
-                    const university = await getUniversityByUrl(user.links?.universityUrl, signal);
+                    const university = await getUniversityByUrl(user.links?.universityUrl, signal, queryClient);
                     return {
                         id: user.id,
                         firstname: user.firstname ?? "",
@@ -151,6 +152,7 @@ export const useAdminEvents = ({
     page = 1,
     pageSize = 10,
 }: AdminTabParams = {}): AdminTabResult<AdminEvent> => {
+    const queryClient = useQueryClient();
     const { params } = useAdminListParams({ search, page, pageSize });
 
     const query = useQuery({
@@ -160,8 +162,8 @@ export const useAdminEvents = ({
             const adminEvents = await Promise.all(
                 events.content.map(async (event) => {
                     const [creator, city] = await Promise.all([
-                        getUserByUrl(event.links?.creatorUrl, signal),
-                        getCityByUrl(event.links?.cityUrl, signal),
+                        getUserByUrl(event.links?.creatorUrl, signal, queryClient),
+                        getCityByUrl(event.links?.cityUrl, signal, queryClient),
                     ]);
                     return {
                         id: event.id,
@@ -192,6 +194,7 @@ export const useAdminUniversities = ({
     page = 1,
     pageSize = 10,
 }: AdminTabParams = {}): AdminTabResult<AdminUniversity> => {
+    const queryClient = useQueryClient();
     const { params } = useAdminListParams({ search, page, pageSize });
 
     const query = useQuery({
@@ -200,7 +203,7 @@ export const useAdminUniversities = ({
             const universities = await listUniversities(params, signal);
             const adminUniversities = await Promise.all(
                 universities.content.map(async (university) => {
-                    const city = await getCityByUrl(university.links?.cityUrl, signal);
+                    const city = await getCityByUrl(university.links?.cityUrl, signal, queryClient);
                     return {
                         id: university.id,
                         name: university.name,

@@ -1,3 +1,4 @@
+import type { QueryClient } from "@tanstack/react-query";
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import { getCareerByUrl, getCityByUrl, getUniversityByUrl, getUserByUrl } from "@/lib/api/journeys";
@@ -144,13 +145,14 @@ export const listEventResponses = async (
 export const listEventAttendees = async (
     eventId: number,
     params: { page?: number; size?: number } = {},
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    queryClient?: QueryClient
 ): Promise<PageResult<EventAttendee>> => {
     const response = await apiClient.get<EventAttendanceApi[]>(`/events/${eventId}/attendances`, { params, signal, headers: { Accept: ContentTypes.EVENT_ATTENDANCE_LIST } });
     const page = toPaged(response);
     const users = await Promise.all(
         page.content.map((attendance) =>
-            attendance.links?.userUrl ? getUserByUrl(attendance.links.userUrl, signal) : Promise.resolve(null)
+            attendance.links?.userUrl ? getUserByUrl(attendance.links.userUrl, signal, queryClient) : Promise.resolve(null)
         )
     );
     const mapped = page.content.map((_, index) => {
@@ -189,12 +191,12 @@ export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
     imageUrl: dto.links?.flyerUrl ?? undefined,
 });
 
-export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal): Promise<ProfileEvent[]> => {
+export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal, queryClient?: QueryClient): Promise<ProfileEvent[]> => {
     const results = await Promise.all(
         events.map(async (event) => {
             const [city, user] = await Promise.all([
-                getCityByUrl(event.links?.cityUrl, signal),
-                getUserByUrl(event.links?.creatorUrl, signal),
+                getCityByUrl(event.links?.cityUrl, signal, queryClient),
+                getUserByUrl(event.links?.creatorUrl, signal, queryClient),
             ]);
             return {
                 id: event.id,
@@ -218,10 +220,10 @@ export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal
     return results;
 };
 
-export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): Promise<EventDetail> => {
+export const buildEventDetail = async (event: EventDto, signal?: AbortSignal, queryClient?: QueryClient): Promise<EventDetail> => {
     const listAttendeesSafe = async () => {
         try {
-            return await listEventAttendees(event.id, { page: 1, size: 10 }, signal);
+            return await listEventAttendees(event.id, { page: 1, size: 10 }, signal, queryClient);
         } catch (error) {
             const status = (error as { response?: { status?: number } } | undefined)?.response?.status;
             if (status === 401 || status === 403) {
@@ -232,25 +234,25 @@ export const buildEventDetail = async (event: EventDto, signal?: AbortSignal): P
     };
 
     const [creator, city, responses, attendees, ratings] = await Promise.all([
-        event.links?.creatorUrl ? getUserByUrl(event.links.creatorUrl, signal) : Promise.resolve(null),
-        event.links?.cityUrl ? getCityByUrl(event.links.cityUrl, signal) : Promise.resolve(null),
+        event.links?.creatorUrl ? getUserByUrl(event.links.creatorUrl, signal, queryClient) : Promise.resolve(null),
+        event.links?.cityUrl ? getCityByUrl(event.links.cityUrl, signal, queryClient) : Promise.resolve(null),
         listEventResponses(event.id, { page: 1, size: 10 }, signal),
         listAttendeesSafe(),
         listEventRatings(event.id, { page: 1, size: 10 }, signal),
     ]);
     const [creatorUniversity, creatorCareer] = await Promise.all([
-        creator?.links?.universityUrl ? getUniversityByUrl(creator.links.universityUrl, signal) : Promise.resolve(null),
-        creator?.links?.careerUrl ? getCareerByUrl(creator.links.careerUrl, signal) : Promise.resolve(null),
+        creator?.links?.universityUrl ? getUniversityByUrl(creator.links.universityUrl, signal, queryClient) : Promise.resolve(null),
+        creator?.links?.careerUrl ? getCareerByUrl(creator.links.careerUrl, signal, queryClient) : Promise.resolve(null),
     ]);
 
     const responseUsers = await Promise.all(
         responses.content.map((response) =>
-            response.links?.authorUrl ? getUserByUrl(normalizeApiPath(response.links.authorUrl), signal) : Promise.resolve(null)
+            response.links?.authorUrl ? getUserByUrl(normalizeApiPath(response.links.authorUrl), signal, queryClient) : Promise.resolve(null)
         )
     );
     const ratingUsers = await Promise.all(
         ratings.content.map((rating) =>
-            rating.links?.userUrl ? getUserByUrl(normalizeApiPath(rating.links.userUrl), signal) : Promise.resolve(null)
+            rating.links?.userUrl ? getUserByUrl(normalizeApiPath(rating.links.userUrl), signal, queryClient) : Promise.resolve(null)
         )
     );
 

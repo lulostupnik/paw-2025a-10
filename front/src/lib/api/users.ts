@@ -1,9 +1,11 @@
+import type { QueryClient } from "@tanstack/react-query";
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import type { ProfileDetail, ProfileEditPayload, ProfileInterest, ProfileRatingStats } from "@/types/profile";
 import { getUniversityByUrl } from "./journeys";
 import { getEmail, getUserId } from "../auth/auth";
 import { toPaged, mapPageList, type PageResult } from "@/types/pagination";
+import { fetchByUrl } from "@/lib/utils/fetchByUrl";
 
 export interface RegisteredUser {
     id: number;
@@ -174,19 +176,61 @@ export const listAllUserInterests = async (userId: string | number, signal?: Abo
     return all;
 };
 
-export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal) => {
-    if (!url) {
-        return null;
-    }
-    const response = await apiClient.get<CareerApi>(normalizeApiPath(url), { signal, headers: { Accept: ContentTypes.CAREER } });
-    return response.data;
+export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal, queryClient?: QueryClient) =>
+    fetchByUrl(queryClient, "career", url, async (fetchSignal) => {
+        const response = await apiClient.get<CareerApi>(normalizeApiPath(url as string), { signal: fetchSignal, headers: { Accept: ContentTypes.CAREER } });
+        return response.data;
+    }, signal);
+
+export const invalidateUserViewQueries = async (
+    queryClient: QueryClient,
+    userId: number | string,
+    selfUrl?: string | null
+) => {
+    const normalizedUserId = String(userId);
+    const normalizedSelfUrl = normalizeApiPath(selfUrl ?? `/users/${normalizedUserId}`);
+
+    await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["profileDetail", normalizedUserId] }),
+        queryClient.invalidateQueries({ queryKey: ["profileDetail", "me"] }),
+        queryClient.invalidateQueries({ queryKey: ["adminUserDetail", normalizedUserId] }),
+        queryClient.invalidateQueries({ queryKey: ["adminUsers"] }),
+        queryClient.invalidateQueries({ queryKey: ["profileTrips", normalizedUserId] }),
+        queryClient.invalidateQueries({ queryKey: ["profileTrips", "me"] }),
+        queryClient.invalidateQueries({ queryKey: ["profileEvents", normalizedUserId] }),
+        queryClient.invalidateQueries({ queryKey: ["profileEvents", "me"] }),
+        queryClient.invalidateQueries({ queryKey: ["events"] }),
+        queryClient.invalidateQueries({ queryKey: ["journeys"] }),
+        queryClient.invalidateQueries({ queryKey: ["adminEvents"] }),
+        queryClient.invalidateQueries({ queryKey: ["byUrl", "user-public", normalizedSelfUrl] }),
+        queryClient.invalidateQueries({
+            predicate: (query) => {
+                const key = query.queryKey[0];
+                return key === "eventDetail" ||
+                    key === "eventComments" ||
+                    key === "eventAttendees" ||
+                    key === "journeyDetail" ||
+                    key === "journeyComments";
+            },
+        }),
+    ]);
 };
 
-export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSignal): Promise<ProfileDetail> => {
+export const invalidateCurrentUserInterestQueries = async (queryClient: QueryClient, userId: number | string) => {
+    const normalizedUserId = String(userId);
+    await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["profileInterests", "me"] }),
+        queryClient.invalidateQueries({ queryKey: ["profileInterests", normalizedUserId] }),
+        queryClient.invalidateQueries({ queryKey: ["events"] }),
+        queryClient.invalidateQueries({ queryKey: ["journeys"] }),
+    ]);
+};
+
+export const buildProfileDetail = async (user: ProfileDetail, signal?: AbortSignal, queryClient?: QueryClient): Promise<ProfileDetail> => {
     const [ratingStats, university, career] = await Promise.all([
         getUserRatingStats(user.id, signal),
-        getUniversityByUrl(user.links?.universityUrl, signal),
-        getCareerByUrl(user.links?.careerUrl, signal),
+        getUniversityByUrl(user.links?.universityUrl, signal, queryClient),
+        getCareerByUrl(user.links?.careerUrl, signal, queryClient),
     ]);
 
     const isMine = user.id == getUserId();

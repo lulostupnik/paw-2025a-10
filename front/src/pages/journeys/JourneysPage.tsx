@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getCityByUrl, getJourneyById, getUniversityByUrl } from "@/lib/api/journeys";
@@ -17,7 +17,6 @@ import { useUrlSyncedListingFilters, type ListingFiltersState } from "@/hooks/us
 import { isLoggedIn } from "@/lib/auth/auth";
 import Pagination from "@/components/listing/Pagination";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
-import { prefetchJourneyDetail } from "@/lib/utils/prefetchDetail";
 
 const DEFAULT_SORT = "journey-start-asc";
 
@@ -45,8 +44,8 @@ export default function JourneysListPage() {
         enabled: canSeeMyDestination && journeyId != null,
         queryFn: async ({ signal }) => {
             const journey = await getJourneyById(journeyId as number, signal);
-            const university = await getUniversityByUrl(journey?.links?.destinationUniversityUrl, signal);
-            const city = university?.links?.cityUrl ? await getCityByUrl(university.links.cityUrl, signal) : null;
+            const university = await getUniversityByUrl(journey?.links?.destinationUniversityUrl, signal, queryClient);
+            const city = university?.links?.cityUrl ? await getCityByUrl(university.links.cityUrl, signal, queryClient) : null;
             return city?.id ?? null;
         },
     });
@@ -140,12 +139,6 @@ export default function JourneysListPage() {
         page: parseInt(searchParams.get("page") ?? "1"),
         size: 12,
     });
-
-    useEffect(() => {
-        journeys.content.slice(0, 3).forEach((journey) => {
-            prefetchJourneyDetail(queryClient, journey.id);
-        });
-    }, [journeys.content, queryClient]);
 
     const handleCreate = () => {
         gate.runOrPrompt(() => nav(journeyId ? `/journeys/${journeyId}` : "/journeys/create"));

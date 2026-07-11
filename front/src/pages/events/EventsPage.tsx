@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ListingLayout from "@/components/listing/ListingLayout";
 import EmptyState from "@/components/EmptyState";
@@ -17,7 +16,6 @@ import type { FetchEventsParams } from "@/lib/api/events";
 import { getUserId, isLoggedIn } from "@/lib/auth/auth";
 import Pagination from "@/components/listing/Pagination";
 import { getTodayIsoDate } from "@/lib/utils/date";
-import { prefetchEventDetail } from "@/lib/utils/prefetchDetail";
 
 const SORT_MAPPING: Record<
     string,
@@ -55,7 +53,6 @@ const mapTabParams = (
 export default function EventsListPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const [searchParams, setSearchParams] = useSearchParams();
     const gate = useAuthGate();
     const logged = isLoggedIn();
@@ -179,14 +176,6 @@ export default function EventsListPage() {
     }, [appliedSearch, filters.afterDate, filters.beforeDate, filters.cityName, filters.hasCapacity, filters.interestName, filters.minRating, filters.universityName, sortParams, tabParams, searchParams]);
 
     const { events, loading, error } = useEvents(eventQueryParams);
-    const eventsToPrefetch = useMemo(() => events.content.slice(0, 4), [events.content]);
-
-    useEffect(() => {
-        eventsToPrefetch.forEach((event) => {
-            prefetchEventDetail(queryClient, event.id);
-        });
-    }, [queryClient, eventsToPrefetch]);
-
     const handleCreate = () => {
         gate.runOrPrompt(() => navigate("/events/create"));
     };

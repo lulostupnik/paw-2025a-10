@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
     AdminCareerDetail,
     AdminCityDetail,
@@ -20,6 +20,7 @@ interface AdminDetailParams {
 
 export const useAdminUserDetailData = (params?: AdminDetailParams) => {
     const userId = params?.id;
+    const queryClient = useQueryClient();
     const query = useQuery({
         queryKey: ["adminUserDetail", userId],
         queryFn: async ({ signal }) => {
@@ -28,8 +29,8 @@ export const useAdminUserDetailData = (params?: AdminDetailParams) => {
             }
             const user = await getUserPrivateById(userId, signal);
             const [university, career] = await Promise.all([
-                getUniversityByUrl(user.links?.universityUrl, signal),
-                getCareerByUrl(user.links?.careerUrl, signal),
+                getUniversityByUrl(user.links?.universityUrl, signal, queryClient),
+                getCareerByUrl(user.links?.careerUrl, signal, queryClient),
             ]);
             return {
                 id: user.id,
@@ -53,6 +54,7 @@ export const useAdminUserDetailData = (params?: AdminDetailParams) => {
 
 export const useAdminUniversityDetailData = (params?: AdminDetailParams) => {
     const universityId = params?.id;
+    const queryClient = useQueryClient();
     const query = useQuery({
         queryKey: ["adminUniversityDetail", universityId],
         queryFn: async ({ signal }) => {
@@ -60,7 +62,7 @@ export const useAdminUniversityDetailData = (params?: AdminDetailParams) => {
                 throw new Error("missing-university-id");
             }
             const university = await getUniversityById(universityId, signal);
-            const city = await getCityByUrl(university.links?.cityUrl, signal);
+            const city = await getCityByUrl(university.links?.cityUrl, signal, queryClient);
             return {
                 id: university.id,
                 name: university.name,

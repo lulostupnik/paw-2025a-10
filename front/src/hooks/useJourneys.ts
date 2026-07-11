@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { JourneySummary } from "@/types/journey";
 import { getJourneys, resolveJourneySummary, type FetchJourneysParams } from "@/lib/api/journeys";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
@@ -12,6 +12,7 @@ interface UseJourneysResult {
 }
 
 export function useJourneys(params?: FetchJourneysParams): UseJourneysResult {
+    const queryClient = useQueryClient();
     const serializedParams = useMemo(() => JSON.stringify(params ?? {}), [params]);
     const memoizedParams = useMemo<FetchJourneysParams>(() => ({ ...(params ?? {}) }), [serializedParams]);
 
@@ -19,7 +20,7 @@ export function useJourneys(params?: FetchJourneysParams): UseJourneysResult {
         queryKey: ["journeys", memoizedParams],
         queryFn: async ({ signal }) => {
             const data = await getJourneys(memoizedParams, signal);
-            const journeySummary = await Promise.all(data.content.map((journey: JourneySummary) => resolveJourneySummary(journey, signal)));
+            const journeySummary = await Promise.all(data.content.map((journey: JourneySummary) => resolveJourneySummary(journey, signal, queryClient)));
             return mapPageList(data, journeySummary);
         },
         placeholderData: keepPreviousData,

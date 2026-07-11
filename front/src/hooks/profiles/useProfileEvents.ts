@@ -1,6 +1,6 @@
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import type { ProfileEvent } from "@/types/event";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { buildProfileEvent, fetchEvents } from "@/lib/api/events";
 import { getUserId } from "@/lib/auth/auth";
 import { getTodayIsoDate } from "@/lib/utils/date";
@@ -25,6 +25,7 @@ interface ProfileEventsResult {
 
 export const useProfileEvents = (profileId: string, params: ProfileEventsParams = {}): ProfileEventsResult => {
     const enabled = params.enabled ?? true;
+    const queryClient = useQueryClient();
     const query = useQuery({
         queryKey: ["profileEvents", profileId, params],
         queryFn: async ({ signal }) => {
@@ -43,9 +44,9 @@ export const useProfileEvents = (profileId: string, params: ProfileEventsParams 
                 fetchEvents({ creatorId: Number(resolvedId), beforeDate: today, page: params.finishedPage, size: params.size }, signal),
             ]);
             return {
-                created: mapPageList(createdEvents, await buildProfileEvent(createdEvents.content, signal)),
-                attending: mapPageList(attendingEvents, await buildProfileEvent(attendingEvents.content, signal)),
-                finished: mapPageList(finishedEvents, await buildProfileEvent(finishedEvents.content, signal))
+                created: mapPageList(createdEvents, await buildProfileEvent(createdEvents.content, signal, queryClient)),
+                attending: mapPageList(attendingEvents, await buildProfileEvent(attendingEvents.content, signal, queryClient)),
+                finished: mapPageList(finishedEvents, await buildProfileEvent(finishedEvents.content, signal, queryClient))
             };
         },
         placeholderData: keepPreviousData,

@@ -1,6 +1,6 @@
 import { getUserId } from "@/lib/auth/auth";
 import type { ProfileDetail } from "@/types/profile";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { buildProfileDetail, getProfileDetail } from "@/lib/api/users";
 import { DETAIL_QUERY_OPTIONS } from "@/lib/utils/queryDefaults";
 
@@ -18,6 +18,7 @@ type ProfileDetailParams = { profileId?: string; enabled?: boolean } | string | 
 export const useProfileDetail = (params?: ProfileDetailParams): UseProfileDetailResult => {
     const profileId = typeof params === "string" ? params : params?.profileId;
     const enabled = typeof params === "string" ? true : params?.enabled ?? true;
+    const queryClient = useQueryClient();
 
     const query = useQuery({
         queryKey: ["profileDetail", profileId],
@@ -31,7 +32,7 @@ export const useProfileDetail = (params?: ProfileDetailParams): UseProfileDetail
                 resolvedId = currentUserId.toString();
             }
             const user = await getProfileDetail(resolvedId, signal);
-            return buildProfileDetail(user);
+            return buildProfileDetail(user, signal, queryClient);
         },
         placeholderData: keepPreviousData,
         ...DETAIL_QUERY_OPTIONS,

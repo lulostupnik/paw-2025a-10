@@ -1,6 +1,8 @@
+import type { QueryClient } from "@tanstack/react-query";
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import { toPaged, type PageResult } from "@/types/pagination";
+import { fetchByUrl } from "@/lib/utils/fetchByUrl";
 
 export interface UniversityDto {
     id: number;
@@ -37,13 +39,11 @@ export const getUniversityById = async (id: number | string, signal?: AbortSigna
     return response.data;
 };
 
-export const getUniversityByUrl = async (url?: string | null, signal?: AbortSignal): Promise<UniversityDto | null> => {
-    if (!url) {
-        return null;
-    }
-    const response = await apiClient.get<UniversityDto>(normalizeApiPath(url), { signal, headers: { Accept: ContentTypes.UNIVERSITY } });
-    return response.data ?? null;
-};
+export const getUniversityByUrl = async (url?: string | null, signal?: AbortSignal, queryClient?: QueryClient): Promise<UniversityDto | null> =>
+    fetchByUrl(queryClient, "university", url, async (fetchSignal) => {
+        const response = await apiClient.get<UniversityDto>(normalizeApiPath(url as string), { signal: fetchSignal, headers: { Accept: ContentTypes.UNIVERSITY } });
+        return response.data ?? null;
+    }, signal);
 
 export const createUniversity = async (payload: UniversityPayload, signal?: AbortSignal): Promise<UniversityDto> => {
     const response = await apiClient.post<UniversityDto>("/universities", payload, { signal, headers: { "Content-Type": ContentTypes.UNIVERSITY, Accept: ContentTypes.UNIVERSITY } });

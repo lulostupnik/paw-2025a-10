@@ -3,6 +3,7 @@ import type { ProfileJourney, JourneySummary } from "@/types/journey";
 import { getProfileDetail } from "@/lib/api/users";
 import { getJourneyById, resolveJourneySummary } from "@/lib/api/journeys";
 import { getUserId } from "@/lib/auth/auth";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface ProfileTripsParams {
     page?: number;
@@ -29,6 +30,7 @@ const buildJourneyTitle = (journey: JourneySummary) =>
     journey.university ?? journey.city ?? `Journey #${journey.id}`;
 
 export const useProfileTrips = (profileId: string, params: ProfileTripsParams = {}): ProfileTripsResult => {
+    const queryClient = useQueryClient();
     const query = useQuery({
         queryKey: ["profileTrips", profileId, params],
         queryFn: async ({ signal }) => {
@@ -46,7 +48,7 @@ export const useProfileTrips = (profileId: string, params: ProfileTripsParams = 
                 return undefined;
             }
             const journey = await getJourneyById(journeyId, signal);
-            const resolved = await resolveJourneySummary(journey, signal);
+            const resolved = await resolveJourneySummary(journey, signal, queryClient);
             const item: ProfileJourney =
                 {
                     id: resolved.id,

@@ -1,7 +1,9 @@
+import type { QueryClient } from "@tanstack/react-query";
 import type { JourneyComment, JourneyDetail, JourneySummary } from "@/types/journey";
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import { toPaged, type PageResult } from "@/types/pagination";
+import { fetchByUrl } from "@/lib/utils/fetchByUrl";
 
 interface UserApi {
     id: number;
@@ -142,37 +144,29 @@ export const deleteJourney = async (id: string | number, payload?: { message?: s
     await apiClient.patch(`/journeys/${id}`, body, { signal, headers: { "Content-Type": ContentTypes.JOURNEY, Accept: ContentTypes.JOURNEY } });
 };
 
-export const getUserByUrl = async (url?: string | null, signal?: AbortSignal) => {
-    if (!url) {
-        return null;
-    }
-    const response = await apiClient.get<UserApi>(normalizeApiPath(url), { signal, headers: { Accept: ContentTypes.USER_PUBLIC } });
-    return response.data;
-};
+export const getUserByUrl = async (url?: string | null, signal?: AbortSignal, queryClient?: QueryClient) =>
+    fetchByUrl(queryClient, "user-public", url, async (fetchSignal) => {
+        const response = await apiClient.get<UserApi>(normalizeApiPath(url as string), { signal: fetchSignal, headers: { Accept: ContentTypes.USER_PUBLIC } });
+        return response.data;
+    }, signal);
 
-export const getUniversityByUrl = async (url?: string | null, signal?: AbortSignal) => {
-    if (!url) {
-        return null;
-    }
-    const response = await apiClient.get<UniversityApi>(normalizeApiPath(url), { signal, headers: { Accept: ContentTypes.UNIVERSITY } });
-    return response.data;
-};
+export const getUniversityByUrl = async (url?: string | null, signal?: AbortSignal, queryClient?: QueryClient) =>
+    fetchByUrl(queryClient, "university", url, async (fetchSignal) => {
+        const response = await apiClient.get<UniversityApi>(normalizeApiPath(url as string), { signal: fetchSignal, headers: { Accept: ContentTypes.UNIVERSITY } });
+        return response.data;
+    }, signal);
 
-export const getCityByUrl = async (url?: string | null, signal?: AbortSignal) => {
-    if (!url) {
-        return null;
-    }
-    const response = await apiClient.get<CityApi>(normalizeApiPath(url), { signal, headers: { Accept: ContentTypes.CITY } });
-    return response.data;
-};
+export const getCityByUrl = async (url?: string | null, signal?: AbortSignal, queryClient?: QueryClient) =>
+    fetchByUrl(queryClient, "city", url, async (fetchSignal) => {
+        const response = await apiClient.get<CityApi>(normalizeApiPath(url as string), { signal: fetchSignal, headers: { Accept: ContentTypes.CITY } });
+        return response.data;
+    }, signal);
 
-export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal) => {
-    if (!url) {
-        return null;
-    }
-    const response = await apiClient.get<CareerApi>(normalizeApiPath(url), { signal, headers: { Accept: ContentTypes.CAREER } });
-    return response.data;
-};
+export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal, queryClient?: QueryClient) =>
+    fetchByUrl(queryClient, "career", url, async (fetchSignal) => {
+        const response = await apiClient.get<CareerApi>(normalizeApiPath(url as string), { signal: fetchSignal, headers: { Accept: ContentTypes.CAREER } });
+        return response.data;
+    }, signal);
 
 export const getUserInterests = async (userId: number, signal?: AbortSignal) => {
     const response = await apiClient.get<InterestApi[]>(`/users/${userId}/interests`, { signal, headers: { Accept: ContentTypes.USER_INTEREST_LIST } });
@@ -249,12 +243,12 @@ export const deleteJourneyTip = async (journeyId: number, tipId: number, signal?
     await apiClient.delete(`/journeys/${journeyId}/tips/${tipId}`, { signal });
 };
 
-export const resolveJourneySummary = async (journey: JourneySummary, signal?: AbortSignal): Promise<JourneySummary> => {
+export const resolveJourneySummary = async (journey: JourneySummary, signal?: AbortSignal, queryClient?: QueryClient): Promise<JourneySummary> => {
     const [user, university] = await Promise.all([
-        getUserByUrl(journey.links?.userUrl, signal),
-        getUniversityByUrl(journey.links?.destinationUniversityUrl, signal),
+        getUserByUrl(journey.links?.userUrl, signal, queryClient),
+        getUniversityByUrl(journey.links?.destinationUniversityUrl, signal, queryClient),
     ]);
-    const city = university?.links?.cityUrl ? await getCityByUrl(university.links.cityUrl, signal) : null;
+    const city = university?.links?.cityUrl ? await getCityByUrl(university.links.cityUrl, signal, queryClient) : null;
 
     return {
         ...journey,
@@ -266,15 +260,15 @@ export const resolveJourneySummary = async (journey: JourneySummary, signal?: Ab
     };
 };
 
-export const buildJourneyDetail = async (journey: JourneySummary, signal?: AbortSignal): Promise<JourneyDetail> => {
+export const buildJourneyDetail = async (journey: JourneySummary, signal?: AbortSignal, queryClient?: QueryClient): Promise<JourneyDetail> => {
     const [user, university] = await Promise.all([
-        getUserByUrl(journey.links?.userUrl, signal),
-        getUniversityByUrl(journey.links?.destinationUniversityUrl, signal),
+        getUserByUrl(journey.links?.userUrl, signal, queryClient),
+        getUniversityByUrl(journey.links?.destinationUniversityUrl, signal, queryClient),
     ]);
     const [city, creatorUniversity, creatorCareer] = await Promise.all([
-        university?.links?.cityUrl ? getCityByUrl(university.links.cityUrl, signal) : Promise.resolve(null),
-        user?.links?.universityUrl ? getUniversityByUrl(user.links.universityUrl, signal) : Promise.resolve(null),
-        user?.links?.careerUrl ? getCareerByUrl(user.links.careerUrl, signal) : Promise.resolve(null),
+        university?.links?.cityUrl ? getCityByUrl(university.links.cityUrl, signal, queryClient) : Promise.resolve(null),
+        user?.links?.universityUrl ? getUniversityByUrl(user.links.universityUrl, signal, queryClient) : Promise.resolve(null),
+        user?.links?.careerUrl ? getCareerByUrl(user.links.careerUrl, signal, queryClient) : Promise.resolve(null),
     ]);
 
     const userId = user?.id ?? parseIdFromUrl(journey.links?.userUrl);
@@ -285,7 +279,7 @@ export const buildJourneyDetail = async (journey: JourneySummary, signal?: Abort
     ]);
 
     const responseUsers = await Promise.all(
-        responses.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal) : Promise.resolve(null)))
+        responses.content.map((response) => (response.links?.authorUrl ? getUserByUrl(response.links.authorUrl, signal, queryClient) : Promise.resolve(null)))
     );
 
     const comments: JourneyComment[] = responses.content.map((response, index) => ({
