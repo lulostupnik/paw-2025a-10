@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
-    Event createEvent(String email, long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit);
     Event createEvent(long userId, long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit);
     Event updateEvent(long eventId,
                      long cityId,
@@ -30,17 +29,13 @@ public interface EventService {
     Optional<EventAttendance> findEventAttendance(long userId, long eventId);
     void deleteEventAttendance(long userId, long eventId);
 
-    Rating rateEvent(User user, long eventId, double rating);
     Rating rateEvent(long userId, long eventId, double rating);
     Rating updateEventRating(long eventId, long ratingId, double rating);
-    Optional<Rating> findRatingByUserAndEvent(long userId, long eventId);
     Optional<Rating> findRatingById(long eventId, long ratingId);
     Page<Rating> findRatingsByEventId(long eventId, PageParams pageParams);
     void deleteRating(long eventId, long ratingId);
     int countRatingsByEvent(long eventId);
 
-//    Page<Event> findUpcomingEventsByAttendee(long userId,PageParams pageParams);
-//    Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams);
     List<Event> findRecommendedEvents(long userId, int limit);
     List<Event> findTopEvents(int limit);
     boolean isEventOwnedByUser(String email, long eventId);
@@ -52,7 +47,6 @@ public interface EventService {
                                         Long attendedByUserId,
                                         String university, Integer minRating, Boolean hasCapacity, Boolean top, PageParams pageParams);
 
-    EventResponse createEventResponse(String email, long eventId, String message);
     EventResponse createEventResponse(long userId, long eventId, String message);
     void deleteEventResponse(EventResponse eventResponse, String message);
     void deleteEventResponse(long eventId, long responseId, String message);
@@ -68,8 +62,6 @@ public interface EventService {
 
     int countEventsCreatedByUser(long userId);
     int countEventsAttendedByUser(long userId);
-
-    //Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId);
 
     Optional<Image> getEventFlyer(long eventId);
     Image updateEventFlyer(long eventId, byte[] flyer);

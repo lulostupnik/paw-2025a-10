@@ -153,7 +153,7 @@ public class EventServiceImplTest {
             cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.of(CITY));
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
             eventDao.create(
@@ -170,7 +170,7 @@ public class EventServiceImplTest {
         ).thenReturn(EVENT);
 
         Event event = eventService.createEvent(
-            EMAIL,
+            USER_ID,
             CITY_ID,
             EVENT_DATE,
             DESCRIPTION,
@@ -222,11 +222,11 @@ public class EventServiceImplTest {
     @Test(expected = UserNotFoundException.class)
     public void testCreateEventUserNotFound(){
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.empty());
 
         eventService.createEvent(
-            EMAIL,
+            USER_ID,
             CITY_ID,
             EVENT_DATE,
             DESCRIPTION,
@@ -259,11 +259,11 @@ public class EventServiceImplTest {
             cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.empty());
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
 
         eventService.createEvent(
-            EMAIL,
+            USER_ID,
             CITY_ID,
             EVENT_DATE,
             DESCRIPTION,
@@ -280,7 +280,7 @@ public class EventServiceImplTest {
             eventDao.findById(EVENT_ID)
         ).thenReturn(Optional.of(EVENT));
         when(
-            userService.findUserByEmail(EMAIL)
+            userService.findUserById(USER_ID)
         ).thenReturn(Optional.of(USER));
         when(
             replyDao.findRespondersByEventId(
@@ -293,7 +293,7 @@ public class EventServiceImplTest {
             replyDao.create(eq(USER), eq(EVENT), eq(DESCRIPTION))
         ).thenReturn(REPLY);
 
-        EventResponse response = eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
+        EventResponse response = eventService.createEventResponse(USER_ID, EVENT_ID, DESCRIPTION);
 
         assertNotNull(response);
         assertEquals(EVENT, response.getEvent());
@@ -304,14 +304,14 @@ public class EventServiceImplTest {
     @Test
     public void testCreateEventResponseSendsEmailsAfterCommit(){
         when(eventDao.findById(EVENT_ID)).thenReturn(Optional.of(EVENT));
-        when(userService.findUserByEmail(EMAIL)).thenReturn(Optional.of(USER));
+        when(userService.findUserById(USER_ID)).thenReturn(Optional.of(USER));
         when(replyDao.findRespondersByEventId(eq(EVENT_ID), any(PageParams.class)))
                 .thenReturn(new Page<>(USERS, 1, 1, 1));
         when(replyDao.create(eq(USER), eq(EVENT), eq(DESCRIPTION))).thenReturn(REPLY);
 
         TransactionSynchronizationManager.initSynchronization();
         try {
-            eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
+            eventService.createEventResponse(USER_ID, EVENT_ID, DESCRIPTION);
 
             verify(emailService, never()).answerEventNotification(any(), eq(DESCRIPTION), any(), any());
             verify(emailService, never()).answerEventOwnerNotification(eq(DESCRIPTION), any(), any());
@@ -361,7 +361,7 @@ public class EventServiceImplTest {
             eventDao.findById(EVENT_ID)
         ).thenReturn(Optional.of(EVENT));
         when(
-            userService.findUserByEmail(EMAIL)
+            userService.findUserById(USER_ID)
         ).thenReturn(Optional.of(USER));
         when(
             replyDao.findRespondersByEventId(
@@ -373,7 +373,7 @@ public class EventServiceImplTest {
             replyDao.create(eq(USER), eq(EVENT), eq(DESCRIPTION))
         ).thenReturn(REPLY);
 
-        EventResponse response = eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
+        EventResponse response = eventService.createEventResponse(USER_ID, EVENT_ID, DESCRIPTION);
 
         assertNotNull(response);
         assertEquals(EVENT, response.getEvent());
@@ -383,21 +383,21 @@ public class EventServiceImplTest {
     @Test(expected = UserNotFoundException.class)
     public void testCreateEventResponseNoUser(){
         when(
-            userService.findUserByEmail(EMAIL)
+            userService.findUserById(USER_ID)
         ).thenReturn(Optional.empty());
 
-        eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
+        eventService.createEventResponse(USER_ID, EVENT_ID, DESCRIPTION);
     }
     @Test(expected = EventNotFoundException.class)
     public void testCreateEventNoEventResponse(){
         when(
-            userService.findUserByEmail(EMAIL)
+            userService.findUserById(USER_ID)
         ).thenReturn(Optional.of(USER));
         when(
             eventDao.findById(EVENT_ID)
         ).thenReturn(Optional.empty());
 
-        eventService.createEventResponse(EMAIL, EVENT_ID, DESCRIPTION);
+        eventService.createEventResponse(USER_ID, EVENT_ID, DESCRIPTION);
     }
 
     @Test
@@ -581,17 +581,6 @@ public class EventServiceImplTest {
         assertNotNull(maybeAttendance);
     }
 
-    // @Test
-    // public void testDeleteEventAttendance(){
-    //     when(
-    //         eventDao.findById(eq(EVENT_ID))
-    //     ).thenReturn(Optional.of(EVENT));
-    //     when(
-    //         attendanceDao.exists(eq(USER_ID), eq(EVENT_ID))
-    //     ).thenReturn(true);
-
-    //     eventService.deleteEventAttendance(USER_ID, EVENT_ID);
-    // }
     @Test(expected = EventAttendanceNotFoundException.class)
     public void testDeleteEventAttendanceNotAttending(){
         when(
@@ -623,23 +612,29 @@ public class EventServiceImplTest {
     @Test
     public void testRateEvent(){
         when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         when(
             ratingDao.rateEvent(USER, EVENT, RATING_VALUE)
         ).thenReturn(new Rating(USER, EVENT, RATING_VALUE));
 
-        Rating rating = eventService.rateEvent(USER, EVENT_ID, RATING_VALUE);
+        Rating rating = eventService.rateEvent(USER_ID, EVENT_ID, RATING_VALUE);
 
         assertNotNull(rating);
     }
     @Test(expected = EventNotFoundException.class)
     public void testRateEventMissing(){
         when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.rateEvent(USER, EVENT_ID, RATING_VALUE);
+        eventService.rateEvent(USER_ID, EVENT_ID, RATING_VALUE);
     }
 
     @Test
@@ -695,17 +690,6 @@ public class EventServiceImplTest {
 
         // RATING_ID belongs to EVENT (id EVENT_ID); asking for it under EVENT_2_ID must not honor the URN.
         eventService.updateEventRating(EVENT_2_ID, RATING_ID, RATING_VALUE);
-    }
-
-    @Test
-    public void testFindRatingByUserAndEvent(){
-        when(
-            ratingDao.findRatingByUserAndEvent(eq(USER_ID), eq(EVENT_ID))
-        ).thenReturn(Optional.empty());
-
-        Optional<Rating> maybeRating = eventService.findRatingByUserAndEvent(USER_ID, EVENT_ID);
-
-        assertNotNull(maybeRating);
     }
 
     @Test

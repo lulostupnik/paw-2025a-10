@@ -36,13 +36,12 @@ public class EventServiceImpl implements EventService {
     private final CityService cityService;
     private final EventAttendanceDao eventAttendanceDao;
     private final EventRatingDao eventRatingDao;
-    private final JourneyService journeyService;
 
     @Autowired
     public EventServiceImpl(final UserService userService, final EventResponseDao eventResponseDao,
                             final EventDao eventDao, final EmailService emailService, final ImageService imageService,
                             final CityService cityService, final EventAttendanceDao eventAttendanceDao,
-                            final EventRatingDao eventRatingDao, final JourneyService journeyService) {
+                            final EventRatingDao eventRatingDao) {
         this.userService = userService;
         this.eventResponseDao = eventResponseDao;
         this.eventDao = eventDao;
@@ -51,19 +50,6 @@ public class EventServiceImpl implements EventService {
         this.cityService = cityService;
         this.eventAttendanceDao = eventAttendanceDao;
         this.eventRatingDao = eventRatingDao;
-        this.journeyService = journeyService;
-    }
-
-    @Override
-    @Transactional
-    public Event createEvent(final String email, final long cityId, final LocalDate date, final String description, final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
-
-        LOGGER.debug("Creating event for user {}", email);
-        User user = userService.findUserByEmail(email).orElseThrow(()-> {
-                LOGGER.error("User not found {}", email);
-                return new UserNotFoundException(email);}
-        );
-        return createEventInternal(user, cityId, date, description, title, time, address, attendeesLimit);
     }
 
     @Override
@@ -86,17 +72,6 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Event {} created", event.getId());
         eventAttendanceDao.create(user, event);
         return event;
-    }
-
-    @Override
-    @Transactional
-    public EventResponse createEventResponse(final String email, final long eventId, final String message) {
-        LOGGER.debug("Replying to event {}", eventId);
-        User responder = userService.findUserByEmail(email).orElseThrow(() -> {
-            LOGGER.error("User not found {}", email);
-            return new UserNotFoundException(email);
-        });
-        return createEventResponseInternal(responder, eventId, message);
     }
 
     @Override
@@ -261,22 +236,16 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Rating rateEvent(User user, long eventId, double rating) {
-        Event event = eventDao.findById(eventId).orElseThrow(() -> {
-            LOGGER.warn("Event not found {}", eventId);
-            return new EventNotFoundException(eventId);
-        });
-        return eventRatingDao.rateEvent(user, event, rating);
-    }
-
-    @Override
-    @Transactional
     public Rating rateEvent(long userId, long eventId, double rating) {
         User user = userService.findUserById(userId).orElseThrow(() -> {
             LOGGER.warn("User not found {}", userId);
             return new UserNotFoundException(userId);
         });
-        return rateEvent(user, eventId, rating);
+        Event event = eventDao.findById(eventId).orElseThrow(() -> {
+            LOGGER.warn("Event not found {}", eventId);
+            return new EventNotFoundException(eventId);
+        });
+        return eventRatingDao.rateEvent(user, event, rating);
     }
 
     @Transactional
@@ -289,11 +258,6 @@ public class EventServiceImpl implements EventService {
                 });
         rating.setRating(value);
         return rating;
-    }
-
-    @Override
-    public Optional<Rating> findRatingByUserAndEvent(long userId, long eventId) {
-        return eventRatingDao.findRatingByUserAndEvent(userId, eventId);
     }
 
     @Override
@@ -325,45 +289,6 @@ public class EventServiceImpl implements EventService {
     public int countRatingsByEvent(long eventId) {
         return eventRatingDao.countRatingsByEvent(eventId);
     }
-
-//
-//    @Override
-//    public Page<Event> findUpcomingEventsByAttendee(long userId, PageParams pageParams) {
-//        return eventDao.findAllWithFilters(
-//                userId,
-//                null, // searchTerm
-//                null, // sortBy
-//                SortDirection.DESC, // direction
-//                null, // destination
-//                LocalDate.now(), // startDate
-//                null, // endDate
-//                LocalTime.now(),
-//                null,
-//                null, // interest
-//                true, // attending
-//                false, // isCreator
-//                pageParams
-//        );
-//    }
-//
-//    @Override
-//    public Page<Event> findFinishedEventsByAttendee(long userId, PageParams pageParams) {
-//        return  eventDao.findAllWithFilters(
-//                userId,
-//                null, // searchTerm
-//                null, // sortBy
-//                SortDirection.DESC, // direction
-//                null, // destination
-//                null, // startDate
-//                LocalDate.now(), // endDate
-//                null,
-//                LocalTime.now(),
-//                null, // interest
-//                true, // attending
-//                false, // isCreator
-//                pageParams
-//        );
-//    }
 
     @Override
     public List<Event> findRecommendedEvents(final long userId, final  int limit) {
@@ -597,30 +522,6 @@ public class EventServiceImpl implements EventService {
         }
         return maybeResponse;
     }
-
-/*
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<EventWithUserInfo> findEventWithUserInfo(long userId, long eventId) {
-        Optional<Event> eventOpt = eventDao.findById(eventId);
-
-        if (eventOpt.isEmpty()) {
-            return Optional.empty();
-        }
-
-        Event event = eventOpt.get();
-        if (event.isDeleted()) {
-            return Optional.empty();
-        }
-
-        boolean isCreator = event.getUser().getId() == userId;
-        boolean isAttending = eventAttendanceDao.exists(userService.findUserById(userId).orElseThrow(()-> {
-            LOGGER.error("User not found {}", userId);
-            return new UserNotFoundException(userId);
-        }), event);
-
-        return Optional.of(new EventWithUserInfo(event, isAttending, isCreator));
-    }*/
 
     @Override
     @Scheduled(cron = "0 0 12 * * ?")
