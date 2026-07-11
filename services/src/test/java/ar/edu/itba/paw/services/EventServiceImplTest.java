@@ -55,9 +55,11 @@ import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import ar.edu.itba.paw.models.exceptions.AttendeesLimitBelowCurrentException;
 import ar.edu.itba.paw.models.exceptions.EventAttendanceNotFoundException;
+import ar.edu.itba.paw.models.exceptions.EventAttendanceRequiredException;
 import ar.edu.itba.paw.models.exceptions.EventIsFullException;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventNotInTheFutureException;
+import ar.edu.itba.paw.models.exceptions.EventNotOccurredException;
 import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
 import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
 import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
@@ -616,14 +618,42 @@ public class EventServiceImplTest {
         ).thenReturn(Optional.of(USER));
         when(
             eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
+        ).thenReturn(Optional.of(EVENT_PAST));
         when(
-            ratingDao.rateEvent(USER, EVENT, RATING_VALUE)
-        ).thenReturn(new Rating(USER, EVENT, RATING_VALUE));
+            attendanceDao.exists(eq(USER_ID), eq(EVENT_ID))
+        ).thenReturn(true);
+        when(
+            ratingDao.rateEvent(USER, EVENT_PAST, RATING_VALUE)
+        ).thenReturn(new Rating(USER, EVENT_PAST, RATING_VALUE));
 
         Rating rating = eventService.rateEvent(USER_ID, EVENT_ID, RATING_VALUE);
 
         assertNotNull(rating);
+    }
+    @Test(expected = EventNotOccurredException.class)
+    public void testRateEventFutureEvent(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            eventDao.findById(eq(EVENT_ID))
+        ).thenReturn(Optional.of(EVENT));
+
+        eventService.rateEvent(USER_ID, EVENT_ID, RATING_VALUE);
+    }
+    @Test(expected = EventAttendanceRequiredException.class)
+    public void testRateEventUserNotAttendee(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            eventDao.findById(eq(EVENT_ID))
+        ).thenReturn(Optional.of(EVENT_PAST));
+        when(
+            attendanceDao.exists(eq(USER_ID), eq(EVENT_ID))
+        ).thenReturn(false);
+
+        eventService.rateEvent(USER_ID, EVENT_ID, RATING_VALUE);
     }
     @Test(expected = EventNotFoundException.class)
     public void testRateEventMissing(){
@@ -644,10 +674,13 @@ public class EventServiceImplTest {
         ).thenReturn(Optional.of(USER));
         when(
             eventDao.findById(eq(EVENT_ID))
-        ).thenReturn(Optional.of(EVENT));
+        ).thenReturn(Optional.of(EVENT_PAST));
         when(
-            ratingDao.rateEvent(USER, EVENT, RATING_VALUE)
-        ).thenReturn(new Rating(USER, EVENT, RATING_VALUE));
+            attendanceDao.exists(eq(USER_ID), eq(EVENT_ID))
+        ).thenReturn(true);
+        when(
+            ratingDao.rateEvent(USER, EVENT_PAST, RATING_VALUE)
+        ).thenReturn(new Rating(USER, EVENT_PAST, RATING_VALUE));
 
         Rating rating = eventService.rateEvent(USER_ID, EVENT_ID, RATING_VALUE);
 

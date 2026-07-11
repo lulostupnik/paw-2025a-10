@@ -237,6 +237,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public Rating rateEvent(long userId, long eventId, double rating) {
+        LOGGER.debug("User {} is rating event {} with {}", userId, eventId, rating);
         User user = userService.findUserById(userId).orElseThrow(() -> {
             LOGGER.warn("User not found {}", userId);
             return new UserNotFoundException(userId);
@@ -245,6 +246,14 @@ public class EventServiceImpl implements EventService {
             LOGGER.warn("Event not found {}", eventId);
             return new EventNotFoundException(eventId);
         });
+        if (event.getIsFuture()) {
+            LOGGER.warn("User {} attempted to rate future event {}", userId, eventId);
+            throw new EventNotOccurredException(eventId);
+        }
+        if (!isUserEventAttendee(userId, eventId)) {
+            LOGGER.warn("User {} attempted to rate unattended event {}", userId, eventId);
+            throw new EventAttendanceRequiredException(userId, eventId);
+        }
         return eventRatingDao.rateEvent(user, event, rating);
     }
 
