@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminUserDetailData } from "@/hooks/useAdminDetailData";
-import { updateUserBlocked } from "@/lib/api/users";
+import { invalidateUserViewQueries, updateUserBlocked } from "@/lib/api/users";
 import PageStatus from "@/components/ui/PageStatus";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 
@@ -163,7 +163,7 @@ export default function UserDetailPage() {
                                     setActionError(null);
                                     try {
                                         await updateUserBlocked(Number(id), !user.blocked);
-                                        queryClient.invalidateQueries({ queryKey: ["adminUserDetail", id] });
+                                        await invalidateUserViewQueries(queryClient, Number(id));
                                         setModalOpen(false);
                                     } catch (error) {
                                         console.error("Failed to update user status", error);

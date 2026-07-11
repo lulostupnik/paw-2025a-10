@@ -10,7 +10,7 @@ import ErrorState from "@/components/ErrorState";
 import { deleteEvent, deleteEventResponse } from "@/lib/api/events";
 import { deleteJourney, deleteJourneyResponse } from "@/lib/api/journeys";
 import { deleteReport, getReportDetail, updateReportStatus, type ReportDetail, type ReportStatus } from "@/lib/api/reports";
-import { updateUserBlocked } from "@/lib/api/users";
+import { invalidateUserViewQueries, updateUserBlocked } from "@/lib/api/users";
 import ActionMenu, { type ActionMenuItem } from "@/components/ui/ActionMenu";
 import PageStatus from "@/components/ui/PageStatus";
 import { parseApiDate } from "@/lib/utils/date";
@@ -237,7 +237,8 @@ export default function ReportDetailPage() {
     const handleBlockUser = () => {
         setActionError("");
         updateUserBlocked(report.reportedUser.id, !report.reportedUser.blocked)
-            .then(() => {
+            .then(async () => {
+                await invalidateUserViewQueries(queryClient, report.reportedUser.id);
                 setReport((prev) =>
                     prev
                         ? {

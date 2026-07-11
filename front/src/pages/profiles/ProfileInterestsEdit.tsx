@@ -6,7 +6,6 @@ import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import { useProfileInterests } from "@/hooks/profiles/useProfileInterests";
 import { classNames } from "@/lib/utils/classNames";
-import { useQueryClient } from "@tanstack/react-query";
 import { searchInterests, type CatalogOption, type CatalogSearchFn } from "@/lib/api/catalog";
 import { useToast } from "@/components/ui/ToastProvider";
 import { sanitizeInternalPath } from "@/lib/utils/internalPath";
@@ -160,7 +159,6 @@ export default function ProfileInterestsEdit() {
     const navigate = useNavigate();
     const location = useLocation();
     const { showToast } = useToast();
-    const queryClient = useQueryClient();
     const { data: profile, isLoading, isError } = useProfileDetail("me");
     const { updateInterests, isLoading: isSaving } = useProfileUpsert();
     const userInterestsQuery = useProfileInterests({ profileId: "me", page: 1, size: 200, enabled: Boolean(profile) });
@@ -202,7 +200,6 @@ export default function ProfileInterestsEdit() {
             await updateInterests(selected.map((interest) => interest.id));
             const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
             showToast(t("profile.toast.interestsUpdated", { defaultValue: "Interests updated successfully." }), { variant: "success" });
-            queryClient.invalidateQueries({ queryKey: ["profileInterests"] });
             setIsDirty(false);
             navigate(returnPath ?? "/profiles/me/interests", { replace: true });
         } catch (error) {

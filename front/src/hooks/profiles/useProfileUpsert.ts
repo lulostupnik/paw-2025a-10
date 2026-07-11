@@ -1,7 +1,17 @@
 import { useCallback, useState } from "react";
 import type { ProfileEditPayload, ProfilePasswordPayload, ProfilePicturePayload } from "@/types/profile";
 import { getUserId } from "@/lib/auth/auth";
-import { addUserInterest, listAllUserInterests, removeUserInterest, updateUserPassword, updateUserProfile, updateUserProfilePicture } from "@/lib/api/users";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+    addUserInterest,
+    invalidateCurrentUserInterestQueries,
+    invalidateUserViewQueries,
+    listAllUserInterests,
+    removeUserInterest,
+    updateUserPassword,
+    updateUserProfile,
+    updateUserProfilePicture,
+} from "@/lib/api/users";
 
 interface UseProfileUpsertResult {
     isLoading: boolean;
@@ -14,6 +24,7 @@ interface UseProfileUpsertResult {
 }
 
 export const useProfileUpsert = (): UseProfileUpsertResult => {
+    const queryClient = useQueryClient();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -38,8 +49,9 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
                     throw new Error("missing-user-id");
                 }
                 await updateUserProfile(userId, payload);
+                await invalidateUserViewQueries(queryClient, userId);
             }),
-        [runMutation]
+        [queryClient, runMutation]
     );
 
     const updatePassword = useCallback(
@@ -65,8 +77,9 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
                     throw new Error("missing-profile-picture");
                 }
                 await updateUserProfilePicture(userId, payload.picture);
+                await invalidateUserViewQueries(queryClient, userId);
             }),
-        [runMutation]
+        [queryClient, runMutation]
     );
 
     const updateInterests = useCallback(
@@ -85,8 +98,9 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
                     ...toAdd.map((id) => addUserInterest(userId, id)),
                     ...toRemove.map((id) => removeUserInterest(userId, id)),
                 ]);
+                await invalidateCurrentUserInterestQueries(queryClient, userId);
             }),
-        [runMutation]
+        [queryClient, runMutation]
     );
 
     return {
