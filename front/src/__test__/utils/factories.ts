@@ -130,10 +130,7 @@ export interface MockReportDto {
         selfUrl?: string | null;
         reportedUserUrl?: string | null;
         reportingUserUrl?: string | null;
-        journeyUrl?: string | null;
-        eventUrl?: string | null;
-        journeyResponseUrl?: string | null;
-        eventResponseUrl?: string | null;
+        targetUrl?: string | null;
     } | null;
 }
 
@@ -149,10 +146,7 @@ export function createMockReport(overrides: Partial<MockReportDto> = {}): MockRe
             selfUrl: `${BASE_URL}/reports/1`,
             reportedUserUrl: `${BASE_URL}/users/2`,
             reportingUserUrl: `${BASE_URL}/users/1`,
-            journeyUrl: null,
-            eventUrl: null,
-            journeyResponseUrl: null,
-            eventResponseUrl: null,
+            targetUrl: null,
         },
         ...overrides,
     };
