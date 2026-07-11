@@ -11,6 +11,7 @@ public interface EventDao {
     Event create(User user, City city, LocalDate date, String description, Long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
 
     Optional<Event> findById(long id);
+    Optional<Event> findByIdForUpdate(long id);
     Page<Event> findRecommended(long userId, PageParams pageParams);
     Page<Event> findTop(PageParams pageParams);
     Page<Event> findTopByUser(long userId, PageParams pageParams);

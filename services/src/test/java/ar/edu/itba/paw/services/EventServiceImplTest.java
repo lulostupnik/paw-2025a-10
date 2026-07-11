@@ -471,7 +471,7 @@ public class EventServiceImplTest {
     @Test()
     public void testCreateEventAttendanceIdNoLimit(){
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT_NO_LIMIT));
         when(
             userService.findUserById(eq(USER_ID))
@@ -490,7 +490,7 @@ public class EventServiceImplTest {
     @Test(expected = EventIsFullException.class)
     public void testCreateEventAttendanceIdLimitExceeded(){
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT_FULL));
         when(
             userService.findUserById(eq(USER_ID))
@@ -504,7 +504,7 @@ public class EventServiceImplTest {
     @Test(expected = UserAlreadyAttendingException.class)
     public void testCreateEventAttendanceAlreadyGoing(){
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         when(
             userService.findUserById(eq(USER_ID))
@@ -518,7 +518,7 @@ public class EventServiceImplTest {
     @Test(expected = EventNotInTheFutureException.class)
     public void testCreateEventAttendancePast(){
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT_PAST));
         when(
             userService.findUserById(eq(USER_ID))
@@ -529,7 +529,7 @@ public class EventServiceImplTest {
     @Test(expected = UserNotFoundException.class)
     public void testCreateEventAttendanceUserNotFound(){
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
         when(
             userService.findUserById(eq(USER_ID))
@@ -540,7 +540,7 @@ public class EventServiceImplTest {
     @Test(expected = EventNotFoundException.class)
     public void testCreateEventAttendanceEventNotFound(){
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
         eventService.createEventAttendance(USER_ID, EVENT_ID);
@@ -1311,7 +1311,7 @@ public class EventServiceImplTest {
             null
         );
         when(
-            eventDao.findById(eq(EVENT_ID))
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.of(newEvent));
         when(
             cityService.findCityById(eq(CITY_ID))

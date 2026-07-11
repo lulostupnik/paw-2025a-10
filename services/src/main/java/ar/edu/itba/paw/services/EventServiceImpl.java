@@ -148,9 +148,22 @@ public class EventServiceImpl implements EventService {
 
         LOGGER.info("Email notifications sent to all responders for event {}", eventId);
 
-        emailService.answerEventOwnerNotification(message, emailResponder, emailEvent);
+        runAfterCommit(() -> emailService.answerEventOwnerNotification(message, emailResponder, emailEvent));
         LOGGER.info("Email notifications sent to event owner for event {}", eventId);
         return eventResponse;
+    }
+
+    private void runAfterCommit(final Runnable action) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            action.run();
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                action.run();
+            }
+        });
     }
 
     @Override
@@ -196,7 +209,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventAttendance createEventAttendance(final long userId, final  long eventId) {
-        Event event = eventDao.findById(eventId).orElseThrow(() -> {
+        Event event = eventDao.findByIdForUpdate(eventId).orElseThrow(() -> {
             LOGGER.warn("Event not found {}", eventId);
             return new EventNotFoundException(eventId);
         });

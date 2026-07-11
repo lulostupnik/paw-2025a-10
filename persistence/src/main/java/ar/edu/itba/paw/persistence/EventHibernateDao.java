@@ -38,6 +38,16 @@ public class EventHibernateDao implements EventDao {
     }
 
     @Override
+    public Optional<Event> findByIdForUpdate(long eventId) {
+        return em.createQuery("FROM Event e WHERE e.id = :eventId AND e.deleted = FALSE", Event.class)
+                .setParameter("eventId", eventId)
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
+
+    @Override
     public Page<Event> findTopByUser(final long userId, final PageParams pageParams) {
         final String countSql = """
         SELECT COUNT(*)
