@@ -100,21 +100,21 @@ public class CityHibernateDao implements CityDao {
 
     }
 
-    private Optional<City> findByNameAndCountryWithDeleted(String name, Country country) {
-        return em.createQuery("from City as c where c.name = :name and c.country.id = :country_id", City.class)
+    private Optional<City> findByNameWithDeleted(String name) {
+        return em.createQuery("from City as c where c.name = :name", City.class)
                 .setParameter("name", name)
-                .setParameter("country_id", country.getId())
                 .getResultList()
                 .stream()
                 .findFirst();
     }
     @Override
     public City create(String nameEn, Country country) {
-        final Optional<City> existingCity = findByNameAndCountryWithDeleted(nameEn, country);
+        final Optional<City> existingCity = findByNameWithDeleted(nameEn);
         if (existingCity.isPresent()) {
             final City city = existingCity.get();
             if (city.isDeleted()) {
                 city.setDeleted(false);
+                city.setCountry(country);
                 em.merge(city);
                 return city;
             } else {
