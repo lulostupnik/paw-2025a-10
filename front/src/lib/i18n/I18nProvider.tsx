@@ -23,6 +23,10 @@ interface I18nContextValue {
 const catalogs: Record<Locale, Record<string, string>> = { en, es };
 const fallbackLocale: Locale = "en";
 
+// Native display name for each locale. When adding a language, register its
+// catalog above and its label here so the selector picks it up automatically.
+export const localeLabels: Record<Locale, string> = { en: "English", es: "Español" };
+
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
 
 const isLocale = (value: string | null): value is Locale => value === "en" || value === "es";
