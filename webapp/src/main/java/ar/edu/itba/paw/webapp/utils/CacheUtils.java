@@ -29,20 +29,20 @@ public final class CacheUtils {
     public static <T> Response withEtag(Request req, Object entity, Object variant, Supplier<T> supplier) {
         CacheControl cache = new CacheControl();
         cache.setNoCache(true);
-        return etagResponse(req, Objects.hash(etagHash(entity), etagHash(variant)), supplier, cache);
+        return etagResponse(req, Objects.hash(entity, variant), supplier, cache);
     }
 
     public static <T> Response privateWithEtag(Request req, Object entity, Object variant, Supplier<T> supplier) {
         CacheControl cache = new CacheControl();
         cache.setPrivate(true);
         cache.setNoCache(true);
-        return etagResponse(req, Objects.hash(etagHash(entity), etagHash(variant)), supplier, cache);
+        return etagResponse(req, Objects.hash(entity, variant), supplier, cache);
     }
 
     public static Response withEtag(Request req, Object entity, Response.ResponseBuilder builder) {
         CacheControl cache = new CacheControl();
         cache.setNoCache(true);
-        EntityTag etag = new EntityTag(Integer.toString(etagHash(entity)));
+        EntityTag etag = new EntityTag(Integer.toString(entity.hashCode()));
         Response.ResponseBuilder notModified = req.evaluatePreconditions(etag);
         if (notModified != null) {
             builder = notModified;
@@ -74,7 +74,7 @@ public final class CacheUtils {
     }
 
     private static <T> Response etagResponse(Request req, Object entity, Supplier<T> supplier, CacheControl cache) {
-        EntityTag etag = new EntityTag(Integer.toString(etagHash(entity)));
+        EntityTag etag = new EntityTag(Integer.toString(entity.hashCode()));
         Response.ResponseBuilder builder = req.evaluatePreconditions(etag);
 
         if (builder == null) {
@@ -86,23 +86,5 @@ public final class CacheUtils {
                 .tag(etag)
                 .header(HttpHeaders.VARY, HttpHeaders.ACCEPT)
                 .build();
-    }
-
-    private static int etagHash(Object entity) {
-        switch (entity) {
-            case null -> {
-                return 0;
-            }
-            case Iterable<?> iterable -> {
-                int result = 1;
-                for (Object item : iterable) {
-                    result = 31 * result + etagHash(item);
-                }
-                return result;
-            }
-            default -> {
-            }
-        }
-        return entity.hashCode();
     }
 }
