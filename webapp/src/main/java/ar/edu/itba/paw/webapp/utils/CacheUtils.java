@@ -1,7 +1,5 @@
 package ar.edu.itba.paw.webapp.utils;
 
-import ar.edu.itba.paw.models.Etaggable;
-
 import javax.ws.rs.core.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -94,9 +92,6 @@ public final class CacheUtils {
         switch (entity) {
             case null -> {
                 return 0;
-            }
-            case Etaggable etaggable -> {
-                return Objects.hashCode(etaggable.etagValue());
             }
             case Iterable<?> iterable -> {
                 int result = 1;

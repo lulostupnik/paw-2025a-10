@@ -27,7 +27,6 @@ import ar.edu.itba.paw.webapp.utils.DateUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +54,7 @@ public class JourneyController {
     @Produces(GoTogetherMediaType.APPLICATION_JOURNEY_LIST)
     @PreAuthorize("#recommendedForUser == null or @accessHelper.isCurrentUser(#recommendedForUser)")
     public Response listJourneys(
-            @QueryParam("recommendedForUser") @P("recommendedForUser") Long recommendedForUser,
+            @QueryParam("recommendedForUser") Long recommendedForUser,
             @QueryParam("city") String city,
             @QueryParam("university") String university,
             @QueryParam("startDate") String startDateStr,

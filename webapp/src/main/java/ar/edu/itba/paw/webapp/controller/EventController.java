@@ -26,7 +26,6 @@ import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -57,7 +56,7 @@ public class EventController {
     @Produces(GoTogetherMediaType.APPLICATION_EVENT_LIST)
     @PreAuthorize("#recommendedForUser == null or @accessHelper.isCurrentUser(#recommendedForUser)")
     public Response listEvents(
-            @QueryParam("recommendedForUser") @P("recommendedForUser") Long recommendedForUser,
+            @QueryParam("recommendedForUser") Long recommendedForUser,
             @QueryParam("destination") String destination,
             @QueryParam("interest") String interest,
             @QueryParam("afterDate") String afterDateStr,
