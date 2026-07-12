@@ -6,28 +6,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.util.Locale;
 
 @Provider
 @Component
 public class BusinessExceptionMapper implements ExceptionMapper<BusinessException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessExceptionMapper.class);
-    private static final Locale DEFAULT_LOCALE = new Locale("en");
 
     @Autowired
     private MessageSource messageSource;
-
-    @Context
-    private HttpHeaders headers;
 
     @Override
     public Response toResponse(final BusinessException exception) {
@@ -42,21 +36,9 @@ public class BusinessExceptionMapper implements ExceptionMapper<BusinessExceptio
 
     private String localize(final String key) {
         try {
-            return messageSource.getMessage(key, null, resolveLocale());
+            return messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
         } catch (Exception e) {
             return key;
         }
-    }
-
-    private Locale resolveLocale() {
-        if (headers != null) {
-            for (final Locale locale : headers.getAcceptableLanguages()) {
-                final String lang = locale.getLanguage().toLowerCase();
-                if (lang.equals("es") || lang.equals("en")) {
-                    return locale;
-                }
-            }
-        }
-        return DEFAULT_LOCALE;
     }
 }
