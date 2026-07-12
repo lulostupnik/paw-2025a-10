@@ -6,7 +6,6 @@ import StatusCard from "@/components/ui/StatusCard";
 import { requestPasswordReset } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
-import { SUPPORT_EMAIL } from "@/lib/utils/support";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESET_EMAIL_STORAGE_KEY = "forgot_password_email";
@@ -110,11 +109,6 @@ export default function ForgotPasswordPage() {
                     variant="success"
                     title={t("forgotpassword.check.inbox")}
                     description={t("forgotpassword.email.instructions")}
-                    actions={
-                        <a className="btn btn--ghost" href={`mailto:${SUPPORT_EMAIL}`}>
-                            {t("forgotpassword.contact.support")}
-                        </a>
-                    }
                 >
                     <ul className="status-card__list">
                         <li>
@@ -175,12 +169,6 @@ export default function ForgotPasswordPage() {
                     <h3>{t("forgotpassword.check.inbox")}</h3>
                     <p>{t("forgotpassword.check.spam")}</p>
                     <p>{t("forgotpassword.email.expiry")}</p>
-                    <div className="forgot-password-support">
-                        <p>{t("forgotpassword.need.help")}</p>
-                        <a className="btn btn--outline" href={`mailto:${SUPPORT_EMAIL}`}>
-                            {t("forgotpassword.contact.support")}
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>

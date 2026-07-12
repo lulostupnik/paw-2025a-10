@@ -17,13 +17,13 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-public class PawUserDetailsService implements UserDetailsService {
+public class GoTogetherUserDetailsService implements UserDetailsService {
 
     private final UserService userService;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PawUserDetailsService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoTogetherUserDetailsService.class);
 
     @Autowired
-    public PawUserDetailsService(UserService userService) {
+    public GoTogetherUserDetailsService(UserService userService) {
         this.userService = userService;
     }
 
@@ -38,7 +38,7 @@ public class PawUserDetailsService implements UserDetailsService {
 
         Collection<? extends GrantedAuthority> authorities = determineAuthorities(user.getRole());
 
-        return new PawUserDetails(
+        return new GoTogetherUserDetails(
                 username,
                 user.getPassword(),
                 user.isValidated(),

@@ -1099,11 +1099,6 @@ h4 { font-size: 1.125rem; }
   color: var(--color-gray-800);
 }
 
-.status-card__reference {
-  font-size: 0.875rem;
-  color: var(--color-gray-500);
-}
-
 .status-card__actions {
   display: flex;
   flex-wrap: wrap;
@@ -1141,20 +1136,6 @@ h4 { font-size: 1.125rem; }
   margin: 0;
   padding-left: 1.25rem;
   color: var(--color-gray-600);
-}
-
-.forgot-password-support,
-.verification-help__cta {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.password-confirmation-tips a,
-.verification-help__cta .btn,
-.forgot-password-support .btn {
-  align-self: flex-start;
 }
 
 .register-form {

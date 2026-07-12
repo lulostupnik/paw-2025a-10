@@ -6,7 +6,6 @@ import StatusCard from "@/components/ui/StatusCard";
 import { resetPasswordWithToken } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
-import { SUPPORT_EMAIL } from "@/lib/utils/support";
 
 type ResetStatus = "form" | "submitting" | "expired" | "invalid" | "blocked" | "error";
 type PasswordStrengthStatus = "empty" | "very-weak" | "weak" | "medium" | "strong";
@@ -123,14 +122,9 @@ export default function PasswordResetPage() {
                         title={t("expiredtoken.title")}
                         description={t("expiredtoken.explanation")}
                         actions={
-                            <>
-                                <Button onClick={() => navigate("/forgot-password")}>
-                                    {t("forgotpassword.submit")}
-                                </Button>
-                                <a className="btn btn--ghost" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("expiredtoken.contact.us")}
-                                </a>
-                            </>
+                            <Button onClick={() => navigate("/forgot-password")}>
+                                {t("forgotpassword.submit")}
+                            </Button>
                         }
                     >
                         <p>{t("expiredtoken.instructions")}</p>
@@ -143,14 +137,9 @@ export default function PasswordResetPage() {
                         title={t("invalidtoken.title")}
                         description={t("invalidtoken.explanation")}
                         actions={
-                            <>
-                                <Button onClick={() => navigate("/forgot-password")}>
-                                    {t("forgotpassword.submit")}
-                                </Button>
-                                <a className="btn btn--ghost" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("invalidtoken.contact.us")}
-                                </a>
-                            </>
+                            <Button onClick={() => navigate("/forgot-password")}>
+                                {t("forgotpassword.submit")}
+                            </Button>
                         }
                     >
                         <p>{t("invalidtoken.instructions")}</p>
@@ -163,14 +152,9 @@ export default function PasswordResetPage() {
                         title={t("blocked.title")}
                         description={t("blocked.explanation")}
                         actions={
-                            <>
-                                <a className="btn btn--primary" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("blocked.contact.us")}
-                                </a>
-                                <Button variant="ghost" onClick={() => navigate("/")}>
-                                    {t("blocked.back.to.home")}
-                                </Button>
-                            </>
+                            <Button variant="ghost" onClick={() => navigate("/")}>
+                                {t("blocked.back.to.home")}
+                            </Button>
                         }
                     >
                         <p>{t("blocked.instructions")}</p>
@@ -183,14 +167,9 @@ export default function PasswordResetPage() {
                         title={t("password.confirmation.error.title")}
                         description={t("password.confirmation.help")}
                         actions={
-                            <>
-                                <a className="btn btn--primary" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("password.confirmation.actions.support")}
-                                </a>
-                                <Button variant="ghost" onClick={() => navigate("/login")}>
-                                    {t("password.confirmation.actions.login")}
-                                </Button>
-                            </>
+                            <Button variant="ghost" onClick={() => navigate("/login")}>
+                                {t("password.confirmation.actions.login")}
+                            </Button>
                         }
                     />
                 );

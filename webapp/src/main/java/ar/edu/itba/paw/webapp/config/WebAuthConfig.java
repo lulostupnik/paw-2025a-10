@@ -45,7 +45,7 @@ import java.util.Collections;
 @PropertySource("classpath:application.properties")
 public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private PawUserDetailsService userDetailsService;
+    private GoTogetherUserDetailsService userDetailsService;
     @Autowired
     private AccessHelper accessHelper;
     @Autowired
