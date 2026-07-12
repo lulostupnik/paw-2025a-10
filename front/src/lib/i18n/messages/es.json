@@ -1764,5 +1764,14 @@
   "listing.filters.reset": "Restablecer",
   "nav.close": "Cerrar navegación",
   "nav.toggle": "Abrir o cerrar la navegación",
-  "report.detail.type": "Reporte"
+  "report.detail.type": "Reporte",
+  "event.creator.error": "No pudimos cargar al organizador.",
+  "event.rating.load.error": "No pudimos cargar las calificaciones.",
+  "journey.host.error": "No pudimos cargar al anfitrión.",
+  "auth.required.title": "Necesitas una cuenta",
+  "auth.required.message": "Para realizar esta acción debes iniciar sesión o registrarte.",
+  "profile.edit.picture.title": "Actualizar foto de perfil",
+  "profile.edit.picture.subtitle": "Cambia tu foto de perfil",
+  "report.description.required": "Por favor, agrega detalles para el reporte.",
+  "user.status.blocked": "BLOQUEADO"
 }

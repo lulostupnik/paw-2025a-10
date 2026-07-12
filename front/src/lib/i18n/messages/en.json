@@ -1784,5 +1784,10 @@
   "listing.filters.reset": "Reset",
   "nav.close": "Close navigation",
   "nav.toggle": "Toggle navigation",
-  "report.detail.type": "Report"
+  "report.detail.type": "Report",
+  "event.creator.error": "We couldn't load the organizer.",
+  "event.rating.load.error": "We couldn't load ratings.",
+  "journey.host.error": "We couldn't load the host.",
+  "auth.required.title": "You need an account",
+  "auth.required.message": "To perform this action you must sign in or register."
 }
