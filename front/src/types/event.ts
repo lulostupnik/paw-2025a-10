@@ -62,6 +62,7 @@ export interface EventDetail {
     comments: EventComment[];
     attendees: EventAttendee[];
     ratings: EventRating[];
+    ratingCount: number;
     averageRating?: number | null;
 }
 

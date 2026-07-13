@@ -1236,7 +1236,7 @@ return (
                                                         </svg>
                                                         {t("event.rating")}
                                                         {data.averageRating && !ratingsLoading && (
-                                                            <span className="count">({data.ratings.length} {t("event.rating.reviews")})</span>
+                                                            <span className="count">({data.ratingCount} {t("event.rating.reviews")})</span>
                                                         )}
                                                     </h2>
                                                 </div>

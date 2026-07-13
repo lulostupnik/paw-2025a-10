@@ -71,7 +71,8 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
         career: null,
     };
 
-    const ratings = ratingsQuery.data ?? [];
+    const ratingsResult = ratingsQuery.data ?? { ratings: [], total: 0 };
+    const ratings = ratingsResult.ratings;
     const averageRating = event
         ? typeof event.rating === "number"
             ? event.rating
@@ -97,6 +98,7 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
               comments: [],
               attendees: [],
               ratings,
+              ratingCount: ratingsResult.total,
               averageRating,
           }
         : null;
