@@ -213,8 +213,12 @@ public class EventRatingHibernateDaoTest {
         em.flush();
 
         assertEquals(
-            TOTAL_RATINGS - 1, 
+            TOTAL_RATINGS - 1,
             JdbcTestUtils.countRowsInTable(jdbcTemplate, RATING_TABLE)
+        );
+        assertEquals(
+            0,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, RATING_TABLE, "id = " + RATING_1_ID)
         );
     }
     @Test(expected = NoResultException.class)

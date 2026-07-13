@@ -3,8 +3,10 @@ package ar.edu.itba.paw.services;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -40,6 +42,7 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.UserRating;
 import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
@@ -480,6 +483,34 @@ public class UserServiceImplTest {
         assertEquals(RATING, maybeRating.get(), 0.1);
     }
 
+    @Test
+    public void testGetUserRating(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            userDao.findAverageRatingForCreatedEvents(eq(USER_ID))
+        ).thenReturn(Optional.of(RATING));
+        when(
+            userDao.findAverageRatingForAttendedEvents(eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        UserRating rating = userService.getUserRating(USER_ID);
+
+        assertNotNull(rating);
+        assertEquals(USER_ID, rating.getUserId());
+        assertEquals(RATING, rating.getCreatedEventsRating(), 0.1);
+        assertNull(rating.getAttendedEventsRating());
+    }
+    @Test(expected = UserNotFoundException.class)
+    public void testGetUserRatingUserNotFound(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        userService.getUserRating(USER_ID);
+    }
+
 
     @Test
     public void testInitiatePasswordResetUserNotValidated(){
@@ -749,6 +780,34 @@ public class UserServiceImplTest {
         userService.updateProfilePicture(USER_ID, new byte[0]);
 
         assertEquals(NEW_IMAGE_ID, u.getProfilePictureId().longValue());
+        verify(imageService).deleteImage(IMAGE_ID);
+    }
+    @Test
+    public void testUpdateProfilePictureNoPreviousPicture(){
+        User u = new User(
+            USER_ID,
+            EMAIL,
+            GARBAGE,
+            GARBAGE,
+            GARBAGE,
+            null,
+            null,
+            null,
+            LOCALE,
+            false,
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            imageService.createImage(any())
+        ).thenReturn(NEW_IMAGE_ID);
+
+        userService.updateProfilePicture(USER_ID, new byte[0]);
+
+        assertEquals(NEW_IMAGE_ID, u.getProfilePictureId().longValue());
+        verify(imageService, never()).deleteImage(anyLong());
     }
     @Test(expected = UserNotFoundException.class)
     public void testUpdateProfilePictureUserNotFound(){

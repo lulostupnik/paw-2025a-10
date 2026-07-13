@@ -123,7 +123,23 @@ public class TokenHibernateDaoTest {
     @Test
     public void testFindByTokenNotFound(){
         Optional<Token> maybeToken = tokenDao.findByToken("asdfasdfhasgb");
-        
+
+        assertFalse(maybeToken.isPresent());
+    }
+
+    @Test
+    public void testFindByTokenExpiredReturnsEmpty(){
+        // The row exists in the table but its expiration is in the past.
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, TOKEN_TABLE,
+                "id = " + TOKEN_4_ID + " AND token = '" + TOKEN_4_VALUE + "'"
+            )
+        );
+
+        Optional<Token> maybeToken = tokenDao.findByToken(TOKEN_4_VALUE);
+
         assertFalse(maybeToken.isPresent());
     }
 
