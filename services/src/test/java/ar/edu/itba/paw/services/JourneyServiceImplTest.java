@@ -957,28 +957,6 @@ public class JourneyServiceImplTest {
         assertEquals(JOURNEY_PAGE, page);
     }
 
-    @Test
-    public void testExistsByUserEmail(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER_WITH_JOURNEY));
-
-        boolean hasJourney = journeyService.existsByUserEmail(EMAIL);
-
-        assertTrue(hasJourney);
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testExistsByUserEmailWrongUser(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.empty());
-
-        boolean hasJourney = journeyService.existsByUserEmail(EMAIL);
-
-        assertFalse(hasJourney);
-    }
-
-
     private Page<Journey> findRecommendedJourneys(final long userId, final PageParams pageParams) {
         return journeyService.findJourneys(
                 null,
@@ -1181,82 +1159,6 @@ public class JourneyServiceImplTest {
         when(journeyDao.findById(eq(JOURNEY_ID))).thenReturn(Optional.empty());
 
         boolean owned = journeyService.isJourneyOwnedByUser(EMAIL_2, JOURNEY_ID);
-
-        assertFalse(owned);
-    }
-
-    @Test
-    public void testIsJourneyOwnedByUserObject(){
-        boolean owned = journeyService.isJourneyOwnedByUser(JOURNEY, USER);
-
-        assertTrue(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectNotOwned(){
-        boolean owned = journeyService.isJourneyOwnedByUser(JOURNEY, USER_WITH_JOURNEY);
-
-        assertFalse(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectMissingUser(){
-        boolean owned = journeyService.isJourneyOwnedByUser(JOURNEY, null);
-
-        assertFalse(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectMissingJourney(){
-        boolean owned = journeyService.isJourneyOwnedByUser(null, USER);
-
-        assertFalse(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectNoJourneyUser(){
-        boolean owned = journeyService.isJourneyOwnedByUser(
-            new Journey(null, START_DATE, END_DATE, UNI, DESCRIPTION), 
-            USER
-        );
-
-        assertFalse(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectNoJourneyUserId(){
-        boolean owned = journeyService.isJourneyOwnedByUser(
-            new Journey(
-                new User(
-                    EMAIL, 
-                    USERNAME, 
-                    FIRSTNAME, 
-                    LASTNAME, 
-                    UNI, 
-                    CAREER, 
-                    CAREER_ID, 
-                    LOCALE, 
-                    false), 
-                START_DATE, 
-                END_DATE, 
-                UNI, 
-                DESCRIPTION),
-            USER
-        );
-
-        assertFalse(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectNoUserId(){
-        boolean owned = journeyService.isJourneyOwnedByUser(
-            JOURNEY, 
-            new User(
-                EMAIL, 
-                USERNAME, 
-                FIRSTNAME, 
-                LASTNAME, 
-                UNI, 
-                CAREER, 
-                CAREER_ID, 
-                LOCALE, 
-                false
-            )
-        );
 
         assertFalse(owned);
     }

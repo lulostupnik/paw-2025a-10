@@ -22,10 +22,7 @@ public interface JourneyService {
     Page<Journey> findJourneys(String search, Long recommendedForUser, Long excludeUserId, Long destinationCityId, SortFieldJourney sortBy, SortDirection direction, String city, String university, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isOngoing, PageParams pageParams);
     Optional<Journey> findJourneyById(long id);
 
-    boolean existsByUserEmail(String email);
-
     boolean isJourneyOwnedByUser(String email, long journeyID);
-    boolean isJourneyOwnedByUser(Journey journey, User user);
 
     Optional<JourneyResponse> findJourneyResponseById(long id);
 

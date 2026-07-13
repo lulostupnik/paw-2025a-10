@@ -269,16 +269,6 @@ public class JourneyServiceImpl implements JourneyService {
 
 
 
-    @Override
-    public boolean existsByUserEmail(final String email) {
-        LOGGER.debug("Checking if user has journey {}", email);
-        User user = userService.findUserByEmail(email).orElseThrow(() -> {
-            LOGGER.warn("User with email '{}' not found", email);
-            return new UserNotFoundException(email);
-        });
-        return user.hasActiveJourney();
-    }
-
     private Page<Journey> findRecommendedJourneys(final long userId, final PageParams pageParams) {
         LOGGER.debug("Getting recommended journeys for user {}", userId);
 
@@ -358,20 +348,6 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Checking if journey {} is owned by user {}", journeyID, email);
         Optional<Journey> journey = journeyDao.findById(journeyID);
         return journey.isPresent() && journey.get().getUser().getEmail().equals(email);
-    }
-
-    @Override
-    public boolean isJourneyOwnedByUser(Journey journey, User user) {
-        if (journey == null || user == null) {
-            return false;
-        }
-
-        User journeyUser = journey.getUser();
-        if (journeyUser == null || journeyUser.getId() == null || user.getId() == null) {
-            return false;
-        }
-
-        return journeyUser.getId().equals(user.getId());
     }
 
     @Override
