@@ -53,24 +53,6 @@ public class CityServiceImpl implements CityService {
 
     @Override
     @Transactional
-    public City updateCity(final long id,final String name,final long countryId) {
-        LOGGER.debug("Updating city with id {}, name {}, country {}", id, name, countryId);
-        Country country = countryService.findCountryById(countryId)
-                .orElseThrow(() -> {
-                    LOGGER.error("Country {} not found", countryId);
-                    return new InvalidReferenceException("Country", countryId);});
-        City city = cityDao.findById(id)
-                .orElseThrow(() -> {
-                    LOGGER.error("City with id {} not found", id);
-                    return new CityNotFoundException(id);});
-        city.setName(name);
-        city.setCountry(country);
-        LOGGER.info("City with id {} updated successfully", id);
-        return city;
-    }
-
-    @Override
-    @Transactional
     public City patchCity(final long id, final String name, final Long countryId) {
         LOGGER.debug("Patching city with id {}", id);
         City city = cityDao.findById(id).orElseThrow(() -> new CityNotFoundException(id));

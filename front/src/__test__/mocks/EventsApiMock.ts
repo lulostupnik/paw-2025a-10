@@ -27,7 +27,7 @@ export const eventsHandlers = [
         return HttpResponse.json({ id: 99, ...body }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.event.v1+json" } });
     }),
 
-    http.put(`${BASE_URL}/events/:id`, async ({ request, params }) => {
+    http.patch(`${BASE_URL}/events/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
         return HttpResponse.json({ id: Number(params.id), ...body }, { headers: { "Content-Type": "application/vnd.gotogether.event.v1+json" } });
     }),

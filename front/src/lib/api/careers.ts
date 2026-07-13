@@ -44,7 +44,7 @@ export const createCareer = async (payload: CareerPayload, signal?: AbortSignal)
 };
 
 export const updateCareer = async (id: number | string, payload: CareerPayload, signal?: AbortSignal): Promise<CareerDto> => {
-    const response = await apiClient.put<CareerDto>(`/careers/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.CAREER, Accept: ContentTypes.CAREER } });
+    const response = await apiClient.patch<CareerDto>(`/careers/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.CAREER, Accept: ContentTypes.CAREER } });
     return response.data;
 };
 

@@ -96,21 +96,6 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     @Transactional
-    public Interest updateInterest(final long id, String interest) {
-        LOGGER.debug("Editing interest {} with name {}", id, interest);
-        Interest i = interestDao.findById(id)
-                .orElseThrow(() -> {
-                    LOGGER.error("Interest with id {} not found", id);
-                    return new InterestsNotFoundException(id);
-                });
-        i.setName(interest);
-
-        LOGGER.info("Interest {} updated", id);
-        return i;
-    }
-
-    @Override
-    @Transactional
     public Interest patchInterest(final long id, final String interest) {
         LOGGER.debug("Patching interest {} with name {}", id, interest);
         Interest i = interestDao.findById(id).orElseThrow(() -> new InterestsNotFoundException(id));

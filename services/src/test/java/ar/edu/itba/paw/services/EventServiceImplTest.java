@@ -1431,7 +1431,7 @@ public class EventServiceImplTest {
             cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.of(new City("CITY_NAME", COUNTRY)));
 
-        Event event = eventService.updateEvent(
+        Event event = eventService.patchEvent(
             EVENT_ID,
             CITY_ID,
             EVENT_DATE.plusDays(1),
@@ -1439,6 +1439,8 @@ public class EventServiceImplTest {
             "TITLE",
             TIME.plusSeconds(10),
             "ADDRESS",
+            null,
+            null,
             null
         );
 
@@ -1461,7 +1463,7 @@ public class EventServiceImplTest {
             cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.of(CITY));
 
-        eventService.updateEvent(
+        eventService.patchEvent(
             EVENT_ID,
             CITY_ID,
             EVENT_DATE,
@@ -1469,7 +1471,9 @@ public class EventServiceImplTest {
             TITLE,
             TIME,
             ADDRESS,
-            1
+            1,
+            null,
+            null
         );
     }
     @Test(expected = InvalidReferenceException.class)
@@ -1481,7 +1485,7 @@ public class EventServiceImplTest {
             cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.updateEvent(
+        eventService.patchEvent(
             EVENT_ID,
             CITY_ID,
             EVENT_DATE,
@@ -1489,7 +1493,9 @@ public class EventServiceImplTest {
             TITLE,
             TIME,
             ADDRESS,
-            LIMIT
+            LIMIT,
+            null,
+            null
         );
     }
     @Test(expected = EventNotFoundException.class)
@@ -1498,7 +1504,7 @@ public class EventServiceImplTest {
             eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.updateEvent(
+        eventService.patchEvent(
             EVENT_ID,
             CITY_ID,
             EVENT_DATE,
@@ -1506,7 +1512,9 @@ public class EventServiceImplTest {
             TITLE,
             TIME,
             ADDRESS,
-            LIMIT
+            LIMIT,
+            null,
+            null
         );
     }
 
@@ -1543,25 +1551,38 @@ public class EventServiceImplTest {
     public void testPatchEventDeletedTrue(){
         Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
         when(
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
+        ).thenReturn(Optional.of(newEvent));
+        when(
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.of(newEvent));
 
-        eventService.patchEvent(EVENT_ID, true, DESCRIPTION);
+        eventService.patchEvent(EVENT_ID, null, null, null, null, null, null, null, true, DESCRIPTION);
 
         assertTrue(newEvent.isDeleted());
         assertEquals(DESCRIPTION, newEvent.getDeletionMessage());
     }
     @Test
     public void testPatchEventDeletedFalseIsNoOp(){
-        eventService.patchEvent(EVENT_ID, false, DESCRIPTION);
+        Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
+        when(
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
+        ).thenReturn(Optional.of(newEvent));
 
-        verify(eventDao, never()).findById(EVENT_ID);
+        eventService.patchEvent(EVENT_ID, null, null, null, null, null, null, null, false, DESCRIPTION);
+
+        assertFalse(newEvent.isDeleted());
     }
     @Test
     public void testPatchEventDeletedNullIsNoOp(){
-        eventService.patchEvent(EVENT_ID, null, null);
+        Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
+        when(
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
+        ).thenReturn(Optional.of(newEvent));
 
-        verify(eventDao, never()).findById(EVENT_ID);
+        eventService.patchEvent(EVENT_ID, null, null, null, null, null, null, null, null, null);
+
+        assertFalse(newEvent.isDeleted());
     }
     @Test
     public void testDeleteEventEmptyMessage(){

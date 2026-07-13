@@ -30,7 +30,7 @@ export const journeysHandlers = [
         return HttpResponse.json({ id: 99, ...body }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.journey.v1+json" } });
     }),
 
-    http.put(`${BASE_URL}/journeys/:id`, async ({ request, params }) => {
+    http.patch(`${BASE_URL}/journeys/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
         return HttpResponse.json({ id: Number(params.id), ...body }, { headers: { "Content-Type": "application/vnd.gotogether.journey.v1+json" } });
     }),
@@ -118,7 +118,7 @@ export const journeysHandlers = [
         return HttpResponse.json({ id: 10, ...body, dateTime: "2026-07-10T09:00:00Z" }, { status: 201, headers: { "Content-Type": "application/vnd.gotogether.tip.v1+json" } });
     }),
 
-    http.put(`${BASE_URL}/journeys/:journeyId/tips/:tipId`, async ({ request }) => {
+    http.patch(`${BASE_URL}/journeys/:journeyId/tips/:tipId`, async ({ request }) => {
         const body = (await request.json()) as Record<string, unknown>;
         return HttpResponse.json(body, { headers: { "Content-Type": "application/vnd.gotogether.tip.v1+json" } });
     }),

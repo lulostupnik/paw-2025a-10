@@ -10,16 +10,17 @@ import java.util.Optional;
 
 public interface EventService {
     Event createEvent(long userId, long cityId, LocalDate date, String description, String title, LocalTime time, String address, Integer attendeesLimit);
-    Event updateEvent(long eventId,
-                     long cityId,
+    void deleteEvent(long id, String message);
+    Event patchEvent(long id,
+                     Long cityId,
                      LocalDate date,
                      String description,
                      String title,
                      LocalTime time,
                      String address,
-                     Integer attendeesLimit);
-    void deleteEvent(long id, String message);
-    void patchEvent(long id, Boolean deleted, String deletionMessage);
+                     Integer attendeesLimit,
+                     Boolean deleted,
+                     String deletionMessage);
 
     Optional<Event> findEventById(long id);
 

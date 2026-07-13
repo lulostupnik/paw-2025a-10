@@ -303,11 +303,31 @@ public class JourneyServiceImpl implements JourneyService {
     }
     @Override
     @Transactional
-    public void patchJourney(final long id, final Boolean deleted, final String deletionMessage) {
+    public Journey patchJourney(final long id, final Long destinationUniversityId, final LocalDate startDate,
+                                final LocalDate endDate, final String description,
+                                final Boolean deleted, final String deletionMessage) {
         LOGGER.debug("Patching journey {}", id);
+        Journey journey = journeyDao.findById(id).orElseThrow(() -> new JourneyNotFoundException(id));
+
+        if (destinationUniversityId != null) {
+            University university = universityService.findById(destinationUniversityId).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversityId));
+            journey.setDestinationUniversity(university);
+        }
+        if (startDate != null) {
+            journey.setStartDate(startDate);
+        }
+        if (endDate != null) {
+            journey.setEndDate(endDate);
+        }
+        if (description != null) {
+            journey.setDescription(description);
+        }
         if (Boolean.TRUE.equals(deleted)) {
             deleteJourney(id, deletionMessage);
         }
+
+        LOGGER.info("Journey patched: {}", id);
+        return journey;
     }
 
     @Override
@@ -352,20 +372,6 @@ public class JourneyServiceImpl implements JourneyService {
         }
 
         return journeyUser.getId().equals(user.getId());
-    }
-
-    @Override
-    @Transactional
-    public Journey updateJourney(final long journeyId, final  long destinationUniversityId, final LocalDate startDate, final LocalDate endDate, final String description) {
-        LOGGER.debug("Editing journey {}", journeyId);
-        Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
-        University university = universityService.findById(destinationUniversityId).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversityId));
-        journey.setDestinationUniversity(university);
-        journey.setStartDate(startDate);
-        journey.setEndDate(endDate);
-        journey.setDescription(description);
-        LOGGER.info("Journey updated: {}", journeyId);
-        return journey;
     }
 
     @Override
@@ -464,16 +470,6 @@ public class JourneyServiceImpl implements JourneyService {
          return tipDao.create(journey, title, content);
     }
 
-
-    @Override
-    @Transactional
-    public Tip updateTip(long journeyId, long tipId, String title, String content) {
-        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
-        tip.setTitle(title);
-        tip.setContent(content);
-        LOGGER.info("Tip updated: {}", tipId);
-        return tip;
-    }
 
     @Override
     @Transactional

@@ -131,12 +131,13 @@ public class EventController {
                 .build();
     }
 
-    @PUT
+    @PATCH
     @Path("/{id}")
     @Consumes(GoTogetherMediaType.APPLICATION_EVENT)
     @Produces(GoTogetherMediaType.APPLICATION_EVENT)
-    public Response updateEvent(@PathParam("id") final long id, @Valid @NotNull final EditEventForm form) {
-        final Event event = eventService.updateEvent(
+    @PreAuthorize("@accessHelper.canPatchEvent(#id, #form)")
+    public Response patchEvent(@PathParam("id") final long id, @Valid @NotNull final PatchEventForm form) {
+        final Event event = eventService.patchEvent(
                 id,
                 form.getCityId(),
                 form.getDate(),
@@ -144,19 +145,12 @@ public class EventController {
                 form.getTitle(),
                 form.getTime(),
                 form.getAddress(),
-                form.getAttendeesLimit()
+                form.getAttendeesLimit(),
+                form.getDeleted(),
+                form.getDeletionMessage()
         );
 
         return Response.ok(EventDto.fromEvent(uriInfo, event)).build();
-    }
-
-    @PATCH
-    @Path("/{id}")
-    @Consumes(GoTogetherMediaType.APPLICATION_EVENT)
-    @PreAuthorize("@accessHelper.canPatchEvent(#id, #form)")
-    public Response patchEvent(@PathParam("id") final long id, @Valid @NotNull final PatchDeletionForm form) {
-        eventService.patchEvent(id, form.getDeleted(), form.getDeletionMessage());
-        return Response.noContent().build();
     }
 
 

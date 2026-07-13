@@ -9,7 +9,6 @@ import ar.edu.itba.paw.webapp.GoTogetherMediaType;
 import ar.edu.itba.paw.webapp.dto.CityDto;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
 import ar.edu.itba.paw.webapp.form.PatchCityForm;
-import ar.edu.itba.paw.webapp.form.UpdateCityForm;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
@@ -65,18 +64,6 @@ public class CityController {
         return Response.created(UriUtils.getCityUri(uriInfo, city.getId()))
                 .entity(CityDto.fromCity(uriInfo, city))
                 .build();
-    }
-
-    @PUT
-    @Path("/{id}")
-    @Consumes(GoTogetherMediaType.APPLICATION_CITY)
-    @Produces(GoTogetherMediaType.APPLICATION_CITY)
-    public Response updateCity(
-            @PathParam("id") final long id,
-            @Valid @NotNull final UpdateCityForm form
-    ) {
-        final City city = cityService.updateCity(id, form.getName(), form.getCountryId());
-        return Response.ok(CityDto.fromCity(uriInfo, city)).build();
     }
 
     @PATCH

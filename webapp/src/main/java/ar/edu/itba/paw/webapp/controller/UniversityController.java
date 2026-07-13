@@ -9,7 +9,6 @@ import ar.edu.itba.paw.webapp.GoTogetherMediaType;
 import ar.edu.itba.paw.webapp.dto.UniversityDto;
 import ar.edu.itba.paw.webapp.form.CreateUniversityForm;
 import ar.edu.itba.paw.webapp.form.PatchUniversityForm;
-import ar.edu.itba.paw.webapp.form.UpdateUniversityForm;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
@@ -67,18 +66,6 @@ public class UniversityController {
         return Response.created(UriUtils.getUniversityUri(uriInfo, university.getId()))
                 .entity(UniversityDto.fromUniversity(uriInfo, university))
                 .build();
-    }
-
-    @PUT
-    @Path("/{id}")
-    @Consumes(GoTogetherMediaType.APPLICATION_UNIVERSITY)
-    @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY)
-    public Response updateUniversity(
-            @PathParam("id") final long id,
-            @Valid @NotNull final UpdateUniversityForm form
-    ) {
-        final University university = universityService.updateUniversity(id, form.getName(), form.getAbbreviation(), form.getCityId());
-        return Response.ok(UniversityDto.fromUniversity(uriInfo, university)).build();
     }
 
     @PATCH

@@ -40,7 +40,7 @@ export const updateInterest = async (
     payload: InterestPayload,
     signal?: AbortSignal
 ): Promise<InterestDto> => {
-    const response = await apiClient.put<InterestDto>(`/interests/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.INTEREST, Accept: ContentTypes.INTEREST } });
+    const response = await apiClient.patch<InterestDto>(`/interests/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.INTEREST, Accept: ContentTypes.INTEREST } });
     return response.data;
 };
 

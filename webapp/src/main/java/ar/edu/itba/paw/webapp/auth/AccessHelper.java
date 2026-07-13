@@ -3,6 +3,8 @@ package ar.edu.itba.paw.webapp.auth;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
 import ar.edu.itba.paw.webapp.form.PatchDeletionForm;
+import ar.edu.itba.paw.webapp.form.PatchEventForm;
+import ar.edu.itba.paw.webapp.form.PatchJourneyForm;
 import ar.edu.itba.paw.webapp.form.PatchUserForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -72,20 +74,28 @@ public class AccessHelper {
         return journeyService.isJourneyOwnedByUser(email, journeyId);
     }
 
-    public boolean canPatchJourney(long journeyId, PatchDeletionForm form) {
+    public boolean canPatchJourney(long journeyId, PatchJourneyForm form) {
         final boolean admin = isAdmin();
-        if (!isUserJourneyOwner(journeyId) && !admin) {
+        final boolean owner = isUserJourneyOwner(journeyId);
+        if (!owner && !admin) {
             return false;
         }
-        return admin || !hasDeletionMessage(form);
+        if (form.hasContentChanges() && !owner) {
+            return false;
+        }
+        return admin || !hasDeletionMessage(form.getDeletionMessage());
     }
 
-    public boolean canPatchEvent(long eventId, PatchDeletionForm form) {
+    public boolean canPatchEvent(long eventId, PatchEventForm form) {
         final boolean admin = isAdmin();
-        if (!isUserEventOwner(eventId) && !admin) {
+        final boolean owner = isUserEventOwner(eventId);
+        if (!owner && !admin) {
             return false;
         }
-        return admin || !hasDeletionMessage(form);
+        if (form.hasContentChanges() && !owner) {
+            return false;
+        }
+        return admin || !hasDeletionMessage(form.getDeletionMessage());
     }
 
     public boolean canPatchEventResponse(long eventId, long responseId, PatchDeletionForm form) {
@@ -93,7 +103,7 @@ public class AccessHelper {
         if (!admin && !isUserEventResponseOwner(eventId, responseId)) {
             return false;
         }
-        return admin || !hasDeletionMessage(form);
+        return admin || !hasDeletionMessage(form.getDeletionMessage());
     }
 
     public boolean canPatchJourneyResponse(long journeyId, long responseId, PatchDeletionForm form) {
@@ -101,7 +111,7 @@ public class AccessHelper {
         if (!admin && !isUserJourneyResponseOwner(journeyId, responseId)) {
             return false;
         }
-        return admin || !hasDeletionMessage(form);
+        return admin || !hasDeletionMessage(form.getDeletionMessage());
     }
 
     private boolean isUserEventResponseOwner(long eventId, long responseId) {
@@ -116,8 +126,8 @@ public class AccessHelper {
         return journeyService.isJourneyResponseOwnedByUser(journeyId, responseId, userId);
     }
 
-    private boolean hasDeletionMessage(PatchDeletionForm form) {
-        return form != null && form.getDeletionMessage() != null && !form.getDeletionMessage().isBlank();
+    private boolean hasDeletionMessage(String deletionMessage) {
+        return deletionMessage != null && !deletionMessage.isBlank();
     }
 
 

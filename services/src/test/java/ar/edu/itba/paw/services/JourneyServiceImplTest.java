@@ -1097,22 +1097,32 @@ public class JourneyServiceImplTest {
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(newJourney));
 
-        journeyService.patchJourney(JOURNEY_ID, true, DESCRIPTION);
+        journeyService.patchJourney(JOURNEY_ID, null, null, null, null, true, DESCRIPTION);
 
         assertTrue(newJourney.isDeleted());
         assertEquals(DESCRIPTION, newJourney.getDeletionMessage());
     }
     @Test
     public void testPatchJourneyDeletedFalseIsNoOp(){
-        journeyService.patchJourney(JOURNEY_ID, false, DESCRIPTION);
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(newJourney));
 
-        verify(journeyDao, never()).findById(JOURNEY_ID);
+        journeyService.patchJourney(JOURNEY_ID, null, null, null, null, false, DESCRIPTION);
+
+        assertFalse(newJourney.isDeleted());
     }
     @Test
     public void testPatchJourneyDeletedNullIsNoOp(){
-        journeyService.patchJourney(JOURNEY_ID, null, null);
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(newJourney));
 
-        verify(journeyDao, never()).findById(JOURNEY_ID);
+        journeyService.patchJourney(JOURNEY_ID, null, null, null, null, null, null);
+
+        assertFalse(newJourney.isDeleted());
     }
     @Test
     public void testDeleteJourneyEmptyMessage(){
@@ -1268,12 +1278,14 @@ public class JourneyServiceImplTest {
             uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNI));
 
-        journeyService.updateJourney(
-            JOURNEY_ID, 
+        journeyService.patchJourney(
+            JOURNEY_ID,
             UNI_ID,
-            START_DATE, 
-            END_DATE, 
-            DESCRIPTION
+            START_DATE,
+            END_DATE,
+            DESCRIPTION,
+            null,
+            null
         );
 
         assertEquals(DESCRIPTION, newJourney.getDescription());
@@ -1290,12 +1302,14 @@ public class JourneyServiceImplTest {
             uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.updateJourney(
-            JOURNEY_ID, 
+        journeyService.patchJourney(
+            JOURNEY_ID,
             UNI_ID,
-            START_DATE, 
-            END_DATE, 
-            DESCRIPTION
+            START_DATE,
+            END_DATE,
+            DESCRIPTION,
+            null,
+            null
         );
     }
     @Test(expected = JourneyNotFoundException.class)
@@ -1304,12 +1318,14 @@ public class JourneyServiceImplTest {
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.updateJourney(
-            JOURNEY_ID, 
+        journeyService.patchJourney(
+            JOURNEY_ID,
             UNI_ID,
-            START_DATE, 
-            END_DATE, 
-            DESCRIPTION
+            START_DATE,
+            END_DATE,
+            DESCRIPTION,
+            null,
+            null
         );
     }
 
@@ -1521,28 +1537,6 @@ public class JourneyServiceImplTest {
         ).thenReturn(Optional.empty());
 
         journeyService.createTip(JOURNEY_ID, DESCRIPTION, DESCRIPTION);
-    }
-
-    @Test
-    public void testUpdateTip(){
-        Tip newTip = new Tip(TIP_ID, null, null, JOURNEY, REPLY_TIMESTAMP);
-        when(
-            tipDao.findById(eq(TIP_ID))
-        ).thenReturn(Optional.of(newTip));
-
-        Tip updated = journeyService.updateTip(JOURNEY_ID, TIP_ID, DESCRIPTION, DESCRIPTION);
-
-        assertNotNull(updated);
-        assertEquals(DESCRIPTION, updated.getContent());
-        assertEquals(DESCRIPTION, updated.getTitle());
-    }
-    @Test(expected = TipNotFoundException.class)
-    public void testUpdateTipMissing(){
-        when(
-            tipDao.findById(eq(TIP_ID))
-        ).thenReturn(Optional.empty());
-
-        journeyService.updateTip(JOURNEY_ID, TIP_ID, DESCRIPTION, DESCRIPTION);
     }
 
     @Test

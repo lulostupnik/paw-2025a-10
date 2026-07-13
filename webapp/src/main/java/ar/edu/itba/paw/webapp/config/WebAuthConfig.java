@@ -108,7 +108,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers(HttpMethod.GET, "/api/cities", "/api/cities/*").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/cities").access("hasRole('ADMIN')")
-                .antMatchers(HttpMethod.PUT, "/api/cities/*").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.PATCH, "/api/cities/*").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.DELETE, "/api/cities/*").access("hasRole('ADMIN')")
 
@@ -116,29 +115,24 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
 
                 .antMatchers(HttpMethod.GET, "/api/careers", "/api/careers/*").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/careers").access("hasRole('ADMIN')")
-                .antMatchers(HttpMethod.PUT, "/api/careers/*").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.PATCH, "/api/careers/*").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.DELETE, "/api/careers/*").access("hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.GET, "/api/universities", "/api/universities/*").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/universities").access("hasRole('ADMIN')")
-                .antMatchers(HttpMethod.PUT, "/api/universities/*").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.PATCH, "/api/universities/*").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.DELETE, "/api/universities/*").access("hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.GET, "/api/interests", "/api/interests/*").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/interests").access("hasRole('ADMIN')")
-                .antMatchers(HttpMethod.PUT, "/api/interests/*").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.PATCH, "/api/interests/*").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.DELETE, "/api/interests/*").access("hasRole('ADMIN')")
 
                 .antMatchers(HttpMethod.GET, "/api/journeys", "/api/journeys/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/journeys").access("isAuthenticated()")
-                .antMatchers(HttpMethod.PUT, "/api/journeys/{id}").access("@accessHelper.isUserJourneyOwner(#id)")
                 .antMatchers(HttpMethod.PATCH, "/api/journeys/{id}").access("isAuthenticated()")
 
                 .antMatchers(HttpMethod.POST, "/api/journeys/{journeyId}/tips").access("@accessHelper.isUserJourneyOwner(#journeyId)")
-                .antMatchers(HttpMethod.PUT, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#journeyId, #tipId)")
                 .antMatchers(HttpMethod.PATCH, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#journeyId, #tipId)")
                 .antMatchers(HttpMethod.DELETE, "/api/journeys/{journeyId}/tips/{tipId}").access("@accessHelper.isUserTipOwner(#journeyId, #tipId) or hasRole('ADMIN')")
 
@@ -166,7 +160,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 // Events general (DESPUÉS de las reglas específicas)
                 .antMatchers(HttpMethod.GET, "/api/events", "/api/events/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/events").access("isAuthenticated()")
-                .antMatchers(HttpMethod.PUT, "/api/events/{id}").access("@accessHelper.isUserEventOwner(#id)")
                 .antMatchers(HttpMethod.PATCH, "/api/events/{id}").access("isAuthenticated()")
 
                 .antMatchers(HttpMethod.GET, "/api/reports", "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")

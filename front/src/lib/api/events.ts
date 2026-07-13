@@ -279,7 +279,7 @@ export const updateEvent = async (
     },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.put<EventDto>(`/events/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.EVENT, Accept: ContentTypes.EVENT } });
+    const response = await apiClient.patch<EventDto>(`/events/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.EVENT, Accept: ContentTypes.EVENT } });
     return response.data;
 };
 
