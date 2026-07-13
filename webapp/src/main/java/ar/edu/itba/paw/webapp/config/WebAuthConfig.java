@@ -27,16 +27,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.context.MessageSource;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -90,9 +85,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests()
-                // Allow CORS preflight requests to pass through security.
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
                 .antMatchers(HttpMethod.HEAD, "/api/").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/").permitAll()
 
@@ -187,16 +179,14 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .authenticationEntryPoint((request, response, ex) -> {
                     response.addHeader("WWW-Authenticate", "Bearer realm=\"GoTogether\"");
-                    writeErrorResponse(response, Response.Status.UNAUTHORIZED, ex.getMessage());
+                    final String message = messageSource.getMessage("error.unauthorized", null,
+                            "Authentication is required to access this resource.", LocaleContextHolder.getLocale());
+                    writeErrorResponse(response, Response.Status.UNAUTHORIZED, message);
                 })
 
                 .accessDeniedHandler((request, response, ex) -> {
-                    String message;
-                    try {
-                        message = messageSource.getMessage("error.accessDenied", null, "Access denied. You do not have the necessary permissions.", LocaleContextHolder.getLocale());
-                    } catch (Exception e) {
-                        message = "Access denied. You do not have the necessary permissions.";
-                    }
+                    final String message = messageSource.getMessage("error.accessDenied", null,
+                            "Access denied. You do not have the necessary permissions.", LocaleContextHolder.getLocale());
                     writeErrorResponse(response, Response.Status.FORBIDDEN, message);
                 })
 
@@ -207,7 +197,7 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(authAnywhereFilter, UsernamePasswordAuthenticationFilter.class)
 
-                .cors().and().csrf().disable();
+                .csrf().disable();
     }
 
     private void writeErrorResponse(HttpServletResponse response, Response.Status status, String message) throws IOException {
@@ -220,26 +210,5 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public JwtUtils jwtTokenUtil(@Value("${jwtSecret.key}") String jwtSecret) {
         return new JwtUtils(jwtSecret);
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedHeaders(Collections.singletonList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "HEAD", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
-        configuration.setExposedHeaders(Arrays.asList(
-                "X-GoTogether-AuthToken",
-                "X-GoTogether-RefreshToken",
-                "WWW-Authenticate",
-                "ETag",
-                "Last-Modified",
-                "Content-Disposition",
-                "Location",
-                "Link",
-                "X-Total-Count"
-        ));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }
