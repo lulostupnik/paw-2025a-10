@@ -92,7 +92,9 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
     const basic = encodeBasicCredentials(credentials);
     const storage = credentials.remember ? "local" : "session";
 
-    const loginResponse = await apiClient.head("/", {
+    // GET (not HEAD) so that on an auth error the server's ErrorDto body — carrying the localized
+    // reason (blocked / not verified) — reaches the client to be shown to the user.
+    const loginResponse = await apiClient.get("/", {
         headers: { Authorization: `Basic ${basic}` },
     });
 

@@ -56,8 +56,6 @@ const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPasswordPage"))
 const EmailVerificationPage = lazy(() => import("@/pages/auth/EmailVerificationPage"));
 const PasswordResetPage = lazy(() => import("@/pages/auth/PasswordResetPage"));
 const PasswordResetConfirmationPage = lazy(() => import("@/pages/auth/PasswordResetConfirmationPage"));
-const BlockedAccountPage = lazy(() => import("@/pages/auth/BlockedAccountPage"));
-const NotVerifiedPage = lazy(() => import("@/pages/auth/NotVerifiedPage"));
 
 const withSuspense = (element: ReactNode) => (
     <Suspense fallback={<PageStatus className="route-loading" message="Loading..." />}>
@@ -85,8 +83,6 @@ export const router = createBrowserRouter([
             { path: "validate", element: withSuspense(<EmailVerificationPage />) },
             { path: "reset-password", element: withSuspense(<PasswordResetPage />) },
             { path: "password/reset/confirmation", element: withSuspense(<PasswordResetConfirmationPage />) },
-            { path: "blocked", element: withSuspense(<BlockedAccountPage />) },
-            { path: "not-verified", element: withSuspense(<NotVerifiedPage />) },
             { path: "error/400", element: <BadRequestPage /> },
             { path: "error/403", element: <ForbiddenPage /> },
             { path: "error/405", element: <MethodNotAllowedPage /> },

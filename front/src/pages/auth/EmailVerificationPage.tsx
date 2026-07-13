@@ -22,7 +22,7 @@ const mapVerificationError = (error: unknown): VerificationStatus => {
     if (status === 410 || message.includes("expir")) {
         return "expired";
     }
-    if (status === 423 || message.includes("block")) {
+    if (status === 403) {
         return "blocked";
     }
     if (status === 409 && message.includes("validat")) {

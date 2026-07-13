@@ -50,7 +50,7 @@ const mapResetError = (error: unknown): ResetStatus => {
     if (status === 410 || message.includes("expir")) {
         return "expired";
     }
-    if (status === 423 || message.includes("block")) {
+    if (status === 403) {
         return "blocked";
     }
     if (status === 401 || status === 400 || status === 404 || message.includes("invalid")) {

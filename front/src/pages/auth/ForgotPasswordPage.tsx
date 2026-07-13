@@ -24,7 +24,7 @@ function mapForgotPasswordError(error: unknown): ForgotPasswordError {
     if (status === 404) {
         return "notFound";
     }
-    if (status === 423 || message.includes("block")) {
+    if (status === 403) {
         return "blocked";
     }
     if (status === 409 || message.includes("validat")) {
