@@ -261,7 +261,6 @@ export const buildEventRatings = async (
     return ratings.content.map((rating, index) => ({
         id: rating.id,
         rating: rating.rating,
-        dateTime: new Date().toISOString(),
         user: { username: ratingUsers[index]?.username ?? "—" },
     }));
 };

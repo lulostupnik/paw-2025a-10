@@ -7,7 +7,6 @@ import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import PageStatus from "@/components/ui/PageStatus";
 import { getJourneyTip, updateJourneyTip } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
-import { DETAIL_QUERY_OPTIONS } from "@/lib/utils/queryDefaults";
 
 export default function JourneyTipEditPage() {
     const { t } = useI18n();
@@ -66,7 +65,6 @@ export default function JourneyTipEditPage() {
             }
             return getJourneyTip(parsedJourneyId, parsedTipId, signal);
         },
-        ...DETAIL_QUERY_OPTIONS,
         enabled: parsedJourneyId != null && parsedTipId != null,
     });
 

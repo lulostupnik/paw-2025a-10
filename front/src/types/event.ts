@@ -44,7 +44,6 @@ export interface EventRating {
     id: number;
     user: { username: string };
     rating: number;
-    dateTime: string;
 }
 
 export interface EventDetail {

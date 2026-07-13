@@ -8,7 +8,6 @@ import { fetchByUrl } from "@/lib/utils/fetchByUrl";
 interface UserApi {
     id: number;
     username: string;
-    email?: string | null;
     firstname?: string | null;
     lastname?: string | null;
     links?: {
