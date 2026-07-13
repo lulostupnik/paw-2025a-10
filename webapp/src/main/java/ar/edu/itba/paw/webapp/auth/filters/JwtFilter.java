@@ -51,13 +51,11 @@ public class JwtFilter extends OncePerRequestFilter {
         final JwtDetails jwtDetails = jwtTokenUtil.validate(token);
 
         if (jwtDetails == null) {
-            response.addHeader("WWW-Authenticate", "Bearer realm=\"GoTogether\""); // TODO: REVISAR: quizas sacaría esta linea de acá y lo dejaría solo en WebAuthConfig, pero no estoy seguro
             filterChain.doFilter(request, response);
             return;
         }
         final UserDetails userDetails = userDetailsService.loadUserByUsername(jwtDetails.getEmail());
         if (userDetails == null) {
-            response.addHeader("WWW-Authenticate", "Bearer realm=\"GoTogether\""); // TODO: REVISAR: quizas sacaría esta linea de acá y lo dejaría solo en WebAuthConfig, pero no estoy seguro
             filterChain.doFilter(request, response);
             return;
         }
