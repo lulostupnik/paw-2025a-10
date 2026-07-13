@@ -26,19 +26,12 @@ public class BusinessExceptionMapper implements ExceptionMapper<BusinessExceptio
     @Override
     public Response toResponse(final BusinessException exception) {
         final Response.Status status = Response.Status.fromStatusCode(exception.getStatus());
-        final String message = localize(exception.getMessageKey());
+        final String message = messageSource.getMessage(exception.getMessageKey(), null,
+                exception.getMessageKey(), LocaleContextHolder.getLocale());
         LOGGER.warn("BusinessException {} -> {} ({})", exception.getClass().getSimpleName(), exception.getMessageKey(), status);
         return Response.status(status)
                 .type(MediaType.APPLICATION_JSON)
                 .entity(ErrorDto.fromException(status, message))
                 .build();
-    }
-
-    private String localize(final String key) {
-        try {
-            return messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
-        } catch (Exception e) {
-            return key;
-        }
     }
 }
