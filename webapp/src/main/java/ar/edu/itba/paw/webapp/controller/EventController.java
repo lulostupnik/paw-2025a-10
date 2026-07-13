@@ -28,15 +28,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
-import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
-
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -192,10 +189,9 @@ public class EventController {
     @Produces({"image/jpeg", "image/png", "image/webp"})
     public Response updateEventFlyer(
             @PathParam("id") final long id,
-            @FormDataParam("flyer") final InputStream flyerStream
+            @Valid @BeanParam final UpdateFlyerForm form
     ) {
-        final byte[] bytes = ImageUtils.readImage(flyerStream);
-        final Image image = eventService.updateEventFlyer(id, bytes);
+        final Image image = eventService.updateEventFlyer(id, form.getFlyer());
         return Response.ok(image.getData())
                 .contentLocation(UriUtils.getEventFlyerUri(uriInfo, id))
                 .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))

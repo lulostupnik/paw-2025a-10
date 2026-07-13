@@ -1,18 +1,9 @@
 package ar.edu.itba.paw.webapp.utils;
 
-import ar.edu.itba.paw.models.exceptions.InvalidImageException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 public final class ImageUtils {
     private ImageUtils() {
             throw new AssertionError("Utility class should not be instantiated");
         }
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImageUtils.class);
 
     private static final String IMAGE_JPEG = "image/jpeg";
     private static final String IMAGE_PNG = "image/png";
@@ -24,6 +15,10 @@ public final class ImageUtils {
     public static String detectContentType(final byte[] data) {
         final String detected = detectImageTypeOrNull(data);
         return detected != null ? detected : IMAGE_JPEG;
+    }
+
+    public static boolean isSupportedImageType(final byte[] data) {
+        return detectImageTypeOrNull(data) != null;
     }
 
     private static String detectImageTypeOrNull(final byte[] data) {
@@ -44,35 +39,5 @@ public final class ImageUtils {
             return IMAGE_WEBP;
         }
         return null;
-    }
-
-    public static byte[] readImage(final InputStream in) {
-        if (in == null) {
-            throw new InvalidImageException("exception.image.required");
-        }
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final byte[] chunk = new byte[8192];
-        long total = 0;
-        try {
-            int read;
-            while ((read = in.read(chunk)) != -1) {
-                total += read;
-                if (total > MAX_IMAGE_BYTES) {
-                    throw new InvalidImageException("exception.image.tooLarge");
-                }
-                buffer.write(chunk, 0, read);
-            }
-        } catch (IOException e) {
-            LOGGER.error("Error reading uploaded image: {}", e.getMessage());
-            throw new InvalidImageException("exception.image.readFailed");
-        }
-        final byte[] data = buffer.toByteArray();
-        if (data.length == 0) {
-            throw new InvalidImageException("exception.image.required");
-        }
-        if (detectImageTypeOrNull(data) == null) {
-            throw new InvalidImageException("exception.image.invalidType");
-        }
-        return data;
     }
 }
