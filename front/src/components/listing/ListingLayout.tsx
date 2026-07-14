@@ -27,6 +27,7 @@ interface ListingLayoutProps {
     toolbarButtons?: ToolbarButtonConfig[];
     createLabel: string;
     onCreate: () => void;
+    createIcon?: ReactNode;
     children: ReactNode;
 }
 
@@ -45,6 +46,7 @@ export default function ListingLayout({
     toolbarButtons,
     createLabel,
     onCreate,
+    createIcon,
     children,
 }: ListingLayoutProps) {
     return (
@@ -81,7 +83,7 @@ export default function ListingLayout({
                                     ref={button.ref}
                                 />
                             ))}
-                            <PrimaryActionButton label={createLabel} onClick={onCreate} />
+                            <PrimaryActionButton label={createLabel} onClick={onCreate} icon={createIcon} />
                         </div>
                     </div>
                 </div>

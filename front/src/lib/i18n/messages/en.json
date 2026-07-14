@@ -1244,7 +1244,7 @@
   "journey.update.button": "Update Journey",
   "journey.edit.back": "Back",
   "journey.edit.submit": "Submit",
-  "journey.detail.section.title": "{0} {1}''s Journey",
+  "journey.detail.section.title": "{0} {1}'s Journey",
   "journey.filter.close": "Close filters",
   "event.full": "Event Full",
   "event.full.title": "Event is Full",

@@ -20,6 +20,7 @@ export default function JourneyTipCreatePage() {
     const { data, isLoading, isError } = useJourneyDetailData({ journeyId });
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [touched, setTouched] = useState({ title: false, content: false });
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -49,12 +50,13 @@ export default function JourneyTipCreatePage() {
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setTouched({ title: true, content: true });
         if (!journeyId) {
             setSubmitError(t("journey.edit.error", { defaultValue: "Missing journey id." }));
             return;
         }
         if (!title.trim() || !content.trim()) {
-            setSubmitError(t("NotEmpty.createTipForm.content", { defaultValue: "Completa todos los campos." }));
+            setSubmitError(null);
             return;
         }
         try {
@@ -89,6 +91,13 @@ export default function JourneyTipCreatePage() {
     if (!data) {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
+
+    const titleError = touched.title && !title.trim()
+        ? t("NotEmpty.createTipForm.title", { defaultValue: "Completa este campo." })
+        : "";
+    const contentError = touched.content && !content.trim()
+        ? t("NotEmpty.createTipForm.content", { defaultValue: "Completa este campo." })
+        : "";
 
     return (
         <div className="journey-detail-page journey-tip-form-page">
@@ -148,6 +157,7 @@ export default function JourneyTipCreatePage() {
                                         </svg>
                                         {t("journey.tip.form.title")}
                                     </h3>
+                                    <p className="journey-create-meta">{t("form.requiredHint")}</p>
 
                                     <form className="tip-form" onSubmit={handleSubmit} noValidate>
                                         <div className="form-group">
@@ -156,11 +166,16 @@ export default function JourneyTipCreatePage() {
                                             </label>
                                             <input
                                                 id="tip-title"
-                                                className="form-input"
+                                                className={titleError ? "form-input error" : "form-input"}
                                                 placeholder={t("tip.title.hint")}
                                                 value={title}
-                                                onChange={(event) => setTitle(event.target.value)}
+                                                onChange={(event) => {
+                                                    setTitle(event.target.value);
+                                                    setSubmitError(null);
+                                                }}
+                                                onBlur={() => setTouched((prev) => ({ ...prev, title: true }))}
                                             />
+                                            {titleError && <p className="form-field__text form-field__text--error">{titleError}</p>}
                                         </div>
 
                                         <div className="form-group">
@@ -169,15 +184,20 @@ export default function JourneyTipCreatePage() {
                                             </label>
                                             <textarea
                                                 id="tip-content"
-                                                className="form-textarea"
+                                                className={contentError ? "form-textarea error" : "form-textarea"}
                                                 placeholder={t("tip.content.hint")}
                                                 value={content}
-                                                onChange={(event) => setContent(event.target.value)}
+                                                onChange={(event) => {
+                                                    setContent(event.target.value);
+                                                    setSubmitError(null);
+                                                }}
+                                                onBlur={() => setTouched((prev) => ({ ...prev, content: true }))}
                                                 rows={6}
                                             />
+                                            {contentError && <p className="form-field__text form-field__text--error">{contentError}</p>}
                                         </div>
 
-                                        {submitError && <p className="error-message">{submitError}</p>}
+                                        {submitError && <p className="form-field__text form-field__text--error">{submitError}</p>}
 
                                         <div className="form-actions">
                                             <button type="button" className="btn-secondary" onClick={handleBack} disabled={submitting}>
