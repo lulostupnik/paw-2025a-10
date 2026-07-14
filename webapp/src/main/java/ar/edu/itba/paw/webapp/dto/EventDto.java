@@ -26,6 +26,7 @@ public class EventDto {
     private Integer attendeesLimit;
     private int attendeesCount;
     private Double rating;
+    private String cityName;
 
     private Links links;
 
@@ -40,6 +41,7 @@ public class EventDto {
         dto.attendeesLimit = event.getAttendeesLimit();
         dto.attendeesCount = event.getAttendeesCount();
         dto.rating = event.getRating();
+        dto.cityName = event.getCity().getName();
 
         final Links links = new Links();
         links.selfUrl = UriUtils.getEventUri(uriInfo, event.getId());
@@ -68,6 +70,7 @@ public class EventDto {
     public Integer getAttendeesLimit() { return attendeesLimit; }
     public int getAttendeesCount() { return attendeesCount; }
     public Double getRating() { return rating; }
+    public String getCityName() { return cityName; }
     public Links getLinks() { return links; }
 
     @XmlAccessorType(XmlAccessType.FIELD)

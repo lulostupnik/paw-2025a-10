@@ -20,6 +20,7 @@ public class JourneyDto {
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
+    private String destinationUniversityName;
 
     private Links links;
 
@@ -29,6 +30,7 @@ public class JourneyDto {
         dto.description = journey.getDescription();
         dto.startDate = journey.getStartDate();
         dto.endDate = journey.getEndDate();
+        dto.destinationUniversityName = journey.getDestinationUniversity().getName();
 
         final Links links = new Links();
         links.selfUrl = UriUtils.getJourneyUri(uriInfo, journey.getId());
@@ -49,6 +51,7 @@ public class JourneyDto {
     public String getDescription() { return description; }
     public LocalDate getStartDate() { return startDate; }
     public LocalDate getEndDate() { return endDate; }
+    public String getDestinationUniversityName() { return destinationUniversityName; }
     public Links getLinks() { return links; }
 
     @XmlAccessorType(XmlAccessType.FIELD)
