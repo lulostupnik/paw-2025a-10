@@ -241,12 +241,12 @@ public class JourneyHibernateDao implements JourneyDao {
 
 
     @Override
-    public Page<Journey> findRecommended(final String email, final PageParams pageParams) {
+    public Page<Journey> findRecommended(final long userId, final PageParams pageParams) {
         final String countSql = """
         WITH user_data AS (
             SELECT id, university
             FROM users
-            WHERE email = :email
+            WHERE id = :userId
         ),
         user_interests AS (
             SELECT category_id, score
@@ -301,7 +301,7 @@ public class JourneyHibernateDao implements JourneyDao {
         WITH user_data AS (
             SELECT id, university
             FROM users
-            WHERE email = :email
+            WHERE id = :userId
         ),
         user_interests AS (
             SELECT category_id, score
@@ -363,7 +363,7 @@ public class JourneyHibernateDao implements JourneyDao {
 
         final String jpqlFetch = "FROM Journey j WHERE j.id IN :ids";
 
-        return fetchPageByIds(em, countSql, idSql, Map.of("email", email), jpqlFetch, Journey.class, pageParams,Map.of());
+        return fetchPageByIds(em, countSql, idSql, Map.of("userId", userId), jpqlFetch, Journey.class, pageParams,Map.of());
     }
 
 }

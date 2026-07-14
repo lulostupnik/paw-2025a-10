@@ -287,7 +287,7 @@ public class JourneyHibernateDaoTest {
         // debería tener un puntaje interno de 80 (30 por coincidencia de ciudad, 50 por coincidencia de universidad)
         Journey newJourney = insertJourney(ds, Map.of("user", USER_3, "startDate", JOURNEY_END_DATE.plusDays(2), "endDate", JOURNEY_END_DATE.plusDays(40)));
 
-        Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, PAGE_1_BIG);
+        Page<Journey> page1 = journeyDao.findRecommended(USER_1_ID, PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -301,7 +301,7 @@ public class JourneyHibernateDaoTest {
     @Test
     public void testRecommendedJourneysNoJourneys(){
         deleteJourneys(jdbcTemplate);
-        Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, PAGE_1_BIG);
+        Page<Journey> page1 = journeyDao.findRecommended(USER_1_ID, PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -319,7 +319,7 @@ public class JourneyHibernateDaoTest {
         // debería tener un puntaje interno de 15 (solo superposición de fechas)
         Journey newJourney2 = insertJourney(ds, Map.of("user", USER_4, "destination", UNI_1, "startDate", JOURNEY_END_DATE.plusDays(-10), "endDate", JOURNEY_END_DATE.plusDays(-2)));
 
-        Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, PAGE_1_BIG);
+        Page<Journey> page1 = journeyDao.findRecommended(USER_1_ID, PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -339,7 +339,7 @@ public class JourneyHibernateDaoTest {
         Journey newJourney3 = insertJourney(ds, Map.of("user", USER_I1));
         // JOURNEY_2 debería tener un puntaje interno de 95 (50 + 30 por coincidencia con universidad de destino, 15 superposición)
 
-        Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, PAGE_1_BIG);
+        Page<Journey> page1 = journeyDao.findRecommended(USER_1_ID, PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -365,7 +365,7 @@ public class JourneyHibernateDaoTest {
         // debería tener un puntaje interno de 45 (30 por coincidencia de ciudad, 15 superposición)
         Journey newJourney5 = insertJourney(ds, Map.of("user", USER_4, "destination", UNI_3));
 
-        Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, PAGE_1_BIG);
+        Page<Journey> page1 = journeyDao.findRecommended(USER_1_ID, PAGE_1_BIG);
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -398,8 +398,8 @@ public class JourneyHibernateDaoTest {
             "endDate", JOURNEY_END_DATE.plusDays(30)
         ));
 
-        Page<Journey> page1 = journeyDao.findRecommended(USER_1_MAIL, new PageParams(1, 3));
-        Page<Journey> page2 = journeyDao.findRecommended(USER_1_MAIL, new PageParams(2, 3));
+        Page<Journey> page1 = journeyDao.findRecommended(USER_1_ID, new PageParams(1, 3));
+        Page<Journey> page2 = journeyDao.findRecommended(USER_1_ID, new PageParams(2, 3));
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());

@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
                 : interestIds.stream().filter(Objects::nonNull).distinct().toList();
         interestService.createUserInterests(uniqueInterestIds, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
-        String rawToken = tokenService.userTokenControl(user);
+        String rawToken = tokenService.issueUserToken(user);
         runAfterCommit(() -> {
             emailService.sendValidationEmail(new EmailUser(user), rawToken);
             LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
@@ -218,7 +218,7 @@ public class UserServiceImpl implements UserService {
             return;
         }
 
-        String rawToken = tokenService.userTokenControl(user);
+        String rawToken = tokenService.issueUserToken(user);
         runAfterCommit(() -> emailService.sendForgotPassEmail(new EmailUser(user), rawToken));
         LOGGER.info("Forgot password email sent successfully to: {}", email);
     }
@@ -232,7 +232,7 @@ public class UserServiceImpl implements UserService {
             LOGGER.warn("User with email {} is already validated; skipping verification resend", email);
             throw new UserValidatedException(email);
         }
-        String rawToken = tokenService.userTokenControl(user);
+        String rawToken = tokenService.issueUserToken(user);
         emailService.sendValidationEmail(new EmailUser(user), rawToken);
         LOGGER.info("Verification email resent successfully to: {}", email);
     }

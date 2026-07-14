@@ -128,7 +128,7 @@ public class UserServiceImplTest {
             )
         ).thenReturn(USER);
         when(
-            tokenService.userTokenControl(USER)
+            tokenService.issueUserToken(USER)
         ).thenReturn(TOKEN_VALUE);
 
         User user = userService.createUser(
@@ -174,7 +174,7 @@ public class UserServiceImplTest {
             )
         ).thenReturn(USER);
         when(
-            tokenService.userTokenControl(USER)
+            tokenService.issueUserToken(USER)
         ).thenReturn(TOKEN_VALUE);
 
         userService.createUser(
@@ -218,7 +218,7 @@ public class UserServiceImplTest {
             )
         ).thenReturn(USER);
         when(
-            tokenService.userTokenControl(USER)
+            tokenService.issueUserToken(USER)
         ).thenReturn(TOKEN_VALUE);
 
         TransactionSynchronizationManager.initSynchronization();
@@ -536,7 +536,7 @@ public class UserServiceImplTest {
     @Test
     public void testInitiatePasswordResetSendsEmailAfterCommit(){
         when(userDao.findByEmail(eq(EMAIL))).thenReturn(Optional.of(USER));
-        when(tokenService.userTokenControl(USER)).thenReturn(TOKEN_VALUE);
+        when(tokenService.issueUserToken(USER)).thenReturn(TOKEN_VALUE);
 
         TransactionSynchronizationManager.initSynchronization();
         try {
@@ -556,7 +556,7 @@ public class UserServiceImplTest {
             userDao.findByEmail(eq(EMAIL))
         ).thenReturn(Optional.of(USER_NOT_VALIDATED));
         when(
-            tokenService.userTokenControl(USER_NOT_VALIDATED)
+            tokenService.issueUserToken(USER_NOT_VALIDATED)
         ).thenReturn(TOKEN_VALUE);
 
         userService.resendVerificationEmail(EMAIL);

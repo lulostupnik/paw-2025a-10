@@ -13,7 +13,7 @@ public interface JourneyDao {
 
     Optional<Journey> findById(long id);
     Optional<Journey> findByUserId(long userId);
-    Page<Journey> findRecommended(String email, PageParams pageParams);
+    Page<Journey> findRecommended(long userId, PageParams pageParams);
     Page<Journey> findAll(PageParams pageParams);
     Page<Journey> findByOriginCity(long originCityId, PageParams pageParams);
     Page<Journey> search(String search, Long excludeUserId, Long destinationCityId, SortFieldJourney orderBy, SortDirection direction,

@@ -38,7 +38,7 @@ public class TokenServiceImplTest {
     public void testUserTokenControlCreatesToken(){
         User user = new User(TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, null, null, TOKEN_ID, null, false);
 
-        String rawToken = tokenService.userTokenControl(user);
+        String rawToken = tokenService.issueUserToken(user);
 
         assertNotNull(rawToken);
         assertTrue(rawToken.length() > 10);
@@ -55,7 +55,7 @@ public class TokenServiceImplTest {
         Token existingToken = new Token(user, TOKEN_VALUE, TOKEN_EXPIRATION);
         user.setToken(existingToken);
 
-        String rawToken = tokenService.userTokenControl(user);
+        String rawToken = tokenService.issueUserToken(user);
 
         assertSame(existingToken, user.getToken());              // reuses the same row
         assertNotEquals(TOKEN_VALUE, existingToken.getToken());  // refreshed with a new hash

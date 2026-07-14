@@ -983,7 +983,7 @@ public class JourneyServiceImplTest {
             userService.findUserById(eq(USER_ID_WITH_JOURNEY))
         ).thenReturn(Optional.of(USER_WITH_JOURNEY));
         when(
-            journeyDao.findRecommended(eq(EMAIL_2), eq(PAGE_1_DEFAULT))
+            journeyDao.findRecommended(eq(USER_ID_WITH_JOURNEY), eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
         Page<Journey> journeys = findRecommendedJourneys(USER_ID_WITH_JOURNEY, PAGE_1_DEFAULT);

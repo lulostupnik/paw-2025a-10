@@ -36,7 +36,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Transactional
     @Override
-    public String userTokenControl(User user) {
+    public String issueUserToken(User user) {
         final String rawToken = generateToken();
         final String hashedToken = hashToken(rawToken);
         Token token = user.getToken();

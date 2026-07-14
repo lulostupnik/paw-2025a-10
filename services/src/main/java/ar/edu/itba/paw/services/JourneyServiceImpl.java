@@ -278,7 +278,7 @@ public class JourneyServiceImpl implements JourneyService {
         });
 
         if (user.hasActiveJourney()) {
-            return journeyDao.findRecommended(user.getEmail(), pageParams);
+            return journeyDao.findRecommended(userId, pageParams);
         }
 
         final Page<Journey> journeysFromOriginCity = journeyDao.findByOriginCity(
