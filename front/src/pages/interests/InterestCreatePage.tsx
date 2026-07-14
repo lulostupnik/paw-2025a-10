@@ -109,7 +109,11 @@ export default function InterestCreatePage() {
                                 type="text"
                                 className={`form-input ${touched.name && errors.name ? "error" : ""}`}
                                 value={form.name}
-                                onChange={(event) => setForm({ name: event.target.value })}
+                                onChange={(event) => {
+                                    setServerErrors({ name: undefined });
+                                    setSubmitError(null);
+                                    setForm({ name: event.target.value });
+                                }}
                                 onBlur={() => {
                                     setTouched({ name: true });
                                     setForm((prev) => ({ name: formatTitleCase(prev.name) }));

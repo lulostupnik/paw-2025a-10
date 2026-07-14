@@ -115,6 +115,8 @@ export default function CityCreatePage() {
     };
 
     const handleCountrySelect = (country: CountryDto) => {
+        setServerErrors((prev) => ({ ...prev, country: undefined }));
+        setSubmitError(null);
         setSelectedCountry(country.name);
         setCountryQuery(country.name);
         setForm((prev) => ({ ...prev, country: country.name }));
@@ -122,6 +124,8 @@ export default function CityCreatePage() {
     };
 
     const clearCountry = () => {
+        setServerErrors((prev) => ({ ...prev, country: undefined }));
+        setSubmitError(null);
         setSelectedCountry(null);
         setCountryQuery("");
         setForm((prev) => ({ ...prev, country: "" }));
@@ -156,7 +160,11 @@ export default function CityCreatePage() {
                                 type="text"
                                 className={`form-input ${touched.name && errors.name ? "error" : ""}`}
                                 value={form.name}
-                                onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                                onChange={(event) => {
+                                    setServerErrors((prev) => ({ ...prev, name: undefined }));
+                                    setSubmitError(null);
+                                    setForm((prev) => ({ ...prev, name: event.target.value }));
+                                }}
                                 onBlur={() => {
                                     setTouched((prev) => ({ ...prev, name: true }));
                                     setForm((prev) => ({ ...prev, name: formatTitleCase(prev.name) }));
@@ -179,6 +187,8 @@ export default function CityCreatePage() {
                                     placeholder={t("createCity.country.search")}
                                     onChange={(event) => {
                                         const value = event.target.value;
+                                        setServerErrors((prev) => ({ ...prev, country: undefined }));
+                                        setSubmitError(null);
                                         setCountryQuery(value);
                                         setForm((prev) => ({ ...prev, country: value }));
                                         setSelectedCountry(null);

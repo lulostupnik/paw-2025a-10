@@ -127,6 +127,8 @@ export default function UniversityCreatePage() {
     };
 
     const handleCitySelect = (value: string) => {
+        setServerErrors((prev) => ({ ...prev, city: undefined }));
+        setSubmitError(null);
         setSelectedCity(value);
         setCityQuery(value);
         setForm((prev) => ({ ...prev, city: value }));
@@ -134,6 +136,8 @@ export default function UniversityCreatePage() {
     };
 
     const clearCity = () => {
+        setServerErrors((prev) => ({ ...prev, city: undefined }));
+        setSubmitError(null);
         setSelectedCity(null);
         setCityQuery("");
         setForm((prev) => ({ ...prev, city: "" }));
@@ -170,7 +174,11 @@ export default function UniversityCreatePage() {
                                 type="text"
                                 className={`form-input ${touched.name && errors.name ? "error" : ""}`}
                                 value={form.name}
-                                onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                                onChange={(event) => {
+                                    setServerErrors((prev) => ({ ...prev, name: undefined }));
+                                    setSubmitError(null);
+                                    setForm((prev) => ({ ...prev, name: event.target.value }));
+                                }}
                                 onBlur={() => {
                                     setTouched((prev) => ({ ...prev, name: true }));
                                     setForm((prev) => ({ ...prev, name: formatTitleCase(prev.name) }));
@@ -189,7 +197,11 @@ export default function UniversityCreatePage() {
                                 type="text"
                                 className={`form-input ${touched.abbreviation && errors.abbreviation ? "error" : ""}`}
                                 value={form.abbreviation}
-                                onChange={(event) => setForm((prev) => ({ ...prev, abbreviation: event.target.value }))}
+                                onChange={(event) => {
+                                    setServerErrors((prev) => ({ ...prev, abbreviation: undefined }));
+                                    setSubmitError(null);
+                                    setForm((prev) => ({ ...prev, abbreviation: event.target.value }));
+                                }}
                                 onBlur={() => setTouched((prev) => ({ ...prev, abbreviation: true }))}
                                 required
                             />
@@ -211,6 +223,8 @@ export default function UniversityCreatePage() {
                                     placeholder={t("createUniversity.city.search")}
                                     onChange={(event) => {
                                         const value = event.target.value;
+                                        setServerErrors((prev) => ({ ...prev, city: undefined }));
+                                        setSubmitError(null);
                                         setCityQuery(value);
                                         setForm((prev) => ({ ...prev, city: value }));
                                         setSelectedCity(null);
