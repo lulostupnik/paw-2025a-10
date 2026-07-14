@@ -1,12 +1,15 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminCareerDetailData } from "@/hooks/useAdminDetailData";
 import { updateCareer } from "@/lib/api/careers";
 import PageStatus from "@/components/ui/PageStatus";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { invalidateAdminEntityDetailQueries } from "@/lib/api/queryInvalidation";
 
 interface CareerFormState {
     name: string;
@@ -27,6 +30,7 @@ const formatTitleCase = (value: string) =>
 export default function CareerEditPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { id } = useParams();
     const { data: career, isLoading, isError } = useAdminCareerDetailData({ id });
     const [form, setForm] = useState<CareerFormState>({ name: "" });
@@ -70,16 +74,13 @@ export default function CareerEditPage() {
         setSubmitting(true);
         setSubmitError(null);
         updateCareer(id, { name: form.name.trim() })
-            .then(() => navigate(`/careers/${id}`))
+            .then(async () => {
+                await invalidateAdminEntityDetailQueries(queryClient, "career", id);
+                navigate(`/careers/${id}`);
+            })
             .catch((error) => {
                 console.error("Failed to update career", error);
-                const nextServerErrors: Partial<Record<keyof CareerFormState, string>> = {};
-                for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
-                    const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                    if (formField) {
-                        nextServerErrors[formField] = message;
-                    }
-                }
+                const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
                 if (Object.keys(nextServerErrors).length > 0) {
                     setServerErrors(nextServerErrors);
                 } else {
@@ -130,7 +131,11 @@ export default function CareerEditPage() {
                                 type="text"
                                 className={`form-input ${touched.name && errors.name ? "error" : ""}`}
                                 value={form.name}
-                                onChange={(event) => setForm({ name: event.target.value })}
+                                onChange={(event) => {
+                                    setServerErrors({ name: undefined });
+                                    setSubmitError(null);
+                                    setForm({ name: event.target.value });
+                                }}
                                 onBlur={() => {
                                     setTouched({ name: true });
                                     setForm((prev) => ({ name: formatTitleCase(prev.name) }));

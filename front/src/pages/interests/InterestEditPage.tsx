@@ -1,4 +1,4 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,6 +8,8 @@ import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminInterestDetailData } from "@/hooks/useAdminDetailData";
 import { updateInterest, type InterestPayload } from "@/lib/api/interests";
 import PageStatus from "@/components/ui/PageStatus";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { invalidateAdminEntityDetailQueries } from "@/lib/api/queryInvalidation";
 
 interface InterestFormState {
     name: string;
@@ -78,7 +80,7 @@ export default function InterestEditPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["adminInterests"] });
             if (id) {
-                queryClient.invalidateQueries({ queryKey: ["adminInterestDetail", id] });
+                invalidateAdminEntityDetailQueries(queryClient, "interest", id);
                 navigate(`/interests/${id}`);
             } else {
                 navigate("/admin/interests");
@@ -86,13 +88,7 @@ export default function InterestEditPage() {
         },
         onError: (error) => {
             console.error("Failed to update interest", error);
-            const nextServerErrors: Partial<Record<keyof InterestFormState, string>> = {};
-            for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
-                const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                if (formField) {
-                    nextServerErrors[formField] = message;
-                }
-            }
+            const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(nextServerErrors).length > 0) {
                 setServerErrors(nextServerErrors);
             } else {
@@ -142,7 +138,11 @@ export default function InterestEditPage() {
                                 type="text"
                                 className={`form-input ${touched.name && errors.name ? "error" : ""}`}
                                 value={form.name}
-                                onChange={(event) => setForm({ name: event.target.value })}
+                                onChange={(event) => {
+                                    setServerErrors({ name: undefined });
+                                    setSubmitError(null);
+                                    setForm({ name: event.target.value });
+                                }}
                                 onBlur={() => {
                                     setTouched({ name: true });
                                     setForm((prev) => ({ name: formatTitleCase(prev.name) }));

@@ -1,4 +1,4 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createUniversity } from "@/lib/api/universities";
 import { listCities } from "@/lib/api/cities";
 import { emptyPage } from "@/types/pagination";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
 
 interface UniversityFormState {
     name: string;
@@ -115,13 +116,7 @@ export default function UniversityCreatePage() {
             .then((created) => navigate(`/universities/${created.id}`, { replace: true }))
             .catch((error) => {
                 console.error("Failed to create university", error);
-                const nextServerErrors: Partial<Record<keyof UniversityFormState, string>> = {};
-                for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
-                    const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                    if (formField) {
-                        nextServerErrors[formField] = message;
-                    }
-                }
+                const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
                 if (Object.keys(nextServerErrors).length > 0) {
                     setServerErrors(nextServerErrors);
                 } else {
@@ -132,6 +127,8 @@ export default function UniversityCreatePage() {
     };
 
     const handleCitySelect = (value: string) => {
+        setServerErrors((prev) => ({ ...prev, city: undefined }));
+        setSubmitError(null);
         setSelectedCity(value);
         setCityQuery(value);
         setForm((prev) => ({ ...prev, city: value }));
@@ -139,6 +136,8 @@ export default function UniversityCreatePage() {
     };
 
     const clearCity = () => {
+        setServerErrors((prev) => ({ ...prev, city: undefined }));
+        setSubmitError(null);
         setSelectedCity(null);
         setCityQuery("");
         setForm((prev) => ({ ...prev, city: "" }));
@@ -175,7 +174,11 @@ export default function UniversityCreatePage() {
                                 type="text"
                                 className={`form-input ${touched.name && errors.name ? "error" : ""}`}
                                 value={form.name}
-                                onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                                onChange={(event) => {
+                                    setServerErrors((prev) => ({ ...prev, name: undefined }));
+                                    setSubmitError(null);
+                                    setForm((prev) => ({ ...prev, name: event.target.value }));
+                                }}
                                 onBlur={() => {
                                     setTouched((prev) => ({ ...prev, name: true }));
                                     setForm((prev) => ({ ...prev, name: formatTitleCase(prev.name) }));
@@ -194,7 +197,11 @@ export default function UniversityCreatePage() {
                                 type="text"
                                 className={`form-input ${touched.abbreviation && errors.abbreviation ? "error" : ""}`}
                                 value={form.abbreviation}
-                                onChange={(event) => setForm((prev) => ({ ...prev, abbreviation: event.target.value }))}
+                                onChange={(event) => {
+                                    setServerErrors((prev) => ({ ...prev, abbreviation: undefined }));
+                                    setSubmitError(null);
+                                    setForm((prev) => ({ ...prev, abbreviation: event.target.value }));
+                                }}
                                 onBlur={() => setTouched((prev) => ({ ...prev, abbreviation: true }))}
                                 required
                             />
@@ -216,6 +223,8 @@ export default function UniversityCreatePage() {
                                     placeholder={t("createUniversity.city.search")}
                                     onChange={(event) => {
                                         const value = event.target.value;
+                                        setServerErrors((prev) => ({ ...prev, city: undefined }));
+                                        setSubmitError(null);
                                         setCityQuery(value);
                                         setForm((prev) => ({ ...prev, city: value }));
                                         setSelectedCity(null);

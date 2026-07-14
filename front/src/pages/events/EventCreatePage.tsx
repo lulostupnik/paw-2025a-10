@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { useI18n } from "@/lib/i18n";
 import { createEvent, updateEventFlyer } from "@/lib/api/events";
-import { apiFieldErrors } from "@/lib/api/client";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -339,13 +339,7 @@ export default function EventCreatePage() {
             navigate(`/events/${eventResponse.id}`, { replace: true });
         } catch (error) {
             console.error("Failed to create event", error);
-            const serverErrors: FormErrors = {};
-            for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
-                const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                if (formField) {
-                    serverErrors[formField] = message;
-                }
-            }
+            const serverErrors: FormErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(serverErrors).length > 0) {
                 setErrors((prev) => ({ ...prev, ...serverErrors }));
             } else {

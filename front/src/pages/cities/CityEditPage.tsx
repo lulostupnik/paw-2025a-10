@@ -1,15 +1,17 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminCityDetailData } from "@/hooks/useAdminDetailData";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updateCity } from "@/lib/api/cities";
 import { listCountries, type CountryDto } from "@/lib/api/countries";
 import { useNavigate } from "react-router-dom";
 import PageStatus from "@/components/ui/PageStatus";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { invalidateAdminEntityDetailQueries } from "@/lib/api/queryInvalidation";
 
 interface CityFormState {
     name: string;
@@ -32,6 +34,7 @@ const API_FIELD_TO_FORM_FIELD: Record<string, keyof CityFormState> = {
 export default function CityEditPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { id } = useParams();
     const { data: city, isLoading, isError } = useAdminCityDetailData({ id });
     const [form, setForm] = useState<CityFormState>({ name: "", country: "" });
@@ -115,16 +118,13 @@ export default function CityEditPage() {
             return;
         }
         updateCity(id, { name: form.name.trim(), countryId })
-            .then(() => navigate(`/cities/${id}`))
+            .then(async () => {
+                await invalidateAdminEntityDetailQueries(queryClient, "city", id);
+                navigate(`/cities/${id}`);
+            })
             .catch((error) => {
                 console.error("Failed to update city", error);
-                const nextServerErrors: Partial<Record<keyof CityFormState, string>> = {};
-                for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
-                    const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                    if (formField) {
-                        nextServerErrors[formField] = message;
-                    }
-                }
+                const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
                 if (Object.keys(nextServerErrors).length > 0) {
                     setServerErrors(nextServerErrors);
                 } else {
@@ -135,6 +135,8 @@ export default function CityEditPage() {
     };
 
     const handleCountrySelect = (country: CountryDto) => {
+        setServerErrors((prev) => ({ ...prev, country: undefined }));
+        setSubmitError(null);
         setSelectedCountry(country.name);
         setCountryQuery(country.name);
         setForm((prev) => ({ ...prev, country: country.name }));
@@ -142,6 +144,8 @@ export default function CityEditPage() {
     };
 
     const clearCountry = () => {
+        setServerErrors((prev) => ({ ...prev, country: undefined }));
+        setSubmitError(null);
         setSelectedCountry(null);
         setCountryQuery("");
         setForm((prev) => ({ ...prev, country: "" }));
@@ -189,7 +193,11 @@ export default function CityEditPage() {
                                 type="text"
                                 className={`form-input ${touched.name && errors.name ? "error" : ""}`}
                                 value={form.name}
-                                onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                                onChange={(event) => {
+                                    setServerErrors((prev) => ({ ...prev, name: undefined }));
+                                    setSubmitError(null);
+                                    setForm((prev) => ({ ...prev, name: event.target.value }));
+                                }}
                                 onBlur={() => {
                                     setTouched((prev) => ({ ...prev, name: true }));
                                     setForm((prev) => ({ ...prev, name: formatTitleCase(prev.name) }));
@@ -212,6 +220,8 @@ export default function CityEditPage() {
                                     placeholder={t("createCity.country.search")}
                                     onChange={(event) => {
                                         const value = event.target.value;
+                                        setServerErrors((prev) => ({ ...prev, country: undefined }));
+                                        setSubmitError(null);
                                         setCountryQuery(value);
                                         setForm((prev) => ({ ...prev, country: value }));
                                         setSelectedCountry(null);

@@ -1,10 +1,11 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { createCareer } from "@/lib/api/careers";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
 
 interface CareerFormState {
     name: string;
@@ -62,13 +63,7 @@ export default function CareerCreatePage() {
             .then((created) => navigate(`/careers/${created.id}`, { replace: true }))
             .catch((error) => {
                 console.error("Failed to create career", error);
-                const nextServerErrors: Partial<Record<keyof CareerFormState, string>> = {};
-                for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
-                    const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                    if (formField) {
-                        nextServerErrors[formField] = message;
-                    }
-                }
+                const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
                 if (Object.keys(nextServerErrors).length > 0) {
                     setServerErrors(nextServerErrors);
                 } else {
@@ -108,7 +103,11 @@ export default function CareerCreatePage() {
                                 type="text"
                                 className={`form-input ${touched.name && errors.name ? "error" : ""}`}
                                 value={form.name}
-                                onChange={(event) => setForm({ name: event.target.value })}
+                                onChange={(event) => {
+                                    setServerErrors({ name: undefined });
+                                    setSubmitError(null);
+                                    setForm({ name: event.target.value });
+                                }}
                                 onBlur={() => {
                                     setTouched({ name: true });
                                     setForm((prev) => ({ name: formatTitleCase(prev.name) }));
