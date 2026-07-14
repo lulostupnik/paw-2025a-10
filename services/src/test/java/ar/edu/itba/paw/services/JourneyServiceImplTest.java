@@ -405,53 +405,6 @@ public class JourneyServiceImplTest {
         journeyService.createJourneyResponse(USER_ID, JOURNEY_ID, DESCRIPTION);
     }
 
-    @Test
-    public void testFindJourneysQuery(){
-        when(
-            journeyDao.search(
-                eq(EMAIL),
-                eq(null),   //excludeUserId
-                any(),      //destinationCityId
-                eq(null),   //orderBy
-                eq(null),   //direction
-                eq(null),   //city
-                eq(null),   //university
-                eq(null),   //startDate
-                eq(null),   //endDate
-                eq(null),   //interest
-                eq(false),  //isUpcoming
-                eq(false),  //isPast
-                any(PageParams.class)
-            )
-        ).thenReturn(JOURNEY_PAGE);
-
-        Page<Journey> journeys = journeyService.findJourneys(EMAIL, PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEY_PAGE, journeys);
-    }
-    @Test
-    public void testFindJourneysEmptyQuery(){
-        when(
-            journeyDao.findAll(any(PageParams.class))
-        ).thenReturn(JOURNEY_PAGE);
-
-        Page<Journey> journeys = journeyService.findJourneys("", PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEY_PAGE, journeys);
-    }
-    @Test
-    public void testFindJourneysMissingQuery(){
-        when(
-            journeyDao.findAll(any(PageParams.class))
-        ).thenReturn(JOURNEY_PAGE);
-
-        Page<Journey> journeys = journeyService.findJourneys(null, PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEY_PAGE, journeys);
-    }
 
     @Test
     public void testFindJourneyById(){
@@ -487,6 +440,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -528,6 +482,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             null,
@@ -551,6 +506,7 @@ public class JourneyServiceImplTest {
     public void testFindJourneysMultiTimeFilter(){
         journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -588,6 +544,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -628,6 +585,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -668,6 +626,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -708,6 +667,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -748,6 +708,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -788,6 +749,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -828,6 +790,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -868,6 +831,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -908,6 +872,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -948,6 +913,7 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             USER_ID_WITH_JOURNEY,
             null,
             SortFieldJourney.from("end_date"),
@@ -988,6 +954,7 @@ public class JourneyServiceImplTest {
         
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
+            null,
             null,
             null,
             SortFieldJourney.from("end_date"),
@@ -1539,7 +1506,7 @@ public class JourneyServiceImplTest {
             tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(TIP));
 
-        Optional<Tip> maybeTip = journeyService.findTipById(TIP_ID);
+        Optional<Tip> maybeTip = journeyService.findTipById(JOURNEY_ID, TIP_ID);
 
         assertNotNull(maybeTip);
         assertTrue(maybeTip.isPresent());

@@ -11,7 +11,6 @@ public interface InterestService {
     void deleteInterest(long id);
 
     void createUserInterests(List<Long> interestIds, long userId);
-    void updateUserInterestScores(List<UserInterest> interests);
 
     Optional<Interest> findInterestById(long id);
     Optional<Interest> findInterestByName(String name);
@@ -19,7 +18,6 @@ public interface InterestService {
     Optional<UserInterest> findUserInterest(long userId, long interestId);
     UserInterest addUserInterest(long userId, long interestId);
     void removeUserInterest(long userId, long interestId);
-    void updateUserInterests(final long[] interestIds, final long userId); //no devuelve la lista de intereses porque esa búsqueda está paginada
     Page<Interest> findInterests(String search, PageParams pageParams);
     void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId);
 }

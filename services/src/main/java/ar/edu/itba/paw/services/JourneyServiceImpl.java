@@ -155,33 +155,6 @@ public class JourneyServiceImpl implements JourneyService {
         return journeyResponse;
     }
 
-    private Page<Journey> searchByTerm(final String searchTerm, final PageParams pageParams){
-        return journeyDao.search(
-                searchTerm,
-                null,   // excludeUserId
-                null,   // destinationCityId
-                null,   // orderBy
-                null,   // direction
-                null,   // city
-                null,   // university
-                null,   // startDate
-                null,   // endDate
-                null,   // interest
-                false,  // isUpcoming
-                false,  // isPast
-                pageParams
-        );
-    }
-
-    @Override
-    public Page<Journey> findJourneys(final String search, final PageParams pageParams) {
-        LOGGER.debug("Getting all journeys with search {}", search);
-        if (search == null || search.isEmpty()) {
-            return journeyDao.findAll(pageParams);
-        }
-        return searchByTerm(search, pageParams);
-    }
-
     @Override
     public Optional<Journey> findJourneyById(final long id) {
         LOGGER.debug("Getting journey by id {}", id);
@@ -205,14 +178,6 @@ public class JourneyServiceImpl implements JourneyService {
         }
     }
 
-
-    @Override
-    public Page<Journey> findJourneys(final String search, final Long excludeUserId, final Long destinationCityId, final SortFieldJourney sortBy, final SortDirection direction, final String city,
-                                      final String university, final LocalDate startDate, final LocalDate endDate, final String interest,
-                                      final boolean isPast, final boolean isUpcoming, final boolean isOngoing,
-                                      final PageParams pageParams) {
-        return findJourneys(search, null, excludeUserId, destinationCityId, sortBy, direction, city, university, startDate, endDate, interest, isPast, isUpcoming, isOngoing, pageParams);
-    }
 
     @Override
     public Page<Journey> findJourneys(final String search, final Long recommendedForUser, final Long excludeUserId, final Long destinationCityId, final SortFieldJourney sortBy, final SortDirection direction, final String city,
@@ -472,12 +437,6 @@ public class JourneyServiceImpl implements JourneyService {
     public void deleteTip(long journeyId, long tipId) {
         findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
         tipDao.delete(tipId);
-    }
-
-    @Override
-    public Optional<Tip> findTipById(long tipId) {
-        LOGGER.debug("Finding tip by id {}", tipId);
-        return tipDao.findById(tipId);
     }
 
     @Override

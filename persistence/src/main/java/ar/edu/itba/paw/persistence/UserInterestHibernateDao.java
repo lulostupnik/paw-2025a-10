@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -116,29 +115,6 @@ public class UserInterestHibernateDao implements UserInterestDao {
         }
     }
 
-
-    /**
-     * Nota: Este método está en el DAO porque obtener todos los intereses del usuario
-     * desde el servicio podría ser ineficiente si tiene muchos intereses.
-     */
-    @Override
-    public void updateUserInterests(long[] interestIds, long userId) {
-        List<UserInterest> userInterests = findAllByUserId(userId);
-        List<Long> interestsToAdd = new java.util.ArrayList<>(Arrays.stream(interestIds).boxed().toList());
-        for (UserInterest userInterest : userInterests) {
-          if(!interestsToAdd.contains(userInterest.getInterest().getId())) {
-              em.remove(userInterest);
-          } else {
-              interestsToAdd.remove(userInterest.getInterest().getId());
-          }
-        }
-        for (Long interestId : interestsToAdd) {
-            Interest i = interestDao.findById(interestId)
-                    .orElseThrow(() -> new InterestsNotFoundException(interestId));
-            create(userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId)), i);
-        }
-
-    }
 
 
     /**

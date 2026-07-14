@@ -56,15 +56,6 @@ public class InterestServiceImplTest {
     }
 
     @Test
-    public void testUpdateUserInterestScores(){
-        UserInterest interest = new UserInterest(USER, INTEREST, DEFAULT_SCORE);
-        
-        interestService.updateUserInterestScores(List.of(interest));
-
-        assertEquals(DEFAULT_SCORE + 1, interest.getScore());
-    }
-
-    @Test
     public void testFindInterestByName(){
         when(interestDao.findByName(eq(INTEREST_NAME))).thenReturn(Optional.of(INTEREST));
 
@@ -187,15 +178,6 @@ public class InterestServiceImplTest {
         interestService.createUserInterests(null, USER_ID);
 
         verify(uiDao, never()).createUserInterests(anyList(), anyLong());
-    }
-
-    @Test
-    public void testUpdateUserInterests(){
-        final long[] interestIds = new long[]{INTEREST_ID};
-
-        interestService.updateUserInterests(interestIds, USER_ID);
-
-        verify(uiDao).updateUserInterests(eq(interestIds), eq(USER_ID));
     }
 
     @Test

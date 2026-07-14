@@ -11,6 +11,5 @@ public interface UserInterestDao {
     UserInterest create(long userId, long interestId);
     void delete(long userId, long interestId);
     void createUserInterests(List<Long> interestIds, long userId);
-    void updateUserInterests(long[] interestIds, long userId);
     void updateMatchingInterestScores(long responderUserId, long journeyCreatorUserId);
 }

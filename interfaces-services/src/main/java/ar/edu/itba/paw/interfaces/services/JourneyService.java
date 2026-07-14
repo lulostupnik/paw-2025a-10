@@ -17,8 +17,6 @@ public interface JourneyService {
     void deleteJourneyResponse(long journeyId, long responseId, String message);
     void patchJourneyResponse(long journeyId, long responseId, Boolean deleted, String deletionMessage);
 
-    Page<Journey> findJourneys(String search, PageParams pageParams);
-    Page<Journey> findJourneys(String search, Long excludeUserId, Long destinationCityId, SortFieldJourney sortBy, SortDirection direction, String city, String university, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isOngoing, PageParams pageParams);
     Page<Journey> findJourneys(String search, Long recommendedForUser, Long excludeUserId, Long destinationCityId, SortFieldJourney sortBy, SortDirection direction, String city, String university, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isOngoing, PageParams pageParams);
     Optional<Journey> findJourneyById(long id);
 
@@ -34,7 +32,6 @@ public interface JourneyService {
     Tip createTip(long journeyId, String title, String content);
     Tip patchTip(long journeyId, long tipId, String title, String content);
     void deleteTip(long journeyId, long tipId);
-    Optional<Tip> findTipById(long tipId);
     Optional<Tip> findTipById(long journeyId, long tipId);
     boolean isTipOwnedByUser(long journeyId, long tipId, String email);
 }
