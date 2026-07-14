@@ -13,7 +13,5 @@ public class EventWithStatistics {
     private final Event event;
     private final int createdEventsCount;
     private final int attendedEventsCount;
-    private final String topAttendeeCountry;
-    private final Long topAttendeeCountryId; 
-    private final int topAttendeeCountryCount;
+    private final CountryAttendeeCount topAttendeeCountry;
 }

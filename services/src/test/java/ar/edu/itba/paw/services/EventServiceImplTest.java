@@ -124,10 +124,9 @@ public class EventServiceImplTest {
     private static final int STATISTICS_CREATED_EVENTS_COUNT = 2;
     private static final int STATISTICS_ATTENDED_EVENTS_COUNT = 2;
     private static final int STATISTICS_ATTENDEE_COUNTRY_COUNT = 2;
-    private static final String STATISTICS_ATTENDEE_COUNTRY = "cuntry";
     private static final Long STATISTICS_ATTENDEE_COUNTRY_ID = 7L;
-    private static final EventWithStatistics EVENT_WITH_STATISTICS = new EventWithStatistics(EVENT, STATISTICS_CREATED_EVENTS_COUNT, STATISTICS_ATTENDED_EVENTS_COUNT, STATISTICS_ATTENDEE_COUNTRY, STATISTICS_ATTENDEE_COUNTRY_ID, STATISTICS_ATTENDEE_COUNTRY_COUNT);
     private static final CountryAttendeeCount COUNTRY_ATTENDEE_COUNT = new CountryAttendeeCount(STATISTICS_ATTENDEE_COUNTRY_ID, COUNTRY_NAME, STATISTICS_ATTENDEE_COUNTRY_COUNT);
+    private static final EventWithStatistics EVENT_WITH_STATISTICS = new EventWithStatistics(EVENT, STATISTICS_CREATED_EVENTS_COUNT, STATISTICS_ATTENDED_EVENTS_COUNT, COUNTRY_ATTENDEE_COUNT);
     private static final double RATING_VALUE = 5.0;
 
     @InjectMocks
@@ -439,7 +438,6 @@ public class EventServiceImplTest {
         assertEquals(EVENT_WITH_STATISTICS.getCreatedEventsCount(), event.get().getCreatedEventsCount());
         assertEquals(EVENT_WITH_STATISTICS.getEvent(), event.get().getEvent());
         assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountry(), event.get().getTopAttendeeCountry());
-        assertEquals(EVENT_WITH_STATISTICS.getTopAttendeeCountryCount(), event.get().getTopAttendeeCountryCount());
     }
     @Test
     public void testFindEventWithStatisticsNoTopCountry(){

@@ -1,5 +1,6 @@
 package ar.edu.itba.paw.webapp.dto;
 
+import ar.edu.itba.paw.models.CountryAttendeeCount;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.EventWithStatistics;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
@@ -17,9 +18,9 @@ public class EventStatisticsDto {
     private int eventsCreatedByOrganizer;
     private int eventsOrganizerAttends;
     private String topCountry;
-    private int topCountryCount;
+    private Integer topCountryCount;
     private int totalParticipants;
-    private int maxParticipants;
+    private Integer maxParticipants;
     private Links links;
 
     public static EventStatisticsDto fromEventWithStatistics(final UriInfo uriInfo, final EventWithStatistics statistics) {
@@ -29,24 +30,19 @@ public class EventStatisticsDto {
         dto.eventsCreatedByOrganizer = statistics.getCreatedEventsCount();
         dto.eventsOrganizerAttends = statistics.getAttendedEventsCount();
 
-        String country = statistics.getTopAttendeeCountry();
-        int countryCount = statistics.getTopAttendeeCountryCount();
-
-        if (country == null || country.isBlank()) {
-            //@TODO creo que tienen que ser consistentes los campos entonces pongo esto
-            country = "";
-        }
-
-        dto.topCountry = country;
-        dto.topCountryCount = countryCount;
         dto.totalParticipants = event.getAttendeesCount();
-        final Integer limit = event.getAttendeesLimit();
-        dto.maxParticipants = (limit == null || limit <= 0) ? 0 : limit;
+        // sin límite de asistentes el campo se omite, en vez de afirmar un límite de 0
+        dto.maxParticipants = event.getAttendeesLimit();
+
         final Links links = new Links();
         links.selfUrl = UriUtils.getEventStatisticsUri(uriInfo, event.getId());
         links.eventUrl = UriUtils.getEventUri(uriInfo, event.getId());
-        if (statistics.getTopAttendeeCountryId() != null) {
-            links.topCountryUrl = UriUtils.getCountryUri(uriInfo, statistics.getTopAttendeeCountryId());
+
+        final CountryAttendeeCount topCountry = statistics.getTopAttendeeCountry();
+        if (topCountry != null) {
+            dto.topCountry = topCountry.getCountryName();
+            dto.topCountryCount = topCountry.getCount();
+            links.topCountryUrl = UriUtils.getCountryUri(uriInfo, topCountry.getCountryId());
         }
         dto.links = links;
 
@@ -56,9 +52,9 @@ public class EventStatisticsDto {
     public int getEventsCreatedByOrganizer() { return eventsCreatedByOrganizer; }
     public int getEventsOrganizerAttends() { return eventsOrganizerAttends; }
     public String getTopCountry() { return topCountry; }
-    public int getTopCountryCount() { return topCountryCount; }
+    public Integer getTopCountryCount() { return topCountryCount; }
     public int getTotalParticipants() { return totalParticipants; }
-    public int getMaxParticipants() { return maxParticipants; }
+    public Integer getMaxParticipants() { return maxParticipants; }
     public Links getLinks() { return links; }
 
     @XmlAccessorType(XmlAccessType.FIELD)

@@ -154,11 +154,7 @@ public class EventServiceImpl implements EventService {
     public Optional<EventWithStatistics> findEventWithStatistics(final long eventId) {
         LOGGER.debug("Getting event with statistics by id {}", eventId);
 
-        String topAttendeeCountry = null;
-        Long topAttendeeCountryId = null;
-        int topAttendeeCountryCount = 0;
         Event event;
-
 
         Optional<Event> maybeEvent = eventDao.findById(eventId);
         if(maybeEvent.isEmpty()){
@@ -170,16 +166,9 @@ public class EventServiceImpl implements EventService {
         int createdEventsCount = eventDao.countEventsCreatedByUser(event.getUser().getId());
         int attendedEventsCount = eventAttendanceDao.countEventsAttendedByUser(event.getUser().getId());
 
+        CountryAttendeeCount topAttendeeCountry = eventDao.findTopAttendeeCountry(event.getId()).orElse(null);
 
-        Optional<CountryAttendeeCount> maybeCountryAttendeeCount = eventDao.findTopAttendeeCountry(event.getId());
-
-        if(maybeCountryAttendeeCount.isPresent()){
-            topAttendeeCountry = maybeCountryAttendeeCount.get().getCountryName();
-            topAttendeeCountryId = maybeCountryAttendeeCount.get().getCountryId();
-            topAttendeeCountryCount = maybeCountryAttendeeCount.get().getCount();
-        }
-
-        return Optional.of(new EventWithStatistics(event, createdEventsCount, attendedEventsCount, topAttendeeCountry, topAttendeeCountryId, topAttendeeCountryCount));
+        return Optional.of(new EventWithStatistics(event, createdEventsCount, attendedEventsCount, topAttendeeCountry));
     }
 
 

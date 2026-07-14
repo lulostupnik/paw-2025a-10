@@ -84,10 +84,10 @@ interface RatingApi {
 export interface EventStatisticsDto {
     eventsCreatedByOrganizer: number;
     eventsOrganizerAttends: number;
-    topCountry: string;
-    topCountryCount: number;
+    topCountry?: string;
+    topCountryCount?: number;
     totalParticipants: number;
-    maxParticipants: number;
+    maxParticipants?: number;
     links?: {
         selfUrl?: string;
         eventUrl?: string;
