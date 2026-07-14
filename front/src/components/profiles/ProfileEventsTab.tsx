@@ -15,9 +15,7 @@ interface ProfileEventsTabProps {
     finished: PageResult<ProfileEvent>;
     isLoading?: boolean;
     onTabChange: (tab: "created" | "attending" | "finished") => void;
-    onCreatedPageChange: (page: number | string) => void;
-    onAttendingPageChange: (page: number | string) => void;
-    onFinishedPageChange: (page: number | string) => void;
+    onPageChange: (page: number | string) => void;
 }
 
 export default function ProfileEventsTab({
@@ -28,9 +26,7 @@ export default function ProfileEventsTab({
     finished,
     isLoading = false,
     onTabChange,
-    onCreatedPageChange,
-    onAttendingPageChange,
-    onFinishedPageChange,
+    onPageChange,
 }: ProfileEventsTabProps) {
     const { t } = useI18n();
 
@@ -105,7 +101,7 @@ export default function ProfileEventsTab({
                         totalPages={created.totalPages}
                         currentPage={created.currentPage}
                         pageSize={created.pageSize}
-                        onPageChange={onCreatedPageChange}
+                        onPageChange={onPageChange}
                         previousLabel={t("pagination.prev")}
                         nextLabel={t("pagination.next")}
                         firstPage={created.first}
@@ -141,7 +137,7 @@ export default function ProfileEventsTab({
                         totalPages={attending.totalPages}
                         currentPage={attending.currentPage}
                         pageSize={attending.pageSize}
-                        onPageChange={onAttendingPageChange}
+                        onPageChange={onPageChange}
                         previousLabel={t("pagination.prev")}
                         nextLabel={t("pagination.next")}
                         firstPage={attending.first}
@@ -177,7 +173,7 @@ export default function ProfileEventsTab({
                         totalPages={finished.totalPages}
                         currentPage={finished.currentPage}
                         pageSize={finished.pageSize}
-                        onPageChange={onFinishedPageChange}
+                        onPageChange={onPageChange}
                         previousLabel={t("pagination.prev")}
                         nextLabel={t("pagination.next")}
                         firstPage={finished.first}

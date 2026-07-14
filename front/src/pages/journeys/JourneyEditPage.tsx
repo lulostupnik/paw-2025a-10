@@ -15,7 +15,7 @@ import { updateJourney } from "@/lib/api/journeys";
 import { useI18n } from "@/lib/i18n";
 import { getTodayIsoDate } from "@/lib/utils/date";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
-import { invalidateJourneyDetailQueries } from "@/lib/api/queryInvalidation";
+import { invalidateJourneyDetailQueries, invalidateJourneyListQueries } from "@/lib/api/queryInvalidation";
 import type { JourneyDetail } from "@/types/journey";
 
 interface JourneyFormState {
@@ -186,7 +186,10 @@ function JourneyEditForm({ journey }: JourneyEditFormProps) {
                 },
                 undefined
             );
-            await invalidateJourneyDetailQueries(queryClient, journey.id);
+            await Promise.all([
+                invalidateJourneyDetailQueries(queryClient, journey.id),
+                invalidateJourneyListQueries(queryClient),
+            ]);
             showToast(t("journey.toast.updated"), { variant: "success" });
             navigate(`/journeys/${journey.id}`);
         } catch (err) {

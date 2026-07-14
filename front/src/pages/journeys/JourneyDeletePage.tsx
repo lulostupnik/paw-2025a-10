@@ -1,5 +1,6 @@
 import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
@@ -7,6 +8,7 @@ import PageStatus from "@/components/ui/PageStatus";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useToast } from "@/components/ui/ToastProvider";
 import { deleteJourney } from "@/lib/api/journeys";
+import { invalidateJourneyDetailQueries, invalidateJourneyListQueries } from "@/lib/api/queryInvalidation";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
@@ -23,6 +25,7 @@ export default function JourneyDeletePage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const queryClient = useQueryClient();
     const { id } = useParams();
     const { data, isLoading, isError, isNotFound } = useJourneyDetailData({ journeyId: id });
     const [message, setMessage] = useState("");
@@ -54,6 +57,10 @@ export default function JourneyDeletePage() {
             setSubmitting(true);
             setSubmitError(null);
             await deleteJourney(id, message.trim() ? { message: message.trim() } : undefined);
+            await Promise.all([
+                invalidateJourneyDetailQueries(queryClient, id),
+                invalidateJourneyListQueries(queryClient),
+            ]);
             showToast(t("journey.toast.deleted"), { variant: "success" });
             navigate("/journeys");
         } catch (err) {

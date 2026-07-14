@@ -17,7 +17,7 @@ import { getUserId } from "@/lib/auth/auth";
 import { updateEvent, updateEventFlyer } from "@/lib/api/events";
 import { apiErrorMessage, apiErrorStatus } from "@/lib/api/client";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
-import { invalidateEventDetailQueries } from "@/lib/api/queryInvalidation";
+import { invalidateEventDetailQueries, invalidateEventListQueries } from "@/lib/api/queryInvalidation";
 import type { EventDetail } from "@/types/event";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
@@ -285,7 +285,10 @@ function EventEditForm({ event }: EventEditFormProps) {
             if (form.flyer) {
                 await updateEventFlyer(event.id, form.flyer);
             }
-            await invalidateEventDetailQueries(queryClient, event.id);
+            await Promise.all([
+                invalidateEventDetailQueries(queryClient, event.id),
+                invalidateEventListQueries(queryClient),
+            ]);
             showToast(t("event.toast.updated"), { variant: "success" });
             navigate(`/events/${event.id}`);
         } catch (err) {

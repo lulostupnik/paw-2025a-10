@@ -1,5 +1,6 @@
 import { apiErrorMessage } from "@/lib/api/client";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import PageStatus from "@/components/ui/PageStatus";
@@ -7,6 +8,7 @@ import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { deleteEvent } from "@/lib/api/events";
+import { invalidateEventDetailQueries, invalidateEventListQueries } from "@/lib/api/queryInvalidation";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import { parseApiDate } from "@/lib/utils/date";
@@ -23,6 +25,7 @@ export default function EventDeletePage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const queryClient = useQueryClient();
     const { id } = useParams();
     const { data, isLoading, isError } = useEventDetailData({ eventId: id });
     const [message, setMessage] = useState("");
@@ -53,6 +56,10 @@ export default function EventDeletePage() {
             setSubmitting(true);
             setSubmitError(null);
             await deleteEvent(Number(id), message.trim() ? { message: message.trim() } : undefined);
+            await Promise.all([
+                invalidateEventDetailQueries(queryClient, id),
+                invalidateEventListQueries(queryClient),
+            ]);
             showToast(t("event.toast.deleted"), { variant: "success" });
             navigate("/events");
         } catch (err) {

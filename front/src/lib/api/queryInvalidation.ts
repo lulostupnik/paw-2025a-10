@@ -19,6 +19,23 @@ export const invalidateEventDetailQueries = async (queryClient: QueryClient, eve
     ]);
 };
 
+// Los listados se keyean por sus filtros (["events", params]), así que invalidar
+// el prefijo alcanza cualquier combinación de filtros/página que esté cacheada.
+export const invalidateJourneyListQueries = async (queryClient: QueryClient) => {
+    await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["journeys"] }),
+        queryClient.invalidateQueries({ queryKey: ["profileTrips"] }),
+    ]);
+};
+
+export const invalidateEventListQueries = async (queryClient: QueryClient) => {
+    await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["events"] }),
+        queryClient.invalidateQueries({ queryKey: ["profileEvents"] }),
+        queryClient.invalidateQueries({ queryKey: ["adminEvents"] }),
+    ]);
+};
+
 const ADMIN_ENTITY_QUERY_KEYS = {
     city: { list: "adminCities", detail: "adminCityDetail" },
     career: { list: "adminCareers", detail: "adminCareerDetail" },
