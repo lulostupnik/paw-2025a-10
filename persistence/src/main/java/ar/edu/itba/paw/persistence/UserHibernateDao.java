@@ -132,7 +132,6 @@ public class UserHibernateDao implements UserDao {
         ORDER BY u.id ASC
     """;
 
-            // OJO: estabas pasando Map.of() en vez de parameters. Acá va parameters.
             return fetchPageByIds(
                     em,
                     countSql,

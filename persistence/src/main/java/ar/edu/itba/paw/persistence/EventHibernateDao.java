@@ -408,7 +408,7 @@ public class EventHibernateDao implements EventDao {
 
         if (startDate != null) {
             filters.add("e.event_date >= :startDate");
-            paramMap.put("startDate", Date.valueOf(startDate)); //@TODO check, se puede sacar el valueOf?
+            paramMap.put("startDate", Date.valueOf(startDate));
         }
 
         if (endDate != null) {
@@ -443,7 +443,7 @@ public class EventHibernateDao implements EventDao {
             filters.add("un.name = :university");
             paramMap.put("university", university);
         }
-        if (minRating != null) { //TODO:check anda raro
+        if (minRating != null) {
             filters.add("COALESCE((SELECT AVG(r.rating) FROM ratings r WHERE r.event_id = e.id),0) >= :minRating");
             paramMap.put("minRating", minRating);
         }

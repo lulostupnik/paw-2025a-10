@@ -726,6 +726,64 @@ public class EventHibernateDaoTest {
         assertEquals(TOTAL_EVENTS_UPCOMING, events.getContent().size());
     }
 
+    private Page<Event> findByMinRating(final int minRating) {
+        return eventDao.findAllWithFilters(
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null, null,
+            minRating,
+            null,
+            PAGE_1_BIG
+        );
+    }
+
+    @Test
+    public void testFindAllWithFiltersByMinRating(){
+        // fixture: evento 1 -> AVG 4.5, evento 2 -> AVG 2.5, evento 3 -> AVG 1, evento 4 -> sin ratings
+        Page<Event> page = findByMinRating(4);
+
+        assertNotNull(page);
+        assertEquals(1, page.getContent().size());
+        assertEquals(EVENT_1_ID, page.getContent().get(0).getId().longValue());
+    }
+
+    @Test
+    public void testFindAllWithFiltersByMinRatingIncludesAverageAboveBound(){
+        // 2.5 del evento 2 supera el minimo de 2; el evento 3 (AVG 1) no
+        Page<Event> page = findByMinRating(2);
+
+        assertNotNull(page);
+        assertEquals(2, page.getContent().size());
+    }
+
+    @Test
+    public void testFindAllWithFiltersByMinRatingExcludesUnratedEvents(){
+        // un evento sin ratings no puede probar que alcanza el minimo: cuenta como 0
+        Page<Event> page = findByMinRating(1);
+
+        assertNotNull(page);
+        assertEquals(3, page.getContent().size());
+        assertFalse(page.getContent().stream().anyMatch(e -> e.getId() == EVENT_OLDER_ID));
+    }
+
+    @Test
+    public void testFindAllWithFiltersByMinRatingZeroIncludesUnratedEvents(){
+        // con minimo 0 el filtro no excluye a nadie, ni siquiera a los que no tienen ratings
+        Page<Event> page = findByMinRating(0);
+
+        assertNotNull(page);
+        assertTrue(page.getContent().stream().anyMatch(e -> e.getId() == EVENT_OLDER_ID));
+    }
+
+    @Test
+    public void testFindAllWithFiltersByMinRatingAboveEveryAverage(){
+        // el mejor evento promedia 4.5, asi que ninguno alcanza 5
+        Page<Event> page = findByMinRating(5);
+
+        assertNotNull(page);
+        assertTrue(page.getContent().isEmpty());
+    }
+
     @Test
     public void testFindAllWithFilters(){
         Page<Event> page = eventDao.findAllWithFilters(
