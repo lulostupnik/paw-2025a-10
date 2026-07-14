@@ -28,11 +28,11 @@ public class ErrorDto {
         return dto;
     }
 
-    public static ErrorDto fromValidationErrors(Collection<ConstraintViolation<?>> violations) {
+    public static ErrorDto fromValidationErrors(String message, Collection<ConstraintViolation<?>> violations) {
         final ErrorDto dto = new ErrorDto();
         dto.status = Response.Status.BAD_REQUEST.getStatusCode();
         dto.error = Response.Status.BAD_REQUEST.getReasonPhrase();
-        dto.message = "Validation failed";
+        dto.message = message;
         dto.errors = violations.stream()
                 .map(FieldError::fromConstraintViolation)
                 .collect(Collectors.toList());
