@@ -56,7 +56,7 @@ public class RootIndexDto {
 
         // Top-level collection URLs with query param templates
         dto.usersUrl = baseUri + "users{?attendingEvent,university,career,interest,search,blocked,page,size}";
-        dto.eventsUrl = baseUri + "events{?recommendedForUser,destination,interest,afterDate,beforeDate,search,sort,direction,page,size,attendedBy,university,minRating,hasCapacity,creatorId}";
+        dto.eventsUrl = baseUri + "events{?recommendedForUser,top,destination,interest,afterDate,beforeDate,search,sort,direction,page,size,attendedBy,university,minRating,hasCapacity,creatorId}";
         dto.journeysUrl = baseUri + "journeys{?recommendedForUser,city,university,startDate,endDate,interest,upcoming,past,ongoing,destinationCity,excludeUser,search,sort,direction,page,size}";
         dto.recommendedEventsUrl = baseUri + "events{?recommendedForUser,page,size}";
         dto.recommendedJourneysUrl = baseUri + "journeys{?recommendedForUser,page,size}";
