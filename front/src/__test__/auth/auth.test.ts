@@ -5,11 +5,13 @@ import {
     getUsername,
     getUserId,
     getProfilePictureUrl,
+    getProfilePictureVersion,
     getAuthToken,
     getRefreshToken,
     setAuthTokens,
     setSession,
     logout,
+    withProfilePictureVersion,
 } from "@/lib/auth/auth";
 
 describe("Auth module", () => {
@@ -70,6 +72,11 @@ describe("Auth module", () => {
         it("should store profilePictureUrl when provided", () => {
             setSession({ profilePictureUrl: "/webapp/api/users/42/profilePicture" });
             expect(getProfilePictureUrl()).toBe("/webapp/api/users/42/profilePicture");
+        });
+
+        it("should store profilePictureVersion when provided", () => {
+            setSession({ profilePictureVersion: "12345" });
+            expect(getProfilePictureVersion()).toBe("12345");
         });
 
         it("should use session storage when session tokens exist", () => {
@@ -155,6 +162,18 @@ describe("Auth module", () => {
         });
     });
 
+    describe("withProfilePictureVersion", () => {
+        it("should append the stored version to the profile picture url", () => {
+            setSession({ profilePictureVersion: "12345" });
+            expect(withProfilePictureVersion("/webapp/api/users/42/profilePicture")).toBe("/webapp/api/users/42/profilePicture?v=12345");
+        });
+
+        it("should preserve existing query params", () => {
+            setSession({ profilePictureVersion: "12345" });
+            expect(withProfilePictureVersion("/webapp/api/users/42/profilePicture?size=small")).toBe("/webapp/api/users/42/profilePicture?size=small&v=12345");
+        });
+    });
+
     describe("getRefreshToken", () => {
         it("should return null when no refresh token exists", () => {
             expect(getRefreshToken()).toBeNull();
@@ -184,6 +203,7 @@ describe("Auth module", () => {
             expect(localStorage.getItem("isAdmin")).toBeNull();
             expect(localStorage.getItem("userId")).toBeNull();
             expect(localStorage.getItem("profilePictureUrl")).toBeNull();
+            expect(localStorage.getItem("profilePictureVersion")).toBeNull();
             expect(sessionStorage.getItem("authToken")).toBeNull();
         });
     });

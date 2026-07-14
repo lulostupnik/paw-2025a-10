@@ -4,6 +4,7 @@ import { useI18n } from "@/lib/i18n";
 import type { ProfileDetail } from "@/types/profile";
 import { classNames } from "@/lib/utils/classNames";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
+import { withProfilePictureVersion } from "@/lib/auth/auth";
 
 interface ProfileHeaderProps {
     profile: ProfileDetail;
@@ -14,12 +15,15 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
     const [menuOpen, setMenuOpen] = useState(false);
     const location = useLocation();
     const returnState = { from: `${location.pathname}${location.search}` };
+    const profilePictureUrl = profile.isMine
+        ? withProfilePictureVersion(profile.links?.profilePictureUrl)
+        : profile.links?.profilePictureUrl ?? null;
     return (
         <div className="profile-header">
             <div className="profile-avatar-container">
                 <div className="profiles-avatar">
-                    {profile.links?.profilePictureUrl ? (
-                        <img src={profile.links.profilePictureUrl} alt={profile.username} className="avatar-image" />
+                    {profilePictureUrl ? (
+                        <img src={profilePictureUrl} alt={profile.username} className="avatar-image" />
                     ) : (
                         <div className="avatar-placeholder">
                             <AvatarFallbackIcon size={30} />

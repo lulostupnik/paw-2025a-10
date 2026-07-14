@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
@@ -36,6 +36,9 @@ export default function ProfileForm() {
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [selectedUniversity, setSelectedUniversity] = useState<{ id: number; name: string } | null>(null);
     const [selectedCareer, setSelectedCareer] = useState<{ id: number; name: string } | null>(null);
+    const returnPathKey = `profile:return:${profileId}`;
+    const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
+    const returnPath = fromState ?? sanitizeInternalPath(sessionStorage.getItem(returnPathKey));
 
     const universitiesQuery = useQuery({
         queryKey: ["profileUniversities"],
@@ -54,9 +57,32 @@ export default function ProfileForm() {
         () => (careersQuery.data ?? emptyPage()).content.map((item) => ({ id: item.id, name: item.name })),
         [careersQuery.data]
     );
+    const resolvedUniversity = useMemo(
+        () => (profile?.university ? universities.find((item) => item.name === profile.university?.name) ?? null : null),
+        [profile?.university, universities]
+    );
+    const resolvedCareer = useMemo(
+        () => (profile?.career ? careers.find((item) => item.name === profile.career?.name) ?? null : null),
+        [careers, profile?.career]
+    );
+    const profileSnapshot = useMemo(
+        () =>
+            profile
+                ? JSON.stringify({
+                    id: profile.id,
+                    firstName: profile.firstname,
+                    lastName: profile.lastname,
+                    username: profile.username,
+                    universityId: resolvedUniversity?.id ?? null,
+                    careerId: resolvedCareer?.id ?? null,
+                })
+                : null,
+        [profile, resolvedCareer?.id, resolvedUniversity?.id]
+    );
+    const [hydratedSnapshot, setHydratedSnapshot] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!profile) {
+        if (!profile || !profileSnapshot || hydratedSnapshot === profileSnapshot) {
             return;
         }
         setForm({
@@ -64,13 +90,16 @@ export default function ProfileForm() {
             lastName: profile.lastname,
             username: profile.username,
         });
-        setSelectedUniversity(
-            profile.university ? universities.find((item) => item.name === profile.university?.name) ?? null : null
-        );
-        setSelectedCareer(
-            profile.career ? careers.find((item) => item.name === profile.career?.name) ?? null : null
-        );
-    }, [careers, profile, universities]);
+        setSelectedUniversity(resolvedUniversity);
+        setSelectedCareer(resolvedCareer);
+        setHydratedSnapshot(profileSnapshot);
+    }, [hydratedSnapshot, profile, profileSnapshot, resolvedCareer, resolvedUniversity]);
+
+    useEffect(() => {
+        if (fromState) {
+            sessionStorage.setItem(returnPathKey, fromState);
+        }
+    }, [fromState, returnPathKey]);
 
     const errors = useMemo(
         () => ({
@@ -96,7 +125,6 @@ export default function ProfileForm() {
                 universityId: selectedUniversity?.id,
                 careerId: selectedCareer?.id,
             });
-            const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
             const fallbackPath = profile ? `/profiles/${profile.id}/info` : "/profiles/me/info";
             showToast(t("profile.toast.updated", { defaultValue: "Profile updated successfully." }), { variant: "success" });
             navigate(returnPath ?? fallbackPath, { replace: true });
@@ -123,6 +151,10 @@ export default function ProfileForm() {
             </div>
         );
     }
+
+    const handleBack = () => {
+        navigate(returnPath ?? `/profiles/${profile.id}/info`, { replace: true });
+    };
 
     return (
         <div className="profile-form-page">
@@ -236,13 +268,13 @@ export default function ProfileForm() {
                     </form>
 
                     <div className="auth-footer">
-                        <Link to={`/profiles/${profile.id}/info`} className="auth-link">
+                        <button type="button" className="auth-link auth-link-button" onClick={handleBack}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M19 12H5"></path>
                                 <path d="M12 19l-7-7 7-7"></path>
                             </svg>
                             {t("profile.back.to.profile")}
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </div>

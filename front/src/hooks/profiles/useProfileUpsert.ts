@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import type { ProfileEditPayload, ProfilePasswordPayload, ProfilePicturePayload } from "@/types/profile";
-import { getUserId } from "@/lib/auth/auth";
+import { getProfilePictureUrl, getUserId, setSession } from "@/lib/auth/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import {
     addUserInterest,
@@ -12,6 +12,8 @@ import {
     updateUserProfile,
     updateUserProfilePicture,
 } from "@/lib/api/users";
+import type { ProfileDetail } from "@/types/profile";
+import { apiBaseUrl } from "@/lib/api/client";
 
 interface UseProfileUpsertResult {
     isLoading: boolean;
@@ -77,6 +79,17 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
                     throw new Error("missing-profile-picture");
                 }
                 await updateUserProfilePicture(userId, payload.picture);
+                const currentProfile =
+                    (queryClient.getQueryData(["profileDetail", String(userId)]) as ProfileDetail | undefined) ??
+                    (queryClient.getQueryData(["profileDetail", "me"]) as ProfileDetail | undefined);
+                const profilePictureUrl =
+                    currentProfile?.links?.profilePictureUrl ??
+                    getProfilePictureUrl() ??
+                    `${apiBaseUrl}/users/${userId}/profilePicture`;
+                setSession({
+                    profilePictureUrl,
+                    profilePictureVersion: String(Date.now()),
+                });
                 await invalidateUserViewQueries(queryClient, userId);
             }),
         [queryClient, runMutation]

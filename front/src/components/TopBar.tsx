@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Button from "./ui/Button";
-import { getProfilePictureUrl, getUsername, isAdmin, isLoggedIn, logout } from "@/lib/auth/auth";
+import { getProfilePictureUrl, getUsername, isAdmin, isLoggedIn, logout, withProfilePictureVersion } from "@/lib/auth/auth";
 import { classNames } from "@/lib/utils/classNames";
 import { useI18n } from "@/lib/i18n";
 import Logo from "./Logo";
@@ -13,7 +13,7 @@ export default function TopBar() {
     const nav = useNavigate();
     const logged = isLoggedIn();
     const username = getUsername();
-    const profilePictureUrl = logged ? getProfilePictureUrl() : null;
+    const profilePictureUrl = logged ? withProfilePictureVersion(getProfilePictureUrl()) : null;
     const { t, locale, setLocale } = useI18n();
     const [navOpen, setNavOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);

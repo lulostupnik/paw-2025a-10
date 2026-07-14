@@ -5,6 +5,7 @@ const IS_ADMIN_KEY = "isAdmin";
 const USER_ID_KEY = "userId";
 const EMAIL_KEY = "email";
 const PROFILE_PICTURE_URL_KEY = "profilePictureUrl";
+const PROFILE_PICTURE_VERSION_KEY = "profilePictureVersion";
 
 type AuthStorage = "local" | "session";
 
@@ -63,6 +64,22 @@ export function getProfilePictureUrl(): string | null {
     return getStoredValue(PROFILE_PICTURE_URL_KEY);
 }
 
+export function getProfilePictureVersion(): string | null {
+    return getStoredValue(PROFILE_PICTURE_VERSION_KEY);
+}
+
+export function withProfilePictureVersion(url?: string | null): string | null {
+    if (!url) {
+        return null;
+    }
+    const version = getProfilePictureVersion();
+    if (!version) {
+        return url;
+    }
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}v=${encodeURIComponent(version)}`;
+}
+
 export function getAuthToken(): string | null {
     return getStoredValue(AUTH_TOKEN_KEY);
 }
@@ -91,6 +108,7 @@ export function setSession(session: {
     isAdmin?: boolean | null;
     userId?: number | null;
     profilePictureUrl?: string | null;
+    profilePictureVersion?: string | null;
     storage?: AuthStorage;
 }) {
     const storage = session.storage ?? getActiveStorage();
@@ -112,10 +130,16 @@ export function setSession(session: {
         clearStoredValue(PROFILE_PICTURE_URL_KEY, "local");
         clearStoredValue(PROFILE_PICTURE_URL_KEY, "session");
     }
+    if (session.profilePictureVersion) {
+        setStoredValue(PROFILE_PICTURE_VERSION_KEY, session.profilePictureVersion, storage);
+    } else if (session.profilePictureVersion === null) {
+        clearStoredValue(PROFILE_PICTURE_VERSION_KEY, "local");
+        clearStoredValue(PROFILE_PICTURE_VERSION_KEY, "session");
+    }
 }
 
 export function logout() {
-    [AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY, USERNAME_KEY, IS_ADMIN_KEY, USER_ID_KEY, EMAIL_KEY, PROFILE_PICTURE_URL_KEY].forEach((key) => {
+    [AUTH_TOKEN_KEY, REFRESH_TOKEN_KEY, USERNAME_KEY, IS_ADMIN_KEY, USER_ID_KEY, EMAIL_KEY, PROFILE_PICTURE_URL_KEY, PROFILE_PICTURE_VERSION_KEY].forEach((key) => {
         clearStoredValue(key, "local");
         clearStoredValue(key, "session");
     });

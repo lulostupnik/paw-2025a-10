@@ -78,6 +78,7 @@ function MultiSelectField({
     const { t } = useI18n();
     const [query, setQuery] = useState("");
     const { open, setOpen, ref } = useDropdownState();
+    const inputRef = useRef<HTMLInputElement>(null);
     const { options, loading } = useAsyncOptions(fetcher, open, query);
 
     const available = options.filter((option) => !selected.some((item) => item.id === option.id));
@@ -96,6 +97,7 @@ function MultiSelectField({
             <div className="input-with-addon">
                 <input
                     id={`field-${name}`}
+                    ref={inputRef}
                     className={classNames("input-control", showError && "input-control--error")}
                     value={query}
                     onFocus={() => setOpen(true)}
@@ -143,7 +145,8 @@ function MultiSelectField({
                             onClick={() => {
                                 onChange([...selected, option]);
                                 setQuery("");
-                                setOpen(false);
+                                setOpen(true);
+                                inputRef.current?.focus();
                             }}
                         >
                             {option.name}
@@ -166,6 +169,7 @@ export default function ProfileInterestsEdit() {
     const [hasInitialized, setHasInitialized] = useState(false);
     const [isDirty, setIsDirty] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
     const handleSelectionChange = (next: CatalogOption[]) => {
         setSelected(next);
@@ -198,7 +202,6 @@ export default function ProfileInterestsEdit() {
         try {
             setSubmitError(null);
             await updateInterests(selected.map((interest) => interest.id));
-            const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
             showToast(t("profile.toast.interestsUpdated", { defaultValue: "Interests updated successfully." }), { variant: "success" });
             setIsDirty(false);
             navigate(returnPath ?? "/profiles/me/interests", { replace: true });
@@ -255,7 +258,7 @@ export default function ProfileInterestsEdit() {
                     )}
 
                     <div className="auth-footer">
-                        <Link className="auth-link" to="/profiles/me/interests">
+                        <Link className="auth-link" to={returnPath ?? "/profiles/me/interests"}>
                             {t("interests.back", { defaultValue: "Back to Interests" })}
                         </Link>
                     </div>

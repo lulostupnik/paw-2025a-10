@@ -123,7 +123,8 @@ export const updateUserProfilePicture = async (
     formData.append("profilePicture", picture);
     await apiClient.put(`/users/${userId}/profilePicture`, formData, {
         signal,
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { Accept: "image/jpeg, image/png, image/webp" },
+        responseType: "blob",
     });
 };
 
@@ -192,6 +193,9 @@ export const invalidateUserViewQueries = async (
     await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["profileDetail", normalizedUserId] }),
         queryClient.invalidateQueries({ queryKey: ["profileDetail", "me"] }),
+        queryClient.invalidateQueries({
+            predicate: (query) => query.queryKey[0] === "profileInfo" && String(query.queryKey[1]) === normalizedUserId,
+        }),
         queryClient.invalidateQueries({ queryKey: ["adminUserDetail", normalizedUserId] }),
         queryClient.invalidateQueries({ queryKey: ["adminUsers"] }),
         queryClient.invalidateQueries({ queryKey: ["profileTrips", normalizedUserId] }),
@@ -218,8 +222,20 @@ export const invalidateUserViewQueries = async (
 export const invalidateCurrentUserInterestQueries = async (queryClient: QueryClient, userId: number | string) => {
     const normalizedUserId = String(userId);
     await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["profileInterests", "me"] }),
-        queryClient.invalidateQueries({ queryKey: ["profileInterests", normalizedUserId] }),
+        queryClient.invalidateQueries({
+            predicate: (query) => {
+                if (query.queryKey[0] !== "profileInterests") {
+                    return false;
+                }
+                const params = query.queryKey[1];
+                if (!params || typeof params !== "object") {
+                    return false;
+                }
+                const profileId = (params as { profileId?: string }).profileId;
+                return profileId === "me" || profileId === normalizedUserId;
+            },
+            refetchType: "all",
+        }),
         queryClient.invalidateQueries({ queryKey: ["events"] }),
         queryClient.invalidateQueries({ queryKey: ["journeys"] }),
     ]);

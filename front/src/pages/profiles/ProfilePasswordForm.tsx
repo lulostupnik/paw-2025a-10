@@ -6,35 +6,35 @@ import { classNames } from "@/lib/utils/classNames";
 import { useToast } from "@/components/ui/ToastProvider";
 import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
-const getStrengthScore = (password: string) => {
-    if (!password) {
-        return 0;
+type PasswordStrengthStatus = "empty" | "very-weak" | "weak" | "medium" | "strong";
+
+interface PasswordStrength {
+    level: number;
+    status: PasswordStrengthStatus;
+    labelKey: string;
+}
+
+const evaluatePassword = (value: string): PasswordStrength => {
+    if (!value) {
+        return { level: 0, status: "empty", labelKey: "register.password.strength.empty" };
     }
+
     let score = 0;
-    if (password.length >= 8) score += 25;
-    if (/[A-Z]/.test(password)) score += 20;
-    if (/[a-z]/.test(password)) score += 20;
-    if (/[0-9]/.test(password)) score += 20;
-    if (/[^A-Za-z0-9]/.test(password)) score += 15;
-    return Math.min(score, 100);
-};
+    if (value.length >= 8) score += 1;
+    if (/[A-Z]/.test(value)) score += 1;
+    if (/[0-9]/.test(value)) score += 1;
+    if (/[^A-Za-z0-9]/.test(value) || value.length >= 12) score += 1;
 
-const getStrengthClass = (score: number) => {
-    if (score === 0) return "";
-    if (score < 25) return "strength-very-weak";
-    if (score < 50) return "strength-weak";
-    if (score < 75) return "strength-medium";
-    if (score < 90) return "strength-strong";
-    return "strength-very-strong";
-};
-
-const getStrengthLabel = (score: number, t: (key: string, options?: { defaultValue?: string }) => string) => {
-    if (score === 0) return "";
-    if (score < 25) return t("password.strength.very-weak", { defaultValue: "Muy debil" });
-    if (score < 50) return t("password.strength.weak", { defaultValue: "Debil" });
-    if (score < 75) return t("password.strength.medium", { defaultValue: "Media" });
-    if (score < 90) return t("password.strength.strong", { defaultValue: "Fuerte" });
-    return t("password.strength.very-strong", { defaultValue: "Muy fuerte" });
+    if (score <= 1) {
+        return { level: 1, status: "very-weak", labelKey: "register.password.strength.veryWeak" };
+    }
+    if (score === 2) {
+        return { level: 2, status: "weak", labelKey: "register.password.strength.weak" };
+    }
+    if (score === 3) {
+        return { level: 3, status: "medium", labelKey: "register.password.strength.medium" };
+    }
+    return { level: 4, status: "strong", labelKey: "register.password.strength.strong" };
 };
 
 export default function ProfilePasswordForm() {
@@ -48,9 +48,9 @@ export default function ProfilePasswordForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [touched, setTouched] = useState({ password: false, confirmPassword: false });
+    const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
-    const strengthScore = useMemo(() => getStrengthScore(password), [password]);
-    const strengthLabel = useMemo(() => getStrengthLabel(strengthScore, t), [strengthScore, t]);
+    const passwordStrength = useMemo(() => evaluatePassword(password), [password]);
     const passwordsMatch = password && confirmPassword ? password === confirmPassword : true;
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -60,7 +60,6 @@ export default function ProfilePasswordForm() {
             return;
         }
         await updatePassword({ password, confirmPassword });
-        const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
         showToast(t("profile.toast.passwordUpdated", { defaultValue: "Password updated successfully." }), { variant: "success" });
         navigate(returnPath ?? "/profiles/me/info", { replace: true });
     };
@@ -115,14 +114,23 @@ export default function ProfilePasswordForm() {
                                 </button>
                             </div>
 
-                            <div className="password-strength">
-                                <div className="password-meter">
-                                    <div className={classNames("password-bar", getStrengthClass(strengthScore))} style={{ width: `${strengthScore}%` }}></div>
+                            <div className={classNames("password-strength", `password-strength--${passwordStrength.status}`)}>
+                                <div className="password-strength__header">
+                                    <span>{t("register.password.strength.label")}</span>
+                                    <span className="password-strength__value">
+                                        {passwordStrength.level > 0 ? t(passwordStrength.labelKey) : ""}
+                                    </span>
                                 </div>
-                                <div className="password-feedback">
-                                    <div className="password-status">
-                                        <span className={classNames("password-label", getStrengthClass(strengthScore))}>{strengthLabel}</span>
-                                    </div>
+                                <div className="password-strength__bars">
+                                    {[1, 2, 3, 4].map((level) => (
+                                        <span
+                                            key={level}
+                                            className={classNames(
+                                                "password-strength__bar",
+                                                level <= passwordStrength.level && "is-filled"
+                                            )}
+                                        />
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -176,7 +184,7 @@ export default function ProfilePasswordForm() {
                     </form>
 
                     <div className="auth-footer">
-                        <Link to="/profiles/me/info" className="auth-link">
+                        <Link to={returnPath ?? "/profiles/me/info"} className="auth-link">
                             {t("profile.back.to.profile")}
                         </Link>
                     </div>

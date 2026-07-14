@@ -1,17 +1,25 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import PageStatus from "@/components/ui/PageStatus";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
+import { useToast } from "@/components/ui/ToastProvider";
+import { apiErrorMessage } from "@/lib/api/client";
+import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 export default function ProfilePictureForm() {
     const { t } = useI18n();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { showToast } = useToast();
     const { data: profile, isLoading, isError } = useProfileDetail("me");
     const { updatePicture, isLoading: isSaving } = useProfileUpsert();
     const [file, setFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
     useEffect(() => {
         if (!file) {
@@ -25,7 +33,23 @@ export default function ProfilePictureForm() {
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        await updatePicture({ picture: file });
+        setSubmitError(null);
+        if (!file) {
+            setSubmitError(t("ImageNotEmpty.editPictureForm.picture", { defaultValue: "Please upload a profile picture" }));
+            return;
+        }
+        try {
+            await updatePicture({ picture: file });
+            showToast(t("profile.toast.updated", { defaultValue: "Profile updated successfully." }), { variant: "success" });
+            navigate(returnPath ?? "/profiles/me/info", { replace: true });
+        } catch (error) {
+            setSubmitError(
+                apiErrorMessage(
+                    error,
+                    t("admin.dashboard.error", { defaultValue: "Error guardando los cambios." })
+                )
+            );
+        }
     };
 
     if (isLoading) {
@@ -62,7 +86,7 @@ export default function ProfilePictureForm() {
                                         <img
                                             src={previewUrl ?? profile.links?.profilePictureUrl ?? ""}
                                             alt={profile.username}
-                                            className="avatar-image"
+                                            className="avatar-image current-avatar-image"
                                             id="avatarPreview"
                                         />
                                     ) : (
@@ -71,24 +95,18 @@ export default function ProfilePictureForm() {
                                         </div>
                                     )}
                                 </div>
-                                <div className="avatar-overlay">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                        <circle cx="12" cy="13" r="4"></circle>
-                                    </svg>
-                                </div>
                             </div>
 
                             <div className="form-group">
                                 <label htmlFor="profilePicture" className="form-label">
-                                    {t("event.flyer")}
+                                    {t("profile.picture")}
                                 </label>
                                 <div className="file-upload">
                                     <label className="file-upload-label">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="file-upload-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
-                                        <span className="file-upload-text">{t("upload_picture.flyer")}</span>
+                                        <span className="file-upload-text">{t("upload_picture.profile")}</span>
                                         <span className="file-upload-hint">{t("upload_picture.hint", { defaultValue: "JPG o PNG, max 5MB" })}</span>
                                         <input
                                             id="profilePicture"
@@ -117,6 +135,7 @@ export default function ProfilePictureForm() {
                                 )}
                             </div>
                         </div>
+                        {submitError && <p className="error-message">{submitError}</p>}
 
                         <div className="form-actions">
                             <button type="submit" className="form-button" disabled={isSaving}>
@@ -131,7 +150,7 @@ export default function ProfilePictureForm() {
                     </form>
 
                     <div className="auth-footer">
-                        <Link to="/profiles/me/info" className="auth-link">
+                        <Link to={returnPath ?? "/profiles/me/info"} className="auth-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M19 12H5"></path>
                                 <path d="M12 19l-7-7 7-7"></path>
