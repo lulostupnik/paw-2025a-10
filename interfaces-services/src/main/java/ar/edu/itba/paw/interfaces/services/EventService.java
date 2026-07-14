@@ -5,7 +5,6 @@ import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
 
 public interface EventService {
@@ -37,8 +36,6 @@ public interface EventService {
     void deleteRating(long eventId, long ratingId);
     int countRatingsByEvent(long eventId);
 
-    List<Event> findRecommendedEvents(long userId, int limit);
-    List<Event> findTopEvents(int limit);
     boolean isEventOwnedByUser(String email, long eventId);
     boolean isUserEventAttendee(long userId, long eventId);
     boolean isRatingOwnedByUser(long eventId, long ratingId, long userId);

@@ -300,32 +300,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> findRecommendedEvents(final long userId, final  int limit) {
-        LOGGER.debug("Getting recommended events for user {} with limit {}", userId, limit);
-        if (limit <= 0) {
-            throw new InvalidPaginationParamsException("Limit must be greater than 0");
-        }
-        List<Event> events = eventDao.findRecommended(userId, new PageParams(1, limit)).getContent();
-        if (events.isEmpty()) {
-            LOGGER.warn("No recommended events found for user {}. Falling back to top events.", userId);
-            events = eventDao.findTopByUser(userId,new PageParams(1, limit)).getContent();
-        }
-        if(events.isEmpty()){
-            LOGGER.warn("No top events found for user {}. Falling back to any events.", userId);
-            events = eventDao.findAll(new PageParams(1, limit)).getContent();
-        }
-        return events;
-    }
-
-    @Override
-    public List<Event> findTopEvents(final int limit){
-        if (limit <= 0) {
-            throw new InvalidPaginationParamsException("Limit must be greater than 0");
-        }
-        return eventDao.findTop(new PageParams(1, limit)).getContent();
-    }
-
-    @Override
     public boolean isEventOwnedByUser(final String email, final long eventId) {
         LOGGER.debug("Checking for event ownership of event {} by user {}", eventId, email);
         Optional<Event> event = eventDao.findById(eventId);
@@ -353,7 +327,7 @@ public class EventServiceImpl implements EventService {
 
         if (recommendedForUser != null) {
             validateRecommendedEventsFilters(search, creatorId, sortBy, direction, destination, startDate, endDate, interest, attendedByUserId, university, minRating, hasCapacity, top);
-            return eventDao.findRecommended(recommendedForUser, pageParams);
+            return findRecommendedEvents(recommendedForUser, pageParams);
         }
 
         if (Boolean.TRUE.equals(top)) {
@@ -382,6 +356,23 @@ public class EventServiceImpl implements EventService {
                 pageParams
         );
 
+    }
+
+
+    private Page<Event> findRecommendedEvents(final long userId, final PageParams pageParams) {
+        final Page<Event> recommended = eventDao.findRecommended(userId, pageParams);
+        if (recommended.getTotalElements() > 0) {
+            return recommended;
+        }
+
+        LOGGER.debug("No recommended events for user {}, falling back to top events", userId);
+        final Page<Event> topEvents = eventDao.findTopByUser(userId, pageParams);
+        if (topEvents.getTotalElements() > 0) {
+            return topEvents;
+        }
+
+        LOGGER.debug("No top events for user {}, falling back to all events", userId);
+        return eventDao.findAll(pageParams);
     }
 
     private void validateRecommendedEventsFilters(final String search, final Long creatorId, final SortFieldEvent sortBy, final SortDirection direction, final String destination,

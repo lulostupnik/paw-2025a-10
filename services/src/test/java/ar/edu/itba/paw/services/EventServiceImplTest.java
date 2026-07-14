@@ -874,19 +874,40 @@ public class EventServiceImplTest {
         assertEquals(1, count);
     }
 
+    private Page<Event> findRecommendedEvents(final long userId, final PageParams pageParams) {
+        return eventService.searchEventsWithFilters(
+            null,
+            userId,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            pageParams
+        );
+    }
+
     @Test
     public void testFindRecommendedEvents(){
         when(
             eventDao.findRecommended(eq(USER_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        List<Event> userEvents = eventService.findRecommendedEvents(USER_ID, PAGE_1_DEFAULT.getSize());
+        Page<Event> userEvents = findRecommendedEvents(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(userEvents);
-        assertEquals(EVENTS, userEvents);
+        assertEquals(EVENTS_PAGE, userEvents);
     }
+
     @Test
-    public void testFindRecommendedEventsMissing(){
+    public void testFindRecommendedEventsFallsBackToTopEventsOfUser(){
         when(
             eventDao.findRecommended(eq(USER_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(new Page<>(List.of(), 1, 1, 0));
@@ -894,17 +915,14 @@ public class EventServiceImplTest {
             eventDao.findTopByUser(eq(USER_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        List<Event> userevents = eventService.findRecommendedEvents(USER_ID, 2);
+        Page<Event> userEvents = findRecommendedEvents(USER_ID, PAGE_1_DEFAULT);
 
-        assertNotNull(userevents);
-        assertEquals(EVENTS, userevents);
+        assertNotNull(userEvents);
+        assertEquals(EVENTS_PAGE, userEvents);
     }
-    @Test(expected = InvalidPaginationParamsException.class)
-    public void testFindRecommendedEventsWrongLimit(){
-        eventService.findRecommendedEvents(USER_ID, 0);
-    }
+
     @Test
-    public void testFindRecommendedEventsNoEventsTop(){
+    public void testFindRecommendedEventsFallsBackToAllEvents(){
         when(
             eventDao.findRecommended(eq(USER_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(new Page<>(List.of(), 1, 1, 0));
@@ -912,28 +930,26 @@ public class EventServiceImplTest {
             eventDao.findTopByUser(eq(USER_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(new Page<>(List.of(), 1, 1, 0));
         when(
-            eventDao.findAll(any(PageParams.class))
+            eventDao.findAll(eq(PAGE_1_DEFAULT))
         ).thenReturn(EVENTS_PAGE);
 
-        List<Event> userevents = eventService.findRecommendedEvents(USER_ID, 2);
+        Page<Event> userEvents = findRecommendedEvents(USER_ID, PAGE_1_DEFAULT);
 
-        assertNotNull(userevents);
-        assertEquals(EVENTS, userevents);
+        assertNotNull(userEvents);
+        assertEquals(EVENTS_PAGE, userEvents);
     }
 
     @Test
-    public void testFindTopEvents(){
+    public void testFindRecommendedEventsDoesNotFallBackWhenPageIsEmptyButCollectionIsNot(){
         when(
-            eventDao.findTop(PAGE_1_DEFAULT)
-        ).thenReturn(EVENTS_PAGE);
+            eventDao.findRecommended(eq(USER_ID), eq(PAGE_1_DEFAULT))
+        ).thenReturn(new Page<>(List.of(), 2, 1, 1));
 
-        List<Event> topEvents = eventService.findTopEvents(PAGE_1_DEFAULT.getSize());
+        Page<Event> userEvents = findRecommendedEvents(USER_ID, PAGE_1_DEFAULT);
 
-        assertNotNull(topEvents);
-    }
-    @Test(expected = InvalidPaginationParamsException.class)
-    public void testFindTopEventsInvalidPagination(){
-        eventService.findTopEvents(-10);
+        assertNotNull(userEvents);
+        assertTrue(userEvents.getContent().isEmpty());
+        verify(eventDao, never()).findTopByUser(anyLong(), any(PageParams.class));
     }
 
     @Test
