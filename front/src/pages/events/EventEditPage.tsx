@@ -369,7 +369,8 @@ export default function EventEditPage() {
 
                             <div className="form-field">
                                 <label className="input-label" htmlFor="field-time">
-                                    {t("event.create.time.label")} <span className="required-indicator" aria-hidden="true">*</span>
+                                    {t("event.create.time.label")}
+                                    {!timeFieldDisabled && <span className="required-indicator" aria-hidden="true">*</span>}
                                 </label>
                                 <input
                                     id="field-time"
@@ -381,6 +382,11 @@ export default function EventEditPage() {
                                     placeholder={t("common.time.placeholder")}
                                     disabled={timeFieldDisabled}
                                 />
+                                <p className="form-field__text">
+                                    {timeFieldDisabled
+                                        ? t("event.create.time.optional.allDay", { defaultValue: "No hace falta horario si marcás todo el día." })
+                                        : t("event.create.time.required.unlessAllDay", { defaultValue: "Obligatorio salvo que marques todo el día." })}
+                                </p>
                                 {touched.time && errors.time && (
                                     <p className="form-field__text form-field__text--error">{errors.time}</p>
                                 )}
@@ -425,7 +431,8 @@ export default function EventEditPage() {
                         <TextField
                             label={
                                 <span className="input-label">
-                                    {t("event.create.limit.label")} <span className="required-indicator" aria-hidden="true">*</span>
+                                    {t("event.create.limit.label")}
+                                    {!limitFieldDisabled && <span className="required-indicator" aria-hidden="true">*</span>}
                                 </span>
                             }
                             placeholder={t("event.create.limit.placeholder", { defaultValue: "Enter attendee limit" })}
@@ -433,6 +440,16 @@ export default function EventEditPage() {
                             onChange={handleLimitChange}
                             onBlur={() => markTouched("participantLimit")}
                             disabled={limitFieldDisabled}
+                            helperText={t(
+                                limitFieldDisabled
+                                    ? "event.create.limit.optional.unlimited"
+                                    : "event.create.limit.required.unlessUnlimited",
+                                {
+                                    defaultValue: limitFieldDisabled
+                                        ? "No hace falta límite si marcás sin límite."
+                                        : "Obligatorio salvo que marques sin límite.",
+                                }
+                            )}
                             errorText={touched.participantLimit ? errors.participantLimit : undefined}
                         />
 

@@ -188,29 +188,41 @@ export default function EventCreatePage() {
             (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
                 const value = event.target.value;
                 setForm((prev) => ({ ...prev, [field]: value }));
+                setErrors((prev) => ({ ...prev, [field]: undefined }));
+                setSubmitError(null);
             },
         []
     );
 
     const handleDateChange = (event: ChangeEvent<HTMLInputElement>) => {
         setForm((prev) => ({ ...prev, date: event.target.value }));
+        setErrors((prev) => ({ ...prev, date: undefined }));
+        setSubmitError(null);
     };
 
     const handleTimeChange = (event: ChangeEvent<HTMLInputElement>) => {
         setForm((prev) => ({ ...prev, time: event.target.value }));
+        setErrors((prev) => ({ ...prev, time: undefined }));
+        setSubmitError(null);
     };
 
     const handleLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
         setForm((prev) => ({ ...prev, participantLimit: value }));
+        setErrors((prev) => ({ ...prev, participantLimit: undefined }));
+        setSubmitError(null);
     };
 
     const handleAllDayToggle = (checked: boolean) => {
         setForm((prev) => ({ ...prev, allDay: checked, time: checked ? "" : prev.time }));
+        setErrors((prev) => ({ ...prev, time: undefined }));
+        setSubmitError(null);
     };
 
     const handleUnlimitedToggle = (checked: boolean) => {
         setForm((prev) => ({ ...prev, unlimited: checked, participantLimit: checked ? "" : prev.participantLimit }));
+        setErrors((prev) => ({ ...prev, participantLimit: undefined }));
+        setSubmitError(null);
     };
 
     const validate = useCallback(
@@ -275,6 +287,7 @@ export default function EventCreatePage() {
 
             setForm((prev) => ({ ...prev, flyer: file }));
             setErrors((prev) => ({ ...prev, flyer: undefined }));
+            setSubmitError(null);
             markTouched("flyer");
         },
         [markTouched, t]
@@ -323,7 +336,7 @@ export default function EventCreatePage() {
             setCityQuery("");
             setTouched({});
             setErrors({});
-            navigate(`/events/${eventResponse.id}`);
+            navigate(`/events/${eventResponse.id}`, { replace: true });
         } catch (error) {
             console.error("Failed to create event", error);
             const serverErrors: FormErrors = {};
@@ -384,7 +397,11 @@ export default function EventCreatePage() {
                         value={form.city}
                         query={cityQuery}
                         onQueryChange={setCityQuery}
-                        onChange={(option) => setForm((prev) => ({ ...prev, city: option }))}
+                        onChange={(option) => {
+                            setForm((prev) => ({ ...prev, city: option }));
+                            setErrors((prev) => ({ ...prev, city: undefined }));
+                            setSubmitError(null);
+                        }}
                         fetcher={searchCities}
                         error={touched.city ? errors.city : undefined}
                         onBlur={() => markTouched("city")}
@@ -414,6 +431,7 @@ export default function EventCreatePage() {
                             <div className="form-field">
                                 <label className="form-field__label" htmlFor="field-time">
                                     {t("event.create.time.label")}
+                                    {!timeFieldDisabled && <span className="required-indicator" aria-hidden="true">*</span>}
                                 </label>
                                 <input
                                     id="field-time"
@@ -429,6 +447,11 @@ export default function EventCreatePage() {
                                     onBlur={() => markTouched("time")}
                                     disabled={timeFieldDisabled}
                                 />
+                                <p className="form-field__text">
+                                    {timeFieldDisabled
+                                        ? t("event.create.time.optional.allDay", { defaultValue: "No hace falta horario si marcás todo el día." })
+                                        : t("event.create.time.required.unlessAllDay", { defaultValue: "Obligatorio salvo que marques todo el día." })}
+                                </p>
                                 {touched.time && errors.time && (
                                     <p className="form-field__text form-field__text--error">{errors.time}</p>
                                 )}
@@ -471,6 +494,7 @@ export default function EventCreatePage() {
                         <div className="form-field">
                             <label className="form-field__label" htmlFor="field-limit">
                                 {t("event.create.limit.label")}
+                                {!limitFieldDisabled && <span className="required-indicator" aria-hidden="true">*</span>}
                             </label>
                             <input
                                 id="field-limit"
@@ -486,6 +510,11 @@ export default function EventCreatePage() {
                                 onBlur={() => markTouched("participantLimit")}
                                 disabled={limitFieldDisabled}
                             />
+                            <p className="form-field__text">
+                                {limitFieldDisabled
+                                    ? t("event.create.limit.optional.unlimited", { defaultValue: "No hace falta límite si marcás sin límite." })
+                                    : t("event.create.limit.required.unlessUnlimited", { defaultValue: "Obligatorio salvo que marques sin límite." })}
+                            </p>
                             {touched.participantLimit && errors.participantLimit && (
                                 <p className="form-field__text form-field__text--error">{errors.participantLimit}</p>
                             )}
