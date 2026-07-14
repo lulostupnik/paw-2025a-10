@@ -5,7 +5,7 @@ import javax.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy =  {ValidInterestIdValidator.class, ValidInterestValidator.class})
+@Constraint(validatedBy = ValidInterestValidator.class)
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidInterest {
