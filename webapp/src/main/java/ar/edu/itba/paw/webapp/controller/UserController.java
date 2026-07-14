@@ -67,7 +67,8 @@ public class UserController {
     ) {
         final Page<User> allUsers = us.findUsers(search, new PageParams(page, size), attendingEventId, universityId, careerId, interestId, blocked);
         final List<UserDto> userDtos = UserDto.fromUserCollection(uriInfo, allUsers.getContent());
-        final ResponseBuilder response = Response.ok(new GenericEntity<>(userDtos) {});
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(userDtos) {})
+                .header(HttpHeaders.VARY, HttpHeaders.ACCEPT);
         return PagingUtils.insertPaginationLinks(response, uriInfo, allUsers).build();
     }
 
@@ -86,7 +87,8 @@ public class UserController {
     ) {
         final Page<User> allUsers = us.findUsers(search, new PageParams(page, size), attendingEventId, universityId, careerId, interestId, blocked);
         final List<UserPrivateDto> userDtos = UserPrivateDto.fromUserCollection(uriInfo, allUsers.getContent());
-        final ResponseBuilder response = Response.ok(new GenericEntity<>(userDtos) {});
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(userDtos) {})
+                .header(HttpHeaders.VARY, HttpHeaders.ACCEPT);
         return PagingUtils.insertPaginationLinks(response, uriInfo, allUsers).build();
     }
 
