@@ -71,7 +71,7 @@ public class EventController {
             @QueryParam("top") Boolean top,
             @QueryParam("creatorId") Long creatorId
     ) {
-        final LocalDate startDate = DateUtils.parseDate(afterDateStr);
+        final LocalDate startDate = DateUtils.parseDate(afterDateStr);   //@TODO logica en controllers ? 
         final LocalDate endDate = DateUtils.parseDate(beforeDateStr);
         final SortFieldEvent sortField = sort == null || sort.isBlank() ? null : SortFieldEvent.from(sort);
         final SortDirection sortDirection = direction == null || direction.isBlank() ? null : SortDirection.from(direction);
