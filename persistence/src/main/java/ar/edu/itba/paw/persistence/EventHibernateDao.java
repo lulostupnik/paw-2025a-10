@@ -88,49 +88,6 @@ public class EventHibernateDao implements EventDao {
         );
     }
 
-    @Override
-    public Page<Event> search(final String searchTerm, final PageParams pageParams) {
-        final String pattern = likePattern(searchTerm);
-
-        final String countSql = """
-        SELECT COUNT(*)
-        FROM events e
-        JOIN cities c ON e.city_id = c.id
-        JOIN users us ON e.user_id = us.id
-        WHERE e.deleted = FALSE AND (
-            LOWER(e.title) LIKE LOWER( :pattern )
-            OR LOWER(c.name) LIKE LOWER( :pattern )
-            OR LOWER(us.username) LIKE LOWER( :pattern )
-        )
-    """;
-
-        final String idSql = """
-        SELECT e.id
-        FROM events e
-        JOIN cities c ON e.city_id = c.id
-        JOIN users us ON e.user_id = us.id
-        WHERE e.deleted = FALSE AND (
-            LOWER(e.title) LIKE LOWER( :pattern )
-            OR LOWER(c.name) LIKE LOWER( :pattern )
-            OR LOWER(us.username) LIKE LOWER( :pattern )
-        )
-        ORDER BY e.event_date DESC
-    """;
-
-        final String jpqlFetch = "FROM Event e WHERE e.id IN :ids ORDER BY e.date DESC";
-
-        return fetchPageByIds(
-                em,
-                countSql,
-                idSql,
-                Map.of("pattern", pattern),
-                jpqlFetch,
-                Event.class,
-                pageParams,
-                Map.of()
-        );
-    }
-
 
     @Override
     public Optional<CountryAttendeeCount> findTopAttendeeCountry(final long eventId) {
@@ -375,7 +332,7 @@ public class EventHibernateDao implements EventDao {
         FROM events e
         JOIN users us ON e.user_id = us.id
         JOIN universities un ON us.university = un.id
-        JOIN cities ci ON un.city_id = ci.id
+        JOIN cities ec ON e.city_id = ec.id
         """);
 
         if (interest != null && !interest.isEmpty()) {
@@ -385,8 +342,7 @@ public class EventHibernateDao implements EventDao {
         }
 
         if (destination != null && !destination.isEmpty()) {
-            sqlBody.append(" JOIN cities cd ON e.city_id = cd.id ");
-            filters.add("cd.name = :destination");
+            filters.add("ec.name = :destination");
             paramMap.put("destination", destination);
         }
 
@@ -395,7 +351,7 @@ public class EventHibernateDao implements EventDao {
             (
                 LOWER(e.title) LIKE :search
                 OR LOWER(us.username) LIKE :search
-                OR LOWER(ci.name) LIKE :search
+                OR LOWER(ec.name) LIKE :search
             )
         """);
             paramMap.put("search", search);

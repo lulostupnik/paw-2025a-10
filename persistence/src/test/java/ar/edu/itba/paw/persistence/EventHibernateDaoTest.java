@@ -387,77 +387,6 @@ public class EventHibernateDaoTest {
     }
 
     @Test
-    public void testSearchPageOne(){
-        Page<Event> page1 = eventDao.search("event", PAGE_1_DEFAULT);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(2, page1.getContent().size());
-        page1.getContent().forEach((e) -> 
-            assertEqualsEvent(EVENT_DATA.get(e.getId()), e)
-        );
-
-    }
-    @Test
-    public void testSearchPageTwo(){
-        Page<Event> page2 = eventDao.search("event", PAGE_2_DEFAULT);
-
-        assertNotNull(page2);
-        assertEquals(2, page2.getCurrentPage());
-        assertEquals(2, page2.getTotalPages());
-        assertNotNull(page2.getContent());
-        assertEquals(2, page2.getContent().size());
-
-        page2.getContent().forEach((e) -> 
-            assertEqualsEvent(EVENT_DATA.get(e.getId()), e)
-        );
-    }
-    @Test
-    public void testSearchEmptyQueryPageOne(){
-        Page<Event> page1 = eventDao.search("", PAGE_1_DEFAULT);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(2, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(2, page1.getContent().size());
-    }
-    @Test
-    public void testSearchEmptyQueryPageTwo(){
-        Page<Event> page2 = eventDao.search("", PAGE_2_DEFAULT);
-
-        assertNotNull(page2);
-        assertEquals(2, page2.getCurrentPage());
-        assertEquals(2, page2.getTotalPages());
-        assertNotNull(page2.getContent());
-        assertEquals(2, page2.getContent().size());
-    }
-    @Test
-    public void testSearchEventsPagedWrongSearch(){
-        Page<Event> page1 = eventDao.search("NOTANEVENT", PAGE_1_DEFAULT);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(0, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(0, page1.getContent().size());
-    }
-    @Test
-    public void testSearchEventsPagedNoEvents(){
-        deleteEvents(jdbcTemplate);
-
-        Page<Event> page1 = eventDao.search("", PAGE_1_DEFAULT);
-
-        assertNotNull(page1);
-        assertEquals(1, page1.getCurrentPage());
-        assertEquals(0, page1.getTotalPages());
-        assertNotNull(page1.getContent());
-        assertEquals(0, page1.getContent().size());
-    }
-
-    @Test
     public void findTopAttendeeCountry(){
         Optional<CountryAttendeeCount> countryAttendee = eventDao.findTopAttendeeCountry(EVENT_1_ID);
 
@@ -782,6 +711,53 @@ public class EventHibernateDaoTest {
 
         assertNotNull(page);
         assertTrue(page.getContent().isEmpty());
+    }
+
+    private Page<Event> searchEvents(final String term) {
+        return eventDao.findAllWithFilters(
+            null, term, null, null, null,
+            null, null, null, null, null,
+            null, null, null, null,
+            PAGE_1_BIG
+        );
+    }
+
+    private boolean contiene(final Page<Event> page, final Event event) {
+        return page.getContent().stream().anyMatch(e -> e.getId().equals(event.getId()));
+    }
+
+    @Test
+    public void testFindAllWithFiltersSearchMatchesTheCityOfTheEvent(){
+        // el fixture tiene a todos los organizadores estudiando en la misma ciudad donde ocurren
+        // sus eventos, asi que no distingue una ciudad de la otra: user4 estudia en city2 y este
+        // evento ocurre en city1.
+        final User organizadorDeCity2 = em.find(User.class, USER_4_ID);
+        final Event eventoEnCity1 = eventDao.create(
+            organizadorDeCity2, CITY_1, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID,
+            "titulo sin ciudad", EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, EVENT_ATTENDANCE_LIMIT_DEFAULT
+        );
+        em.flush();
+
+        assertTrue(contiene(searchEvents(CITY_1_NAME), eventoEnCity1));
+    }
+
+    @Test
+    public void testFindAllWithFiltersSearchIgnoresTheOrganizerUniversityCity(){
+        final User organizadorDeCity2 = em.find(User.class, USER_4_ID);
+        final Event eventoEnCity1 = eventDao.create(
+            organizadorDeCity2, CITY_1, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID,
+            "titulo sin ciudad", EVENT_TIME_DEFAULT, EVENT_ADDRESS_DEFAULT, EVENT_ATTENDANCE_LIMIT_DEFAULT
+        );
+        em.flush();
+
+        // buscar la ciudad de la universidad del organizador no debe traer su evento
+        assertFalse(contiene(searchEvents(CITY_2_NAME), eventoEnCity1));
+    }
+
+    @Test
+    public void testFindAllWithFiltersSearchMatchesTitleAndUsername(){
+        assertFalse(searchEvents(EVENT_TITLE_DEFAULT).getContent().isEmpty());
+        assertFalse(searchEvents(USER_1_NAME).getContent().isEmpty());
     }
 
     @Test

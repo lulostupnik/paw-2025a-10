@@ -22,7 +22,6 @@ public interface EventDao {
                                    LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
                                    String interest, Long attendedByUserId,
                                    String university, Integer minRating, Boolean hasCapacity, PageParams pageParams);
-    Page<Event> search(String search, PageParams pageParams);
     Optional<CountryAttendeeCount> findTopAttendeeCountry(long eventId);
 
     int countEventsCreatedByUser(long userId);
