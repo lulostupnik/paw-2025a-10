@@ -51,7 +51,7 @@ public class EventController {
 
     @GET
     @Produces(GoTogetherMediaType.APPLICATION_EVENT_LIST)
-    @PreAuthorize("#recommendedForUser == null or @accessHelper.isCurrentUser(#recommendedForUser)")
+    @PreAuthorize("@accessHelper.canListRecommendedFor(#recommendedForUser)")
     public Response listEvents(
             @QueryParam("recommendedForUser") Long recommendedForUser,
             @QueryParam("destination") String destination,

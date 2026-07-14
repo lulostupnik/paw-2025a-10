@@ -52,7 +52,7 @@ public class JourneyController {
 
     @GET
     @Produces(GoTogetherMediaType.APPLICATION_JOURNEY_LIST)
-    @PreAuthorize("#recommendedForUser == null or @accessHelper.isCurrentUser(#recommendedForUser)")
+    @PreAuthorize("@accessHelper.canListRecommendedFor(#recommendedForUser)")
     public Response listJourneys(
             @QueryParam("recommendedForUser") Long recommendedForUser,
             @QueryParam("city") String city,

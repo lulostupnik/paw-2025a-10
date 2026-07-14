@@ -55,6 +55,10 @@ public class AccessHelper {
         return true;
     }
 
+    public boolean canListRecommendedFor(final Long userId) {
+        return userId == null || isCurrentUser(userId);
+    }
+
     public boolean canListUsers(final String search, final Boolean blocked) {
         if (isAdmin()) {
             return true;
