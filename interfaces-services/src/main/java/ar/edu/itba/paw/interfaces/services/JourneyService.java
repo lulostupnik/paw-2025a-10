@@ -9,9 +9,8 @@ import java.util.Optional;
 public interface JourneyService {
     Journey createJourney(long userId, long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description);
 
-    Journey updateJourney(long journeyId, long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description);
     void deleteJourney(long id, String message);
-    void patchJourney(long id, Boolean deleted, String deletionMessage);
+    Journey patchJourney(long id, Long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description, Boolean deleted, String deletionMessage);
 
     JourneyResponse createJourneyResponse(long userId, long journeyId, String message);
     void deleteJourneyResponse(long id, String message);
@@ -23,10 +22,7 @@ public interface JourneyService {
     Page<Journey> findJourneys(String search, Long recommendedForUser, Long excludeUserId, Long destinationCityId, SortFieldJourney sortBy, SortDirection direction, String city, String university, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isOngoing, PageParams pageParams);
     Optional<Journey> findJourneyById(long id);
 
-    boolean existsByUserEmail(String email);
-
     boolean isJourneyOwnedByUser(String email, long journeyID);
-    boolean isJourneyOwnedByUser(Journey journey, User user);
 
     Optional<JourneyResponse> findJourneyResponseById(long id);
 
@@ -36,7 +32,6 @@ public interface JourneyService {
 
     Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams);
     Tip createTip(long journeyId, String title, String content);
-    Tip updateTip(long journeyId, long tipId, String title, String content);
     Tip patchTip(long journeyId, long tipId, String title, String content);
     void deleteTip(long journeyId, long tipId);
     Optional<Tip> findTipById(long tipId);

@@ -9,7 +9,6 @@ import ar.edu.itba.paw.webapp.GoTogetherMediaType;
 import ar.edu.itba.paw.webapp.dto.CareerDto;
 import ar.edu.itba.paw.webapp.form.CreateCareerForm;
 import ar.edu.itba.paw.webapp.form.PatchCareerForm;
-import ar.edu.itba.paw.webapp.form.UpdateCareerForm;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
@@ -65,18 +64,6 @@ public class CareerController {
         return Response.created(UriUtils.getCareerUri(uriInfo, career.getId()))
                 .entity(CareerDto.fromCareer(uriInfo, career))
                 .build();
-    }
-
-    @PUT
-    @Path("/{id}")
-    @Consumes(GoTogetherMediaType.APPLICATION_CAREER)
-    @Produces(GoTogetherMediaType.APPLICATION_CAREER)
-    public Response updateCareer(
-            @PathParam("id") final long id,
-            @Valid @NotNull final UpdateCareerForm form
-    ) {
-        final Career career = careerService.updateCareer(id, form.getName());
-        return Response.ok(CareerDto.fromCareer(uriInfo, career)).build();
     }
 
     @PATCH

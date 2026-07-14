@@ -22,6 +22,7 @@ vi.mock("@/lib/i18n", () => ({
         setLocale: vi.fn(),
         availableLocales: ["en", "es"] as const,
     }),
+    localeLabels: { en: "English", es: "Español" },
 }));
 
 function renderTopBar() {

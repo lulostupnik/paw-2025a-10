@@ -1,9 +1,7 @@
-import { useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import StatusCard from "@/components/ui/StatusCard";
 import { useI18n } from "@/lib/i18n";
-import { SUPPORT_EMAIL } from "@/lib/utils/support";
 
 type ConfirmationStatus = "success" | "expired" | "invalid" | "blocked" | "error";
 
@@ -25,19 +23,11 @@ const mapStatusParam = (value: string | null): ConfirmationStatus => {
     }
 };
 
-const referenceForStatus = (status: ConfirmationStatus) => {
-    if (status === "success") {
-        return undefined;
-    }
-    return Math.random().toString(36).slice(2, 10).toUpperCase();
-};
-
 export default function PasswordResetConfirmationPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
     const [params] = useSearchParams();
     const status = mapStatusParam(params.get("status"));
-    const reference = useMemo(() => referenceForStatus(status), [status]);
 
     const renderStatusCard = () => {
         switch (status) {
@@ -68,22 +58,12 @@ export default function PasswordResetConfirmationPage() {
                         title={t("expiredtoken.title")}
                         description={t("expiredtoken.explanation")}
                         actions={
-                            <>
-                                <Button onClick={() => navigate("/forgot-password")}>
-                                    {t("forgotpassword.submit")}
-                                </Button>
-                                <a className="btn btn--ghost" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("expiredtoken.contact.us")}
-                                </a>
-                            </>
+                            <Button onClick={() => navigate("/forgot-password")}>
+                                {t("forgotpassword.submit")}
+                            </Button>
                         }
                     >
                         <p>{t("expiredtoken.instructions")}</p>
-                        {reference && (
-                            <p className="status-card__reference">
-                                {t("expiredtoken.reference")} <code>{reference}</code>
-                            </p>
-                        )}
                     </StatusCard>
                 );
             case "invalid":
@@ -93,22 +73,12 @@ export default function PasswordResetConfirmationPage() {
                         title={t("invalidtoken.title")}
                         description={t("invalidtoken.explanation")}
                         actions={
-                            <>
-                                <Button onClick={() => navigate("/forgot-password")}>
-                                    {t("forgotpassword.submit")}
-                                </Button>
-                                <a className="btn btn--ghost" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("invalidtoken.contact.us")}
-                                </a>
-                            </>
+                            <Button onClick={() => navigate("/forgot-password")}>
+                                {t("forgotpassword.submit")}
+                            </Button>
                         }
                     >
                         <p>{t("password.confirmation.error.description")}</p>
-                        {reference && (
-                            <p className="status-card__reference">
-                                {t("invalidtoken.reference")} <code>{reference}</code>
-                            </p>
-                        )}
                     </StatusCard>
                 );
             case "blocked":
@@ -118,22 +88,12 @@ export default function PasswordResetConfirmationPage() {
                         title={t("blocked.title")}
                         description={t("blocked.explanation")}
                         actions={
-                            <>
-                                <a className="btn btn--primary" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("blocked.contact.us")}
-                                </a>
-                                <Button variant="ghost" onClick={() => navigate("/")}>
-                                    {t("blocked.back.to.home")}
-                                </Button>
-                            </>
+                            <Button variant="ghost" onClick={() => navigate("/")}>
+                                {t("blocked.back.to.home")}
+                            </Button>
                         }
                     >
                         <p>{t("password.confirmation.error.description")}</p>
-                        {reference && (
-                            <p className="status-card__reference">
-                                {t("blocked.reference")} <code>{reference}</code>
-                            </p>
-                        )}
                     </StatusCard>
                 );
             case "error":
@@ -144,14 +104,9 @@ export default function PasswordResetConfirmationPage() {
                         title={t("password.confirmation.error.title")}
                         description={t("password.confirmation.help")}
                         actions={
-                            <>
-                                <a className="btn btn--primary" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("password.confirmation.actions.support")}
-                                </a>
-                                <Button variant="ghost" onClick={() => navigate("/login")}>
-                                    {t("password.confirmation.actions.login")}
-                                </Button>
-                            </>
+                            <Button variant="ghost" onClick={() => navigate("/login")}>
+                                {t("password.confirmation.actions.login")}
+                            </Button>
                         }
                     />
                 );
@@ -175,9 +130,6 @@ export default function PasswordResetConfirmationPage() {
                         <li>{t("password.confirmation.tips.2")}</li>
                         <li>{t("password.confirmation.tips.3")}</li>
                     </ul>
-                    <a className="btn btn--outline" href={`mailto:${SUPPORT_EMAIL}`}>
-                        {t("password.confirmation.actions.support")}
-                    </a>
                 </div>
             </div>
         </div>

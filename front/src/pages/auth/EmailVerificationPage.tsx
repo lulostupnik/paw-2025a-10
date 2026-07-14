@@ -1,20 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isAxiosError } from "axios";
 import Button from "@/components/ui/Button";
 import StatusCard from "@/components/ui/StatusCard";
 import { verifyEmailToken } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
-import { SUPPORT_EMAIL } from "@/lib/utils/support";
 
 type VerificationStatus = "loading" | "success" | "expired" | "invalid" | "blocked" | "already" | "error";
 
 interface VerificationState {
     status: VerificationStatus;
-    reference?: string;
 }
-
-const generateReference = () => Math.random().toString(36).slice(2, 10).toUpperCase();
 
 const mapVerificationError = (error: unknown): VerificationStatus => {
     if (!isAxiosError(error)) {
@@ -26,7 +22,7 @@ const mapVerificationError = (error: unknown): VerificationStatus => {
     if (status === 410 || message.includes("expir")) {
         return "expired";
     }
-    if (status === 423 || message.includes("block")) {
+    if (status === 403) {
         return "blocked";
     }
     if (status === 409 && message.includes("validat")) {
@@ -46,12 +42,12 @@ export default function EmailVerificationPage() {
     const userId = searchParams.get("userId");
     const email = searchParams.get("email") ?? searchParams.get("amp;email") ?? "";
     const [state, setState] = useState<VerificationState>(() =>
-        token && userId ? { status: "loading" } : { status: "invalid", reference: generateReference() }
+        token && userId ? { status: "loading" } : { status: "invalid" }
     );
 
     useEffect(() => {
         if (!token || !userId) {
-            setState({ status: "invalid", reference: generateReference() });
+            setState({ status: "invalid" });
             return;
         }
 
@@ -66,7 +62,7 @@ export default function EmailVerificationPage() {
             })
             .catch((error) => {
                 if (!cancelled) {
-                    setState({ status: mapVerificationError(error), reference: generateReference() });
+                    setState({ status: mapVerificationError(error) });
                 }
             });
 
@@ -74,22 +70,6 @@ export default function EmailVerificationPage() {
             cancelled = true;
         };
     }, [token, userId, email]);
-
-    const referenceMessage = useMemo(() => {
-        if (!state.reference) {
-            return;
-        }
-        switch (state.status) {
-            case "expired":
-                return t("expiredtoken.reference");
-            case "invalid":
-                return t("invalidtoken.reference");
-            case "blocked":
-                return t("blocked.reference");
-            default:
-                return t("verification.error.reference", { defaultValue: "Reference" });
-        }
-    }, [state.reference, state.status, t]);
 
     const renderStatusCard = () => {
         switch (state.status) {
@@ -132,22 +112,12 @@ export default function EmailVerificationPage() {
                         title={t("expiredtoken.title")}
                         description={t("expiredtoken.explanation")}
                         actions={
-                            <>
-                                <Button onClick={() => navigate("/forgot-password")}>
-                                    {t("forgotpassword.submit")}
-                                </Button>
-                                <a className="btn btn--ghost" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("expiredtoken.contact.us")}
-                                </a>
-                            </>
+                            <Button onClick={() => navigate("/forgot-password")}>
+                                {t("forgotpassword.submit")}
+                            </Button>
                         }
                     >
                         <p>{t("expiredtoken.instructions")}</p>
-                        {referenceMessage && state.reference && (
-                            <p className="status-card__reference">
-                                {referenceMessage} <code>{state.reference}</code>
-                            </p>
-                        )}
                     </StatusCard>
                 );
             case "invalid":
@@ -157,22 +127,12 @@ export default function EmailVerificationPage() {
                         title={t("invalidtoken.title")}
                         description={t("invalidtoken.explanation")}
                         actions={
-                            <>
-                                <Button onClick={() => navigate("/register")}>
-                                    {t("nav.register")}
-                                </Button>
-                                <a className="btn btn--ghost" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("invalidtoken.contact.us")}
-                                </a>
-                            </>
+                            <Button onClick={() => navigate("/login")}>
+                                {t("verification.actions.login")}
+                            </Button>
                         }
                     >
                         <p>{t("invalidtoken.instructions")}</p>
-                        {referenceMessage && state.reference && (
-                            <p className="status-card__reference">
-                                {referenceMessage} <code>{state.reference}</code>
-                            </p>
-                        )}
                     </StatusCard>
                 );
             case "blocked":
@@ -182,22 +142,12 @@ export default function EmailVerificationPage() {
                         title={t("blocked.title")}
                         description={t("blocked.explanation")}
                         actions={
-                            <>
-                                <a className="btn btn--primary" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("blocked.contact.us")}
-                                </a>
-                                <Button variant="ghost" onClick={() => navigate("/")}>
-                                    {t("blocked.back.to.home")}
-                                </Button>
-                            </>
+                            <Button variant="ghost" onClick={() => navigate("/")}>
+                                {t("blocked.back.to.home")}
+                            </Button>
                         }
                     >
                         <p>{t("blocked.instructions")}</p>
-                        {referenceMessage && state.reference && (
-                            <p className="status-card__reference">
-                                {referenceMessage} <code>{state.reference}</code>
-                            </p>
-                        )}
                     </StatusCard>
                 );
             case "already":
@@ -228,14 +178,9 @@ export default function EmailVerificationPage() {
                         title={t("verification.error.title")}
                         description={t("verification.error.description")}
                         actions={
-                            <>
-                                <a className="btn btn--primary" href={`mailto:${SUPPORT_EMAIL}`}>
-                                    {t("verification.actions.support")}
-                                </a>
-                                <Button variant="ghost" onClick={() => navigate("/login")}>
-                                    {t("verification.actions.login")}
-                                </Button>
-                            </>
+                            <Button variant="ghost" onClick={() => navigate("/login")}>
+                                {t("verification.actions.login")}
+                            </Button>
                         }
                     />
                 );
@@ -260,12 +205,6 @@ export default function EmailVerificationPage() {
                         <li>{t("validated.feature2.description")}</li>
                         <li>{t("validated.feature3.description")}</li>
                     </ul>
-                    <div className="verification-help__cta">
-                        <p>{t("verification.actions.support")}</p>
-                        <a className="btn btn--outline" href={`mailto:${SUPPORT_EMAIL}`}>
-                            {t("verification.actions.support")}
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>

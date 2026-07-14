@@ -15,8 +15,8 @@ public final class AuthUtils {
             return null;
         }
         final Object principal = auth.getPrincipal();
-        if (principal instanceof PawUserDetails) {
-            return ((PawUserDetails) principal).getUserId();
+        if (principal instanceof GoTogetherUserDetails) {
+            return ((GoTogetherUserDetails) principal).getUserId();
         }
         return null;
     }

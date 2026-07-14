@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -22,6 +23,7 @@ import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -527,6 +529,66 @@ public class EventServiceImplTest {
 
         eventService.createEventAttendance(USER_ID, EVENT_ID);
     }
+    @Test()
+    public void testCreateEventAttendanceOneBelowLimit(){
+        Event event = mock(Event.class);
+        when(event.getIsFuture()).thenReturn(true);
+        when(event.getAttendeesLimit()).thenReturn(5);
+        when(event.getAttendeesCount()).thenReturn(4);
+        when(
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
+        ).thenReturn(Optional.of(event));
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            attendanceDao.exists(eq(USER), eq(event))
+        ).thenReturn(false);
+        when(
+            attendanceDao.create(eq(USER), eq(event))
+        ).thenReturn(new EventAttendance(USER, EVENT));
+
+        EventAttendance eventAttendance = eventService.createEventAttendance(USER_ID, EVENT_ID);
+
+        assertNotNull(eventAttendance);
+        verify(attendanceDao).create(eq(USER), eq(event));
+    }
+    @Test(expected = EventIsFullException.class)
+    public void testCreateEventAttendanceAtLimit(){
+        Event event = mock(Event.class);
+        when(event.getIsFuture()).thenReturn(true);
+        when(event.getAttendeesLimit()).thenReturn(5);
+        when(event.getAttendeesCount()).thenReturn(5);
+        when(
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
+        ).thenReturn(Optional.of(event));
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            attendanceDao.exists(eq(USER), eq(event))
+        ).thenReturn(false);
+
+        eventService.createEventAttendance(USER_ID, EVENT_ID);
+    }
+    @Test(expected = EventIsFullException.class)
+    public void testCreateEventAttendanceAboveLimit(){
+        Event event = mock(Event.class);
+        when(event.getIsFuture()).thenReturn(true);
+        when(event.getAttendeesLimit()).thenReturn(5);
+        when(event.getAttendeesCount()).thenReturn(6);
+        when(
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
+        ).thenReturn(Optional.of(event));
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            attendanceDao.exists(eq(USER), eq(event))
+        ).thenReturn(false);
+
+        eventService.createEventAttendance(USER_ID, EVENT_ID);
+    }
     @Test(expected = UserAlreadyAttendingException.class)
     public void testCreateEventAttendanceAlreadyGoing(){
         when(
@@ -788,6 +850,17 @@ public class EventServiceImplTest {
         ).thenReturn(Optional.empty());
 
         eventService.deleteRating(EVENT_ID, RATING_ID);
+    }
+    @Test
+    public void testDeleteRating(){
+        Rating rating = new Rating(USER, EVENT, 2);
+        when(
+            ratingDao.findById(eq(RATING_ID))
+        ).thenReturn(Optional.of(rating));
+
+        eventService.deleteRating(EVENT_ID, RATING_ID);
+
+        verify(ratingDao).delete(RATING_ID);
     }
 
     @Test
@@ -1358,7 +1431,7 @@ public class EventServiceImplTest {
             cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.of(new City("CITY_NAME", COUNTRY)));
 
-        Event event = eventService.updateEvent(
+        Event event = eventService.patchEvent(
             EVENT_ID,
             CITY_ID,
             EVENT_DATE.plusDays(1),
@@ -1366,6 +1439,8 @@ public class EventServiceImplTest {
             "TITLE",
             TIME.plusSeconds(10),
             "ADDRESS",
+            null,
+            null,
             null
         );
 
@@ -1388,7 +1463,7 @@ public class EventServiceImplTest {
             cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.of(CITY));
 
-        eventService.updateEvent(
+        eventService.patchEvent(
             EVENT_ID,
             CITY_ID,
             EVENT_DATE,
@@ -1396,7 +1471,9 @@ public class EventServiceImplTest {
             TITLE,
             TIME,
             ADDRESS,
-            1
+            1,
+            null,
+            null
         );
     }
     @Test(expected = InvalidReferenceException.class)
@@ -1408,7 +1485,7 @@ public class EventServiceImplTest {
             cityService.findCityById(eq(CITY_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.updateEvent(
+        eventService.patchEvent(
             EVENT_ID,
             CITY_ID,
             EVENT_DATE,
@@ -1416,7 +1493,9 @@ public class EventServiceImplTest {
             TITLE,
             TIME,
             ADDRESS,
-            LIMIT
+            LIMIT,
+            null,
+            null
         );
     }
     @Test(expected = EventNotFoundException.class)
@@ -1425,7 +1504,7 @@ public class EventServiceImplTest {
             eventDao.findByIdForUpdate(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        eventService.updateEvent(
+        eventService.patchEvent(
             EVENT_ID,
             CITY_ID,
             EVENT_DATE,
@@ -1433,7 +1512,9 @@ public class EventServiceImplTest {
             TITLE,
             TIME,
             ADDRESS,
-            LIMIT
+            LIMIT,
+            null,
+            null
         );
     }
 
@@ -1470,25 +1551,38 @@ public class EventServiceImplTest {
     public void testPatchEventDeletedTrue(){
         Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
         when(
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
+        ).thenReturn(Optional.of(newEvent));
+        when(
             eventDao.findById(eq(EVENT_ID))
         ).thenReturn(Optional.of(newEvent));
 
-        eventService.patchEvent(EVENT_ID, true, DESCRIPTION);
+        eventService.patchEvent(EVENT_ID, null, null, null, null, null, null, null, true, DESCRIPTION);
 
         assertTrue(newEvent.isDeleted());
         assertEquals(DESCRIPTION, newEvent.getDeletionMessage());
     }
     @Test
     public void testPatchEventDeletedFalseIsNoOp(){
-        eventService.patchEvent(EVENT_ID, false, DESCRIPTION);
+        Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
+        when(
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
+        ).thenReturn(Optional.of(newEvent));
 
-        verify(eventDao, never()).findById(EVENT_ID);
+        eventService.patchEvent(EVENT_ID, null, null, null, null, null, null, null, false, DESCRIPTION);
+
+        assertFalse(newEvent.isDeleted());
     }
     @Test
     public void testPatchEventDeletedNullIsNoOp(){
-        eventService.patchEvent(EVENT_ID, null, null);
+        Event newEvent = new Event(USER, EVENT_DATE, DESCRIPTION, IMAGE_ID, CITY, TITLE, TIME, ADDRESS, null);
+        when(
+            eventDao.findByIdForUpdate(eq(EVENT_ID))
+        ).thenReturn(Optional.of(newEvent));
 
-        verify(eventDao, never()).findById(EVENT_ID);
+        eventService.patchEvent(EVENT_ID, null, null, null, null, null, null, null, null, null);
+
+        assertFalse(newEvent.isDeleted());
     }
     @Test
     public void testDeleteEventEmptyMessage(){
@@ -1754,6 +1848,19 @@ public class EventServiceImplTest {
         verify(attendanceDao, never()).findAttendeesByEventId(eq(EVENT_ID), any(PageParams.class));
         verify(emailService, never()).sendEventReminderNotification(any(), any());
     }
+    @Test
+    public void testSendEventRemindersQueriesTodayAndTomorrow(){
+        ArgumentCaptor<LocalDate> fromCaptor = ArgumentCaptor.forClass(LocalDate.class);
+        ArgumentCaptor<LocalDate> toCaptor = ArgumentCaptor.forClass(LocalDate.class);
+        when(
+            eventDao.findAllBetweenDates(fromCaptor.capture(), toCaptor.capture(), any(PageParams.class))
+        ).thenReturn(new Page<>(List.of(), 1, 1, 0));
+
+        eventService.sendEventReminders();
+
+        assertEquals(LocalDate.now(), fromCaptor.getValue());
+        assertEquals(LocalDate.now().plusDays(1), toCaptor.getValue());
+    }
 
     @Test
     public void testGetEventFlyer(){
@@ -1800,6 +1907,7 @@ public class EventServiceImplTest {
         eventService.updateEventFlyer(EVENT_ID, IMAGE_DATA);
 
         assertEquals(IMAGE_2_ID, oldEvent.getFlyerImageId().longValue());
+        verify(imageService).deleteImage(IMAGE_ID);
     }
     @Test
     public void testUpdateEventFlyerNoImage(){
@@ -1814,6 +1922,7 @@ public class EventServiceImplTest {
         eventService.updateEventFlyer(EVENT_ID, IMAGE_DATA);
 
         assertEquals(IMAGE_2_ID, oldEvent.getFlyerImageId().longValue());
+        verify(imageService, never()).deleteImage(anyLong());
     }
     @Test(expected=EventNotFoundException.class)
     public void testUpdateEventFlyerNoEvent(){

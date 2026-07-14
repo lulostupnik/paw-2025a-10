@@ -5,7 +5,10 @@ import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.auth.JwtUtils;
+import ar.edu.itba.paw.webapp.dto.ErrorDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +29,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -53,6 +58,14 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private MessageSource messageSource;
+
+    private static final String BLOCKED_MESSAGE_KEY = "error.userBlocked";
+    private static final String NOT_VERIFIED_MESSAGE_KEY = "exception.UserNotVerifiedException";
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -78,7 +91,7 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
 
                 if (maybeToken.isPresent() && tokenService.isTokenValid(maybeToken.get(), user.getId())) {
                     if (user.isBlocked()) {
-                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        writeError(request, response, Response.Status.FORBIDDEN, BLOCKED_MESSAGE_KEY);
                         return;
                     }
                     userService.verifyUser(user.getId());
@@ -86,9 +99,13 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                     tokenService.delete(maybeToken.get());
                     issueTokens(request, response, user);
                 } else if (maybeToken.isEmpty()) {
-                    if (!user.isValidated() && passwordEncoder.matches(credentials, user.getPassword())) {
+                    final boolean passwordMatches = passwordEncoder.matches(credentials, user.getPassword());
+                    if (!user.isValidated() && passwordMatches) {
                         userService.resendVerificationEmail(user.getEmail());
-                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        writeError(request, response, Response.Status.FORBIDDEN, NOT_VERIFIED_MESSAGE_KEY);
+                        return;
+                    } else if (user.isBlocked() && passwordMatches) {
+                        writeError(request, response, Response.Status.FORBIDDEN, BLOCKED_MESSAGE_KEY);
                         return;
                     } else {
                         // Password login. The AuthenticationManager rejects unverified (disabled) or blocked
@@ -109,6 +126,15 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void writeError(final HttpServletRequest request, final HttpServletResponse response,
+                            final Response.Status status, final String messageKey) throws IOException {
+        final String message = messageSource.getMessage(messageKey, null, messageKey, request.getLocale());
+        response.setStatus(status.getStatusCode());
+        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        objectMapper.writeValue(response.getWriter(), ErrorDto.fromException(status, message));
     }
 
     private void issueTokens(final HttpServletRequest request, final HttpServletResponse response, final User user) {

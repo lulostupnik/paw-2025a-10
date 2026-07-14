@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { isAxiosError } from "axios";
 import Button from "@/components/ui/Button";
 import { login } from "@/lib/api/auth";
 import { apiErrorMessage } from "@/lib/api/client";
@@ -65,15 +64,8 @@ export default function LoginPage() {
             await login({ email: form.email.trim(), password: form.password, remember: form.remember });
             nav(next, { replace: true });
         } catch (error) {
-            if (isAxiosError(error) && error.response?.status === 423) {
-                const normalizedEmail = form.email.trim();
-                nav("/blocked", { replace: true, state: { blockedEmail: normalizedEmail } });
-                return;
-            }
-            if (isAxiosError(error) && error.response?.status === 403) {
-                nav("/not-verified", { replace: true, state: { email: form.email.trim() } });
-                return;
-            }
+            // Blocked and not-verified accounts both come back as 403 with a localized message in the
+            // body; wrong credentials come back as 401 without one, so we fall back to a generic message.
             setAuthError(apiErrorMessage(error, t("login.error.description")));
         } finally {
             setSubmitting(false);
@@ -89,7 +81,6 @@ export default function LoginPage() {
             </header>
 
             <form className="auth-card card" onSubmit={handleSubmit} noValidate>
-                {authError && <p className="form-field__text form-field__text--error">{authError}</p>}
                 <div className="form-field">
                     <label className="input-label" htmlFor="login-email">
                         {t("login.email")}
@@ -140,6 +131,8 @@ export default function LoginPage() {
                         <p className="form-field__text form-field__text--error">{errors.password}</p>
                     )}
                 </div>
+
+                {authError && <p className="form-field__text form-field__text--error">{authError}</p>}
 
                 <div className="login-actions">
                     <label className="checkbox-field">

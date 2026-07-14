@@ -20,7 +20,7 @@ import ar.edu.itba.paw.webapp.form.AddUserInterestForm;
 import ar.edu.itba.paw.webapp.form.CreateUserForm;
 import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
 import ar.edu.itba.paw.webapp.form.PatchUserForm;
-import org.glassfish.jersey.media.multipart.FormDataParam;
+import ar.edu.itba.paw.webapp.form.UpdateProfilePictureForm;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.ImageUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
@@ -28,7 +28,6 @@ import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
 
@@ -38,7 +37,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import java.io.InputStream;
 import java.util.List;
 
 @Path("users")
@@ -62,8 +60,8 @@ public class UserController {
             @QueryParam("university") Long universityId,
             @QueryParam("career") Long careerId,
             @QueryParam("interest") Long interestId,
-            @QueryParam("search") @P("search") String search,
-            @QueryParam("blocked") @P("blocked") Boolean blocked,
+            @QueryParam("search") String search,
+            @QueryParam("blocked") Boolean blocked,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("10") int size
     ) {
@@ -236,10 +234,9 @@ public class UserController {
     @Produces({"image/jpeg", "image/png", "image/webp"})
     public Response updateUserProfilePicture(
             @PathParam("userId") final long userId,
-            @FormDataParam("profilePicture") final InputStream profilePictureStream
+            @Valid @BeanParam final UpdateProfilePictureForm form
     ) {
-        final byte[] bytes = ImageUtils.readImage(profilePictureStream);
-        final Image image = us.updateProfilePicture(userId, bytes);
+        final Image image = us.updateProfilePicture(userId, form.getProfilePicture());
         return Response.ok(image.getData())
                 .contentLocation(UriUtils.getUserProfilePictureUri(uriInfo, userId))
                 .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))

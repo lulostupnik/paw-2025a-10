@@ -55,7 +55,7 @@ export const updateUniversity = async (
     payload: UniversityPayload,
     signal?: AbortSignal
 ): Promise<UniversityDto> => {
-    const response = await apiClient.put<UniversityDto>(`/universities/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.UNIVERSITY, Accept: ContentTypes.UNIVERSITY } });
+    const response = await apiClient.patch<UniversityDto>(`/universities/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.UNIVERSITY, Accept: ContentTypes.UNIVERSITY } });
     return response.data;
 };
 

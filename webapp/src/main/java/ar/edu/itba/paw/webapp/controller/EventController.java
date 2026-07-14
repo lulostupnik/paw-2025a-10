@@ -26,18 +26,14 @@ import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
-import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
-
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -57,7 +53,7 @@ public class EventController {
     @Produces(GoTogetherMediaType.APPLICATION_EVENT_LIST)
     @PreAuthorize("#recommendedForUser == null or @accessHelper.isCurrentUser(#recommendedForUser)")
     public Response listEvents(
-            @QueryParam("recommendedForUser") @P("recommendedForUser") Long recommendedForUser,
+            @QueryParam("recommendedForUser") Long recommendedForUser,
             @QueryParam("destination") String destination,
             @QueryParam("interest") String interest,
             @QueryParam("afterDate") String afterDateStr,
@@ -135,12 +131,13 @@ public class EventController {
                 .build();
     }
 
-    @PUT
+    @PATCH
     @Path("/{id}")
     @Consumes(GoTogetherMediaType.APPLICATION_EVENT)
     @Produces(GoTogetherMediaType.APPLICATION_EVENT)
-    public Response updateEvent(@PathParam("id") final long id, @Valid @NotNull final EditEventForm form) {
-        final Event event = eventService.updateEvent(
+    @PreAuthorize("@accessHelper.canPatchEvent(#id, #form)")
+    public Response patchEvent(@PathParam("id") final long id, @Valid @NotNull final PatchEventForm form) {
+        final Event event = eventService.patchEvent(
                 id,
                 form.getCityId(),
                 form.getDate(),
@@ -148,19 +145,12 @@ public class EventController {
                 form.getTitle(),
                 form.getTime(),
                 form.getAddress(),
-                form.getAttendeesLimit()
+                form.getAttendeesLimit(),
+                form.getDeleted(),
+                form.getDeletionMessage()
         );
 
         return Response.ok(EventDto.fromEvent(uriInfo, event)).build();
-    }
-
-    @PATCH
-    @Path("/{id}")
-    @Consumes(GoTogetherMediaType.APPLICATION_EVENT)
-    @PreAuthorize("@accessHelper.canPatchEvent(#id, #form)")
-    public Response patchEvent(@PathParam("id") final long id, @Valid @NotNull final PatchDeletionForm form) {
-        eventService.patchEvent(id, form.getDeleted(), form.getDeletionMessage());
-        return Response.noContent().build();
     }
 
 
@@ -193,10 +183,9 @@ public class EventController {
     @Produces({"image/jpeg", "image/png", "image/webp"})
     public Response updateEventFlyer(
             @PathParam("id") final long id,
-            @FormDataParam("flyer") final InputStream flyerStream
+            @Valid @BeanParam final UpdateFlyerForm form
     ) {
-        final byte[] bytes = ImageUtils.readImage(flyerStream);
-        final Image image = eventService.updateEventFlyer(id, bytes);
+        final Image image = eventService.updateEventFlyer(id, form.getFlyer());
         return Response.ok(image.getData())
                 .contentLocation(UriUtils.getEventFlyerUri(uriInfo, id))
                 .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))

@@ -48,7 +48,7 @@ export const createCity = async (payload: CityPayload, signal?: AbortSignal): Pr
 };
 
 export const updateCity = async (id: number | string, payload: CityPayload, signal?: AbortSignal): Promise<CityDto> => {
-    const response = await apiClient.put<CityDto>(`/cities/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.CITY, Accept: ContentTypes.CITY } });
+    const response = await apiClient.patch<CityDto>(`/cities/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.CITY, Accept: ContentTypes.CITY } });
     return response.data;
 };
 

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
+import { useI18n } from "@/lib/i18n";
 import { INTERNAL_PATH_FALLBACK, sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 interface LoginRequiredModalProps {
@@ -10,6 +11,7 @@ interface LoginRequiredModalProps {
 
 export default function LoginRequiredModal({ open, onClose, nextPath }: LoginRequiredModalProps) {
     const nav = useNavigate();
+    const { t } = useI18n();
     if (!open) return null;
 
     const safeNextPath = sanitizeInternalPath(nextPath, INTERNAL_PATH_FALLBACK) ?? INTERNAL_PATH_FALLBACK;
@@ -25,14 +27,14 @@ export default function LoginRequiredModal({ open, onClose, nextPath }: LoginReq
                         <path d="M12 16h.01" />
                     </svg>
                 </div>
-                <h3>Necesitas una cuenta</h3>
-                <p>Para realizar esta acción debes iniciar sesión o registrarte.</p>
+                <h3>{t("auth.required.title")}</h3>
+                <p>{t("auth.required.message")}</p>
                 <div className="modal-actions">
                     <Button variant="danger" onClick={onClose}>
-                        Cancelar
+                        {t("common.cancel")}
                     </Button>
                     <Button variant="primary" onClick={() => nav(`/login${next}`)}>
-                        Iniciar sesión
+                        {t("auth.login")}
                     </Button>
                 </div>
             </div>

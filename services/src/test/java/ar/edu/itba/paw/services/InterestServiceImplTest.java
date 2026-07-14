@@ -129,26 +129,6 @@ public class InterestServiceImplTest {
     }
 
     @Test
-    public void testUpdateInterest(){
-        Interest newInterest = new Interest("INTEREST_NAME");
-        when(
-            interestDao.findById(eq(INTEREST_ID))
-        ).thenReturn(Optional.of(newInterest));
-
-        interestService.updateInterest(INTEREST_ID, INTEREST_NAME);
-
-        assertEquals(INTEREST_NAME, newInterest.getName());
-    }
-    @Test(expected = InterestsNotFoundException.class)
-    public void testUpdateInterestNotFound(){
-        when(
-            interestDao.findById(eq(INTEREST_ID))
-        ).thenReturn(Optional.empty());
-
-        interestService.updateInterest(INTEREST_ID, INTEREST_NAME);
-    }
-    
-    @Test
     public void testPatchInterest(){
         Interest newInterest = new Interest("INTEREST_NAME");
         when(

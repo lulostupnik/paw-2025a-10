@@ -132,40 +132,6 @@ public class CityServiceImplTest {
     }
 
     @Test
-    public void testUpdateCity(){
-        when(
-            countryService.findCountryById(eq(COUNTRY_2_ID))
-        ).thenReturn(Optional.of(COUNTRY_2));
-        when(
-            cityDao.findById(eq(CITY_1_ID))
-        ).thenReturn(Optional.of(city));
-
-        City updated = cityService.updateCity(CITY_1_ID, CITY_2_NAME, COUNTRY_2_ID);
-
-        assertEquals(CITY_2_NAME, updated.getName());
-        assertEquals(COUNTRY_2_NAME, updated.getCountry().getName());
-    }
-    @Test(expected = CityNotFoundException.class)
-    public void testUpdateCityNotFound(){
-        when(
-            countryService.findCountryById(eq(COUNTRY_1_ID))
-        ).thenReturn(Optional.of(COUNTRY_1));
-        when(
-            cityDao.findById(eq(CITY_1_ID))
-        ).thenReturn(Optional.empty());
-
-        cityService.updateCity(CITY_1_ID, CITY_1_NAME, COUNTRY_1_ID);
-    }
-    @Test(expected = InvalidReferenceException.class)
-    public void testUpdateCityMissingCountry(){
-        when(
-            countryService.findCountryById(eq(COUNTRY_1_ID))
-        ).thenReturn(Optional.empty());
-
-        cityService.updateCity(CITY_1_ID, CITY_1_NAME, COUNTRY_1_ID);
-    }
-
-    @Test
     public void testPatchCity(){
         when(
             cityDao.findById(CITY_1_ID)

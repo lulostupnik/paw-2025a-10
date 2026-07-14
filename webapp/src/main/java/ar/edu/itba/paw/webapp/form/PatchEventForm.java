@@ -1,43 +1,48 @@
 package ar.edu.itba.paw.webapp.form;
 
-import ar.edu.itba.paw.webapp.validation.*;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.NumberFormat;
-import javax.validation.constraints.*;
+import ar.edu.itba.paw.webapp.validation.ExistingCity;
+import ar.edu.itba.paw.webapp.validation.FutureDate;
+
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class EditEventForm {
+public class PatchEventForm {
 
-    @NotNull
     @ExistingCity
     private Long cityId;
 
     @Size(max = 50)
-    @NotNull
-    @NotEmpty
     private String title;
 
-
-    @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @FutureDate
     private LocalDate date;
 
     @Size(min = 2, max = 2047)
-    @NotNull
     private String description;
 
-    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime time;
 
-    @Size(max=255)
+    @Size(max = 255)
     private String address;
 
-    @NumberFormat
     @Max(1000)
     @Min(1)
     private Integer attendeesLimit;
+
+    @AssertTrue
+    private Boolean deleted;
+
+    @Size(max = 1000)
+    private String deletionMessage;
+
+    public boolean hasContentChanges() {
+        return cityId != null || title != null || date != null || description != null
+                || time != null || address != null || attendeesLimit != null;
+    }
 
     public Long getCityId() {
         return cityId;
@@ -45,6 +50,14 @@ public class EditEventForm {
 
     public void setCityId(Long cityId) {
         this.cityId = cityId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public LocalDate getDate() {
@@ -62,46 +75,44 @@ public class EditEventForm {
     public void setDescription(String description) {
         this.description = description;
     }
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
-        this.title = title;
-    }
+
     public LocalTime getTime() {
         return time;
     }
+
     public void setTime(LocalTime time) {
         this.time = time;
     }
+
     public String getAddress() {
         return address;
     }
+
     public void setAddress(String address) {
         this.address = address;
     }
+
     public Integer getAttendeesLimit() {
         return attendeesLimit;
     }
+
     public void setAttendeesLimit(Integer attendeesLimit) {
         this.attendeesLimit = attendeesLimit;
     }
-    @Override
-    public String toString(){
-        return "{cityId: \"" +
-                cityId +
-                "\", date: \"" +
-                date +
-                "\", time: \"" +
-                (time == null ? "All-day" : time) +
-                "\", description: \"" +
-                description +
-                "\", title: \"" +
-                title +
-                "\", address: \"" +
-                address +
-                "\", attendeesLimit: " +
-                (attendeesLimit != null ? attendeesLimit : "\"No limit\"") +
-                "}";
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public String getDeletionMessage() {
+        return deletionMessage;
+    }
+
+    public void setDeletionMessage(String deletionMessage) {
+        this.deletionMessage = deletionMessage;
     }
 }

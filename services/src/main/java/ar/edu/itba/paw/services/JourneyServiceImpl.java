@@ -269,16 +269,6 @@ public class JourneyServiceImpl implements JourneyService {
 
 
 
-    @Override
-    public boolean existsByUserEmail(final String email) {
-        LOGGER.debug("Checking if user has journey {}", email);
-        User user = userService.findUserByEmail(email).orElseThrow(() -> {
-            LOGGER.warn("User with email '{}' not found", email);
-            return new UserNotFoundException(email);
-        });
-        return user.hasActiveJourney();
-    }
-
     private Page<Journey> findRecommendedJourneys(final long userId, final PageParams pageParams) {
         LOGGER.debug("Getting recommended journeys for user {}", userId);
 
@@ -303,11 +293,31 @@ public class JourneyServiceImpl implements JourneyService {
     }
     @Override
     @Transactional
-    public void patchJourney(final long id, final Boolean deleted, final String deletionMessage) {
+    public Journey patchJourney(final long id, final Long destinationUniversityId, final LocalDate startDate,
+                                final LocalDate endDate, final String description,
+                                final Boolean deleted, final String deletionMessage) {
         LOGGER.debug("Patching journey {}", id);
+        Journey journey = journeyDao.findById(id).orElseThrow(() -> new JourneyNotFoundException(id));
+
+        if (destinationUniversityId != null) {
+            University university = universityService.findById(destinationUniversityId).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversityId));
+            journey.setDestinationUniversity(university);
+        }
+        if (startDate != null) {
+            journey.setStartDate(startDate);
+        }
+        if (endDate != null) {
+            journey.setEndDate(endDate);
+        }
+        if (description != null) {
+            journey.setDescription(description);
+        }
         if (Boolean.TRUE.equals(deleted)) {
             deleteJourney(id, deletionMessage);
         }
+
+        LOGGER.info("Journey patched: {}", id);
+        return journey;
     }
 
     @Override
@@ -338,34 +348,6 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Checking if journey {} is owned by user {}", journeyID, email);
         Optional<Journey> journey = journeyDao.findById(journeyID);
         return journey.isPresent() && journey.get().getUser().getEmail().equals(email);
-    }
-
-    @Override
-    public boolean isJourneyOwnedByUser(Journey journey, User user) {
-        if (journey == null || user == null) {
-            return false;
-        }
-
-        User journeyUser = journey.getUser();
-        if (journeyUser == null || journeyUser.getId() == null || user.getId() == null) {
-            return false;
-        }
-
-        return journeyUser.getId().equals(user.getId());
-    }
-
-    @Override
-    @Transactional
-    public Journey updateJourney(final long journeyId, final  long destinationUniversityId, final LocalDate startDate, final LocalDate endDate, final String description) {
-        LOGGER.debug("Editing journey {}", journeyId);
-        Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> new JourneyNotFoundException(journeyId));
-        University university = universityService.findById(destinationUniversityId).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversityId));
-        journey.setDestinationUniversity(university);
-        journey.setStartDate(startDate);
-        journey.setEndDate(endDate);
-        journey.setDescription(description);
-        LOGGER.info("Journey updated: {}", journeyId);
-        return journey;
     }
 
     @Override
@@ -464,16 +446,6 @@ public class JourneyServiceImpl implements JourneyService {
          return tipDao.create(journey, title, content);
     }
 
-
-    @Override
-    @Transactional
-    public Tip updateTip(long journeyId, long tipId, String title, String content) {
-        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
-        tip.setTitle(title);
-        tip.setContent(content);
-        LOGGER.info("Tip updated: {}", tipId);
-        return tip;
-    }
 
     @Override
     @Transactional

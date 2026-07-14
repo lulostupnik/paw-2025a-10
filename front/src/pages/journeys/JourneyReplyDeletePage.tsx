@@ -9,7 +9,6 @@ import { deleteJourneyResponse, getJourneyResponse, getJourneyResponses, getUser
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
 import { isAdmin } from "@/lib/auth/auth";
-import { DETAIL_QUERY_OPTIONS } from "@/lib/utils/queryDefaults";
 
 const COMMENTS_PAGE_SIZE = 4;
 
@@ -85,7 +84,6 @@ export default function JourneyReplyDeletePage() {
                 },
             };
         },
-        ...DETAIL_QUERY_OPTIONS,
         enabled: parsedJourneyId != null && parsedResponseId != null,
     });
 

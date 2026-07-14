@@ -130,42 +130,6 @@ public class UniversityServiceImplTest {
     }
 
     @Test
-    public void testUpdateUniversity(){
-        University uni = new University(ID_1, null, null, null);
-        when(
-            cityService.findCityById(eq(CITY_ID))
-        ).thenReturn(Optional.of(CITY));
-        when(
-            uniDao.findById(eq(ID_1))
-        ).thenReturn(Optional.of(uni));
-
-        uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_ID);
-
-        assertEquals(NAME, uni.getName());
-        assertEquals(ABBREVIATION, uni.getAbbreviation());
-        assertEquals(CITY_NAME, uni.getCity().getName());
-    }
-    @Test(expected = UniversityNotFoundException.class)
-    public void testUpdateUniversityNotFound(){
-        when(
-            cityService.findCityById(eq(CITY_ID))
-        ).thenReturn(Optional.of(CITY));
-        when(
-            uniDao.findById(eq(ID_1))
-        ).thenReturn(Optional.empty());
-
-        uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_ID);
-    }
-    @Test(expected = InvalidReferenceException.class)
-    public void testUpdateUniversityCityNotFound(){
-        when(
-            cityService.findCityById(eq(CITY_ID))
-        ).thenReturn(Optional.empty());
-
-        uniService.updateUniversity(ID_1, NAME, ABBREVIATION, CITY_ID);
-    }
-
-    @Test
     public void testPatchUniversity(){
         University uni = new University(ID_1, null, null, null);
         when(

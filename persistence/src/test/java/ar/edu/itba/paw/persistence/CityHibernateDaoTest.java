@@ -217,9 +217,10 @@ public class CityHibernateDaoTest {
                 jdbcTemplate.queryForObject(CITIES_COUNT_NOT_DELETED, Integer.class)
             ).get().intValue()
         );
+        final City persisted = jdbcTemplate.queryForObject(CITY_SELECT_BY_ID, CITY_ROW_MAPPER, city.getId());
         assertEqualsCity(
-            new City(NEW_CITY_NAME, COUNTRY_1, city.getId()), 
-            city
+            new City(NEW_CITY_NAME, COUNTRY_1, city.getId()),
+            persisted
         );
     }
     @Test(expected = CityAlreadyExistsException.class)

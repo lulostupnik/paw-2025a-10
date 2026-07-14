@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import Button from "./ui/Button";
 import { getProfilePictureUrl, getUsername, isAdmin, isLoggedIn, logout, withProfilePictureVersion } from "@/lib/auth/auth";
 import { classNames } from "@/lib/utils/classNames";
-import { useI18n } from "@/lib/i18n";
+import { localeLabels, useI18n } from "@/lib/i18n";
 import Logo from "./Logo";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 
@@ -14,11 +14,13 @@ export default function TopBar() {
     const logged = isLoggedIn();
     const username = getUsername();
     const profilePictureUrl = logged ? withProfilePictureVersion(getProfilePictureUrl()) : null;
-    const { t, locale, setLocale } = useI18n();
+    const { t, locale,availableLocales, setLocale } = useI18n();
     const [navOpen, setNavOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [langOpen, setLangOpen] = useState(false);
     const [avatarError, setAvatarError] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
+    const langRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLElement | null>(null);
     const showProfilePicture = Boolean(profilePictureUrl && !avatarError);
 
@@ -69,6 +71,21 @@ export default function TopBar() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [menuOpen]);
 
+    useEffect(() => {
+        if (!langOpen) {
+            return undefined;
+        }
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (langRef.current && !langRef.current.contains(event.target as Node)) {
+                setLangOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [langOpen]);
+
     return (
         <header className="top-bar" ref={headerRef}>
             <NavLink to={logged ? "/explore" : "/"} className="top-bar__brand" aria-label={t("app.name")}>
@@ -106,14 +123,48 @@ export default function TopBar() {
             </nav>
 
             <div className="top-bar__actions">
-                <Button
-                    size="sm"
-                    variant="ghost"
-                    aria-label={t("nav.language", { defaultValue: "Change language" })}
-                    onClick={() => setLocale(locale === "en" ? "es" : "en")}
-                >
-                    {locale === "en" ? "ES" : "EN"}
-                </Button>
+                <div className="top-bar__lang" ref={langRef}>
+                    <button
+                        type="button"
+                        className={classNames("top-bar__lang-trigger", langOpen && "is-open")}
+                        aria-label={t("nav.language", { defaultValue: "Change language" })}
+                        aria-haspopup="menu"
+                        aria-expanded={langOpen}
+                        onClick={() => setLangOpen((prev) => !prev)}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                            />
+                        </svg>
+                    </button>
+
+                    <div className={classNames("top-bar__lang-menu", langOpen && "is-open")} role="menu">
+                        {availableLocales.map((loc) => (
+                            <button
+                                key={loc}
+                                type="button"
+                                role="menuitemradio"
+                                aria-checked={loc === locale}
+                                className={classNames("top-bar__lang-menu-item", loc === locale && "is-active")}
+                                onClick={() => {
+                                    setLocale(loc);
+                                    setLangOpen(false);
+                                }}
+                            >
+                                <span>{localeLabels[loc]}</span>
+                                {loc === locale && (
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </div>
                 {!logged ? (
                     <>
                         <Button size="sm" variant="ghost" onClick={() => nav("/login")}>

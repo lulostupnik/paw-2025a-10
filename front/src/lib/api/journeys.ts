@@ -8,7 +8,6 @@ import { fetchByUrl } from "@/lib/utils/fetchByUrl";
 interface UserApi {
     id: number;
     username: string;
-    email?: string | null;
     firstname?: string | null;
     lastname?: string | null;
     links?: {
@@ -135,7 +134,7 @@ export const updateJourney = async (
     },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.put<JourneySummary>(`/journeys/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.JOURNEY, Accept: ContentTypes.JOURNEY } });
+    const response = await apiClient.patch<JourneySummary>(`/journeys/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.JOURNEY, Accept: ContentTypes.JOURNEY } });
     return response.data;
 };
 
@@ -235,7 +234,7 @@ export const updateJourneyTip = async (
     payload: { title: string; content: string },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.put<TipApi>(`/journeys/${journeyId}/tips/${tipId}`, payload, { signal, headers: { "Content-Type": ContentTypes.TIP, Accept: ContentTypes.TIP } });
+    const response = await apiClient.patch<TipApi>(`/journeys/${journeyId}/tips/${tipId}`, payload, { signal, headers: { "Content-Type": ContentTypes.TIP, Accept: ContentTypes.TIP } });
     return response.data;
 };
 

@@ -142,27 +142,6 @@ public class CareerServiceImplTest {
     }
 
     @Test
-    public void testUpdateCareer(){
-        when(
-            careerDao.findById(eq(CAREER_ID))
-        ).thenReturn(Optional.of(career));
-
-        Career updated = careerService.updateCareer(CAREER_ID, CAREER_NAME_2);
-
-        assertNotNull(updated);
-        assertEquals(CAREER_NAME_2, updated.getName());
-        assertEquals(CAREER_ID, updated.getId().longValue());
-    }
-    @Test(expected = CareerNotFoundException.class)
-    public void testUpdateCareerNotFound(){
-        when(
-            careerDao.findById(eq(CAREER_ID))
-        ).thenReturn(Optional.empty());
-
-        careerService.updateCareer(CAREER_ID, CAREER_NAME);
-    }
-
-    @Test
     public void testDeleteCareer() {
         when(
             careerDao.findById(CAREER_ID)

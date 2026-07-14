@@ -6,15 +6,15 @@ import org.springframework.security.core.userdetails.User;
 import java.util.Collection;
 
 /**
- * Custom UserDetails implementation that includes the user's database ID.
+ * GoTogether UserDetails implementation that includes the user's database ID.
  * This allows us to access the user ID in @PreAuthorize expressions
  * without needing to look up the user by email every time.
  */
-public class PawUserDetails extends User {
+public class GoTogetherUserDetails extends User {
 
     private final long userId;
 
-    public PawUserDetails(
+    public GoTogetherUserDetails(
             String username,
             String password,
             boolean enabled,

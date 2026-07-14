@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
@@ -99,6 +100,29 @@ public class UserInterestHibernateDaoTest {
     }
 
     @Test
+    public void testDeleteUserInterest(){
+        interestDao.delete(USER_1_ID, INTEREST_1_ID);
+        em.flush();
+
+        assertEquals(
+            TOTAL_USER_INTERESTS - 1,
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, USER_INTEREST_TABLE)
+        );
+        assertEquals(
+            0,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, USER_INTEREST_TABLE,
+                "user_id = " + USER_1_ID + " AND category_id = " + INTEREST_1_ID
+            )
+        );
+    }
+    @Test(expected = UserInterestNotFoundException.class)
+    public void testDeleteUserInterestNotFound(){
+        interestDao.delete(USER_3_ID, INTEREST_1_ID);
+        em.flush();
+    }
+
+    @Test
     public void testFindAllByUser(){
         List<UserInterest> interests = interestDao.findAllByUser(USER_1);
 
@@ -175,12 +199,11 @@ public class UserInterestHibernateDaoTest {
 
         //Solo actualiza el puntaje de quien contesta, no del creador.
         assertEquals(
-            0, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_3_ID
-            ).size()
+            0,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, USER_INTEREST_TABLE,
+                "user_id = " + USER_3_ID
+            )
         );
     }
 
@@ -303,12 +326,11 @@ public class UserInterestHibernateDaoTest {
         em.flush();
 
         assertEquals(
-            3, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_1_ID
-            ).size()
+            3,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, USER_INTEREST_TABLE,
+                "user_id = " + USER_1_ID
+            )
         );
     }
     @Test
@@ -317,12 +339,11 @@ public class UserInterestHibernateDaoTest {
         em.flush();
 
         assertEquals(
-            0, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_1_ID
-            ).size()
+            0,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, USER_INTEREST_TABLE,
+                "user_id = " + USER_1_ID
+            )
         );
     }
     @Test
@@ -331,12 +352,11 @@ public class UserInterestHibernateDaoTest {
         em.flush();
 
         assertEquals(
-            1, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_2_ID
-            ).size()
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, USER_INTEREST_TABLE,
+                "user_id = " + USER_2_ID
+            )
         );
     }
 }

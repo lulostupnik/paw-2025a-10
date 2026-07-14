@@ -44,7 +44,6 @@ export interface EventRating {
     id: number;
     user: { username: string };
     rating: number;
-    dateTime: string;
 }
 
 export interface EventDetail {
@@ -63,6 +62,7 @@ export interface EventDetail {
     comments: EventComment[];
     attendees: EventAttendee[];
     ratings: EventRating[];
+    ratingCount: number;
     averageRating?: number | null;
 }
 

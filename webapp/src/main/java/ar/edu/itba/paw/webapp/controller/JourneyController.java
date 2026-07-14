@@ -20,14 +20,13 @@ import ar.edu.itba.paw.webapp.form.CreateJourneyForm;
 import ar.edu.itba.paw.webapp.form.CreateJourneyResponseForm;
 import ar.edu.itba.paw.webapp.form.CreateTipForm;
 import ar.edu.itba.paw.webapp.form.PatchDeletionForm;
+import ar.edu.itba.paw.webapp.form.PatchJourneyForm;
 import ar.edu.itba.paw.webapp.form.PatchTipForm;
-import ar.edu.itba.paw.webapp.form.UpdateJourneyForm;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.DateUtils;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +54,7 @@ public class JourneyController {
     @Produces(GoTogetherMediaType.APPLICATION_JOURNEY_LIST)
     @PreAuthorize("#recommendedForUser == null or @accessHelper.isCurrentUser(#recommendedForUser)")
     public Response listJourneys(
-            @QueryParam("recommendedForUser") @P("recommendedForUser") Long recommendedForUser,
+            @QueryParam("recommendedForUser") Long recommendedForUser,
             @QueryParam("city") String city,
             @QueryParam("university") String university,
             @QueryParam("startDate") String startDateStr,
@@ -128,29 +127,23 @@ public class JourneyController {
                 .build();
     }
 
-    @PUT
+    @PATCH
     @Path("/{id}")
     @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY)
     @Produces(GoTogetherMediaType.APPLICATION_JOURNEY)
-    public Response updateJourney(@PathParam("id") final long id, @Valid @NotNull final UpdateJourneyForm form) {
-        final Journey journey = journeyService.updateJourney(
+    @PreAuthorize("@accessHelper.canPatchJourney(#id, #form)")
+    public Response patchJourney(@PathParam("id") final long id, @Valid @NotNull final PatchJourneyForm form) {
+        final Journey journey = journeyService.patchJourney(
                 id,
                 form.getDestinationUniversityId(),
                 form.getStartDate(),
                 form.getEndDate(),
-                form.getDescription()
+                form.getDescription(),
+                form.getDeleted(),
+                form.getDeletionMessage()
         );
 
         return Response.ok(JourneyDto.fromJourney(uriInfo, journey)).build();
-    }
-
-    @PATCH
-    @Path("/{id}")
-    @Consumes(GoTogetherMediaType.APPLICATION_JOURNEY)
-    @PreAuthorize("@accessHelper.canPatchJourney(#id, #form)")
-    public Response patchJourney(@PathParam("id") final long id, @Valid @NotNull final PatchDeletionForm form) {
-        journeyService.patchJourney(id, form.getDeleted(), form.getDeletionMessage());
-        return Response.noContent().build();
     }
 
 
@@ -195,19 +188,6 @@ public class JourneyController {
         return Response.created(UriUtils.getJourneyTipUri(uriInfo, journeyId, tip.getId()))
                 .entity(TipDto.fromTip(uriInfo, tip))
                 .build();
-    }
-
-    @PUT
-    @Path("/{journeyId}/tips/{tipId}")
-    @Consumes(GoTogetherMediaType.APPLICATION_TIP)
-    @Produces(GoTogetherMediaType.APPLICATION_TIP)
-    public Response updateTip(
-            @PathParam("journeyId") final long journeyId,
-            @PathParam("tipId") final long tipId,
-            @Valid @NotNull final CreateTipForm form
-    ) {
-        final Tip tip = journeyService.updateTip(journeyId, tipId, form.getTitle(), form.getContent());
-        return Response.ok(TipDto.fromTip(uriInfo, tip)).build();
     }
 
     @PATCH

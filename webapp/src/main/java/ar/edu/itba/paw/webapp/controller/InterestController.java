@@ -9,7 +9,6 @@ import ar.edu.itba.paw.webapp.GoTogetherMediaType;
 import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
 import ar.edu.itba.paw.webapp.form.PatchInterestForm;
-import ar.edu.itba.paw.webapp.form.UpdateInterestForm;
 import ar.edu.itba.paw.webapp.utils.PagingUtils;
 import ar.edu.itba.paw.webapp.utils.CacheUtils;
 import ar.edu.itba.paw.webapp.utils.UriUtils;
@@ -66,18 +65,6 @@ public class InterestController {
         return Response.created(UriUtils.getInterestUri(uriInfo, interest.getId()))
                 .entity(InterestDto.fromInterest(uriInfo, interest))
                 .build();
-    }
-
-    @PUT
-    @Path("/{id}")
-    @Consumes(GoTogetherMediaType.APPLICATION_INTEREST)
-    @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
-    public Response updateInterest(
-            @PathParam("id") final long id,
-            @Valid @NotNull final UpdateInterestForm form
-    ) {
-        final Interest interest = interestService.updateInterest(id, form.getName());
-        return Response.ok(InterestDto.fromInterest(uriInfo, interest)).build();
     }
 
     @PATCH

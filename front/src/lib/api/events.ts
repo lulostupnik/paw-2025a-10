@@ -251,19 +251,19 @@ export const buildEventRatings = async (
     eventId: number,
     signal?: AbortSignal,
     queryClient?: QueryClient
-): Promise<EventRating[]> => {
+): Promise<{ ratings: EventRating[]; total: number }> => {
     const ratings = await listEventRatings(eventId, { page: 1, size: 10 }, signal);
     const ratingUsers = await Promise.all(
         ratings.content.map((rating) =>
             rating.links?.userUrl ? getUserByUrl(normalizeApiPath(rating.links.userUrl), signal, queryClient) : Promise.resolve(null)
         )
     );
-    return ratings.content.map((rating, index) => ({
+    const mapped = ratings.content.map((rating, index) => ({
         id: rating.id,
         rating: rating.rating,
-        dateTime: new Date().toISOString(),
         user: { username: ratingUsers[index]?.username ?? "—" },
     }));
+    return { ratings: mapped, total: ratings.totalElements };
 };
 
 export const updateEvent = async (
@@ -279,7 +279,7 @@ export const updateEvent = async (
     },
     signal?: AbortSignal
 ) => {
-    const response = await apiClient.put<EventDto>(`/events/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.EVENT, Accept: ContentTypes.EVENT } });
+    const response = await apiClient.patch<EventDto>(`/events/${id}`, payload, { signal, headers: { "Content-Type": ContentTypes.EVENT, Accept: ContentTypes.EVENT } });
     return response.data;
 };
 

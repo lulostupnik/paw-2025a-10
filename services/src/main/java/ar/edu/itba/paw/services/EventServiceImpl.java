@@ -406,37 +406,43 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event updateEvent(final long eventId, final long cityId, final LocalDate date, final String description,
-                            final String title, final LocalTime time, final String address, final Integer attendeesLimit) {
-        LOGGER.debug("Editing event {}", eventId);
-        Event currentEvent = eventDao.findByIdForUpdate(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
-
-        City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
-
-        if (attendeesLimit != null && currentEvent.getAttendeesCount() > attendeesLimit) {
-            throw new AttendeesLimitBelowCurrentException(eventId);
-        }
-
-        currentEvent.setTitle(title);
-        currentEvent.setDescription(description);
-        currentEvent.setTime(time);
-        currentEvent.setAddress(address);
-        currentEvent.setAttendeesLimit(attendeesLimit);
-        currentEvent.setCity(resolvedCity);
-        currentEvent.setDate(date);
-
-        LOGGER.info("Event {} updated", eventId);
-        return currentEvent;
-    }
-
-    @Override
-    @Transactional
-    public void patchEvent(final long id, final Boolean deleted, final String deletionMessage) {
+    public Event patchEvent(final long id, final Long cityId, final LocalDate date, final String description,
+                            final String title, final LocalTime time, final String address, final Integer attendeesLimit,
+                            final Boolean deleted, final String deletionMessage) {
         LOGGER.debug("Patching event {}", id);
+        Event currentEvent = eventDao.findByIdForUpdate(id).orElseThrow(() -> new EventNotFoundException(id));
 
+        if (cityId != null) {
+            City resolvedCity = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
+            currentEvent.setCity(resolvedCity);
+        }
+        if (attendeesLimit != null) {
+            if (currentEvent.getAttendeesCount() > attendeesLimit) {
+                throw new AttendeesLimitBelowCurrentException(id);
+            }
+            currentEvent.setAttendeesLimit(attendeesLimit);
+        }
+        if (title != null) {
+            currentEvent.setTitle(title);
+        }
+        if (description != null) {
+            currentEvent.setDescription(description);
+        }
+        if (time != null) {
+            currentEvent.setTime(time);
+        }
+        if (address != null) {
+            currentEvent.setAddress(address);
+        }
+        if (date != null) {
+            currentEvent.setDate(date);
+        }
         if (Boolean.TRUE.equals(deleted)) {
             deleteEvent(id, deletionMessage);
         }
+
+        LOGGER.info("Event {} patched", id);
+        return currentEvent;
     }
 
     @Override

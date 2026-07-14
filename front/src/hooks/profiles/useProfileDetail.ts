@@ -2,7 +2,6 @@ import { getEmail, getUserId } from "@/lib/auth/auth";
 import type { ProfileDetail } from "@/types/profile";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { buildProfileInfo, getProfileDetail } from "@/lib/api/users";
-import { DETAIL_QUERY_OPTIONS } from "@/lib/utils/queryDefaults";
 
 interface UseProfileDetailResult {
     data: ProfileDetail | null;
@@ -39,7 +38,6 @@ export const useProfileDetail = (params?: ProfileDetailParams): UseProfileDetail
             return getProfileDetail(resolvedId, signal);
         },
         placeholderData: keepPreviousData,
-        ...DETAIL_QUERY_OPTIONS,
         enabled,
     });
 

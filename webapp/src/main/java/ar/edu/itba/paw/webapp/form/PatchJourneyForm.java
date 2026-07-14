@@ -4,29 +4,36 @@ import ar.edu.itba.paw.webapp.validation.ExistingUniversity;
 import ar.edu.itba.paw.webapp.validation.FutureDate;
 import ar.edu.itba.paw.webapp.validation.ValidDateRange;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @ValidDateRange
-public class UpdateJourneyForm implements DateRangeForm {
+public class PatchJourneyForm implements DateRangeForm {
 
-    @NotNull
     @FutureDate
     private LocalDate startDate;
 
-    @NotNull
     @FutureDate
     private LocalDate endDate;
 
-    @NotNull
     @ExistingUniversity
     private Long destinationUniversityId;
 
     @Size(min = 2, max = 2047)
-    @NotNull
     private String description;
 
+    @AssertTrue
+    private Boolean deleted;
+
+    @Size(max = 1000)
+    private String deletionMessage;
+
+    public boolean hasContentChanges() {
+        return startDate != null || endDate != null || destinationUniversityId != null || description != null;
+    }
+
+    @Override
     public LocalDate getStartDate() {
         return startDate;
     }
@@ -35,6 +42,7 @@ public class UpdateJourneyForm implements DateRangeForm {
         this.startDate = startDate;
     }
 
+    @Override
     public LocalDate getEndDate() {
         return endDate;
     }
@@ -57,5 +65,21 @@ public class UpdateJourneyForm implements DateRangeForm {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public String getDeletionMessage() {
+        return deletionMessage;
+    }
+
+    public void setDeletionMessage(String deletionMessage) {
+        this.deletionMessage = deletionMessage;
     }
 }

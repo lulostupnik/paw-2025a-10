@@ -30,12 +30,6 @@ const CalendarIcon = () => (
     </svg>
 );
 
-const QuoteIcon = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-    </svg>
-);
-
 const FEATURES = [
     { titleKey: "landing.feature1.title", descriptionKey: "landing.feature1.description", Icon: GlobeIcon },
     { titleKey: "landing.feature2.title", descriptionKey: "landing.feature2.description", Icon: UsersIcon },
@@ -47,20 +41,6 @@ const STEPS = [
     { titleKey: "landing.step2.title", descriptionKey: "landing.step2.description" },
     { titleKey: "landing.step3.title", descriptionKey: "landing.step3.description" },
 ] as const;
-
-const TESTIMONIALS = [
-    { nameKey: "landing.testimonial1.name", roleKey: "landing.testimonial1.role", textKey: "landing.testimonial1.text" },
-    { nameKey: "landing.testimonial2.name", roleKey: "landing.testimonial2.role", textKey: "landing.testimonial2.text" },
-] as const;
-
-const getInitials = (value: string) =>
-    value
-        .split(" ")
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((chunk) => chunk[0])
-        .join("")
-        .toUpperCase();
 
 export default function LandingPage() {
     const { t } = useI18n();
@@ -180,37 +160,6 @@ export default function LandingPage() {
                             ))}
                         </div>
                     )}
-                </div>
-            </section>
-
-            <section className="section">
-                <div className="section__header">
-                    <h2>{t("landing.testimonials.title")}</h2>
-                    <p className="section__subtitle">{t("landing.testimonials.subtitle")}</p>
-                </div>
-                <div className="testimonial-grid">
-                    {TESTIMONIALS.map((testimonial) => {
-                        const name = t(testimonial.nameKey);
-                        return (
-                            <article key={testimonial.nameKey} className="testimonial card">
-                                <div className="testimonial__quote">
-                                    <span className="testimonial__icon">
-                                        <QuoteIcon />
-                                    </span>
-                                    <p>{t(testimonial.textKey)}</p>
-                                </div>
-                                <div className="testimonial__author">
-                                    <div className="avatar" aria-hidden="true">
-                                        {getInitials(name)}
-                                    </div>
-                                    <div>
-                                        <p className="testimonial__name">{name}</p>
-                                        <p className="testimonial__role">{t(testimonial.roleKey)}</p>
-                                    </div>
-                                </div>
-                            </article>
-                        );
-                    })}
                 </div>
             </section>
 

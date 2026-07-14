@@ -16,7 +16,7 @@ import java.util.List;
 public class UserInterestDto {
 
     private long interestId;
-    private String interestName; // TODO: esta bien que este acá además de en /interests?
+    private String interestName;
     private int score;
 
     private Links links;

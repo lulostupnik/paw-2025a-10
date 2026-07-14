@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -63,8 +62,24 @@ public class UserHibernateDaoTest {
         );
         em.flush();
 
-        assertEqualsUser(user, Map.of("id", user.getId()));
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, USER_TABLE));
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, USER_TABLE,
+                "id = " + user.getId()
+                    + " AND email = '" + USER_1_MAIL + "'"
+                    + " AND username = '" + USER_1_NAME + "'"
+                    + " AND firstname = '" + USER_FIRSTNAME + "'"
+                    + " AND lastname = '" + USER_LASTNAME + "'"
+                    + " AND university = " + UNIVERSITY_1_ID
+                    + " AND career_id = " + CAREER_1_ID
+                    + " AND profile_picture_id = " + IMAGE_1_ID
+                    + " AND language = '" + USER_LOCALE + "'"
+                    + " AND blocked = FALSE"
+                    + " AND validated = TRUE"
+            )
+        );
     }
     @Test(expected = PersistenceException.class)
     public void testCreateUserNoMail(){

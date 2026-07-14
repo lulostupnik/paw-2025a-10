@@ -67,20 +67,6 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Transactional
-    public University updateUniversity(final long id, final String name, final String abbreviation, final long cityId) {
-        LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityId);
-        City city = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException("City", cityId));
-        University university = universityDao.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
-        university.setName(name);
-        university.setAbbreviation(abbreviation);
-        university.setCity(city);
-
-        LOGGER.info("University updated successfully with id: {}, name: {}, abbreviation: {}, city: {}", id, name, abbreviation, cityId);
-        return university;
-    }
-
-    @Override
-    @Transactional
     public University patchUniversity(final long id, final String name, final String abbreviation, final Long cityId) {
         LOGGER.debug("Patching university with id {}", id);
         University university = universityDao.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
