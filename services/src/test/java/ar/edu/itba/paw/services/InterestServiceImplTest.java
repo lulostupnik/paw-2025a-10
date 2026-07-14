@@ -160,6 +160,61 @@ public class InterestServiceImplTest {
     }
 
     @Test
+    public void testRemoveUserInterest(){
+        interestService.removeUserInterest(USER_ID, INTEREST_ID);
+
+        verify(uiDao).delete(eq(USER_ID), eq(INTEREST_ID));
+    }
+
+    @Test
+    public void testCreateUserInterests(){
+        final List<Long> interestIds = List.of(INTEREST_ID, INTEREST_ID + 1);
+
+        interestService.createUserInterests(interestIds, USER_ID);
+
+        verify(uiDao).createUserInterests(eq(interestIds), eq(USER_ID));
+    }
+
+    @Test
+    public void testCreateUserInterestsEmptyList(){
+        interestService.createUserInterests(List.of(), USER_ID);
+
+        verify(uiDao, never()).createUserInterests(anyList(), anyLong());
+    }
+
+    @Test
+    public void testCreateUserInterestsNullList(){
+        interestService.createUserInterests(null, USER_ID);
+
+        verify(uiDao, never()).createUserInterests(anyList(), anyLong());
+    }
+
+    @Test
+    public void testUpdateUserInterests(){
+        final long[] interestIds = new long[]{INTEREST_ID};
+
+        interestService.updateUserInterests(interestIds, USER_ID);
+
+        verify(uiDao).updateUserInterests(eq(interestIds), eq(USER_ID));
+    }
+
+    @Test
+    public void testUpdateMatchingInterestScores(){
+        final long journeyCreatorUserId = USER_ID + 1;
+
+        interestService.updateMatchingInterestScores(USER_ID, journeyCreatorUserId);
+
+        verify(uiDao).updateMatchingInterestScores(eq(USER_ID), eq(journeyCreatorUserId));
+    }
+
+    @Test
+    public void testDeleteInterest(){
+        interestService.deleteInterest(INTEREST_ID);
+
+        verify(interestDao).delete(eq(INTEREST_ID));
+    }
+
+    @Test
     public void testFindInterests(){
         when(
             interestDao.search(eq(INTEREST_NAME), any(PageParams.class))

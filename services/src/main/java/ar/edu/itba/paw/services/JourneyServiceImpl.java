@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static ar.edu.itba.paw.services.AfterCommitExecutor.runAfterCommit;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -135,19 +137,20 @@ public class JourneyServiceImpl implements JourneyService {
                     .toList();
 
             if (!responders.isEmpty()) {
-                emailService.answerJourneyNotification(
-                        responders,
+                List<EmailUser> respondersSnapshot = List.copyOf(responders);
+                runAfterCommit(() -> emailService.answerJourneyNotification(
+                        respondersSnapshot,
                         message,
                         emailResponder,
                         emailJourney
-                );
+                ));
             }
 
             page++;
         } while (page <= respondersPage.getTotalPages());
         LOGGER.info("Journey response notifications sent to all responders for journey {}", journeyId);
 
-        emailService.answerJourneyOwnerNotification(message, emailResponder, emailJourney);
+        runAfterCommit(() -> emailService.answerJourneyOwnerNotification(message, emailResponder, emailJourney));
         LOGGER.info("Journey response notifications sent to owner for journey {}", journeyId);
         return journeyResponse;
     }
@@ -336,7 +339,7 @@ public class JourneyServiceImpl implements JourneyService {
             journey.setDeletionMessage(message);
         }
 
-        emailService.sendJourneyDeletionNotification(new EmailJourney(journey),message);
+        runAfterCommit(() -> emailService.sendJourneyDeletionNotification(new EmailJourney(journey), message));
         LOGGER.info("Journey deletion notification sent to user {}", journey.getUser().getEmail());
 
         journey.setDeleted(true);
@@ -386,7 +389,7 @@ public class JourneyServiceImpl implements JourneyService {
 
         User commentAuthor = journeyResponse.getUser();
 
-        emailService.sendJourneyCommentDeletionNotification(journeyResponse, new EmailJourney(journeyResponse.getJourney()), new EmailUser(commentAuthor), message);
+        runAfterCommit(() -> emailService.sendJourneyCommentDeletionNotification(journeyResponse, new EmailJourney(journeyResponse.getJourney()), new EmailUser(commentAuthor), message));
         LOGGER.info("Journey response deletion notification sent to user {}", commentAuthor.getEmail());
 
         journeyResponse.setDeletionMessage(message);

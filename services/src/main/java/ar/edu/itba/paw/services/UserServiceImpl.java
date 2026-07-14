@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import static ar.edu.itba.paw.services.AfterCommitExecutor.runAfterCommit;
 import java.util.*;
 
 @Service
@@ -70,19 +70,6 @@ public class UserServiceImpl implements UserService {
             LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
         });
         return user;
-    }
-
-    private void runAfterCommit(final Runnable action) {
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            action.run();
-            return;
-        }
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                action.run();
-            }
-        });
     }
 
 
@@ -233,7 +220,7 @@ public class UserServiceImpl implements UserService {
             throw new UserValidatedException(email);
         }
         String rawToken = tokenService.issueUserToken(user);
-        emailService.sendValidationEmail(new EmailUser(user), rawToken);
+        runAfterCommit(() -> emailService.sendValidationEmail(new EmailUser(user), rawToken));
         LOGGER.info("Verification email resent successfully to: {}", email);
     }
 

@@ -564,6 +564,27 @@ public class UserServiceImplTest {
         verify(emailService).sendValidationEmail(any(), eq(TOKEN_VALUE));
     }
 
+    @Test
+    public void testResendVerificationEmailSendsEmailAfterCommit(){
+        when(
+            userDao.findByEmail(eq(EMAIL))
+        ).thenReturn(Optional.of(USER_NOT_VALIDATED));
+        when(
+            tokenService.issueUserToken(USER_NOT_VALIDATED)
+        ).thenReturn(TOKEN_VALUE);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userService.resendVerificationEmail(EMAIL);
+
+            verify(emailService, never()).sendValidationEmail(any(), eq(TOKEN_VALUE));
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendValidationEmail(any(), eq(TOKEN_VALUE));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
     @Test(expected = UserValidatedException.class)
     public void testResendVerificationEmailAlreadyValidated(){
         when(

@@ -12,6 +12,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.InOrder;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -334,6 +336,54 @@ public class JourneyServiceImplTest {
         verify(interestService).updateMatchingInterestScores(eq(USER_ID), eq(USER_ID));
         verify(emailService).answerJourneyNotification(any(), eq(DESCRIPTION), any(), any());
         verify(emailService).answerJourneyOwnerNotification(eq(DESCRIPTION), any(), any());
+    }
+
+    @Test
+    public void testCreateJourneyResponseSendsEmailsAfterCommit(){
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            replyDao.findRespondersByJourneyId(eq(JOURNEY_ID), any(PageParams.class))
+        ).thenReturn(new Page<>(List.of(USER), 1, 1, 1));
+        when(
+            replyDao.create(eq(USER), eq(JOURNEY), eq(DESCRIPTION))
+        ).thenReturn(REPLY);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            journeyService.createJourneyResponse(USER_ID, JOURNEY_ID, DESCRIPTION);
+
+            verify(emailService, never()).answerJourneyNotification(any(), eq(DESCRIPTION), any(), any());
+            verify(emailService, never()).answerJourneyOwnerNotification(eq(DESCRIPTION), any(), any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).answerJourneyNotification(any(), eq(DESCRIPTION), any(), any());
+            verify(emailService).answerJourneyOwnerNotification(eq(DESCRIPTION), any(), any());
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
+    @Test
+    public void testDeleteJourneySendsEmailAfterCommit(){
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(newJourney));
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            journeyService.deleteJourney(JOURNEY_ID, DESCRIPTION);
+
+            verify(emailService, never()).sendJourneyDeletionNotification(any(), eq(DESCRIPTION));
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendJourneyDeletionNotification(any(), eq(DESCRIPTION));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
     @Test(expected = UserNotFoundException.class)
     public void testCreateJourneyResponseUserIdUserNotFound(){
