@@ -1634,21 +1634,15 @@ public class EventServiceImplTest {
     }
 
     @Test
-    public void testDeleteEventResponse(){
-        EventResponse resp = new EventResponse(USER, EVENT, ADDRESS);
-        eventService.deleteEventResponse(resp, DESCRIPTION);
-
-        assertTrue(resp.isDeleted());
-        assertEquals(DESCRIPTION, resp.getDeletionMessage());
-    }
-
-    @Test
     public void testDeleteEventResponseSendsEmailAfterCommit(){
         EventResponse resp = new EventResponse(USER, EVENT, ADDRESS);
+        when(
+            replyDao.findById(eq(RESPONSE_ID))
+        ).thenReturn(Optional.of(resp));
 
         TransactionSynchronizationManager.initSynchronization();
         try {
-            eventService.deleteEventResponse(resp, DESCRIPTION);
+            eventService.deleteEventResponse(EVENT_ID, RESPONSE_ID, DESCRIPTION);
 
             verify(emailService, never()).sendEventCommentDeletionNotification(eq(resp), any(), any(), eq(DESCRIPTION));
             TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);

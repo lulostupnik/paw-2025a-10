@@ -10,6 +10,7 @@ import { updateUserBlocked } from "@/lib/api/users";
 import Pagination from "../listing/Pagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
+import PageStatus from "@/components/ui/PageStatus";
 import type { PageResult } from "@/types/pagination";
 
 interface UsersTabProps {
@@ -152,8 +153,8 @@ export default function UsersTab({
                     </tbody>
                 </table>
 
-                {isLoading && <div className="no-results">{loadingLabel}</div>}
-                {isError && <div className="no-results">{errorLabel}</div>}
+                {isLoading && <PageStatus compact message={loadingLabel} />}
+                {isError && <PageStatus compact variant="error" message={errorLabel} />}
                 {isEmpty && <div className="no-results">{t("admin.no.results")}</div>}
 
                 <Pagination

@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
 import { prefetchJourneyDetail } from "@/lib/utils/prefetchDetail";
+import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 
 interface JourneyCardProps {
     journey: JourneySummary;
@@ -47,7 +48,7 @@ export default function JourneyCard({ journey }: JourneyCardProps) {
                             />
                         ) : (
                             <div className="image-placeholder">
-                                <i className="fas fa-user" aria-hidden="true"></i>
+                                <AvatarFallbackIcon size={48} />
                             </div>
                         )}
                     </div>

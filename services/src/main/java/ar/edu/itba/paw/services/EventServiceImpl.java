@@ -430,9 +430,7 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Event {} deleted", id);
     }
 
-    @Override
-    @Transactional
-    public void deleteEventResponse(final EventResponse eventResponse, final String message) {
+    private void deleteEventResponse(final EventResponse eventResponse, final String message) {
         LOGGER.debug("Deleting event response {}", eventResponse);
         if(eventResponse.isDeleted()){
             LOGGER.info("Event response {} already deleted", eventResponse);

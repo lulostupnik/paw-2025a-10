@@ -66,7 +66,7 @@ public class EventController {
             @QueryParam("size") @DefaultValue("8") int size,
             @QueryParam("attendedBy") Long attendedByUserId,
             @QueryParam("university") String university,
-            @QueryParam("minRating") Integer minRating, //TODO: check, anda raro
+            @QueryParam("minRating") Integer minRating,
             @QueryParam("hasCapacity") Boolean hasCapacity,
             @QueryParam("top") Boolean top,
             @QueryParam("creatorId") Long creatorId

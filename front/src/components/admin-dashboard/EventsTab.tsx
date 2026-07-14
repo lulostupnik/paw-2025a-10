@@ -5,6 +5,7 @@ import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
 import type { PageResult } from "@/types/pagination";
 import Pagination from "../listing/Pagination";
+import PageStatus from "@/components/ui/PageStatus";
 
 interface EventsTabProps {
     data: PageResult<AdminEvent>;
@@ -91,8 +92,8 @@ export default function EventsTab({
                     </tbody>
                 </table>
 
-                {isLoading && <div className="no-results">{loadingLabel}</div>}
-                {isError && <div className="no-results">{errorLabel}</div>}
+                {isLoading && <PageStatus compact message={loadingLabel} />}
+                {isError && <PageStatus compact variant="error" message={errorLabel} />}
                 {isEmpty && <div className="no-results">{t("admin.no.results")}</div>}
 
                 <Pagination

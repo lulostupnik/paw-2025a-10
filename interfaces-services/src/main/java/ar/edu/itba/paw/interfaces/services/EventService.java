@@ -46,7 +46,6 @@ public interface EventService {
                                         String university, Integer minRating, Boolean hasCapacity, Boolean top, PageParams pageParams);
 
     EventResponse createEventResponse(long userId, long eventId, String message);
-    void deleteEventResponse(EventResponse eventResponse, String message);
     void deleteEventResponse(long eventId, long responseId, String message);
     void patchEventResponse(long eventId, long responseId, Boolean deleted, String deletionMessage);
     Page<EventResponse> findEventResponses(long eventId, PageParams pageParams);

@@ -6,6 +6,7 @@ import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
 import type { PageResult } from "@/types/pagination";
 import { parseApiDate } from "@/lib/utils/date";
+import PageStatus from "@/components/ui/PageStatus";
 
 interface ReportsTabProps {
     data: PageResult<ReportListItem>;
@@ -189,8 +190,8 @@ export default function ReportsTab({
                     </tbody>
                 </table>
 
-                {isLoading && <div className="no-results">{loadingLabel}</div>}
-                {isError && <div className="no-results">{errorLabel}</div>}
+                {isLoading && <PageStatus compact message={loadingLabel} />}
+                {isError && <PageStatus compact variant="error" message={errorLabel} />}
                 {isEmpty && <div className="no-results">{t("admin.no.results")}</div>}
 
                 <Pagination

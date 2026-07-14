@@ -341,9 +341,7 @@ public class JourneyServiceImpl implements JourneyService {
         return maybeResponse;
     }
 
-    @Override
-    @Transactional
-    public void deleteJourneyResponse(final long id, final String message) {
+    private void deleteJourneyResponse(final long id, final String message) {
         LOGGER.debug("Deleting journey response {}", id);
         Optional<JourneyResponse> maybeJourneyResponse = findJourneyResponseById(id);
         if (maybeJourneyResponse.isEmpty()) {

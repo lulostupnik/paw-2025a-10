@@ -84,6 +84,7 @@ public class WebConfig {
         ms.setCacheSeconds((int) TimeUnit.MINUTES.toSeconds(5));
         ms.setBasename("classpath:i18n/messages");
         ms.setDefaultEncoding(StandardCharsets.UTF_8.name());
+        ms.setFallbackToSystemLocale(false);
         return ms;
     }
 

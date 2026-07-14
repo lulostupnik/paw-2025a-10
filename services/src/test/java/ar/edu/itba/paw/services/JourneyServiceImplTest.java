@@ -1308,31 +1308,6 @@ public class JourneyServiceImplTest {
         assertNotNull(maybeResponse);
         assertTrue(maybeResponse.isEmpty());
     }
-
-    @Test
-    public void testDeleteJourneyJourneyResponse(){
-        JourneyResponse newReply = new JourneyResponse(USER, JOURNEY, CAREER_NAME);
-        when(
-            replyDao.findById(eq(REPLY_ID))
-        ).thenReturn(Optional.of(newReply));
-
-        journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
-
-        assertTrue(newReply.isDeleted());
-        assertEquals(DESCRIPTION, newReply.getDeletionMessage());
-    }
-    @Test
-    public void testDeleteJourneyJourneyResponseMissing(){
-        JourneyResponse newReply = new JourneyResponse(USER, JOURNEY, CAREER_NAME);
-        when(
-            replyDao.findById(eq(REPLY_ID))
-        ).thenReturn(Optional.empty());
-
-        journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
-
-        assertFalse(newReply.isDeleted());
-        assertNull(newReply.getDeletionMessage());
-    }
     @Test
     public void testDeleteJourneyJourneyResponseWithJourneyID(){
         JourneyResponse newReply = new JourneyResponse(USER, JOURNEY, CAREER_NAME);

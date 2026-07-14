@@ -5,6 +5,7 @@ import Pagination from "../listing/Pagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
 import type { PageResult } from "@/types/pagination";
+import PageStatus from "@/components/ui/PageStatus";
 
 interface CareersTabProps {
     data: PageResult<AdminCareer>;
@@ -70,8 +71,8 @@ export default function CareersTab({
                     </tbody>
                 </table>
 
-                {isLoading && <div className="no-results">{loadingLabel}</div>}
-                {isError && <div className="no-results">{errorLabel}</div>}
+                {isLoading && <PageStatus compact message={loadingLabel} />}
+                {isError && <PageStatus compact variant="error" message={errorLabel} />}
                 {isEmpty && <div className="no-results">{t("admin.no.results")}</div>}
 
                 <Pagination
