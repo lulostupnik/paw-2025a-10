@@ -1,6 +1,7 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/ui/Button";
 import { classNames } from "@/lib/utils/classNames";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
@@ -10,6 +11,8 @@ import PageStatus from "@/components/ui/PageStatus";
 import { updateJourney } from "@/lib/api/journeys";
 import { useI18n } from "@/lib/i18n";
 import { getTodayIsoDate } from "@/lib/utils/date";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { invalidateJourneyDetailQueries } from "@/lib/api/queryInvalidation";
 
 interface JourneyFormState {
     startDate: string;
@@ -57,6 +60,7 @@ const parseIdFromUrl = (url?: string | null) => {
 export default function JourneyEditPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { id } = useParams();
     const { data, isLoading, isError, isNotFound } = useJourneyDetailData({ journeyId: id });
     const [form, setForm] = useState<JourneyFormState>({ ...INITIAL_FORM });
@@ -90,10 +94,14 @@ export default function JourneyEditPage() {
 
     const handleDateChange = (field: "startDate" | "endDate") => (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+        setSubmitError(null);
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
     const handleDescriptionChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+        setErrors((prev) => ({ ...prev, description: undefined }));
+        setSubmitError(null);
         setForm((prev) => ({ ...prev, description: event.target.value }));
     };
 
@@ -160,16 +168,11 @@ export default function JourneyEditPage() {
                 },
                 undefined
             );
+            await invalidateJourneyDetailQueries(queryClient, id);
             navigate(`/journeys/${id}`);
         } catch (err) {
             console.error("Failed to update journey", err);
-            const serverErrors: JourneyErrors = {};
-            for (const [apiField, message] of Object.entries(apiFieldErrors(err))) {
-                const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                if (formField) {
-                    serverErrors[formField] = message;
-                }
-            }
+            const serverErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(serverErrors).length > 0) {
                 setErrors((prev) => ({ ...prev, ...serverErrors }));
             } else {
@@ -265,7 +268,11 @@ export default function JourneyEditPage() {
                         value={form.destination}
                         query={destinationQuery}
                         onQueryChange={setDestinationQuery}
-                        onChange={(option) => setForm((prev) => ({ ...prev, destination: option }))}
+                        onChange={(option) => {
+                            setErrors((prev) => ({ ...prev, destination: undefined }));
+                            setSubmitError(null);
+                            setForm((prev) => ({ ...prev, destination: option }));
+                        }}
                         fetcher={searchUniversities}
                         error={touched.destination ? errors.destination : undefined}
                         required

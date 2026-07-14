@@ -137,7 +137,10 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
                             id="report-reason"
                             className={touched && reasonError ? "input-control input-control--error" : "input-control"}
                             value={reason}
-                            onChange={(event) => setReason(event.target.value as ReportReason)}
+                            onChange={(event) => {
+                                setServerError("");
+                                setReason(event.target.value as ReportReason);
+                            }}
                             onBlur={() => setTouched(true)}
                         >
                             <option value="">{t("report.reason.placeholder")}</option>
@@ -167,7 +170,10 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
                             rows={6}
                             maxLength={MAX_DESCRIPTION_LENGTH}
                             value={description}
-                            onChange={(event) => setDescription(event.target.value)}
+                            onChange={(event) => {
+                                setServerError("");
+                                setDescription(event.target.value);
+                            }}
                             onBlur={() => setTouched(true)}
                             placeholder={t("report.description.placeholder")}
                         />

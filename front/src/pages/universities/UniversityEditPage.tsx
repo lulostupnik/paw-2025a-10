@@ -1,15 +1,17 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminUniversityDetailData } from "@/hooks/useAdminDetailData";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { updateUniversity } from "@/lib/api/universities";
 import { listCities } from "@/lib/api/cities";
 import { emptyPage } from "@/types/pagination";
 import PageStatus from "@/components/ui/PageStatus";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { invalidateAdminEntityDetailQueries } from "@/lib/api/queryInvalidation";
 
 interface UniversityFormState {
     name: string;
@@ -34,6 +36,7 @@ const API_FIELD_TO_FORM_FIELD: Record<string, keyof UniversityFormState> = {
 export default function UniversityEditPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { id } = useParams();
     const { data: university, isLoading, isError } = useAdminUniversityDetailData({ id });
     const [form, setForm] = useState<UniversityFormState>({
@@ -132,16 +135,13 @@ export default function UniversityEditPage() {
             abbreviation: form.abbreviation.trim(),
             cityId,
         })
-            .then(() => navigate(`/universities/${id}`))
+            .then(async () => {
+                await invalidateAdminEntityDetailQueries(queryClient, "university", id);
+                navigate(`/universities/${id}`);
+            })
             .catch((error) => {
                 console.error("Failed to update university", error);
-                const nextServerErrors: Partial<Record<keyof UniversityFormState, string>> = {};
-                for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
-                    const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                    if (formField) {
-                        nextServerErrors[formField] = message;
-                    }
-                }
+                const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
                 if (Object.keys(nextServerErrors).length > 0) {
                     setServerErrors(nextServerErrors);
                 } else {
@@ -152,6 +152,8 @@ export default function UniversityEditPage() {
     };
 
     const handleCitySelect = (value: string) => {
+        setServerErrors((prev) => ({ ...prev, city: undefined }));
+        setSubmitError(null);
         setSelectedCity(value);
         setCityQuery(value);
         setForm((prev) => ({ ...prev, city: value }));
@@ -159,6 +161,8 @@ export default function UniversityEditPage() {
     };
 
     const clearCity = () => {
+        setServerErrors((prev) => ({ ...prev, city: undefined }));
+        setSubmitError(null);
         setSelectedCity(null);
         setCityQuery("");
         setForm((prev) => ({ ...prev, city: "" }));
@@ -206,7 +210,11 @@ export default function UniversityEditPage() {
                                 type="text"
                                 className={`form-input ${touched.name && errors.name ? "error" : ""}`}
                                 value={form.name}
-                                onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                                onChange={(event) => {
+                                    setServerErrors((prev) => ({ ...prev, name: undefined }));
+                                    setSubmitError(null);
+                                    setForm((prev) => ({ ...prev, name: event.target.value }));
+                                }}
                                 onBlur={() => {
                                     setTouched((prev) => ({ ...prev, name: true }));
                                     setForm((prev) => ({ ...prev, name: formatTitleCase(prev.name) }));
@@ -225,7 +233,11 @@ export default function UniversityEditPage() {
                                 type="text"
                                 className={`form-input ${touched.abbreviation && errors.abbreviation ? "error" : ""}`}
                                 value={form.abbreviation}
-                                onChange={(event) => setForm((prev) => ({ ...prev, abbreviation: event.target.value }))}
+                                onChange={(event) => {
+                                    setServerErrors((prev) => ({ ...prev, abbreviation: undefined }));
+                                    setSubmitError(null);
+                                    setForm((prev) => ({ ...prev, abbreviation: event.target.value }));
+                                }}
                                 onBlur={() => setTouched((prev) => ({ ...prev, abbreviation: true }))}
                                 required
                             />
@@ -247,6 +259,8 @@ export default function UniversityEditPage() {
                                     placeholder={t("createUniversity.city.search")}
                                     onChange={(event) => {
                                         const value = event.target.value;
+                                        setServerErrors((prev) => ({ ...prev, city: undefined }));
+                                        setSubmitError(null);
                                         setCityQuery(value);
                                         setForm((prev) => ({ ...prev, city: value }));
                                         setSelectedCity(null);

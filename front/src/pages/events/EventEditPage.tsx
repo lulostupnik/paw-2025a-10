@@ -6,12 +6,15 @@ import Checkbox from "@/components/ui/Checkbox";
 import { classNames } from "@/lib/utils/classNames";
 import { searchCities, type CatalogOption } from "@/lib/api/catalog";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { useI18n } from "@/lib/i18n";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import PageStatus from "@/components/ui/PageStatus";
 import { updateEvent, updateEventFlyer } from "@/lib/api/events";
-import { apiErrorMessage, apiErrorStatus, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage, apiErrorStatus } from "@/lib/api/client";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { invalidateEventDetailQueries } from "@/lib/api/queryInvalidation";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -60,6 +63,7 @@ const INITIAL_FORM: FormState = {
 
 export default function EventEditPage() {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { t } = useI18n();
     const { id } = useParams();
     const { data, isLoading, isError } = useEventDetailData({ eventId: id });
@@ -113,29 +117,41 @@ export default function EventEditPage() {
         (field: keyof Pick<FormState, "name" | "description" | "address">) =>
             (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
                 const value = event.target.value;
+                setErrors((prev) => ({ ...prev, [field]: undefined }));
+                setSubmitError(null);
                 setForm((prev) => ({ ...prev, [field]: value }));
             },
         []
     );
 
     const handleDateChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setErrors((prev) => ({ ...prev, date: undefined }));
+        setSubmitError(null);
         setForm((prev) => ({ ...prev, date: event.target.value }));
     };
 
     const handleTimeChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setErrors((prev) => ({ ...prev, time: undefined }));
+        setSubmitError(null);
         setForm((prev) => ({ ...prev, time: event.target.value }));
     };
 
     const handleLimitChange = (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
+        setErrors((prev) => ({ ...prev, participantLimit: undefined }));
+        setSubmitError(null);
         setForm((prev) => ({ ...prev, participantLimit: value }));
     };
 
     const handleAllDayToggle = (checked: boolean) => {
+        setErrors((prev) => ({ ...prev, time: undefined }));
+        setSubmitError(null);
         setForm((prev) => ({ ...prev, allDay: checked, time: checked ? "" : prev.time }));
     };
 
     const handleUnlimitedToggle = (checked: boolean) => {
+        setErrors((prev) => ({ ...prev, participantLimit: undefined }));
+        setSubmitError(null);
         setForm((prev) => ({ ...prev, unlimited: checked, participantLimit: checked ? "" : prev.participantLimit }));
     };
 
@@ -195,6 +211,7 @@ export default function EventEditPage() {
             const validSize = file.size <= MAX_FILE_SIZE;
 
             if (!matchesExtension && !matchesMime) {
+                setSubmitError(null);
                 setErrors((prev) => ({ ...prev, flyer: t("event.create.validation.flyerType") }));
                 setForm((prev) => ({ ...prev, flyer: null }));
                 markTouched("flyer");
@@ -202,12 +219,14 @@ export default function EventEditPage() {
             }
 
             if (!validSize) {
+                setSubmitError(null);
                 setErrors((prev) => ({ ...prev, flyer: t("event.create.validation.flyerSize") }));
                 setForm((prev) => ({ ...prev, flyer: null }));
                 markTouched("flyer");
                 return;
             }
 
+            setSubmitError(null);
             setForm((prev) => ({ ...prev, flyer: file }));
             setErrors((prev) => ({ ...prev, flyer: undefined }));
             markTouched("flyer");
@@ -260,16 +279,11 @@ export default function EventEditPage() {
             if (form.flyer) {
                 await updateEventFlyer(Number(id), form.flyer);
             }
+            await invalidateEventDetailQueries(queryClient, id);
             navigate(`/events/${id}`);
         } catch (err) {
             console.error("Failed to update event", err);
-            const serverErrors: FormErrors = {};
-            for (const [apiField, message] of Object.entries(apiFieldErrors(err))) {
-                const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                if (formField) {
-                    serverErrors[formField] = message;
-                }
-            }
+            const serverErrors: FormErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
             if (apiErrorStatus(err) === 409) {
                 // Único conflicto de estado del update: el límite quedó bajo los asistentes actuales.
                 serverErrors.participantLimit = apiErrorMessage(err, t("event.edit.error", { defaultValue: "Error al actualizar el evento." }));
@@ -340,7 +354,11 @@ export default function EventEditPage() {
                         value={form.city}
                         query={cityQuery}
                         onQueryChange={setCityQuery}
-                        onChange={(option) => setForm((prev) => ({ ...prev, city: option }))}
+                        onChange={(option) => {
+                            setErrors((prev) => ({ ...prev, city: undefined }));
+                            setSubmitError(null);
+                            setForm((prev) => ({ ...prev, city: option }));
+                        }}
                         fetcher={searchCities}
                         error={touched.city ? errors.city : undefined}
                         onBlur={() => markTouched("city")}

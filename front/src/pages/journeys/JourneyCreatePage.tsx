@@ -1,4 +1,4 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
@@ -10,6 +10,7 @@ import { useI18n } from "@/lib/i18n";
 import { getTodayIsoDate } from "@/lib/utils/date";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import PageStatus from "@/components/ui/PageStatus";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
 
 interface JourneyFormState {
     startDate: string;
@@ -79,10 +80,14 @@ export default function JourneyCreatePage() {
 
     const handleDateChange = (field: "startDate" | "endDate") => (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+        setSubmitError(null);
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
     const handleDescriptionChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+        setErrors((prev) => ({ ...prev, description: undefined }));
+        setSubmitError(null);
         setForm((prev) => ({ ...prev, description: event.target.value }));
     };
 
@@ -142,7 +147,7 @@ export default function JourneyCreatePage() {
             setDestinationQuery("");
             setTouched({});
             setErrors({});
-            navigate(`/journeys/${journey.id}`);
+            navigate(`/journeys/${journey.id}`, { replace: true });
         } catch (err) {
             const status = (err as { response?: { status?: number } } | undefined)?.response?.status;
             if (status === 409 && journeyId) {
@@ -150,13 +155,7 @@ export default function JourneyCreatePage() {
                 return;
             }
             console.error("Failed to create journey", err);
-            const serverErrors: JourneyErrors = {};
-            for (const [apiField, message] of Object.entries(apiFieldErrors(err))) {
-                const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                if (formField) {
-                    serverErrors[formField] = message;
-                }
-            }
+            const serverErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(serverErrors).length > 0) {
                 setErrors((prev) => ({ ...prev, ...serverErrors }));
             } else {
@@ -239,7 +238,11 @@ export default function JourneyCreatePage() {
                         value={form.destination}
                         query={destinationQuery}
                         onQueryChange={setDestinationQuery}
-                        onChange={(option) => setForm((prev) => ({ ...prev, destination: option }))}
+                        onChange={(option) => {
+                            setErrors((prev) => ({ ...prev, destination: undefined }));
+                            setSubmitError(null);
+                            setForm((prev) => ({ ...prev, destination: option }));
+                        }}
                         fetcher={searchUniversities}
                         error={touched.destination ? errors.destination : undefined}
                         required
