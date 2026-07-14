@@ -186,7 +186,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
                         <Button type="button" variant="ghost" onClick={handleBack} disabled={submitting}>
                             {t("report.modal.cancel")}
                         </Button>
-                        <Button type="submit" variant="primary" disabled={submitting}>
+                        <Button type="submit" variant="danger" disabled={submitting}>
                             {submitting
                                 ? t("report.submitting", { defaultValue: "Submitting..." })
                                 : t("report.modal.submit")}

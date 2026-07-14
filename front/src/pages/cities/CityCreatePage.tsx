@@ -100,7 +100,7 @@ export default function CityCreatePage() {
         setSubmitting(true);
         setSubmitError(null);
         createCity({ name: form.name.trim(), countryId })
-            .then((created) => navigate(`/cities/${created.id}`))
+            .then((created) => navigate(`/cities/${created.id}`, { replace: true }))
             .catch((error) => {
                 console.error("Failed to create city", error);
                 const nextServerErrors: Partial<Record<keyof CityFormState, string>> = {};

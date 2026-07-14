@@ -59,7 +59,7 @@ export default function CareerCreatePage() {
         setSubmitting(true);
         setSubmitError(null);
         createCareer({ name: form.name.trim() })
-            .then((created) => navigate(`/careers/${created.id}`))
+            .then((created) => navigate(`/careers/${created.id}`, { replace: true }))
             .catch((error) => {
                 console.error("Failed to create career", error);
                 const nextServerErrors: Partial<Record<keyof CareerFormState, string>> = {};

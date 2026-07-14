@@ -112,7 +112,7 @@ export default function UniversityCreatePage() {
             abbreviation: form.abbreviation.trim(),
             cityId,
         })
-            .then((created) => navigate(`/universities/${created.id}`))
+            .then((created) => navigate(`/universities/${created.id}`, { replace: true }))
             .catch((error) => {
                 console.error("Failed to create university", error);
                 const nextServerErrors: Partial<Record<keyof UniversityFormState, string>> = {};

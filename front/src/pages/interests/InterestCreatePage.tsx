@@ -54,7 +54,7 @@ export default function InterestCreatePage() {
         mutationFn: (payload: InterestPayload) => createInterest(payload),
         onSuccess: (created) => {
             queryClient.invalidateQueries({ queryKey: ["adminInterests"] });
-            navigate(`/interests/${created.id}`);
+            navigate(`/interests/${created.id}`, { replace: true });
         },
         onError: (error) => {
             console.error("Failed to create interest", error);

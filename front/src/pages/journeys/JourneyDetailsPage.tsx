@@ -643,12 +643,8 @@ export default function JourneyDetailPage() {
                                             {(isOwner || admin) && (
                                                 <Link
                                                     to={`/journeys/${id}/delete`}
+                                                    className="action-menu__item is-danger"
                                                     style={{
-                                                        color: "#333",
-                                                        padding: "12px 16px",
-                                                        textDecoration: "none",
-                                                        display: "flex",
-                                                        alignItems: "center",
                                                         gap: "12px",
                                                     }}
                                                 >
@@ -664,13 +660,9 @@ export default function JourneyDetailPage() {
                                             {!isOwner && (
                                                 <Link
                                                     to={`/reports/journeys/${id}/create`}
+                                                    className="action-menu__item is-danger"
                                                     onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
                                                     style={{
-                                                        color: "#333",
-                                                        padding: "12px 16px",
-                                                        textDecoration: "none",
-                                                        display: "flex",
-                                                        alignItems: "center",
                                                         gap: "12px",
                                                     }}
                                                 >
@@ -1025,14 +1017,9 @@ export default function JourneyDetailPage() {
                                                                             </Link>
                                                                             <Link
                                                                                 to={`/journeys/tips/${tip.id}/delete?journeyId=${id}&tipsPage=${tipsPage}`}
+                                                                                className="action-menu__item is-danger"
                                                                                 style={{
-                                                                                    color: "#333",
-                                                                                    padding: "10px 14px",
-                                                                                    textDecoration: "none",
-                                                                                    display: "flex",
-                                                                                    alignItems: "center",
                                                                                     gap: "10px",
-                                                                                    fontSize: "13px",
                                                                                 }}
                                                                             >
                                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1178,18 +1165,9 @@ export default function JourneyDetailPage() {
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => handleReportComment(response.id)}
+                                                                            className="action-menu__item is-danger"
                                                                             style={{
-                                                                                color: "#333",
-                                                                                padding: "10px 14px",
-                                                                                textDecoration: "none",
-                                                                                display: "flex",
-                                                                                alignItems: "center",
                                                                                 gap: "10px",
-                                                                                fontSize: "13px",
-                                                                                width: "100%",
-                                                                                border: "none",
-                                                                                background: "transparent",
-                                                                                cursor: "pointer",
                                                                             }}
                                                                         >
                                                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1204,18 +1182,9 @@ export default function JourneyDetailPage() {
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => handleDeleteComment(response.id)}
+                                                                            className="action-menu__item is-danger"
                                                                             style={{
-                                                                                color: "#333",
-                                                                                padding: "10px 14px",
-                                                                                textDecoration: "none",
-                                                                                display: "flex",
-                                                                                alignItems: "center",
                                                                                 gap: "10px",
-                                                                                fontSize: "13px",
-                                                                                width: "100%",
-                                                                                border: "none",
-                                                                                background: "transparent",
-                                                                                cursor: "pointer",
                                                                             }}
                                                                         >
                                                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

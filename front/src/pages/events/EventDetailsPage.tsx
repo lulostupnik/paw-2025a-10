@@ -732,16 +732,12 @@ return (
                                                     {!isOwner && (
                                                         <Link
                                                             to={`/reports/events/${id}/create`}
+                                                            className="action-menu__item is-danger"
                                                             onClick={() => {
                                                                 setActionMenuOpen(false);
                                                                 pushToNavigationStack(`${location.pathname}${location.search}`);
                                                             }}
                                                             style={{
-                                                                color: "#333",
-                                                                padding: "12px 16px",
-                                                                textDecoration: "none",
-                                                                display: "flex",
-                                                                alignItems: "center",
                                                                 gap: "12px",
                                                             }}
                                                         >
@@ -756,13 +752,9 @@ return (
                                                     {(isOwner || admin) && (
                                                         <Link
                                                             to={`/events/${id}/delete`}
+                                                            className="action-menu__item is-danger"
                                                             onClick={() => setActionMenuOpen(false)}
                                                             style={{
-                                                                color: "#333",
-                                                                padding: "12px 16px",
-                                                                textDecoration: "none",
-                                                                display: "flex",
-                                                                alignItems: "center",
                                                                 gap: "12px",
                                                             }}
                                                         >
@@ -1121,17 +1113,12 @@ return (
                                                                             >
                                                                                     <Link
                                                                                         to={`/reports/event-responses/${response.id}/create`}
+                                                                                        className="action-menu__item is-danger"
                                                                                         onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
                                                                                         style={{
-                                                                                            color: "#333",
-                                                                                            padding: "10px 14px",
-                                                                                        textDecoration: "none",
-                                                                                        display: "flex",
-                                                                                        alignItems: "center",
-                                                                                        gap: "10px",
-                                                                                        fontSize: "13px",
-                                                                                    }}
-                                                                                >
+                                                                                            gap: "10px",
+                                                                                        }}
+                                                                                    >
                                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                                                         <path d="M12 9v4"></path>
                                                                                         <path d="M12 17h.01"></path>
@@ -1142,16 +1129,11 @@ return (
                                                                                     {(admin || response.user.username === username) && (
                                                                                         <Link
                                                                                             to={`/events/reply/${response.id}/delete?eventId=${id}`}
+                                                                                            className="action-menu__item is-danger"
                                                                                             style={{
-                                                                                                color: "#333",
-                                                                                                padding: "10px 14px",
-                                                                                            textDecoration: "none",
-                                                                                            display: "flex",
-                                                                                            alignItems: "center",
-                                                                                            gap: "10px",
-                                                                                            fontSize: "13px",
-                                                                                        }}
-                                                                                    >
+                                                                                                gap: "10px",
+                                                                                            }}
+                                                                                        >
                                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                                                             <path d="M3 6h18"></path>
                                                                                             <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
