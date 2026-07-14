@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
@@ -12,7 +12,9 @@ import {
     type CatalogSearchFn,
 } from "@/lib/api/catalog";
 import { useRegister } from "@/hooks/useRegister";
-import { apiFieldErrors } from "@/lib/api/client";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import InterestMultiSelectField from "@/components/form/InterestMultiSelectField";
+import { useAsyncCatalogOptions, useDropdownState } from "@/components/form/catalogAutocompleteHooks";
 
 type RegisterField =
     | "email"
@@ -108,45 +110,6 @@ function evaluatePassword(value: string): PasswordStrength {
     return { level: 4, status: "strong", labelKey: "register.password.strength.strong" };
 }
 
-function useAsyncOptions(fetcher: CatalogSearchFn, enabled: boolean, query: string) {
-    const [options, setOptions] = useState<CatalogOption[]>([]);
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        if (!enabled) {
-            return;
-        }
-        const controller = new AbortController();
-        setLoading(true);
-        fetcher(query, controller.signal)
-            .then((result) => setOptions(result))
-            .catch(() => setOptions([]))
-            .finally(() => setLoading(false));
-
-        return () => controller.abort();
-    }, [fetcher, enabled, query]);
-
-    return { options, loading };
-}
-
-function useDropdownState() {
-    const [open, setOpen] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (!open) return;
-        const handleClick = (event: MouseEvent) => {
-            if (ref.current && !ref.current.contains(event.target as Node)) {
-                setOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClick);
-        return () => document.removeEventListener("mousedown", handleClick);
-    }, [open]);
-
-    return { open, setOpen, ref } as const;
-}
-
 interface SingleSelectFieldProps {
     label: string;
     name: RegisterField;
@@ -163,7 +126,7 @@ function SingleSelectField({ label, name, placeholder, value, onChange, fetcher,
     const { t } = useI18n();
     const [query, setQuery] = useState("");
     const { open, setOpen, ref } = useDropdownState();
-    const { options, loading } = useAsyncOptions(fetcher, open, query);
+    const { options, loading } = useAsyncCatalogOptions(fetcher, open, query);
 
     useEffect(() => {
         if (!value) {
@@ -247,118 +210,6 @@ function SingleSelectField({ label, name, placeholder, value, onChange, fetcher,
     );
 }
 
-interface MultiSelectFieldProps {
-    label: string;
-    name: RegisterField;
-    placeholder: string;
-    selected: CatalogOption[];
-    onChange: (next: CatalogOption[]) => void;
-    fetcher: CatalogSearchFn;
-    helper?: string;
-    error?: string;
-    touched?: boolean;
-    required?: boolean;
-}
-
-function MultiSelectField({
-    label,
-    name,
-    placeholder,
-    selected,
-    onChange,
-    fetcher,
-    helper,
-    error,
-    touched,
-    required = true,
-}: MultiSelectFieldProps) {
-    const { t } = useI18n();
-    const [query, setQuery] = useState("");
-    const { open, setOpen, ref } = useDropdownState();
-    const { options, loading } = useAsyncOptions(fetcher, open, query);
-
-    const available = options.filter((option) => !selected.some((item) => item.id === option.id));
-    const showError = Boolean(error && touched);
-
-    return (
-        <div className={classNames("form-field", "autocomplete-field", "autocomplete-field--multiple", showError && "has-error")} ref={ref}>
-            <label className="input-label" htmlFor={`field-${name}`}>
-                {label}
-                {required && (
-                    <span className="required-indicator" aria-hidden="true">
-                        *
-                    </span>
-                )}
-            </label>
-            <div className="input-with-addon">
-                <input
-                    id={`field-${name}`}
-                    className={classNames("input-control", showError && "input-control--error")}
-                    value={query}
-                    onFocus={() => setOpen(true)}
-                    onChange={(event) => {
-                        setQuery(event.target.value);
-                        if (!open) {
-                            setOpen(true);
-                        }
-                    }}
-                    placeholder={placeholder}
-                    autoComplete="off"
-                />
-                <button type="button" className="input-addon" onClick={() => setOpen((prev) => !prev)} aria-label={t("register.autocomplete.toggle")}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                </button>
-            </div>
-
-            <div className="chip-list" aria-live="polite">
-                {selected.map((interest) => (
-                    <span className="chip" key={interest.id}>
-                        {interest.name}
-                        <button
-                            type="button"
-                            onClick={() => onChange(selected.filter((item) => item.id !== interest.id))}
-                            aria-label={t("register.interests.remove", { values: { name: interest.name } })}
-                        >
-                            ×
-                        </button>
-                    </span>
-                ))}
-            </div>
-
-            {selected.length === 0 && helper && <p className="form-field__text">{helper}</p>}
-            {showError && <p className="form-field__text form-field__text--error">{error}</p>}
-
-            <div className={classNames("autocomplete-panel", open && "is-open")}
-                role="listbox"
-                aria-multiselectable="true"
-            >
-                {loading && <p className="autocomplete-status">{t("register.autocomplete.loading")}</p>}
-                {!loading && available.length === 0 && (
-                    <p className="autocomplete-status">{t("register.autocomplete.noResults")}</p>
-                )}
-                {!loading &&
-                    available.map((option) => (
-                        <button
-                            type="button"
-                            key={option.id}
-                            className="autocomplete-option"
-                            onMouseDown={(event) => event.preventDefault()}
-                            onClick={() => {
-                                onChange([...selected, option]);
-                                setQuery("");
-                                setOpen(false);
-                            }}
-                        >
-                            {option.name}
-                        </button>
-                    ))}
-            </div>
-        </div>
-    );
-}
-
 function validateForm(data: RegisterFormData, t: (key: string, options?: Record<string, unknown>) => string): ValidationResult {
     const errors: ValidationResult = {};
 
@@ -436,6 +287,10 @@ export default function RegisterPage() {
 
     const handleTextChange = (field: keyof RegisterFormData) => (event: ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target;
+        if (registerErrorKey) {
+            reset();
+        }
+        setServerErrors((prev) => ({ ...prev, [field]: undefined }));
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -474,13 +329,7 @@ export default function RegisterPage() {
             setForm(initialForm);
             setTouched(initialTouchedState);
         } catch (err) {
-            const nextServerErrors: ValidationResult = {};
-            for (const [apiField, message] of Object.entries(apiFieldErrors(err))) {
-                const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                if (formField) {
-                    nextServerErrors[formField] = message;
-                }
-            }
+            const nextServerErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(nextServerErrors).length > 0) {
                 setServerErrors(nextServerErrors);
                 // Con errores por campo no mostramos el banner global del hook.
@@ -704,6 +553,10 @@ export default function RegisterPage() {
                             placeholder={t("register.searchPlaceholder")}
                             value={form.career}
                             onChange={(option) => {
+                                if (registerErrorKey) {
+                                    reset();
+                                }
+                                setServerErrors((prev) => ({ ...prev, career: undefined }));
                                 setForm((prev) => ({ ...prev, career: option }));
                                 markTouched("career");
                             }}
@@ -718,6 +571,10 @@ export default function RegisterPage() {
                             placeholder={t("register.searchPlaceholder")}
                             value={form.university}
                             onChange={(option) => {
+                                if (registerErrorKey) {
+                                    reset();
+                                }
+                                setServerErrors((prev) => ({ ...prev, university: undefined }));
                                 setForm((prev) => ({ ...prev, university: option }));
                                 markTouched("university");
                             }}
@@ -726,12 +583,16 @@ export default function RegisterPage() {
                             touched={touched.university}
                         />
 
-                        <MultiSelectField
+                        <InterestMultiSelectField
                             label={t("register.interests")}
                             name="interests"
                             placeholder={t("register.interestsPlaceholder")}
                             selected={form.interests}
                             onChange={(options) => {
+                                if (registerErrorKey) {
+                                    reset();
+                                }
+                                setServerErrors((prev) => ({ ...prev, interests: undefined }));
                                 setForm((prev) => ({ ...prev, interests: options }));
                                 markTouched("interests");
                             }}
