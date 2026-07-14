@@ -4,6 +4,7 @@ import { useI18n } from "@/lib/i18n";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import { classNames } from "@/lib/utils/classNames";
 import { useToast } from "@/components/ui/ToastProvider";
+import { apiErrorMessage } from "@/lib/api/client";
 import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 type PasswordStrengthStatus = "empty" | "very-weak" | "weak" | "medium" | "strong";
@@ -48,6 +49,7 @@ export default function ProfilePasswordForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [touched, setTouched] = useState({ password: false, confirmPassword: false });
+    const [submitError, setSubmitError] = useState<string | null>(null);
     const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
     const passwordStrength = useMemo(() => evaluatePassword(password), [password]);
@@ -56,12 +58,22 @@ export default function ProfilePasswordForm() {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setTouched({ password: true, confirmPassword: true });
+        setSubmitError(null);
         if (!password || !confirmPassword || !passwordsMatch) {
             return;
         }
-        await updatePassword({ password, confirmPassword });
-        showToast(t("profile.toast.passwordUpdated", { defaultValue: "Password updated successfully." }), { variant: "success" });
-        navigate(returnPath ?? "/profiles/me/info", { replace: true });
+        try {
+            await updatePassword({ password, confirmPassword });
+            showToast(t("profile.toast.passwordUpdated"), { variant: "success" });
+            navigate(returnPath ?? "/profiles/me/info", { replace: true });
+        } catch (error) {
+            setSubmitError(
+                apiErrorMessage(
+                    error,
+                    t("admin.dashboard.error", { defaultValue: "Error guardando los cambios." })
+                )
+            );
+        }
     };
 
     return (
@@ -177,6 +189,8 @@ export default function ProfilePasswordForm() {
                                 )}
                             </div>
                         </div>
+
+                        {submitError && <p className="error-message">{submitError}</p>}
 
                         <button type="submit" className="form-button" disabled={isLoading}>
                             {t("profile.save.changes")}

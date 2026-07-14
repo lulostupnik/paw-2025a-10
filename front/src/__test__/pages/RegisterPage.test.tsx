@@ -76,7 +76,7 @@ describe("RegisterPage", () => {
         const user = userEvent.setup();
         renderRegisterPage();
 
-        const emailInput = screen.getByPlaceholderText("correo@ejemplo.com");
+        const emailInput = screen.getByPlaceholderText("register.email.placeholder");
         await user.type(emailInput, "test@example.com");
         expect(emailInput).toHaveValue("test@example.com");
     });

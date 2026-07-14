@@ -1,7 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
-import { getCareerByUrl, getCityByUrl, getUniversityByUrl, getUserByUrl } from "@/lib/api/journeys";
+import { getCareerByUrl, getUniversityByUrl, getUserByUrl } from "@/lib/api/journeys";
 import type { EventAttendee, EventCreator, EventRating, ProfileEvent } from "@/types/event";
 import { parseApiDate } from "@/lib/utils/date";
 import { mapPageList, toPaged, type PageResult } from "@/types/pagination";
@@ -28,6 +28,7 @@ export interface EventDto {
     attendeesLimit?: number | null;
     attendeesCount?: number | null;
     rating?: number | null;
+    cityName?: string | null;
     links?: EventLinks | null;
 }
 
@@ -142,6 +143,11 @@ export const listEventResponses = async (
     return toPaged(response);
 };
 
+export const getEventResponse = async (eventId: number, responseId: number, signal?: AbortSignal) => {
+    const response = await apiClient.get<EventResponseApi>(`/events/${eventId}/responses/${responseId}`, { signal, headers: { Accept: ContentTypes.EVENT_RESPONSE } });
+    return response.data;
+};
+
 export const listEventAttendees = async (
     eventId: number,
     params: { page?: number; size?: number } = {},
@@ -194,10 +200,7 @@ export const mapEventDtoToSummary = (dto: EventDto): EventSummary => ({
 export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal, queryClient?: QueryClient): Promise<ProfileEvent[]> => {
     const results = await Promise.all(
         events.map(async (event) => {
-            const [city, user] = await Promise.all([
-                getCityByUrl(event.links?.cityUrl, signal, queryClient),
-                getUserByUrl(event.links?.creatorUrl, signal, queryClient),
-            ]);
+            const user = await getUserByUrl(event.links?.creatorUrl, signal, queryClient);
             return {
                 id: event.id,
                 title: event.title,
@@ -207,7 +210,7 @@ export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal
                 attendeesCount: typeof event.attendeesCount === "number" ? event.attendeesCount : undefined,
                 isFull: isEventFull(event.attendeesCount, event.attendeesLimit),
                 flyerImageUrl: event.links?.flyerUrl ?? undefined,
-                city: { name: city?.name ?? "" },
+                city: { name: event.cityName ?? "" },
                 user: {
                     id: user?.id ?? 0,
                     username: user?.username ?? "",

@@ -81,7 +81,19 @@ const ResetIcon = () => (
     </svg>
 );
 
-export default function ListingFiltersDialog({ mode, open, filters, anchorRef, onClose, onApply, onReset }: ListingFiltersDialogProps) {
+export default function ListingFiltersDialog({ open, ...props }: ListingFiltersDialogProps) {
+    if (!open) {
+        return null;
+    }
+
+    // El panel se monta recién al abrirse, así el borrador arranca desde los
+    // filtros vigentes sin sincronizarlo con un efecto.
+    return <ListingFiltersPanel {...props} />;
+}
+
+type ListingFiltersPanelProps = Omit<ListingFiltersDialogProps, "open">;
+
+function ListingFiltersPanel({ mode, filters, anchorRef, onClose, onApply, onReset }: ListingFiltersPanelProps) {
     const { t } = useI18n();
     const [draft, setDraft] = useState<ListingFiltersState>(filters);
     const titleId = useId();
@@ -90,16 +102,7 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
     const [position, setPosition] = useState<{ top: number; left: number }>({ top: 120, left: 16 });
 
     useEffect(() => {
-        if (!open) {
-            return;
-        }
-        setDraft(filters);
-    }, [filters, open]);
-
-    useEffect(() => {
-        if (!open) {
-            return;
-        }
+        const anchor = anchorRef?.current;
         lastFocusedRef.current = document.activeElement as HTMLElement | null;
         const focusable = panelRef.current?.querySelectorAll<HTMLElement>(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -133,18 +136,15 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
         document.addEventListener("keydown", handleKey);
         return () => {
             document.removeEventListener("keydown", handleKey);
-            if (anchorRef?.current) {
-                anchorRef.current.focus();
+            if (anchor) {
+                anchor.focus();
             } else {
                 lastFocusedRef.current?.focus();
             }
         };
-    }, [anchorRef, onClose, open]);
+    }, [anchorRef, onClose]);
 
     useLayoutEffect(() => {
-        if (!open) {
-            return;
-        }
         const updatePosition = () => {
             const anchor = anchorRef?.current;
             const panel = panelRef.current;
@@ -176,12 +176,9 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
             window.removeEventListener("resize", updatePosition);
             window.removeEventListener("scroll", updatePosition, true);
         };
-    }, [anchorRef, open]);
+    }, [anchorRef]);
 
     useEffect(() => {
-        if (!open) {
-            return;
-        }
         const handlePointerDown = (event: MouseEvent) => {
             const target = event.target as Node;
             if (panelRef.current?.contains(target)) {
@@ -194,7 +191,7 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
         };
         document.addEventListener("mousedown", handlePointerDown);
         return () => document.removeEventListener("mousedown", handlePointerDown);
-    }, [anchorRef, onClose, open]);
+    }, [anchorRef, onClose]);
 
     const labels = useMemo(() => {
         if (mode === "events") {
@@ -315,10 +312,6 @@ export default function ListingFiltersDialog({ mode, open, filters, anchorRef, o
             hasCapacity: checked,
         }));
     };
-
-    if (!open) {
-        return null;
-    }
 
     return (
         <div
@@ -465,10 +458,13 @@ function CatalogSelectField({
     const [query, setQuery] = useState(value?.name ?? "");
     const [open, setOpen] = useState(false);
     const debouncedQuery = useDebouncedValue(query);
-
-    useEffect(() => {
+    // El texto tipeado es un borrador de la opción elegida: si la selección
+    // cambia desde afuera, el borrador vuelve a reflejarla.
+    const [lastValue, setLastValue] = useState(value);
+    if (lastValue !== value) {
+        setLastValue(value);
         setQuery(value?.name ?? "");
-    }, [value]);
+    }
 
     useEffect(() => {
         if (!open) {
@@ -636,6 +632,7 @@ function SelectField({ label, value, onChange, options }: SelectFieldProps) {
 }
 
 function CheckboxField({ label, checked, onChange }: CheckboxFieldProps) {
+    const { t } = useI18n();
     const inputId = useId();
     return (
         <div className="form-field filters-field">
@@ -643,7 +640,7 @@ function CheckboxField({ label, checked, onChange }: CheckboxFieldProps) {
                 {label}
             </label>
             <label className="selected-option" htmlFor={inputId}>
-                <span className="selected-option__value">{checked ? "On" : "Off"}</span>
+                <span className="selected-option__value">{checked ? t("common.on") : t("common.off")}</span>
                 <input
                     id={inputId}
                     type="checkbox"

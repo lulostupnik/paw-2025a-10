@@ -17,6 +17,7 @@ export interface JourneySummary {
     description: string;
     startDate: string;
     endDate: string;
+    destinationUniversityName?: string | null;
     links?: JourneyLinks | null;
     city?: string;
     country?: string;

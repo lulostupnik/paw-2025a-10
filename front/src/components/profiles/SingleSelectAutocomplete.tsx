@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { classNames } from "@/lib/utils/classNames";
+import { useI18n } from "@/lib/i18n";
 
 interface Option {
     id: number;
@@ -23,12 +24,16 @@ export default function SingleSelectAutocomplete({
     error,
     onChange,
 }: SingleSelectAutocompleteProps) {
+    const { t } = useI18n();
     const [query, setQuery] = useState(value?.name ?? "");
     const [open, setOpen] = useState(false);
-
-    useEffect(() => {
+    // El texto tipeado es un borrador de la opción elegida: si la selección
+    // cambia desde afuera, el borrador vuelve a reflejarla.
+    const [lastValue, setLastValue] = useState(value);
+    if (lastValue !== value) {
+        setLastValue(value);
         setQuery(value?.name ?? "");
-    }, [value]);
+    }
 
     const filtered = useMemo(() => {
         const normalized = query.trim().toLowerCase();
@@ -81,7 +86,7 @@ export default function SingleSelectAutocomplete({
                         <button
                             type="button"
                             className="tag-remove"
-                            aria-label="Remove"
+                            aria-label={t("common.remove")}
                             onClick={() => {
                                 onChange(null);
                                 setQuery("");

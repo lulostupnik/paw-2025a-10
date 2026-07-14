@@ -1,13 +1,24 @@
 import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import PageStatus from "@/components/ui/PageStatus";
+import ForbiddenPage from "@/pages/errors/ForbiddenPage";
+import { useToast } from "@/components/ui/ToastProvider";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
-import { deleteEventResponse } from "@/lib/api/events";
+import { deleteEventResponse, getEventResponse } from "@/lib/api/events";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
-import { isAdmin } from "@/lib/auth/auth";
+import { getUserId, isAdmin } from "@/lib/auth/auth";
+
+const parseIdFromUrl = (url?: string | null) => {
+    if (!url) {
+        return null;
+    }
+    const match = url.match(/(\d+)\/?$/);
+    return match ? Number(match[1]) : null;
+};
 
 const formatDateTime = (value: string, locale: string) => {
     const date = parseApiDate(value);
@@ -26,6 +37,7 @@ const formatDateTime = (value: string, locale: string) => {
 export default function EventReplyDeletePage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const { responseId } = useParams();
     const [searchParams] = useSearchParams();
     const eventId = searchParams.get("eventId");
@@ -34,16 +46,21 @@ export default function EventReplyDeletePage() {
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
+    const parsedEventId = eventId && Number.isFinite(Number(eventId)) ? Number(eventId) : null;
+    const parsedResponseId = responseId && Number.isFinite(Number(responseId)) ? Number(responseId) : null;
+
     const response = useMemo(() => {
-        if (!responseId) {
+        if (parsedResponseId == null) {
             return null;
         }
-        const parsed = Number(responseId);
-        if (!Number.isFinite(parsed)) {
-            return null;
-        }
-        return data?.comments?.find((comment) => comment.id === parsed) ?? null;
-    }, [data?.comments, responseId]);
+        return data?.comments?.find((comment) => comment.id === parsedResponseId) ?? null;
+    }, [data?.comments, parsedResponseId]);
+
+    const responseQuery = useQuery({
+        queryKey: ["eventResponse", parsedEventId, parsedResponseId],
+        queryFn: ({ signal }) => getEventResponse(parsedEventId!, parsedResponseId!, signal),
+        enabled: parsedEventId != null && parsedResponseId != null,
+    });
 
     const handleBack = () => {
         const previous = popFromNavigationStack();
@@ -76,6 +93,7 @@ export default function EventReplyDeletePage() {
                 parsedResponseId,
                 message.trim() ? { message: message.trim() } : undefined
             );
+            showToast(t("eventResponse.toast.deleted"), { variant: "success" });
             navigate(`/events/${eventId}`);
         } catch (err) {
             console.error("Failed to delete event response", err);
@@ -85,7 +103,7 @@ export default function EventReplyDeletePage() {
         }
     };
 
-    if (isLoading) {
+    if (isLoading || responseQuery.isLoading) {
         return <PageStatus className="event-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
@@ -94,6 +112,13 @@ export default function EventReplyDeletePage() {
     }
     if (!data) {
         return <PageStatus className="event-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // El comentario sólo lo puede borrar su autor o un administrador; el resto no
+    // debe llegar a ver la confirmación.
+    const authorId = parseIdFromUrl(responseQuery.data?.links?.authorUrl);
+    if (!isAdmin() && (authorId == null || authorId !== getUserId())) {
+        return <ForbiddenPage />;
     }
 
     return (

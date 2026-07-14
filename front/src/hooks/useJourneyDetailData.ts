@@ -70,7 +70,12 @@ export const useJourneyDetailData = ({ journeyId }: JourneyDetailParams = {}) =>
               startDate: journey.startDate,
               endDate: journey.endDate,
               links: journey.links ?? null,
-              destinationUniversity: destinationQuery.data ?? { name: "", city: "" },
+              // The journey carries its destination name, so the edit form can seed
+              // it without waiting for the university lookup (that only adds the city).
+              destinationUniversity: {
+                  name: journey.destinationUniversityName ?? destinationQuery.data?.name ?? "",
+                  city: destinationQuery.data?.city ?? "",
+              },
               user: creatorQuery.data ?? fallbackCreator,
               interests: [],
               events: [],

@@ -3,10 +3,12 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import PageStatus from "@/components/ui/PageStatus";
+import ForbiddenPage from "@/pages/errors/ForbiddenPage";
+import { useToast } from "@/components/ui/ToastProvider";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { deleteEvent } from "@/lib/api/events";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
-import { getUserId } from "@/lib/auth/auth";
+import { getUserId, isAdmin } from "@/lib/auth/auth";
 import { parseApiDate } from "@/lib/utils/date";
 
 const formatDate = (value: string, locale: string) => {
@@ -20,12 +22,14 @@ const formatDate = (value: string, locale: string) => {
 export default function EventDeletePage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const { id } = useParams();
     const { data, isLoading, isError } = useEventDetailData({ eventId: id });
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const isOwner = data?.user?.id === getUserId();
+    const admin = isAdmin();
 
     const handleBack = () => {
         const previous = popFromNavigationStack();
@@ -49,6 +53,7 @@ export default function EventDeletePage() {
             setSubmitting(true);
             setSubmitError(null);
             await deleteEvent(Number(id), message.trim() ? { message: message.trim() } : undefined);
+            showToast(t("event.toast.deleted"), { variant: "success" });
             navigate("/events");
         } catch (err) {
             console.error("Failed to delete event", err);
@@ -67,6 +72,12 @@ export default function EventDeletePage() {
     }
     if (!data) {
         return <PageStatus className="event-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // El organizador y los administradores son los únicos que pueden dar de baja
+    // el evento; el resto no debe llegar a ver la confirmación.
+    if (!isOwner && !admin) {
+        return <ForbiddenPage />;
     }
 
     return (

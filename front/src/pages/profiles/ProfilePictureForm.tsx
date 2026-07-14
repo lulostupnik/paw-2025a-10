@@ -16,31 +16,34 @@ export default function ProfilePictureForm() {
     const { showToast } = useToast();
     const { data: profile, isLoading, isError } = useProfileDetail("me");
     const { updatePicture, isLoading: isSaving } = useProfileUpsert();
-    const [file, setFile] = useState<File | null>(null);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    // La preview vive junto al archivo que la origina: así el object URL se crea
+    // en el handler y no hace falta sincronizar dos estados con un efecto.
+    const [picture, setPicture] = useState<{ file: File; previewUrl: string } | null>(null);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
     useEffect(() => {
-        if (!file) {
-            setPreviewUrl(null);
+        if (!picture) {
             return;
         }
-        const objectUrl = URL.createObjectURL(file);
-        setPreviewUrl(objectUrl);
-        return () => URL.revokeObjectURL(objectUrl);
-    }, [file]);
+        const { previewUrl } = picture;
+        return () => URL.revokeObjectURL(previewUrl);
+    }, [picture]);
+
+    const handleFileChange = (nextFile: File | null) => {
+        setPicture(nextFile ? { file: nextFile, previewUrl: URL.createObjectURL(nextFile) } : null);
+    };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setSubmitError(null);
-        if (!file) {
-            setSubmitError(t("ImageNotEmpty.editPictureForm.picture", { defaultValue: "Please upload a profile picture" }));
+        if (!picture) {
+            setSubmitError(t("ImageNotEmpty.editPictureForm.picture"));
             return;
         }
         try {
-            await updatePicture({ picture: file });
-            showToast(t("profile.toast.updated", { defaultValue: "Profile updated successfully." }), { variant: "success" });
+            await updatePicture({ picture: picture.file });
+            showToast(t("profile.toast.updated"), { variant: "success" });
             navigate(returnPath ?? "/profiles/me/info", { replace: true });
         } catch (error) {
             setSubmitError(
@@ -82,9 +85,9 @@ export default function ProfilePictureForm() {
                         <div className="profile-picture-section">
                             <div className="current-avatar-container">
                                 <div className="current-avatar" id="currentAvatar">
-                                    {previewUrl || profile.links?.profilePictureUrl ? (
+                                    {picture || profile.links?.profilePictureUrl ? (
                                         <img
-                                            src={previewUrl ?? profile.links?.profilePictureUrl ?? ""}
+                                            src={picture?.previewUrl ?? profile.links?.profilePictureUrl ?? ""}
                                             alt={profile.username}
                                             className="avatar-image current-avatar-image"
                                             id="avatarPreview"
@@ -113,19 +116,23 @@ export default function ProfilePictureForm() {
                                             type="file"
                                             className="file-upload-input"
                                             accept="image/png, image/jpeg"
-                                            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                                            onChange={(event) => handleFileChange(event.target.files?.[0] ?? null)}
                                         />
                                     </label>
                                 </div>
-                                {file && (
+                                {picture && (
                                     <div className="file-preview">
-                                        {previewUrl && <img src={previewUrl} className="file-preview-image" alt="Preview" />}
-                                        <span className="file-preview-name">{file.name}</span>
+                                        <img
+                                            src={picture.previewUrl}
+                                            className="file-preview-image"
+                                            alt={t("profile.picture.preview.alt")}
+                                        />
+                                        <span className="file-preview-name">{picture.file.name}</span>
                                         <button
                                             type="button"
                                             className="file-preview-remove"
-                                            aria-label="Remove file"
-                                            onClick={() => setFile(null)}
+                                            aria-label={t("common.removeFile")}
+                                            onClick={() => handleFileChange(null)}
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                                 <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import type { ProfileDetail } from "@/types/profile";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
@@ -19,26 +20,23 @@ interface ProfileFormState {
     username: string;
 }
 
+interface Option {
+    id: number;
+    name: string;
+}
+
+interface ProfileEditFormProps {
+    profileId: string;
+    profile: ProfileDetail;
+    universities: Option[];
+    careers: Option[];
+    hasOptionsError: boolean;
+}
+
 export default function ProfileForm() {
     const { t } = useI18n();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { showToast } = useToast();
     const { profileId = "me" } = useParams();
-    const { data: profile, isLoading, isError } = useProfileDetail(profileId);
-    const { updateProfile, isLoading: isSaving } = useProfileUpsert();
-    const [form, setForm] = useState<ProfileFormState>({
-        firstName: "",
-        lastName: "",
-        username: "",
-    });
-    const [touched, setTouched] = useState({ firstName: false, lastName: false, username: false });
-    const [submitError, setSubmitError] = useState<string | null>(null);
-    const [selectedUniversity, setSelectedUniversity] = useState<{ id: number; name: string } | null>(null);
-    const [selectedCareer, setSelectedCareer] = useState<{ id: number; name: string } | null>(null);
-    const returnPathKey = `profile:return:${profileId}`;
-    const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
-    const returnPath = fromState ?? sanitizeInternalPath(sessionStorage.getItem(returnPathKey));
+    const { data: profile, isLoading, isError, infoLoading } = useProfileDetail(profileId);
 
     const universitiesQuery = useQuery({
         queryKey: ["profileUniversities"],
@@ -57,43 +55,55 @@ export default function ProfileForm() {
         () => (careersQuery.data ?? emptyPage()).content.map((item) => ({ id: item.id, name: item.name })),
         [careersQuery.data]
     );
-    const resolvedUniversity = useMemo(
-        () => (profile?.university ? universities.find((item) => item.name === profile.university?.name) ?? null : null),
-        [profile?.university, universities]
-    );
-    const resolvedCareer = useMemo(
-        () => (profile?.career ? careers.find((item) => item.name === profile.career?.name) ?? null : null),
-        [careers, profile?.career]
-    );
-    const profileSnapshot = useMemo(
-        () =>
-            profile
-                ? JSON.stringify({
-                    id: profile.id,
-                    firstName: profile.firstname,
-                    lastName: profile.lastname,
-                    username: profile.username,
-                    universityId: resolvedUniversity?.id ?? null,
-                    careerId: resolvedCareer?.id ?? null,
-                })
-                : null,
-        [profile, resolvedCareer?.id, resolvedUniversity?.id]
-    );
-    const [hydratedSnapshot, setHydratedSnapshot] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (!profile || !profileSnapshot || hydratedSnapshot === profileSnapshot) {
-            return;
-        }
-        setForm({
-            firstName: profile.firstname,
-            lastName: profile.lastname,
-            username: profile.username,
-        });
-        setSelectedUniversity(resolvedUniversity);
-        setSelectedCareer(resolvedCareer);
-        setHydratedSnapshot(profileSnapshot);
-    }, [hydratedSnapshot, profile, profileSnapshot, resolvedCareer, resolvedUniversity]);
+    // Se espera al perfil y a las opciones antes de montar el form: así arranca
+    // precargado sin sincronizar el estado con un efecto.
+    if (isLoading || infoLoading || universitiesQuery.isLoading || careersQuery.isLoading) {
+        return <PageStatus className="profile-form-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
+    }
+
+    if (isError || !profile) {
+        return (
+            <div className="profile-form-page">
+                <div className="error-container">{t("profile.not.found")}</div>
+            </div>
+        );
+    }
+
+    return (
+        <ProfileEditForm
+            key={profile.id}
+            profileId={profileId}
+            profile={profile}
+            universities={universities}
+            careers={careers}
+            hasOptionsError={Boolean(universitiesQuery.isError || careersQuery.isError)}
+        />
+    );
+}
+
+function ProfileEditForm({ profileId, profile, universities, careers, hasOptionsError }: ProfileEditFormProps) {
+    const { t } = useI18n();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { showToast } = useToast();
+    const { updateProfile, isLoading: isSaving } = useProfileUpsert();
+    const [form, setForm] = useState<ProfileFormState>({
+        firstName: profile.firstname,
+        lastName: profile.lastname,
+        username: profile.username,
+    });
+    const [touched, setTouched] = useState({ firstName: false, lastName: false, username: false });
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [selectedUniversity, setSelectedUniversity] = useState<Option | null>(
+        () => universities.find((item) => item.name === profile.university?.name) ?? null
+    );
+    const [selectedCareer, setSelectedCareer] = useState<Option | null>(
+        () => careers.find((item) => item.name === profile.career?.name) ?? null
+    );
+    const returnPathKey = `profile:return:${profileId}`;
+    const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
+    const returnPath = fromState ?? sanitizeInternalPath(sessionStorage.getItem(returnPathKey));
 
     useEffect(() => {
         if (fromState) {
@@ -125,9 +135,8 @@ export default function ProfileForm() {
                 universityId: selectedUniversity?.id,
                 careerId: selectedCareer?.id,
             });
-            const fallbackPath = profile ? `/profiles/${profile.id}/info` : "/profiles/me/info";
-            showToast(t("profile.toast.updated", { defaultValue: "Profile updated successfully." }), { variant: "success" });
-            navigate(returnPath ?? fallbackPath, { replace: true });
+            showToast(t("profile.toast.updated"), { variant: "success" });
+            navigate(returnPath ?? `/profiles/${profile.id}/info`, { replace: true });
         } catch (err) {
             setSubmitError(
                 apiErrorMessage(
@@ -139,18 +148,6 @@ export default function ProfileForm() {
             );
         }
     };
-
-    if (isLoading) {
-        return <PageStatus className="profile-form-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
-    }
-
-    if (isError || !profile) {
-        return (
-            <div className="profile-form-page">
-                <div className="error-container">{t("profile.not.found")}</div>
-            </div>
-        );
-    }
 
     const handleBack = () => {
         navigate(returnPath ?? `/profiles/${profile.id}/info`, { replace: true });
@@ -248,7 +245,7 @@ export default function ProfileForm() {
                                 />
                             </div>
                         </div>
-                        {(universitiesQuery.isError || careersQuery.isError) && (
+                        {hasOptionsError && (
                             <p className="error-message">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
                         )}
                         {submitError && (

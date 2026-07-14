@@ -1,16 +1,21 @@
 import { apiErrorMessage } from "@/lib/api/client";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminCareerDetailData } from "@/hooks/useAdminDetailData";
 import { deleteCareer } from "@/lib/api/careers";
 import PageStatus from "@/components/ui/PageStatus";
+import { useToast } from "@/components/ui/ToastProvider";
+import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
 
 export default function CareerDetailPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
     const { id } = useParams();
     const { data: career, isLoading, isError } = useAdminCareerDetailData({ id });
     const [modalOpen, setModalOpen] = useState(false);
@@ -86,7 +91,7 @@ export default function CareerDetailPage() {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h2>{t("interest.delete.confirm.title")}</h2>
-                            <button type="button" className="close-modal" aria-label="Close" onClick={() => setModalOpen(false)}>
+                            <button type="button" className="close-modal" aria-label={t("common.close")} onClick={() => setModalOpen(false)}>
                                 &times;
                             </button>
                         </div>
@@ -111,6 +116,8 @@ export default function CareerDetailPage() {
                                     setActionError(null);
                                     try {
                                         await deleteCareer(id);
+                                        await invalidateAdminEntityQueries(queryClient, "career", id);
+                                        showToast(t("admin.toast.deleted"), { variant: "success" });
                                         navigate("/admin/careers");
                                     } catch (error) {
                                         console.error("Failed to delete career", error);

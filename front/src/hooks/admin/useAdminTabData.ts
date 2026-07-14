@@ -45,7 +45,7 @@ const useAdminListParams = ({ search = "", page = 1, pageSize = 10, url = undefi
     const safePageSize = Math.max(1, pageSize);
     const params = useMemo(
         () => buildListParams(search, safePage, safePageSize, url),
-        [search, safePage, safePageSize]
+        [search, safePage, safePageSize, url]
     );
 
     return { params, safePage, safePageSize };
@@ -115,7 +115,7 @@ export const useAdminUsers = ({
             career,
             interest,
         }),
-        [blocked, career, interest, page, safePage, safePageSize, search, university, url]
+        [blocked, career, interest, safePage, safePageSize, search, university, url]
     );
 
     const query = useQuery({

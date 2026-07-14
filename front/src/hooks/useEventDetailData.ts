@@ -1,6 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { buildEventCreator, buildEventRatings, getEventById, isEventFuture } from "@/lib/api/events";
-import { getCityByUrl } from "@/lib/api/journeys";
 import type { EventCreator, EventDetail } from "@/types/event";
 
 interface EventDetailParams {
@@ -45,13 +44,6 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
         placeholderData: keepPreviousData,
     });
 
-    const cityQuery = useQuery({
-        queryKey: ["eventCity", eventId, cityUrl],
-        queryFn: ({ signal }) => getCityByUrl(cityUrl, signal, queryClient),
-        enabled: Boolean(cityUrl),
-        placeholderData: keepPreviousData,
-    });
-
     const ratingsQuery = useQuery({
         queryKey: ["eventRatings", eventId],
         queryFn: ({ signal }) => buildEventRatings(event!.id, signal, queryClient),
@@ -86,7 +78,7 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
               id: event.id,
               title: event.title,
               description: event.description ?? "",
-              city: { id: cityQuery.data?.id, name: cityQuery.data?.name ?? "" },
+              city: { id: parseIdFromUrl(cityUrl) ?? undefined, name: event.cityName ?? "" },
               date: event.date ?? "",
               time: event.time ?? null,
               address: event.address ?? null,
@@ -111,7 +103,6 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
         creatorLoading: creatorQuery.isLoading,
         creatorError: creatorQuery.isError,
         creatorReady: Boolean(creatorQuery.data),
-        cityLoading: cityQuery.isLoading,
         ratingsLoading: ratingsQuery.isLoading,
         ratingsError: ratingsQuery.isError,
     };

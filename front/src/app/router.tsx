@@ -67,6 +67,7 @@ export const router = createBrowserRouter([
     {
         path: "/",
         element: <MainLayout />,
+        errorElement: <ServerErrorPage />,
         children: [
             // PUBLIC
             { index: true, element: <HomeRoute /> },
@@ -111,26 +112,33 @@ export const router = createBrowserRouter([
                     { path: "profiles/me/edit-picture", element: withSuspense(<ProfilePictureForm />) },
                     { path: "profiles/me/change-password", element: withSuspense(<ProfilePasswordForm />) },
                     { path: "profiles/me/interests/edit", element: withSuspense(<ProfileInterestsEdit />) },
-                    { path: "admin", element: withSuspense(<AdminPage />) },
-                    { path: "admin/:tab", element: withSuspense(<AdminPage />) },
-                    { path: "reports/:id", element: withSuspense(<ReportDetailPage />) },
                     { path: "reports/journeys/:id/create", element: withSuspense(<ReportCreatePage reportType="JOURNEY" />) },
                     { path: "reports/events/:id/create", element: withSuspense(<ReportCreatePage reportType="EVENT" />) },
                     { path: "reports/journey-responses/:id/create", element: withSuspense(<ReportCreatePage reportType="JOURNEY_RESPONSE" />) },
                     { path: "reports/event-responses/:id/create", element: withSuspense(<ReportCreatePage reportType="EVENT_RESPONSE" />) },
+                    { path: "universities/:id", element: withSuspense(<UniversityDetailPage />) },
+                    { path: "interests/:id", element: withSuspense(<InterestDetailPage />) },
+                    { path: "cities/:id", element: withSuspense(<CityDetailPage />) },
+                    { path: "careers/:id", element: withSuspense(<CareerDetailPage />) },
+                ],
+            },
+
+            // ADMIN PAGES (same layout, guarded)
+            {
+                element: <RequireAuth requireAdmin />,
+                children: [
+                    { path: "admin", element: withSuspense(<AdminPage />) },
+                    { path: "admin/:tab", element: withSuspense(<AdminPage />) },
+                    { path: "reports/:id", element: withSuspense(<ReportDetailPage />) },
                     { path: "users/:id", element: withSuspense(<UserDetailPage />) },
                     { path: "universities/create", element: withSuspense(<UniversityCreatePage />) },
                     { path: "universities/:id/edit", element: withSuspense(<UniversityEditPage />) },
-                    { path: "universities/:id", element: withSuspense(<UniversityDetailPage />) },
                     { path: "interests/create", element: withSuspense(<InterestCreatePage />) },
                     { path: "interests/:id/edit", element: withSuspense(<InterestEditPage />) },
-                    { path: "interests/:id", element: withSuspense(<InterestDetailPage />) },
                     { path: "cities/create", element: withSuspense(<CityCreatePage />) },
                     { path: "cities/:id/edit", element: withSuspense(<CityEditPage />) },
-                    { path: "cities/:id", element: withSuspense(<CityDetailPage />) },
                     { path: "careers/create", element: withSuspense(<CareerCreatePage />) },
                     { path: "careers/:id/edit", element: withSuspense(<CareerEditPage />) },
-                    { path: "careers/:id", element: withSuspense(<CareerDetailPage />) },
                 ],
             },
 

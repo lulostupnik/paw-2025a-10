@@ -6,7 +6,9 @@ import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { createInterest, type InterestPayload } from "@/lib/api/interests";
+import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
 
 interface InterestFormState {
     name: string;
@@ -32,6 +34,7 @@ export default function InterestCreatePage() {
     const { t } = useI18n();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { showToast } = useToast();
     const [form, setForm] = useState(initialForm);
     const [touched, setTouched] = useState({ name: false });
     const [submitError, setSubmitError] = useState<string | null>(null);
@@ -53,8 +56,9 @@ export default function InterestCreatePage() {
 
     const createInterestMutation = useMutation({
         mutationFn: (payload: InterestPayload) => createInterest(payload),
-        onSuccess: (created) => {
-            queryClient.invalidateQueries({ queryKey: ["adminInterests"] });
+        onSuccess: async (created) => {
+            await invalidateAdminEntityQueries(queryClient, "interest");
+            showToast(t("admin.toast.created"), { variant: "success" });
             navigate(`/interests/${created.id}`, { replace: true });
         },
         onError: (error) => {

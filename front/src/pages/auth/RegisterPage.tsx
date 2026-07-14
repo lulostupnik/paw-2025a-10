@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
@@ -125,14 +125,18 @@ interface SingleSelectFieldProps {
 function SingleSelectField({ label, name, placeholder, value, onChange, fetcher, error, touched, required = true }: SingleSelectFieldProps) {
     const { t } = useI18n();
     const [query, setQuery] = useState("");
+    const [lastValue, setLastValue] = useState(value);
     const { open, setOpen, ref } = useDropdownState();
     const { options, loading } = useAsyncCatalogOptions(fetcher, open, query);
 
-    useEffect(() => {
+    // Al limpiarse la selección el input vuelve a mostrarse: la búsqueda previa
+    // se descarta durante el render, sin sincronizarla por efecto.
+    if (value !== lastValue) {
+        setLastValue(value);
         if (!value) {
             setQuery("");
         }
-    }, [value]);
+    }
 
     const showError = Boolean(error && touched);
 
@@ -387,7 +391,7 @@ export default function RegisterPage() {
                                 value={form.email}
                                 onChange={handleTextChange("email")}
                                 onBlur={() => markTouched("email")}
-                                placeholder="correo@ejemplo.com"
+                                placeholder={t("register.email.placeholder")}
                             />
                             {touched.email && errors.email && (
                                 <p className="form-field__text form-field__text--error">{errors.email}</p>

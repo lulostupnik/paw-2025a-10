@@ -106,7 +106,9 @@ export default function ReportDetailPage() {
     const queryClient = useQueryClient();
     const stateReport = (location.state as { report?: ReportDetail } | null)?.report ?? null;
     const [report, setReport] = useState<ReportDetail | null>(stateReport);
-    const [loading, setLoading] = useState(!stateReport);
+    // Sólo hay carga pendiente si el reporte no vino en el state de navegación y
+    // además hay un id que buscar.
+    const [loading, setLoading] = useState(!stateReport && Boolean(id));
     const [errorMessage, setErrorMessage] = useState("");
     const [actionError, setActionError] = useState("");
     const [blockModalOpen, setBlockModalOpen] = useState(false);
@@ -115,23 +117,18 @@ export default function ReportDetailPage() {
     const actionsButtonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        if (stateReport) {
-            return;
-        }
-        if (!id) {
-            setLoading(false);
+        if (stateReport || !id) {
             return;
         }
 
         let active = true;
         const controller = new AbortController();
-        setLoading(true);
-        setErrorMessage("");
         getReportDetail(Number(id), controller.signal)
             .then((data) => {
                 if (!active) {
                     return;
                 }
+                setErrorMessage("");
                 setReport(data);
             })
             .catch((error) => {
@@ -615,7 +612,7 @@ export default function ReportDetailPage() {
                             <button
                                 type="button"
                                 className="close-modal"
-                                aria-label="Close"
+                                aria-label={t("common.close")}
                                 onClick={() => setBlockModalOpen(false)}
                             >
                                 &times;
@@ -669,7 +666,7 @@ export default function ReportDetailPage() {
                             <button
                                 type="button"
                                 className="close-modal"
-                                aria-label="Close"
+                                aria-label={t("common.close")}
                                 onClick={() => setDeleteModalOpen(false)}
                             >
                                 &times;

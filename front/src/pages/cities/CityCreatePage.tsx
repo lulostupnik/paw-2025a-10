@@ -4,11 +4,13 @@ import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createCity } from "@/lib/api/cities";
 import { listCountries, type CountryDto } from "@/lib/api/countries";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
 
 interface CityFormState {
     name: string;
@@ -36,6 +38,8 @@ const formatTitleCase = (value: string) =>
 export default function CityCreatePage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
     const [form, setForm] = useState(initialForm);
     const [touched, setTouched] = useState({ name: false, country: false });
     const [countryQuery, setCountryQuery] = useState("");
@@ -101,7 +105,11 @@ export default function CityCreatePage() {
         setSubmitting(true);
         setSubmitError(null);
         createCity({ name: form.name.trim(), countryId })
-            .then((created) => navigate(`/cities/${created.id}`, { replace: true }))
+            .then(async (created) => {
+                await invalidateAdminEntityQueries(queryClient, "city");
+                showToast(t("admin.toast.created"), { variant: "success" });
+                navigate(`/cities/${created.id}`, { replace: true });
+            })
             .catch((error) => {
                 console.error("Failed to create city", error);
                 const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);

@@ -1,5 +1,5 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useCallback, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/ui/Button";
@@ -8,11 +8,15 @@ import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField
 import { searchUniversities, type CatalogOption } from "@/lib/api/catalog";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import PageStatus from "@/components/ui/PageStatus";
+import ForbiddenPage from "@/pages/errors/ForbiddenPage";
+import { useToast } from "@/components/ui/ToastProvider";
+import { getUserId } from "@/lib/auth/auth";
 import { updateJourney } from "@/lib/api/journeys";
 import { useI18n } from "@/lib/i18n";
 import { getTodayIsoDate } from "@/lib/utils/date";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { invalidateJourneyDetailQueries } from "@/lib/api/queryInvalidation";
+import type { JourneyDetail } from "@/types/journey";
 
 interface JourneyFormState {
     startDate: string;
@@ -24,13 +28,6 @@ interface JourneyFormState {
 type JourneyField = keyof JourneyFormState;
 type JourneyErrors = Partial<Record<JourneyField, string>>;
 type JourneyTouched = Partial<Record<JourneyField, boolean>>;
-
-const INITIAL_FORM: JourneyFormState = {
-    startDate: "",
-    endDate: "",
-    destination: null,
-    description: "",
-};
 
 // Campo del ErrorDto de la API → campo del formulario.
 const API_FIELD_TO_FORM_FIELD: Record<string, JourneyField> = {
@@ -57,36 +54,61 @@ const parseIdFromUrl = (url?: string | null) => {
     return match ? Number(match[1]) : null;
 };
 
+const buildInitialForm = (journey: JourneyDetail): JourneyFormState => {
+    const destinationName = journey.destinationUniversity?.name ?? "";
+    const destinationId = parseIdFromUrl(journey.links?.destinationUniversityUrl) ?? 0;
+    return {
+        startDate: journey.startDate ?? "",
+        endDate: journey.endDate ?? "",
+        destination: destinationName ? { id: destinationId, name: destinationName } : null,
+        description: journey.description ?? "",
+    };
+};
+
 export default function JourneyEditPage() {
+    const { t } = useI18n();
+    const { id } = useParams();
+    const { data, isLoading, isError, isNotFound } = useJourneyDetailData({ journeyId: id });
+
+    if (isLoading) {
+        return <PageStatus className="journey-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
+    }
+
+    if (isNotFound) {
+        return <div className="journey-create-page">{t("journey.not.found.title", { defaultValue: "Journey not found." })}</div>;
+    }
+
+    if (isError || !data) {
+        return <PageStatus className="journey-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // Sólo el autor puede editar el contenido del viaje: sin este corte la ruta
+    // directa mostraría el formulario completo para morir en un 403 al enviar.
+    if (data.user?.id !== getUserId()) {
+        return <ForbiddenPage />;
+    }
+
+    // El formulario arranca con los datos ya resueltos, así que se siembra con el
+    // estado inicial de cada campo en lugar de copiarlos con un efecto.
+    return <JourneyEditForm key={data.id} journey={data} />;
+}
+
+interface JourneyEditFormProps {
+    journey: JourneyDetail;
+}
+
+function JourneyEditForm({ journey }: JourneyEditFormProps) {
     const { t } = useI18n();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const { id } = useParams();
-    const { data, isLoading, isError, isNotFound } = useJourneyDetailData({ journeyId: id });
-    const [form, setForm] = useState<JourneyFormState>({ ...INITIAL_FORM });
+    const { showToast } = useToast();
+    const [form, setForm] = useState<JourneyFormState>(() => buildInitialForm(journey));
     const [errors, setErrors] = useState<JourneyErrors>({});
     const [touched, setTouched] = useState<JourneyTouched>({});
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const [destinationQuery, setDestinationQuery] = useState(form.destination?.name ?? "");
-    const [seeded, setSeeded] = useState(false);
+    const [destinationQuery, setDestinationQuery] = useState(() => journey.destinationUniversity?.name ?? "");
     const descriptionRef = useRef<HTMLTextAreaElement>(null);
-
-    useEffect(() => {
-        if (!data || seeded) {
-            return;
-        }
-        const destinationName = data.destinationUniversity?.name ?? "";
-        const destinationId = parseIdFromUrl(data.links?.destinationUniversityUrl) ?? 0;
-        setForm({
-            startDate: data.startDate ?? "",
-            endDate: data.endDate ?? "",
-            destination: destinationName ? { id: destinationId, name: destinationName } : null,
-            description: data.description ?? "",
-        });
-        setDestinationQuery(destinationName);
-        setSeeded(true);
-    }, [data, seeded]);
 
     const markTouched = useCallback((field: JourneyField) => {
         setTouched((prev) => ({ ...prev, [field]: true }));
@@ -151,15 +173,11 @@ export default function JourneyEditPage() {
             }
             return;
         }
-        if (!id) {
-            setSubmitError(t("journey.edit.error", { defaultValue: "No journey id provided." }));
-            return;
-        }
 
         try {
             setSubmitting(true);
             await updateJourney(
-                id,
+                journey.id,
                 {
                     destinationUniversityId: form.destination?.id ?? 0,
                     startDate: form.startDate,
@@ -168,8 +186,9 @@ export default function JourneyEditPage() {
                 },
                 undefined
             );
-            await invalidateJourneyDetailQueries(queryClient, id);
-            navigate(`/journeys/${id}`);
+            await invalidateJourneyDetailQueries(queryClient, journey.id);
+            showToast(t("journey.toast.updated"), { variant: "success" });
+            navigate(`/journeys/${journey.id}`);
         } catch (err) {
             console.error("Failed to update journey", err);
             const serverErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
@@ -184,31 +203,12 @@ export default function JourneyEditPage() {
     };
 
     const handleCancel = () => {
-        if (id) {
-            navigate(`/journeys/${id}`);
-        } else {
-            navigate("/journeys");
-        }
+        navigate(`/journeys/${journey.id}`);
     };
     const today = getTodayIsoDate();
     const endDateMin = form.startDate
         ? (addDays(form.startDate, 1) > today ? addDays(form.startDate, 1) : today)
         : today;
-
-    if (isLoading) {
-        return <PageStatus className="journey-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
-    }
-
-    if (isNotFound) {
-        return <div className="journey-create-page">{t("journey.not.found.title", { defaultValue: "Journey not found." })}</div>;
-    }
-
-    if (isError) {
-        return <PageStatus className="journey-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
-    if (!data) {
-        return <PageStatus className="journey-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
 
     return (
         <div className="page-shell journey-create-page">
@@ -306,7 +306,7 @@ export default function JourneyEditPage() {
                             {t("common.cancel")}
                         </Button>
                         <Button type="submit" variant="primary" disabled={submitting}>
-                            {submitting ? t("journey.edit.submit") : t("journey.edit.submit")}
+                            {t("journey.edit.submit")}
                         </Button>
                     </div>
                 </form>

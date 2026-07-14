@@ -1,39 +1,25 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import PageStatus from "@/components/ui/PageStatus";
+import ForbiddenPage from "@/pages/errors/ForbiddenPage";
+import { useToast } from "@/components/ui/ToastProvider";
+import { getUserId } from "@/lib/auth/auth";
 import { getJourneyTip, updateJourneyTip } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import type { JourneyDetail, JourneyTip } from "@/types/journey";
 
 export default function JourneyTipEditPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { tipId } = useParams();
     const [searchParams] = useSearchParams();
     const journeyId = searchParams.get("journeyId");
     const tipsPage = searchParams.get("tipsPage");
     const { data, isLoading, isError } = useJourneyDetailData({ journeyId: journeyId ?? undefined });
-    const [title, setTitle] = useState("");
-    const [content, setContent] = useState("");
-    const [touched, setTouched] = useState({ title: false, content: false });
-    const [submitting, setSubmitting] = useState(false);
-    const [submitError, setSubmitError] = useState<string | null>(null);
-    const [seeded, setSeeded] = useState(false);
-
-    const invalidateJourneyTipData = async (id: string | number) => {
-        await Promise.all([
-            queryClient.invalidateQueries({
-                predicate: (query) => query.queryKey[0] === "journeyTips" && String(query.queryKey[1]) === String(id),
-            }),
-            queryClient.invalidateQueries({
-                predicate: (query) => query.queryKey[0] === "journeyDetail" && String(query.queryKey[1]) === String(id),
-            }),
-        ]);
-    };
 
     const parsedTipId = useMemo(() => {
         if (!tipId) {
@@ -51,13 +37,6 @@ export default function JourneyTipEditPage() {
         return Number.isFinite(parsed) ? parsed : null;
     }, [journeyId]);
 
-    const fallbackTip = useMemo(() => {
-        if (parsedTipId == null) {
-            return null;
-        }
-        return data?.tips?.find((item) => item.id === parsedTipId) ?? null;
-    }, [data?.tips, parsedTipId]);
-
     const tipQuery = useQuery({
         queryKey: ["journeyTip", parsedJourneyId, parsedTipId],
         queryFn: ({ signal }) => {
@@ -69,16 +48,7 @@ export default function JourneyTipEditPage() {
         enabled: parsedJourneyId != null && parsedTipId != null,
     });
 
-    const tip = tipQuery.data ?? fallbackTip;
-
-    useEffect(() => {
-        if (!tip || seeded) {
-            return;
-        }
-        setTitle(tip.title);
-        setContent(tip.content);
-        setSeeded(true);
-    }, [seeded, tip]);
+    const tip = tipQuery.data ?? null;
 
     const handleBack = () => {
         const previous = popFromNavigationStack();
@@ -93,35 +63,7 @@ export default function JourneyTipEditPage() {
         navigate("/journeys");
     };
 
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setTouched({ title: true, content: true });
-        if (!journeyId || !tipId) {
-            setSubmitError(t("journey.edit.error", { defaultValue: "Missing identifiers." }));
-            return;
-        }
-        if (!title.trim() || !content.trim()) {
-            setSubmitError(null);
-            return;
-        }
-        try {
-            setSubmitting(true);
-            setSubmitError(null);
-            await updateJourneyTip(Number(journeyId), Number(tipId), {
-                title: title.trim(),
-                content: content.trim(),
-            });
-            await invalidateJourneyTipData(journeyId);
-            navigate(tipsPage ? `/journeys/${journeyId}?tipsPage=${tipsPage}` : `/journeys/${journeyId}`);
-        } catch (err) {
-            console.error("Failed to update tip", err);
-            setSubmitError(apiErrorMessage(err, t("journey.edit.error", { defaultValue: "No se pudo actualizar el consejo." })));
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    if (isLoading) {
+    if (isLoading || tipQuery.isLoading) {
         return <PageStatus className="journey-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
@@ -132,12 +74,86 @@ export default function JourneyTipEditPage() {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    const titleError = touched.title && !title.trim()
-        ? t("NotEmpty.createTipForm.title", { defaultValue: "Completa este campo." })
-        : "";
-    const contentError = touched.content && !content.trim()
-        ? t("NotEmpty.createTipForm.content", { defaultValue: "Completa este campo." })
-        : "";
+    // Los consejos son parte del viaje, así que sólo su autor puede editarlos.
+    if (data.user?.id !== getUserId()) {
+        return <ForbiddenPage />;
+    }
+
+    if (!tip || parsedJourneyId == null || parsedTipId == null) {
+        return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // El consejo ya está resuelto, así que el formulario lo toma como estado
+    // inicial en lugar de copiarlo con un efecto.
+    return (
+        <JourneyTipEditForm
+            key={tip.id}
+            journey={data}
+            tip={tip}
+            journeyId={parsedJourneyId}
+            tipsPage={tipsPage}
+            onBack={handleBack}
+        />
+    );
+}
+
+interface JourneyTipEditFormProps {
+    journey: JourneyDetail;
+    tip: JourneyTip;
+    journeyId: number;
+    tipsPage: string | null;
+    onBack: () => void;
+}
+
+function JourneyTipEditForm({ journey, tip, journeyId, tipsPage, onBack }: JourneyTipEditFormProps) {
+    const { t } = useI18n();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
+    const [title, setTitle] = useState(() => tip.title);
+    const [content, setContent] = useState(() => tip.content);
+    const [touched, setTouched] = useState({ title: false, content: false });
+    const [submitting, setSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+
+    const invalidateJourneyTipData = async (id: string | number) => {
+        await Promise.all([
+            queryClient.invalidateQueries({
+                predicate: (query) => query.queryKey[0] === "journeyTips" && String(query.queryKey[1]) === String(id),
+            }),
+            queryClient.invalidateQueries({
+                predicate: (query) => query.queryKey[0] === "journeyDetail" && String(query.queryKey[1]) === String(id),
+            }),
+        ]);
+    };
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setTouched({ title: true, content: true });
+        if (!title.trim() || !content.trim()) {
+            setSubmitError(null);
+            return;
+        }
+        try {
+            setSubmitting(true);
+            setSubmitError(null);
+            await updateJourneyTip(journeyId, tip.id, {
+                title: title.trim(),
+                content: content.trim(),
+            });
+            await invalidateJourneyTipData(journeyId);
+            showToast(t("tip.toast.updated"), { variant: "success" });
+            navigate(tipsPage ? `/journeys/${journeyId}?tipsPage=${tipsPage}` : `/journeys/${journeyId}`);
+        } catch (err) {
+            console.error("Failed to update tip", err);
+            setSubmitError(apiErrorMessage(err, t("journey.edit.error", { defaultValue: "No se pudo actualizar el consejo." })));
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const titleError = touched.title && !title.trim() ? t("NotEmpty.createTipForm.title") : "";
+    const contentError = touched.content && !content.trim() ? t("NotEmpty.createTipForm.content") : "";
 
     return (
         <div className="journey-detail-page journey-tip-form-page">
@@ -145,7 +161,7 @@ export default function JourneyTipEditPage() {
                 <div className="main-content">
                     <div className="content-container">
                         <div className="back-button-container">
-                            <button type="button" onClick={handleBack} className="back-link">
+                            <button type="button" onClick={onBack} className="back-link">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M19 12H5"></path>
                                     <path d="M12 19l-7-7 7-7"></path>
@@ -172,7 +188,7 @@ export default function JourneyTipEditPage() {
                                     <div className="journey-info-content">
                                         <h3 className="journey-info-title">
                                             {t("journey.detail.section.title", {
-                                                values: { 0: data.user?.firstname ?? "—", 1: data.user?.lastname ?? "" },
+                                                values: { 0: journey.user?.firstname ?? "—", 1: journey.user?.lastname ?? "" },
                                             })}
                                         </h3>
                                         <div className="journey-info-meta">
@@ -182,27 +198,25 @@ export default function JourneyTipEditPage() {
                                                     <circle cx="12" cy="10" r="3"></circle>
                                                 </svg>
                                                 <span className="destination-text">
-                                                    {data.destinationUniversity?.city ?? "—"} - {data.destinationUniversity?.name ?? "—"}
+                                                    {journey.destinationUniversity?.city ?? "—"} - {journey.destinationUniversity?.name ?? "—"}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {tip && (
-                                    <div className="tip-info-card">
-                                        <div className="tip-info-header">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                                <circle cx="12" cy="12" r="3"></circle>
-                                            </svg>
-                                            <span>{t("journey.tip.editing")}</span>
-                                        </div>
-                                        <div className="tip-info-content">
-                                            <h4 className="tip-info-title">{tip.title}</h4>
-                                        </div>
+                                <div className="tip-info-card">
+                                    <div className="tip-info-header">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        <span>{t("journey.tip.editing")}</span>
                                     </div>
-                                )}
+                                    <div className="tip-info-content">
+                                        <h4 className="tip-info-title">{tip.title}</h4>
+                                    </div>
+                                </div>
 
                                 <div className="tip-form-container">
                                     <h3 className="tip-form-title">
@@ -254,7 +268,7 @@ export default function JourneyTipEditPage() {
                                         {submitError && <p className="form-field__text form-field__text--error">{submitError}</p>}
 
                                         <div className="form-actions">
-                                            <button type="button" className="btn-secondary" onClick={handleBack} disabled={submitting}>
+                                            <button type="button" className="btn-secondary" onClick={onBack} disabled={submitting}>
                                                 {t("tip.cancel")}
                                             </button>
                                             <button type="submit" className="btn btn-primary" disabled={submitting}>

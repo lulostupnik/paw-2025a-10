@@ -32,6 +32,7 @@ const BLOQUEADO: AdminUser = { id: 2, firstname: "Beto", email: "beto@t.com", un
 
 const page = (content: AdminUser[]): PageResult<AdminUser> => ({
     content,
+    totalElements: content.length,
     next: null,
     prev: null,
     first: null,

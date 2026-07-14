@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export interface ListingFiltersState {
@@ -80,18 +80,6 @@ const applyFiltersToParams = (source: URLSearchParams, next: ListingFiltersState
     return params;
 };
 
-const areFiltersEqual = (a: ListingFiltersState, b: ListingFiltersState) =>
-    a.cityId === b.cityId &&
-    a.cityName === b.cityName &&
-    a.universityId === b.universityId &&
-    a.universityName === b.universityName &&
-    a.interestId === b.interestId &&
-    a.interestName === b.interestName &&
-    a.afterDate === b.afterDate &&
-    a.beforeDate === b.beforeDate &&
-    a.minRating === b.minRating &&
-    a.hasCapacity === b.hasCapacity;
-
 export function useListingFilters(initial?: Partial<ListingFiltersState>): ListingFiltersController {
     const [filters, setFilters] = useState<ListingFiltersState>(() => ({ ...EMPTY_LISTING_FILTERS, ...initial }));
 
@@ -108,23 +96,18 @@ export function useListingFilters(initial?: Partial<ListingFiltersState>): Listi
 
 export function useUrlSyncedListingFilters(): ListingFiltersController {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [filters, setFilters] = useState<ListingFiltersState>(() => parseFiltersFromParams(searchParams));
-
-    useEffect(() => {
-        const parsed = parseFiltersFromParams(searchParams);
-        setFilters((prev) => (areFiltersEqual(prev, parsed) ? prev : parsed));
-    }, [searchParams]);
+    // La URL es la única fuente de verdad: los filtros se derivan de ella en vez
+    // de vivir en un estado espejo que hay que re-sincronizar.
+    const filters = useMemo(() => parseFiltersFromParams(searchParams), [searchParams]);
 
     const applyFilters = useCallback(
         (next: ListingFiltersState) => {
-            setFilters(cloneFilters(next));
             setSearchParams((prev) => applyFiltersToParams(prev, next));
         },
         [setSearchParams]
     );
 
     const resetFilters = useCallback(() => {
-        setFilters(cloneFilters(EMPTY_LISTING_FILTERS));
         setSearchParams((prev) => applyFiltersToParams(prev, EMPTY_LISTING_FILTERS));
     }, [setSearchParams]);
 

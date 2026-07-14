@@ -1,5 +1,5 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
@@ -8,11 +8,17 @@ import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminInterestDetailData } from "@/hooks/useAdminDetailData";
 import { updateInterest, type InterestPayload } from "@/lib/api/interests";
 import PageStatus from "@/components/ui/PageStatus";
+import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
-import { invalidateAdminEntityDetailQueries } from "@/lib/api/queryInvalidation";
+import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
 
 interface InterestFormState {
     name: string;
+}
+
+interface InterestEditFormProps {
+    id: string;
+    interest: { name: string };
 }
 
 // Campo del ErrorDto de la API → campo del formulario.
@@ -29,21 +35,35 @@ const formatTitleCase = (value: string) =>
 
 export default function InterestEditPage() {
     const { t } = useI18n();
-    const navigate = useNavigate();
     const { id } = useParams();
     const { data: interest, isLoading, isError } = useAdminInterestDetailData({ id });
+
+    if (!isAdmin()) {
+        return <ForbiddenPage />;
+    }
+
+    if (isLoading) {
+        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
+    }
+
+    if (isError || !interest || !id) {
+        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // El form se monta recién con el interés cargado, así arranca precargado sin
+    // tener que sincronizar el estado con un efecto.
+    return <InterestEditForm key={id} id={id} interest={interest} />;
+}
+
+function InterestEditForm({ id, interest }: InterestEditFormProps) {
+    const { t } = useI18n();
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const [form, setForm] = useState<InterestFormState>({ name: "" });
+    const { showToast } = useToast();
+    const [form, setForm] = useState<InterestFormState>({ name: interest.name ?? "" });
     const [touched, setTouched] = useState({ name: false });
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [serverErrors, setServerErrors] = useState<Partial<Record<keyof InterestFormState, string>>>({});
-
-    useEffect(() => {
-        if (!interest) {
-            return;
-        }
-        setForm({ name: interest.name ?? "" });
-    }, [interest]);
 
     const clientErrors = useMemo(
         () => ({
@@ -66,10 +86,6 @@ export default function InterestEditPage() {
         if (clientErrors.name) {
             return;
         }
-        if (!id) {
-            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-            return;
-        }
         setSubmitError(null);
         updateInterestMutation.mutate({ id, payload: { name: form.name.trim() } });
     };
@@ -77,14 +93,10 @@ export default function InterestEditPage() {
     const updateInterestMutation = useMutation({
         mutationFn: ({ id: interestId, payload }: { id: string; payload: InterestPayload }) =>
             updateInterest(interestId, payload),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["adminInterests"] });
-            if (id) {
-                invalidateAdminEntityDetailQueries(queryClient, "interest", id);
-                navigate(`/interests/${id}`);
-            } else {
-                navigate("/admin/interests");
-            }
+        onSuccess: async () => {
+            await invalidateAdminEntityQueries(queryClient, "interest", id);
+            showToast(t("admin.toast.updated"), { variant: "success" });
+            navigate(`/interests/${id}`);
         },
         onError: (error) => {
             console.error("Failed to update interest", error);
@@ -96,21 +108,6 @@ export default function InterestEditPage() {
             }
         },
     });
-
-    if (!isAdmin()) {
-        return <ForbiddenPage />;
-    }
-
-    if (isLoading) {
-        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
-    }
-
-    if (isError) {
-        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
-    if (!interest) {
-        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
 
     return (
         <div className="entity-create-page">

@@ -43,6 +43,14 @@ const parseEventsTabParam = (value: string | null): "created" | "attending" => {
     return "created";
 };
 
+const parsePageFromLink = (page: number | string) => {
+    if (typeof page === "string") {
+        const url = new URL(page, window.location.origin);
+        return Number(url.searchParams.get("page") ?? "1");
+    }
+    return page;
+};
+
 const formatDate = (value: string, locale: string) => {
     const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
@@ -133,12 +141,12 @@ export default function JourneyDetailPage() {
     const [eventsOpen, setEventsOpen] = useState(true);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
     const [openTipMenuId, setOpenTipMenuId] = useState<number | null>(null);
-    const [interestsPage, setInterestsPage] = useState(() => parsePageParam(searchParams.get(INTERESTS_PAGE_PARAM)));
-    const [eventsSubtab, setEventsSubtab] = useState<"created" | "attending">(() => parseEventsTabParam(searchParams.get(EVENTS_TAB_PARAM)));
-    const [createdEventsPage, setCreatedEventsPage] = useState(() => parsePageParam(searchParams.get(CREATED_EVENTS_PAGE_PARAM)));
-    const [attendingEventsPage, setAttendingEventsPage] = useState(() => parsePageParam(searchParams.get(ATTENDING_EVENTS_PAGE_PARAM)));
-    const [tipsPage, setTipsPage] = useState(() => parsePageParam(searchParams.get(TIPS_PAGE_PARAM)));
-    const [commentsPage, setCommentsPage] = useState(() => parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM)));
+    const interestsPage = parsePageParam(searchParams.get(INTERESTS_PAGE_PARAM));
+    const eventsSubtab = parseEventsTabParam(searchParams.get(EVENTS_TAB_PARAM));
+    const createdEventsPage = parsePageParam(searchParams.get(CREATED_EVENTS_PAGE_PARAM));
+    const attendingEventsPage = parsePageParam(searchParams.get(ATTENDING_EVENTS_PAGE_PARAM));
+    const tipsPage = parsePageParam(searchParams.get(TIPS_PAGE_PARAM));
+    const commentsPage = parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM));
     const [replyMessage, setReplyMessage] = useState("");
     const [replyError, setReplyError] = useState<string | null>(null);
     const [replySubmitting, setReplySubmitting] = useState(false);
@@ -272,36 +280,6 @@ export default function JourneyDetailPage() {
     );
 
     useEffect(() => {
-        const nextPage = parsePageParam(searchParams.get(INTERESTS_PAGE_PARAM));
-        setInterestsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
-    }, [searchParams]);
-
-    useEffect(() => {
-        const nextTab = parseEventsTabParam(searchParams.get(EVENTS_TAB_PARAM));
-        setEventsSubtab((currentTab) => (currentTab === nextTab ? currentTab : nextTab));
-    }, [searchParams]);
-
-    useEffect(() => {
-        const nextPage = parsePageParam(searchParams.get(CREATED_EVENTS_PAGE_PARAM));
-        setCreatedEventsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
-    }, [searchParams]);
-
-    useEffect(() => {
-        const nextPage = parsePageParam(searchParams.get(ATTENDING_EVENTS_PAGE_PARAM));
-        setAttendingEventsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
-    }, [searchParams]);
-
-    useEffect(() => {
-        const nextPage = parsePageParam(searchParams.get(TIPS_PAGE_PARAM));
-        setTipsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
-    }, [searchParams]);
-
-    useEffect(() => {
-        const nextPage = parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM));
-        setCommentsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
-    }, [searchParams]);
-
-    useEffect(() => {
         if (tipsQuery.isLoading || tipsQuery.isFetching) {
             return;
         }
@@ -310,7 +288,6 @@ export default function JourneyDetailPage() {
             if (fallbackPage === tipsPage) {
                 return;
             }
-            setTipsPage(fallbackPage);
             updatePageParam(TIPS_PAGE_PARAM, fallbackPage);
         }
     }, [
@@ -330,7 +307,6 @@ export default function JourneyDetailPage() {
         if (commentsPageData.content.length === 0 && commentsPageData.totalElements > 0 && commentsPage > 1) {
             const fallbackPage = Math.max(1, Math.min(commentsPage - 1, commentsPageData.totalPages || commentsPage - 1));
             if (fallbackPage !== commentsPage) {
-                setCommentsPage(fallbackPage);
                 updatePageParam(COMMENTS_PAGE_PARAM, fallbackPage);
             }
         }
@@ -372,65 +348,39 @@ export default function JourneyDetailPage() {
         };
     }, [actionMenuOpen, openCommentMenuId, openTipMenuId]);
 
-    const parsePageFromLink = useCallback((page: number | string) => {
-        if (typeof page === "string") {
-            const url = new URL(page, window.location.origin);
-            return Number(url.searchParams.get("page") ?? "1");
-        }
-        return page;
-    }, []);
-
     const handleCreatedEventsPageChange = useCallback(
         (page: number | string) => {
-            const parsedPage = parsePageFromLink(page);
-            setCreatedEventsPage(parsedPage);
-            updatePageParam(CREATED_EVENTS_PAGE_PARAM, parsedPage);
+            updatePageParam(CREATED_EVENTS_PAGE_PARAM, parsePageFromLink(page));
         },
-        [parsePageFromLink, updatePageParam]
+        [updatePageParam]
     );
 
     const handleAttendingEventsPageChange = useCallback(
         (page: number | string) => {
-            const parsedPage = parsePageFromLink(page);
-            setAttendingEventsPage(parsedPage);
-            updatePageParam(ATTENDING_EVENTS_PAGE_PARAM, parsedPage);
+            updatePageParam(ATTENDING_EVENTS_PAGE_PARAM, parsePageFromLink(page));
         },
-        [parsePageFromLink, updatePageParam]
+        [updatePageParam]
     );
 
     const handleInterestsPageChange = useCallback(
         (page: number | string) => {
-            const parsedPage = parsePageFromLink(page);
-            setInterestsPage(parsedPage);
-            updatePageParam(INTERESTS_PAGE_PARAM, parsedPage);
+            updatePageParam(INTERESTS_PAGE_PARAM, parsePageFromLink(page));
         },
-        [parsePageFromLink, updatePageParam]
-    );
-
-    const handleEventsSubtabChange = useCallback(
-        (tab: "created" | "attending") => {
-            setEventsSubtab(tab);
-            updateEventsTabParam(tab);
-        },
-        [updateEventsTabParam]
+        [updatePageParam]
     );
 
     const handleTipsPageChange = useCallback(
         (page: number | string) => {
-            const parsedPage = parsePageFromLink(page);
-            setTipsPage(parsedPage);
-            updatePageParam(TIPS_PAGE_PARAM, parsedPage);
+            updatePageParam(TIPS_PAGE_PARAM, parsePageFromLink(page));
         },
-        [parsePageFromLink, updatePageParam]
+        [updatePageParam]
     );
 
     const handleCommentsPageChange = useCallback(
         (page: number | string) => {
-            const parsedPage = parsePageFromLink(page);
-            setCommentsPage(parsedPage);
-            updatePageParam(COMMENTS_PAGE_PARAM, parsedPage);
+            updatePageParam(COMMENTS_PAGE_PARAM, parsePageFromLink(page));
         },
-        [parsePageFromLink, updatePageParam]
+        [updatePageParam]
     );
 
     if (!hasValidId) {
@@ -534,7 +484,6 @@ export default function JourneyDetailPage() {
                     { page: 1, size: commentsPageSize }
                 );
                 const targetCommentsPage = Math.max(1, refreshedCommentsPage.totalPages || 1);
-                setCommentsPage(targetCommentsPage);
                 updatePageParam(COMMENTS_PAGE_PARAM, targetCommentsPage);
                 await Promise.all([
                     queryClient.invalidateQueries({
@@ -796,7 +745,7 @@ export default function JourneyDetailPage() {
                                     <button
                                         type="button"
                                         className="toggle-comments-btn"
-                                        aria-label="Toggle events"
+                                        aria-label={t("journey.details.toggleEvents")}
                                         onClick={() => setEventsOpen((prev) => !prev)}
                                     >
                                         <span id="events-collapse-icon" style={{ display: eventsOpen ? "inline" : "none" }}>
@@ -818,14 +767,14 @@ export default function JourneyDetailPage() {
                                             <button
                                                 type="button"
                                                 className={`events-subtab ${eventsSubtab === "created" ? "active" : ""}`}
-                                                onClick={() => handleEventsSubtabChange("created")}
+                                                onClick={() => updateEventsTabParam("created")}
                                             >
                                                 {t("journey.events.created", { defaultValue: "Created" })}
                                             </button>
                                             <button
                                                 type="button"
                                                 className={`events-subtab ${eventsSubtab === "attending" ? "active" : ""}`}
-                                                onClick={() => handleEventsSubtabChange("attending")}
+                                                onClick={() => updateEventsTabParam("attending")}
                                             >
                                                 {t("journey.events.attending", { defaultValue: "Attending" })}
                                             </button>
@@ -856,7 +805,7 @@ export default function JourneyDetailPage() {
                                                             <div className="journey-event-card">
                                                                 <div className="journey-event-left">
                                                                     {event.flyerImageUrl ? (
-                                                                        <img src={event.flyerImageUrl} alt="Event flyer" className="journey-event-image" />
+                                                                        <img src={event.flyerImageUrl} alt={t("event.flyer.alt")} className="journey-event-image" />
                                                                     ) : (
                                                                         <div className="journey-event-image-placeholder">
                                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1080,7 +1029,7 @@ export default function JourneyDetailPage() {
                                     <button
                                         type="button"
                                         className="toggle-comments-btn"
-                                        aria-label="Toggle comments"
+                                        aria-label={t("journey.details.toggleComments")}
                                         onClick={() => setCommentsOpen((prev) => !prev)}
                                     >
                                         <span id="collapse-icon" style={{ display: commentsOpen ? "inline" : "none" }}>
@@ -1128,7 +1077,7 @@ export default function JourneyDetailPage() {
                                                             <button
                                                                 type="button"
                                                                 className="btn-action"
-                                                                aria-label="Comment actions"
+                                                                aria-label={t("comment.actions")}
                                                                 onClick={() =>
                                                                     setOpenCommentMenuId((prev) => (prev === response.id ? null : response.id))
                                                                 }

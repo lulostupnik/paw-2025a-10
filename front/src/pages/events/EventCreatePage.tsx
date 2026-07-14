@@ -10,6 +10,7 @@ import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField
 import { useI18n } from "@/lib/i18n";
 import { createEvent, updateEventFlyer } from "@/lib/api/events";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { useToast } from "@/components/ui/ToastProvider";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -59,6 +60,7 @@ const INITIAL_FORM: FormState = {
 export default function EventCreatePage() {
     const navigate = useNavigate();
     const { t } = useI18n();
+    const { showToast } = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [form, setForm] = useState<FormState>({ ...INITIAL_FORM });
     const [errors, setErrors] = useState<FormErrors>({});
@@ -336,6 +338,7 @@ export default function EventCreatePage() {
             setCityQuery("");
             setTouched({});
             setErrors({});
+            showToast(t("event.toast.created"), { variant: "success" });
             navigate(`/events/${eventResponse.id}`, { replace: true });
         } catch (error) {
             console.error("Failed to create event", error);
@@ -443,8 +446,8 @@ export default function EventCreatePage() {
                                 />
                                 <p className="form-field__text">
                                     {timeFieldDisabled
-                                        ? t("event.create.time.optional.allDay", { defaultValue: "No hace falta horario si marcás todo el día." })
-                                        : t("event.create.time.required.unlessAllDay", { defaultValue: "Obligatorio salvo que marques todo el día." })}
+                                        ? t("event.create.time.optional.allDay")
+                                        : t("event.create.time.required.unlessAllDay")}
                                 </p>
                                 {touched.time && errors.time && (
                                     <p className="form-field__text form-field__text--error">{errors.time}</p>
@@ -506,8 +509,8 @@ export default function EventCreatePage() {
                             />
                             <p className="form-field__text">
                                 {limitFieldDisabled
-                                    ? t("event.create.limit.optional.unlimited", { defaultValue: "No hace falta límite si marcás sin límite." })
-                                    : t("event.create.limit.required.unlessUnlimited", { defaultValue: "Obligatorio salvo que marques sin límite." })}
+                                    ? t("event.create.limit.optional.unlimited")
+                                    : t("event.create.limit.required.unlessUnlimited")}
                             </p>
                             {touched.participantLimit && errors.participantLimit && (
                                 <p className="form-field__text form-field__text--error">{errors.participantLimit}</p>

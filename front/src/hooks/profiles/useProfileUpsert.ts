@@ -13,7 +13,7 @@ import {
     updateUserProfilePicture,
 } from "@/lib/api/users";
 import type { ProfileDetail } from "@/types/profile";
-import { apiBaseUrl } from "@/lib/api/client";
+import { apiBaseUrl, apiErrorMessage } from "@/lib/api/client";
 
 interface UseProfileUpsertResult {
     isLoading: boolean;
@@ -36,7 +36,7 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
         try {
             await action();
         } catch (err) {
-            setError(err instanceof Error ? err.message : "unknown-error");
+            setError(apiErrorMessage(err, err instanceof Error ? err.message : "unknown-error"));
             throw err;
         } finally {
             setIsLoading(false);

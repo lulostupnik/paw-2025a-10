@@ -4,6 +4,7 @@ import Button from "./ui/Button";
 import { getProfilePictureUrl, getUsername, isAdmin, isLoggedIn, logout, withProfilePictureVersion } from "@/lib/auth/auth";
 import { classNames } from "@/lib/utils/classNames";
 import { localeLabels, useI18n } from "@/lib/i18n";
+import { queryClient } from "@/lib/api/queryClient";
 import Logo from "./Logo";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 
@@ -16,13 +17,16 @@ export default function TopBar() {
     const profilePictureUrl = logged ? withProfilePictureVersion(getProfilePictureUrl()) : null;
     const { t, locale,availableLocales, setLocale } = useI18n();
     const [navOpen, setNavOpen] = useState(false);
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [langOpen, setLangOpen] = useState(false);
     const [avatarError, setAvatarError] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
     const langRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLElement | null>(null);
     const showProfilePicture = Boolean(profilePictureUrl && !avatarError);
+    // El menú de perfil sólo existe para usuarios logueados: derivarlo evita
+    // que quede abierto si la sesión se pierde mientras está desplegado.
+    const menuOpen = logged && profileMenuOpen;
 
     const updateTopBarOffset = useCallback(() => {
         if (typeof window === "undefined" || !headerRef.current) {
@@ -30,15 +34,6 @@ export default function TopBar() {
         }
         document.documentElement.style.setProperty("--top-bar-offset", `${headerRef.current.offsetHeight}px`);
     }, []);
-
-    useEffect(() => {
-        if (!logged && menuOpen) {
-            setMenuOpen(false);
-        }
-        if (!logged && navOpen) {
-            setNavOpen(false);
-        }
-    }, [logged, menuOpen, navOpen]);
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -63,7 +58,7 @@ export default function TopBar() {
 
         const handleClickOutside = (event: MouseEvent) => {
             if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
-                setMenuOpen(false);
+                setProfileMenuOpen(false);
             }
         };
 
@@ -179,7 +174,7 @@ export default function TopBar() {
                         <button
                             type="button"
                             className={classNames("top-bar__profile-trigger", menuOpen && "is-open")}
-                            onClick={() => setMenuOpen((prev) => !prev)}
+                            onClick={() => setProfileMenuOpen((prev) => !prev)}
                             aria-haspopup="menu"
                             aria-expanded={menuOpen}
                         >
@@ -208,7 +203,7 @@ export default function TopBar() {
                                 type="button"
                                 className="top-bar__profile-menu-item"
                                 onClick={() => {
-                                    setMenuOpen(false);
+                                    setProfileMenuOpen(false);
                                     nav("/profiles/me/info");
                                 }}
                             >
@@ -218,8 +213,12 @@ export default function TopBar() {
                                 type="button"
                                 className="top-bar__profile-menu-item top-bar__profile-menu-item--danger"
                                 onClick={() => {
-                                    setMenuOpen(false);
+                                    setProfileMenuOpen(false);
+                                    setNavOpen(false);
                                     logout();
+                                    // Los datos cacheados son de la sesión que se cierra:
+                                    // descartarlos evita servirlos al próximo usuario.
+                                    queryClient.clear();
                                     nav("/", { replace: true });
                                 }}
                             >

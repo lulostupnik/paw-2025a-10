@@ -19,18 +19,27 @@ export const invalidateEventDetailQueries = async (queryClient: QueryClient, eve
     ]);
 };
 
-export const invalidateAdminEntityDetailQueries = async (
-    queryClient: QueryClient,
-    entity: "city" | "career" | "interest" | "university",
-    entityId: string | number
-) => {
-    const id = String(entityId);
-    const detailKeys = {
-        city: ["adminCityDetail", id],
-        career: ["adminCareerDetail", id],
-        interest: ["adminInterestDetail", id],
-        university: ["adminUniversityDetail", id],
-    } as const;
+const ADMIN_ENTITY_QUERY_KEYS = {
+    city: { list: "adminCities", detail: "adminCityDetail" },
+    career: { list: "adminCareers", detail: "adminCareerDetail" },
+    interest: { list: "adminInterests", detail: "adminInterestDetail" },
+    university: { list: "adminUniversities", detail: "adminUniversityDetail" },
+} as const;
 
-    await queryClient.invalidateQueries({ queryKey: detailKeys[entity] });
+export type AdminEntity = keyof typeof ADMIN_ENTITY_QUERY_KEYS;
+
+// Toda mutación de un catálogo (alta/edición/baja) invalida su listado; el
+// detalle sólo cuando la mutación apunta a una entidad concreta.
+export const invalidateAdminEntityQueries = async (
+    queryClient: QueryClient,
+    entity: AdminEntity,
+    entityId?: string | number
+) => {
+    const keys = ADMIN_ENTITY_QUERY_KEYS[entity];
+    await Promise.all([
+        queryClient.invalidateQueries({ queryKey: [keys.list] }),
+        ...(entityId != null
+            ? [queryClient.invalidateQueries({ queryKey: [keys.detail, String(entityId)] })]
+            : []),
+    ]);
 };

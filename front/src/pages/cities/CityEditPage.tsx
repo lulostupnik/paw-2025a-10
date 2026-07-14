@@ -1,5 +1,5 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
@@ -10,12 +10,18 @@ import { updateCity } from "@/lib/api/cities";
 import { listCountries, type CountryDto } from "@/lib/api/countries";
 import { useNavigate } from "react-router-dom";
 import PageStatus from "@/components/ui/PageStatus";
+import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
-import { invalidateAdminEntityDetailQueries } from "@/lib/api/queryInvalidation";
+import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
 
 interface CityFormState {
     name: string;
     country: string;
+}
+
+interface CityEditFormProps {
+    id: string;
+    city: { name: string; country: string };
 }
 
 const formatTitleCase = (value: string) =>
@@ -33,14 +39,35 @@ const API_FIELD_TO_FORM_FIELD: Record<string, keyof CityFormState> = {
 
 export default function CityEditPage() {
     const { t } = useI18n();
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { id } = useParams();
     const { data: city, isLoading, isError } = useAdminCityDetailData({ id });
-    const [form, setForm] = useState<CityFormState>({ name: "", country: "" });
+
+    if (!isAdmin()) {
+        return <ForbiddenPage />;
+    }
+
+    if (isLoading) {
+        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
+    }
+
+    if (isError || !city || !id) {
+        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // El form se monta recién con la ciudad cargada, así arranca precargado sin
+    // tener que sincronizar el estado con un efecto.
+    return <CityEditForm key={id} id={id} city={city} />;
+}
+
+function CityEditForm({ id, city }: CityEditFormProps) {
+    const { t } = useI18n();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
+    const [form, setForm] = useState<CityFormState>({ name: city.name ?? "", country: city.country ?? "" });
     const [touched, setTouched] = useState({ name: false, country: false });
-    const [countryQuery, setCountryQuery] = useState("");
-    const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+    const [countryQuery, setCountryQuery] = useState(city.country ?? "");
+    const [selectedCountry, setSelectedCountry] = useState<string | null>(city.country || null);
     const [countryOpen, setCountryOpen] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [serverErrors, setServerErrors] = useState<Partial<Record<keyof CityFormState, string>>>({});
@@ -59,18 +86,6 @@ export default function CityEditPage() {
         }
         return countries.filter((country) => country.name.toLowerCase().includes(query));
     }, [countries, countryQuery]);
-
-    useEffect(() => {
-        if (!city) {
-            return;
-        }
-        setForm({
-            name: city.name ?? "",
-            country: city.country ?? "",
-        });
-        setCountryQuery(city.country ?? "");
-        setSelectedCountry(city.country ?? null);
-    }, [city]);
 
     // The body references the country by its id, so the typed/selected name is
     // resolved to the country's id at submit time using the loaded list.
@@ -107,19 +122,16 @@ export default function CityEditPage() {
         if (clientErrors.name || clientErrors.country) {
             return;
         }
-        if (!id) {
-            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-            return;
-        }
-        setSubmitting(true);
-        setSubmitError(null);
         const countryId = resolveCountryId(form.country);
         if (countryId == null) {
             return;
         }
+        setSubmitting(true);
+        setSubmitError(null);
         updateCity(id, { name: form.name.trim(), countryId })
             .then(async () => {
-                await invalidateAdminEntityDetailQueries(queryClient, "city", id);
+                await invalidateAdminEntityQueries(queryClient, "city", id);
+                showToast(t("admin.toast.updated"), { variant: "success" });
                 navigate(`/cities/${id}`);
             })
             .catch((error) => {
@@ -151,21 +163,6 @@ export default function CityEditPage() {
         setForm((prev) => ({ ...prev, country: "" }));
         setCountryOpen(false);
     };
-
-    if (!isAdmin()) {
-        return <ForbiddenPage />;
-    }
-
-    if (isLoading) {
-        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
-    }
-
-    if (isError) {
-        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
-    if (!city) {
-        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
 
     return (
         <div className="entity-create-page">

@@ -72,7 +72,6 @@ export default function AdminPage() {
     const navigate = useNavigate();
     const { tab: tabParam } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
-    const [searchValue, setSearchValue] = useState(searchParams.get("search") ?? "");
 
     const legacyTabParam = searchParams.get("tab");
     const activeTab = getTabParam(tabParam ?? legacyTabParam);
@@ -89,9 +88,14 @@ export default function AdminPage() {
         interestName: searchParams.get("interestName") ?? "",
     };
 
-    useEffect(() => {
+    // El input de búsqueda es el borrador editable de lo que ya está en la URL:
+    // cuando la URL cambia (navegación, cambio de tab) el borrador se resetea.
+    const [searchValue, setSearchValue] = useState(searchQuery);
+    const [lastSearchQuery, setLastSearchQuery] = useState(searchQuery);
+    if (lastSearchQuery !== searchQuery) {
+        setLastSearchQuery(searchQuery);
         setSearchValue(searchQuery);
-    }, [searchQuery]);
+    }
 
     useEffect(() => {
         if (tabParam === activeTab) {

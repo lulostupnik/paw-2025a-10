@@ -4,8 +4,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import PageStatus from "@/components/ui/PageStatus";
+import ForbiddenPage from "@/pages/errors/ForbiddenPage";
+import { useToast } from "@/components/ui/ToastProvider";
 import { deleteJourney } from "@/lib/api/journeys";
-import { getUserId } from "@/lib/auth/auth";
+import { getUserId, isAdmin } from "@/lib/auth/auth";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
 
@@ -20,6 +22,7 @@ const formatDate = (value: string, locale: string) => {
 export default function JourneyDeletePage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const { id } = useParams();
     const { data, isLoading, isError, isNotFound } = useJourneyDetailData({ journeyId: id });
     const [message, setMessage] = useState("");
@@ -27,6 +30,7 @@ export default function JourneyDeletePage() {
     const [submitError, setSubmitError] = useState<string | null>(null);
 
     const isOwner = useMemo(() => data?.user?.id === getUserId(), [data?.user?.id]);
+    const admin = isAdmin();
 
     const handleBack = () => {
         const previous = popFromNavigationStack();
@@ -50,6 +54,7 @@ export default function JourneyDeletePage() {
             setSubmitting(true);
             setSubmitError(null);
             await deleteJourney(id, message.trim() ? { message: message.trim() } : undefined);
+            showToast(t("journey.toast.deleted"), { variant: "success" });
             navigate("/journeys");
         } catch (err) {
             console.error("Failed to delete journey", err);
@@ -72,6 +77,12 @@ export default function JourneyDeletePage() {
     }
     if (!data) {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // El autor y los administradores son los únicos que pueden dar de baja el
+    // viaje; el resto no debe llegar a ver la confirmación.
+    if (!isOwner && !admin) {
+        return <ForbiddenPage />;
     }
 
     return (

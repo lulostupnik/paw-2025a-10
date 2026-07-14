@@ -1,5 +1,8 @@
 export const INTERNAL_PATH_FALLBACK = "/explore";
 
+// El rango de control es intencional: un path que contenga esos caracteres se
+// rechaza, porque intercalarlos permite disfrazar un esquema no interno.
+// eslint-disable-next-line no-control-regex
 const CONTROL_OR_WHITESPACE = /[\u0000-\u001f\u007f\s]/;
 
 export function sanitizeInternalPath(raw: string | null | undefined, fallback: string | null = null): string | null {

@@ -11,6 +11,7 @@ import { getTodayIsoDate } from "@/lib/utils/date";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import PageStatus from "@/components/ui/PageStatus";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface JourneyFormState {
     startDate: string;
@@ -58,6 +59,7 @@ const parseIdFromUrl = (url?: string | null) => {
 export default function JourneyCreatePage() {
     const navigate = useNavigate();
     const { t } = useI18n();
+    const { showToast } = useToast();
     const { data: profile, isLoading: profileLoading } = useProfileDetail("me");
     const [form, setForm] = useState<JourneyFormState>({ ...INITIAL_FORM });
     const [errors, setErrors] = useState<JourneyErrors>({});
@@ -147,6 +149,7 @@ export default function JourneyCreatePage() {
             setDestinationQuery("");
             setTouched({});
             setErrors({});
+            showToast(t("journey.toast.created"), { variant: "success" });
             navigate(`/journeys/${journey.id}`, { replace: true });
         } catch (err) {
             const status = (err as { response?: { status?: number } } | undefined)?.response?.status;

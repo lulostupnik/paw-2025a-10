@@ -36,6 +36,17 @@ const parseTabParam = (value: string | null): "details" | "chat" | "rating" => {
     return "details";
 };
 
+const parsePageFromLink = (page: number | string) => {
+    if (typeof page === "string") {
+        const url = new URL(
+            page,
+            typeof window !== "undefined" ? window.location.origin : "http://localhost"
+        );
+        return Number(url.searchParams.get("page") ?? "1");
+    }
+    return page;
+};
+
 const formatDate = (value: string, locale: string) => {
     const date = parseApiDate(value);
     if (Number.isNaN(date.getTime())) {
@@ -91,6 +102,25 @@ const renderStars = (rating: number) => {
     return <div className="rating-stars-display">{stars}</div>;
 };
 
+interface AttendanceOverride {
+    eventId: number;
+    attending: boolean;
+    attendeesCount: number;
+}
+
+interface EventScopedMessage {
+    eventId: number;
+    message: string;
+}
+
+interface RatingDraft {
+    key: string;
+    value: number;
+}
+
+const scopedMessage = (state: EventScopedMessage | null, eventId?: number) =>
+    state && state.eventId === eventId ? state.message : null;
+
 interface EventResponseApi {
     id: number;
     message: string;
@@ -133,23 +163,22 @@ export default function EventDetailPage() {
         creatorLoading,
         creatorError,
         creatorReady,
-        cityLoading,
         ratingsLoading,
         ratingsError,
     } = useEventDetailData({ eventId: hasValidId ? id : undefined });
     const [actionMenuOpen, setActionMenuOpen] = useState(false);
     const [openCommentMenuId, setOpenCommentMenuId] = useState<number | null>(null);
-    const [activeTab, setActiveTab] = useState<"details" | "chat" | "rating">(() => parseTabParam(searchParams.get(TAB_PARAM)));
-    const [attendeesPage, setAttendeesPage] = useState(() => parsePageParam(searchParams.get(ATTENDEES_PAGE_PARAM)));
-    const [commentsPage, setCommentsPage] = useState(() => parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM)));
-    const [attendingOverride, setAttendingOverride] = useState<boolean | null>(null);
-    const [attendeesCountOverride, setAttendeesCountOverride] = useState<number | null>(null);
+    const requestedTab = parseTabParam(searchParams.get(TAB_PARAM));
+    const activeTab = data?.isFuture && requestedTab === "rating" ? "details" : requestedTab;
+    const attendeesPage = parsePageParam(searchParams.get(ATTENDEES_PAGE_PARAM));
+    const commentsPage = parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM));
+    const [attendanceOverride, setAttendanceOverride] = useState<AttendanceOverride | null>(null);
     const [attendSubmitting, setAttendSubmitting] = useState(false);
-    const [attendError, setAttendError] = useState<string | null>(null);
-    const [ratingValue, setRatingValue] = useState<number>(0);
+    const [attendErrorState, setAttendErrorState] = useState<EventScopedMessage | null>(null);
+    const [ratingDraft, setRatingDraft] = useState<RatingDraft | null>(null);
     const [hoverRating, setHoverRating] = useState<number | null>(null);
     const [ratingSubmitting, setRatingSubmitting] = useState(false);
-    const [ratingError, setRatingError] = useState<string | null>(null);
+    const [ratingErrorState, setRatingErrorState] = useState<EventScopedMessage | null>(null);
     const [replyMessage, setReplyMessage] = useState("");
     const [replyError, setReplyError] = useState<string | null>(null);
     const [replySubmitting, setReplySubmitting] = useState(false);
@@ -181,13 +210,23 @@ export default function EventDetailPage() {
         placeholderData: keepPreviousData,
     });
     const isAttendingFromData = attendanceQuery.data ?? false;
-    const isAttending = attendingOverride ?? isAttendingFromData;
-    const attendeesCount = attendeesCountOverride ?? (data?.attendeesCount ?? 0);
+    // Optimistic attendance and in-progress errors only apply to the event they were produced for,
+    // so they are discarded as soon as a different event is loaded.
+    const activeAttendance = attendanceOverride?.eventId === data?.id ? attendanceOverride : null;
+    const isAttending = activeAttendance?.attending ?? isAttendingFromData;
+    const attendeesCount = activeAttendance?.attendeesCount ?? (data?.attendeesCount ?? 0);
+    const attendError = scopedMessage(attendErrorState, data?.id);
+    const ratingError = scopedMessage(ratingErrorState, data?.id);
     const isFull = data?.attendeesLimit ? attendeesCount >= data.attendeesLimit : false;
     const existingRating = useMemo(
         () => data?.ratings?.find((rating) => rating.user.username === username) ?? null,
         [data?.ratings, username]
     );
+    // The picked rating is a draft over the stored one; it is dropped whenever the event or the
+    // stored rating changes.
+    const ratingBaseline = existingRating?.rating ?? 0;
+    const ratingKey = `${data?.id ?? ""}:${ratingBaseline}`;
+    const ratingValue = ratingDraft?.key === ratingKey ? ratingDraft.value : ratingBaseline;
 
     const attendeesPageSize = 6;
     const commentsPageSize = 4;
@@ -320,57 +359,19 @@ export default function EventDetailPage() {
         return action === "attend" ? t("event.attend.error.generic") : t("event.unattend.error.generic");
     };
 
-    const parsePageFromLink = (page: number | string) => {
-        if (typeof page === "string") {
-            const url = new URL(
-                page,
-                typeof window !== "undefined" ? window.location.origin : "http://localhost"
-            );
-            return Number(url.searchParams.get("page") ?? "1");
-        }
-        return page;
-    };
-
-    const handleTabChange = useCallback(
-        (tab: "details" | "chat" | "rating") => {
-            setActiveTab(tab);
-            updateTabParam(tab);
-        },
-        [updateTabParam]
-    );
-
     const handleAttendeesPageChange = useCallback(
         (page: number | string) => {
-            const parsedPage = parsePageFromLink(page);
-            setAttendeesPage(parsedPage);
-            updatePageParam(ATTENDEES_PAGE_PARAM, parsedPage);
+            updatePageParam(ATTENDEES_PAGE_PARAM, parsePageFromLink(page));
         },
         [updatePageParam]
     );
 
     const handleCommentsPageChange = useCallback(
         (page: number | string) => {
-            const parsedPage = parsePageFromLink(page);
-            setCommentsPage(parsedPage);
-            updatePageParam(COMMENTS_PAGE_PARAM, parsedPage);
+            updatePageParam(COMMENTS_PAGE_PARAM, parsePageFromLink(page));
         },
         [updatePageParam]
     );
-
-    useEffect(() => {
-        const nextTab = parseTabParam(searchParams.get(TAB_PARAM));
-        setActiveTab((currentTab) => (currentTab === nextTab ? currentTab : nextTab));
-    }, [searchParams]);
-
-    useEffect(() => {
-        const nextPage = parsePageParam(searchParams.get(ATTENDEES_PAGE_PARAM));
-        setAttendeesPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
-    }, [searchParams]);
-
-    useEffect(() => {
-        const nextPage = parsePageParam(searchParams.get(COMMENTS_PAGE_PARAM));
-        setCommentsPage((currentPage) => (currentPage === nextPage ? currentPage : nextPage));
-    }, [searchParams]);
 
     useEffect(() => {
         if (commentsQuery.isLoading || commentsQuery.isFetching) {
@@ -379,7 +380,6 @@ export default function EventDetailPage() {
         if (commentsPageData.content.length === 0 && commentsPageData.totalElements > 0 && commentsPage > 1) {
             const fallbackPage = Math.max(1, Math.min(commentsPage - 1, commentsPageData.totalPages || commentsPage - 1));
             if (fallbackPage !== commentsPage) {
-                setCommentsPage(fallbackPage);
                 updatePageParam(COMMENTS_PAGE_PARAM, fallbackPage);
             }
         }
@@ -393,20 +393,12 @@ export default function EventDetailPage() {
         updatePageParam,
     ]);
 
+    // A future event has no rating tab, so drop the parameter from the URL if it points there.
     useEffect(() => {
-        if (data?.isFuture && activeTab === "rating") {
-            setActiveTab("details");
+        if (data?.isFuture && requestedTab === "rating") {
             updateTabParam("details");
         }
-    }, [activeTab, data?.isFuture, updateTabParam]);
-
-    useEffect(() => {
-        setAttendingOverride(null);
-        setAttendeesCountOverride(null);
-        setAttendError(null);
-        setRatingError(null);
-        setRatingValue(existingRating?.rating ?? 0);
-    }, [data?.id, existingRating?.rating]);
+    }, [data?.isFuture, requestedTab, updateTabParam]);
 
     useEffect(() => {
         if (!actionMenuOpen && openCommentMenuId === null) {
@@ -465,15 +457,18 @@ export default function EventDetailPage() {
                 return;
             }
             setAttendSubmitting(true);
-            setAttendError(null);
+            setAttendErrorState(null);
             try {
                 await attendEvent(Number(id));
-                setAttendingOverride(true);
-                setAttendeesCountOverride((prev) => (prev ?? data.attendeesCount) + 1);
+                setAttendanceOverride((prev) => ({
+                    eventId: data.id,
+                    attending: true,
+                    attendeesCount: (prev?.eventId === data.id ? prev.attendeesCount : data.attendeesCount) + 1,
+                }));
                 refreshEventViews();
             } catch (error) {
                 console.error("Failed to attend event", error);
-                setAttendError(resolveAttendanceError(error, "attend"));
+                setAttendErrorState({ eventId: data.id, message: resolveAttendanceError(error, "attend") });
             } finally {
                 setAttendSubmitting(false);
             }
@@ -486,18 +481,21 @@ export default function EventDetailPage() {
                 return;
             }
             setAttendSubmitting(true);
-            setAttendError(null);
+            setAttendErrorState(null);
             try {
                 if (!userId) {
                     throw new Error("missing-user-id");
                 }
                 await unattendEvent(Number(id), userId);
-                setAttendingOverride(false);
-                setAttendeesCountOverride((prev) => Math.max(0, (prev ?? data.attendeesCount) - 1));
+                setAttendanceOverride((prev) => ({
+                    eventId: data.id,
+                    attending: false,
+                    attendeesCount: Math.max(0, (prev?.eventId === data.id ? prev.attendeesCount : data.attendeesCount) - 1),
+                }));
                 refreshEventViews();
             } catch (error) {
                 console.error("Failed to unattend event", error);
-                setAttendError(resolveAttendanceError(error, "unattend"));
+                setAttendErrorState({ eventId: data.id, message: resolveAttendanceError(error, "unattend") });
             } finally {
                 setAttendSubmitting(false);
             }
@@ -508,15 +506,15 @@ export default function EventDetailPage() {
         event.preventDefault();
         gate.runOrPrompt(async () => {
             if (!id) {
-                setRatingError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
+                setRatingErrorState({ eventId: data.id, message: t("admin.dashboard.error", { defaultValue: "Error cargando datos." }) });
                 return;
             }
             if (!ratingValue) {
-                setRatingError(t("event.rating.placeholder", { defaultValue: "Select a rating." }));
+                setRatingErrorState({ eventId: data.id, message: t("event.rating.placeholder", { defaultValue: "Select a rating." }) });
                 return;
             }
             setRatingSubmitting(true);
-            setRatingError(null);
+            setRatingErrorState(null);
             try {
                 if (existingRating?.id) {
                     await updateEventRating(Number(id), existingRating.id, { rating: ratingValue });
@@ -527,7 +525,10 @@ export default function EventDetailPage() {
                 queryClient.invalidateQueries({ queryKey: ["eventRatings", id] });
             } catch (error) {
                 console.error("Failed to submit rating", error);
-                setRatingError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
+                setRatingErrorState({
+                    eventId: data.id,
+                    message: apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })),
+                });
             } finally {
                 setRatingSubmitting(false);
             }
@@ -540,16 +541,19 @@ export default function EventDetailPage() {
                 return;
             }
             setRatingSubmitting(true);
-            setRatingError(null);
+            setRatingErrorState(null);
             try {
                 await deleteEventRating(Number(id), existingRating.id);
-                setRatingValue(0);
+                setRatingDraft({ key: ratingKey, value: 0 });
                 setHoverRating(null);
                 await queryClient.invalidateQueries({ queryKey: ["eventDetail", id] });
                 await queryClient.invalidateQueries({ queryKey: ["eventRatings", id] });
             } catch (error) {
                 console.error("Failed to delete rating", error);
-                setRatingError(apiErrorMessage(error, t("event.rating.delete.error", { defaultValue: "We couldn't remove your rating." })));
+                setRatingErrorState({
+                    eventId: data.id,
+                    message: apiErrorMessage(error, t("event.rating.delete.error", { defaultValue: "We couldn't remove your rating." })),
+                });
             } finally {
                 setRatingSubmitting(false);
             }
@@ -579,7 +583,6 @@ export default function EventDetailPage() {
                     { page: 1, size: commentsPageSize }
                 );
                 const targetCommentsPage = Math.max(1, refreshedCommentsPage.totalPages || 1);
-                setCommentsPage(targetCommentsPage);
                 updatePageParam(COMMENTS_PAGE_PARAM, targetCommentsPage);
                 await Promise.all([
                     queryClient.invalidateQueries({
@@ -806,7 +809,7 @@ return (
                                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
                                             <circle cx="12" cy="10" r="3"></circle>
                                         </svg>
-                                        <span>{data.city.name || (cityLoading ? "…" : "")}</span>
+                                        <span>{data.city.name}</span>
                                     </div>
                                     <div className="meta-item">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -846,7 +849,7 @@ return (
 
                                 <div className="event-flyer">
                                     {data.flyerImageUrl ? (
-                                        <img src={data.flyerImageUrl} alt="Event Flyer" className="flyer-image" />
+                                        <img src={data.flyerImageUrl} alt={t("event.flyer.alt")} className="flyer-image" />
                                     ) : (
                                         <div className="flyer-placeholder">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
@@ -881,7 +884,7 @@ return (
                                         id="details-tab"
                                         className={`tab-btn ${activeTab === "details" ? "active" : ""}`}
                                         data-tab="details"
-                                        onClick={() => handleTabChange("details")}
+                                        onClick={() => updateTabParam("details")}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -896,7 +899,7 @@ return (
                                         id="chat-tab"
                                         className={`tab-btn ${activeTab === "chat" ? "active" : ""}`}
                                         data-tab="chat"
-                                        onClick={() => handleTabChange("chat")}
+                                        onClick={() => updateTabParam("chat")}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -910,7 +913,7 @@ return (
                                             id="rating-tab"
                                             className={`tab-btn ${activeTab === "rating" ? "active" : ""}`}
                                             data-tab="rating"
-                                            onClick={() => handleTabChange("rating")}
+                                            onClick={() => updateTabParam("rating")}
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M12 17l-5.5 3.5L8 14l-4-3h5L12 4l3 7h5l-4 3 1.5 6.5z"></path>
@@ -999,7 +1002,7 @@ return (
                                                                     <div key={attendee.id} className="attendee-card">
                                                                         <div className="attendee-avatar">
                                                                         {attendee.profilePictureUrl ? (
-                                                                            <img src={attendee.profilePictureUrl} alt="Profile" className="detail-avatar-img" />
+                                                                            <img src={attendee.profilePictureUrl} alt={t("profile.picture.alt")} className="detail-avatar-img" />
                                                                         ) : (
                                                                             <div className="avatar-placeholder">
                                                                                 <AvatarFallbackIcon size={18} />
@@ -1078,7 +1081,7 @@ return (
                                                                         <button
                                                                             type="button"
                                                                             className="btn-action"
-                                                                            aria-label="Comment actions"
+                                                                            aria-label={t("comment.actions")}
                                                                             onClick={() =>
                                                                                 setOpenCommentMenuId((prev) => (prev === response.id ? null : response.id))
                                                                             }
@@ -1278,7 +1281,7 @@ return (
                                                                                         name="rating"
                                                                                         value={value}
                                                                                         checked={ratingValue === value}
-                                                                                        onChange={() => setRatingValue(value)}
+                                                                                        onChange={() => setRatingDraft({ key: ratingKey, value })}
                                                                                         onFocus={() => setHoverRating(value)}
                                                                                         onBlur={() => setHoverRating(null)}
                                                                                     />

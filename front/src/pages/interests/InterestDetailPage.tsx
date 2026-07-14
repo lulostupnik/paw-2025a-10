@@ -8,10 +8,13 @@ import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminInterestDetailData } from "@/hooks/useAdminDetailData";
 import { deleteInterest } from "@/lib/api/interests";
 import PageStatus from "@/components/ui/PageStatus";
+import { useToast } from "@/components/ui/ToastProvider";
+import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
 
 export default function InterestDetailPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const { id } = useParams();
     const { data: interest, isLoading, isError } = useAdminInterestDetailData({ id });
     const [modalOpen, setModalOpen] = useState(false);
@@ -20,8 +23,9 @@ export default function InterestDetailPage() {
 
     const deleteInterestMutation = useMutation({
         mutationFn: (interestId: string) => deleteInterest(interestId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["adminInterests"] });
+        onSuccess: async (_data, interestId) => {
+            await invalidateAdminEntityQueries(queryClient, "interest", interestId);
+            showToast(t("admin.toast.deleted"), { variant: "success" });
             navigate("/admin/interests");
         },
         onError: (error) => {
@@ -99,7 +103,7 @@ export default function InterestDetailPage() {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h2>{t("interest.delete.confirm.title")}</h2>
-                            <button type="button" className="close-modal" aria-label="Close" onClick={() => setModalOpen(false)}>
+                            <button type="button" className="close-modal" aria-label={t("common.close")} onClick={() => setModalOpen(false)}>
                                 &times;
                             </button>
                         </div>

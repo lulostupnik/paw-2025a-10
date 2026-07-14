@@ -1,5 +1,5 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
@@ -13,59 +13,10 @@ import InterestMultiSelectField from "@/components/form/InterestMultiSelectField
 
 export default function ProfileInterestsEdit() {
     const { t } = useI18n();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { showToast } = useToast();
     const { data: profile, isLoading, isError } = useProfileDetail("me");
-    const { updateInterests, isLoading: isSaving } = useProfileUpsert();
     const userInterestsQuery = useProfileInterests({ profileId: "me", page: 1, size: 200, enabled: Boolean(profile) });
-    const [selected, setSelected] = useState<CatalogOption[]>([]);
-    const [hasInitialized, setHasInitialized] = useState(false);
-    const [isDirty, setIsDirty] = useState(false);
-    const [submitError, setSubmitError] = useState<string | null>(null);
-    const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
-    const handleSelectionChange = (next: CatalogOption[]) => {
-        setSelected(next);
-        setIsDirty(true);
-    };
-
-    useEffect(() => {
-        if (hasInitialized || userInterestsQuery.isLoading || userInterestsQuery.isError) {
-            return;
-        }
-        setSelected(userInterestsQuery.data.content.map((interest) => ({ id: interest.id, name: interest.name })));
-        setHasInitialized(true);
-    }, [hasInitialized, userInterestsQuery.data.content, userInterestsQuery.isError, userInterestsQuery.isLoading]);
-
-    useEffect(() => {
-        if (!hasInitialized || isDirty || userInterestsQuery.isLoading || userInterestsQuery.isError) {
-            return;
-        }
-        const next = userInterestsQuery.data.content.map((interest) => ({ id: interest.id, name: interest.name }));
-        const currentIds = selected.map((item) => item.id).sort((a, b) => a - b);
-        const nextIds = next.map((item) => item.id).sort((a, b) => a - b);
-        const isSame = currentIds.length === nextIds.length && currentIds.every((id, index) => id === nextIds[index]);
-        if (!isSame) {
-            setSelected(next);
-        }
-    }, [hasInitialized, isDirty, selected, userInterestsQuery.data.content, userInterestsQuery.isError, userInterestsQuery.isLoading]);
-
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        try {
-            setSubmitError(null);
-            await updateInterests(selected.map((interest) => interest.id));
-            showToast(t("profile.toast.interestsUpdated", { defaultValue: "Interests updated successfully." }), { variant: "success" });
-            setIsDirty(false);
-            navigate(returnPath ?? "/profiles/me/interests", { replace: true });
-        } catch (error) {
-            console.error("Failed to update interests", error);
-            setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
-        }
-    };
-
-    if (isLoading) {
+    if (isLoading || userInterestsQuery.isLoading) {
         return <PageStatus className="profile-form-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
@@ -76,6 +27,44 @@ export default function ProfileInterestsEdit() {
             </div>
         );
     }
+
+    // El form se monta recién con los intereses cargados, así arranca precargado
+    // sin sincronizar el estado con un efecto.
+    return (
+        <InterestsForm
+            initialSelected={userInterestsQuery.data.content.map((interest) => ({ id: interest.id, name: interest.name }))}
+            hasLoadError={userInterestsQuery.isError}
+        />
+    );
+}
+
+interface InterestsFormProps {
+    initialSelected: CatalogOption[];
+    hasLoadError: boolean;
+}
+
+function InterestsForm({ initialSelected, hasLoadError }: InterestsFormProps) {
+    const { t } = useI18n();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { showToast } = useToast();
+    const { updateInterests, isLoading: isSaving } = useProfileUpsert();
+    const [selected, setSelected] = useState<CatalogOption[]>(initialSelected);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        try {
+            setSubmitError(null);
+            await updateInterests(selected.map((interest) => interest.id));
+            showToast(t("profile.toast.interestsUpdated"), { variant: "success" });
+            navigate(returnPath ?? "/profiles/me/interests", { replace: true });
+        } catch (error) {
+            console.error("Failed to update interests", error);
+            setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
+        }
+    };
 
     return (
         <div className="profile-form-page">
@@ -97,7 +86,7 @@ export default function ProfileInterestsEdit() {
                             name="interests"
                             placeholder={t("event.interest.search", { defaultValue: "Search interests..." })}
                             selected={selected}
-                            onChange={handleSelectionChange}
+                            onChange={setSelected}
                             fetcher={searchInterests}
                             helper={t("register.interests.helper")}
                         />
@@ -107,7 +96,7 @@ export default function ProfileInterestsEdit() {
                         </button>
                     </form>
                     {submitError && <p className="error-message">{submitError}</p>}
-                    {userInterestsQuery.isError && (
+                    {hasLoadError && (
                         <p className="error-message">{t("admin.dashboard.error", { defaultValue: "Error cargando datos." })}</p>
                     )}
 

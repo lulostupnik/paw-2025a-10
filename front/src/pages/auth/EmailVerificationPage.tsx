@@ -8,7 +8,10 @@ import { useI18n } from "@/lib/i18n";
 
 type VerificationStatus = "loading" | "success" | "expired" | "invalid" | "blocked" | "already" | "error";
 
-interface VerificationState {
+// El resultado se guarda junto al token que lo produjo: si el token de la URL
+// cambia, el estado derivado vuelve a "loading" sin sincronizarlo por efecto.
+interface VerificationResult {
+    token: string;
     status: VerificationStatus;
 }
 
@@ -41,28 +44,29 @@ export default function EmailVerificationPage() {
     const token = searchParams.get("token");
     const userId = searchParams.get("userId");
     const email = searchParams.get("email") ?? searchParams.get("amp;email") ?? "";
-    const [state, setState] = useState<VerificationState>(() =>
-        token && userId ? { status: "loading" } : { status: "invalid" }
-    );
+    const [result, setResult] = useState<VerificationResult | null>(null);
+    const status: VerificationStatus = !token || !userId
+        ? "invalid"
+        : result?.token === token
+            ? result.status
+            : "loading";
 
     useEffect(() => {
         if (!token || !userId) {
-            setState({ status: "invalid" });
             return;
         }
 
         let cancelled = false;
-        setState({ status: "loading" });
 
         verifyEmailToken({ userId, email, token })
             .then(() => {
                 if (!cancelled) {
-                    setState({ status: "success" });
+                    setResult({ token, status: "success" });
                 }
             })
             .catch((error) => {
                 if (!cancelled) {
-                    setState({ status: mapVerificationError(error) });
+                    setResult({ token, status: mapVerificationError(error) });
                 }
             });
 
@@ -72,7 +76,7 @@ export default function EmailVerificationPage() {
     }, [token, userId, email]);
 
     const renderStatusCard = () => {
-        switch (state.status) {
+        switch (status) {
             case "loading":
                 return (
                     <StatusCard

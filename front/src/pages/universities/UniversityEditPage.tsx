@@ -1,5 +1,5 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
@@ -10,13 +10,19 @@ import { updateUniversity } from "@/lib/api/universities";
 import { listCities } from "@/lib/api/cities";
 import { emptyPage } from "@/types/pagination";
 import PageStatus from "@/components/ui/PageStatus";
+import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
-import { invalidateAdminEntityDetailQueries } from "@/lib/api/queryInvalidation";
+import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
 
 interface UniversityFormState {
     name: string;
     abbreviation: string;
     city: string;
+}
+
+interface UniversityEditFormProps {
+    id: string;
+    university: { name: string; abbreviation: string; city: { name: string } };
 }
 
 const formatTitleCase = (value: string) =>
@@ -35,18 +41,40 @@ const API_FIELD_TO_FORM_FIELD: Record<string, keyof UniversityFormState> = {
 
 export default function UniversityEditPage() {
     const { t } = useI18n();
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { id } = useParams();
     const { data: university, isLoading, isError } = useAdminUniversityDetailData({ id });
+
+    if (!isAdmin()) {
+        return <ForbiddenPage />;
+    }
+
+    if (isLoading) {
+        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
+    }
+
+    if (isError || !university || !id) {
+        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // El form se monta recién con la universidad cargada, así arranca precargado
+    // sin tener que sincronizar el estado con un efecto.
+    return <UniversityEditForm key={id} id={id} university={university} />;
+}
+
+function UniversityEditForm({ id, university }: UniversityEditFormProps) {
+    const { t } = useI18n();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
+    const cityName = university.city?.name ?? "";
     const [form, setForm] = useState<UniversityFormState>({
-        name: "",
-        abbreviation: "",
-        city: "",
+        name: university.name ?? "",
+        abbreviation: university.abbreviation ?? "",
+        city: cityName,
     });
     const [touched, setTouched] = useState({ name: false, abbreviation: false, city: false });
-    const [cityQuery, setCityQuery] = useState("");
-    const [selectedCity, setSelectedCity] = useState<string | null>(null);
+    const [cityQuery, setCityQuery] = useState(cityName);
+    const [selectedCity, setSelectedCity] = useState<string | null>(cityName || null);
     const [cityOpen, setCityOpen] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [serverErrors, setServerErrors] = useState<Partial<Record<keyof UniversityFormState, string>>>({});
@@ -68,20 +96,6 @@ export default function UniversityEditPage() {
         }
         return cities.filter((city) => city.name.toLowerCase().includes(query));
     }, [cities, cityQuery]);
-
-    useEffect(() => {
-        if (!university) {
-            return;
-        }
-        const cityName = university.city?.name ?? "";
-        setForm({
-            name: university.name ?? "",
-            abbreviation: university.abbreviation ?? "",
-            city: cityName,
-        });
-        setCityQuery(cityName);
-        setSelectedCity(cityName || null);
-    }, [university]);
 
     const resolveCityId = useCallback(
         (name: string) =>
@@ -120,10 +134,6 @@ export default function UniversityEditPage() {
         if (clientErrors.name || clientErrors.abbreviation || clientErrors.city) {
             return;
         }
-        if (!id) {
-            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-            return;
-        }
         const cityId = resolveCityId(form.city);
         if (cityId == null) {
             return;
@@ -136,7 +146,8 @@ export default function UniversityEditPage() {
             cityId,
         })
             .then(async () => {
-                await invalidateAdminEntityDetailQueries(queryClient, "university", id);
+                await invalidateAdminEntityQueries(queryClient, "university", id);
+                showToast(t("admin.toast.updated"), { variant: "success" });
                 navigate(`/universities/${id}`);
             })
             .catch((error) => {
@@ -168,21 +179,6 @@ export default function UniversityEditPage() {
         setForm((prev) => ({ ...prev, city: "" }));
         setCityOpen(false);
     };
-
-    if (!isAdmin()) {
-        return <ForbiddenPage />;
-    }
-
-    if (isLoading) {
-        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
-    }
-
-    if (isError) {
-        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
-    if (!university) {
-        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
 
     return (
         <div className="entity-create-page">

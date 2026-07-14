@@ -55,7 +55,6 @@ export default function UsersTab({
     const { t } = useI18n();
     const [modalState, setModalState] = useState<ModalState | null>(null);
     const [filtersOpen, setFiltersOpen] = useState(false);
-    const [draftFilters, setDraftFilters] = useState<AdminUserFilters>(filters);
     const [actionError, setActionError] = useState<string | null>(null);
     const [actionSubmitting, setActionSubmitting] = useState(false);
     const isEmpty = !isLoading && !isError && data.content.length === 0;
@@ -66,13 +65,6 @@ export default function UsersTab({
         Boolean(filters.universityId) ||
         Boolean(filters.careerId) ||
         Boolean(filters.interestId);
-
-    useEffect(() => {
-        if (!filtersOpen) {
-            return;
-        }
-        setDraftFilters(filters);
-    }, [filters, filtersOpen]);
 
     const closeModal = () => {
         setModalState(null);
@@ -189,7 +181,7 @@ export default function UsersTab({
                                     ? t("user.block.confirm.title")
                                     : t("user.unblock.confirm.title")}
                             </h2>
-                            <button type="button" className="close-modal" aria-label="Close" onClick={closeModal}>
+                            <button type="button" className="close-modal" aria-label={t("common.close")} onClick={closeModal}>
                                 &times;
                             </button>
                         </div>
@@ -237,98 +229,119 @@ export default function UsersTab({
             )}
 
             {filtersOpen && (
-                <div
-                    className="modal"
-                    role="dialog"
-                    aria-modal="true"
-                    onClick={(event) => {
-                        if (event.target === event.currentTarget) {
-                            setFiltersOpen(false);
-                        }
+                <UsersFiltersModal
+                    filters={filters}
+                    onApply={(nextFilters) => {
+                        onApplyFilters(nextFilters);
+                        setFiltersOpen(false);
                     }}
-                >
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h2>{t("admin.users.filters.title", { defaultValue: "Filter users" })}</h2>
-                            <button type="button" className="close-modal" aria-label="Close" onClick={() => setFiltersOpen(false)}>
-                                &times;
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <BlockedSelectField
-                                label={t("admin.users.filters.blocked", { defaultValue: "Blocked status" })}
-                                value={draftFilters.blocked}
-                                onChange={(value) => setDraftFilters((prev) => ({ ...prev, blocked: value }))}
-                            />
-                            <AdminCatalogSelectField
-                                label={t("admin.users.filters.university", { defaultValue: "University" })}
-                                placeholder={t("admin.users.filters.university.placeholder", { defaultValue: "Search for a university..." })}
-                                value={draftFilters.universityId && draftFilters.universityName ? { id: draftFilters.universityId, name: draftFilters.universityName } : null}
-                                onChange={(option) =>
-                                    setDraftFilters((prev) => ({
-                                        ...prev,
-                                        universityId: option?.id ?? null,
-                                        universityName: option?.name ?? "",
-                                    }))
-                                }
-                                fetcher={searchUniversities}
-                                catalogKey="admin-users-university"
-                            />
-                            <AdminCatalogSelectField
-                                label={t("admin.users.filters.career", { defaultValue: "Career" })}
-                                placeholder={t("admin.users.filters.career.placeholder", { defaultValue: "Search for a career..." })}
-                                value={draftFilters.careerId && draftFilters.careerName ? { id: draftFilters.careerId, name: draftFilters.careerName } : null}
-                                onChange={(option) =>
-                                    setDraftFilters((prev) => ({
-                                        ...prev,
-                                        careerId: option?.id ?? null,
-                                        careerName: option?.name ?? "",
-                                    }))
-                                }
-                                fetcher={searchCareers}
-                                catalogKey="admin-users-career"
-                            />
-                            <AdminCatalogSelectField
-                                label={t("admin.users.filters.interest", { defaultValue: "Interest" })}
-                                placeholder={t("admin.users.filters.interest.placeholder", { defaultValue: "Search for an interest..." })}
-                                value={draftFilters.interestId && draftFilters.interestName ? { id: draftFilters.interestId, name: draftFilters.interestName } : null}
-                                onChange={(option) =>
-                                    setDraftFilters((prev) => ({
-                                        ...prev,
-                                        interestId: option?.id ?? null,
-                                        interestName: option?.name ?? "",
-                                    }))
-                                }
-                                fetcher={searchInterests}
-                                catalogKey="admin-users-interest"
-                            />
-                        </div>
-                        <div className="modal-footer">
-                            <button
-                                type="button"
-                                className="cta-button secondary"
-                                onClick={() => {
-                                    setDraftFilters(EMPTY_ADMIN_USER_FILTERS);
-                                    onResetFilters();
-                                    setFiltersOpen(false);
-                                }}
-                            >
-                                {t("listing.filters.reset", { defaultValue: "Reset" })}
-                            </button>
-                            <button
-                                type="button"
-                                className="cta-button primary"
-                                onClick={() => {
-                                    onApplyFilters(draftFilters);
-                                    setFiltersOpen(false);
-                                }}
-                            >
-                                {t("listing.filters.apply", { defaultValue: "Apply filters" })}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                    onReset={() => {
+                        onResetFilters();
+                        setFiltersOpen(false);
+                    }}
+                    onClose={() => setFiltersOpen(false)}
+                />
             )}
+        </div>
+    );
+}
+
+interface UsersFiltersModalProps {
+    filters: AdminUserFilters;
+    onApply: (filters: AdminUserFilters) => void;
+    onReset: () => void;
+    onClose: () => void;
+}
+
+// El modal se monta recién al abrirse, así el borrador de filtros arranca desde
+// los filtros vigentes sin sincronizarlo con un efecto.
+function UsersFiltersModal({ filters, onApply, onReset, onClose }: UsersFiltersModalProps) {
+    const { t } = useI18n();
+    const [draftFilters, setDraftFilters] = useState<AdminUserFilters>(filters);
+
+    return (
+        <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            onClick={(event) => {
+                if (event.target === event.currentTarget) {
+                    onClose();
+                }
+            }}
+        >
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h2>{t("admin.users.filters.title", { defaultValue: "Filter users" })}</h2>
+                    <button type="button" className="close-modal" aria-label={t("common.close")} onClick={onClose}>
+                        &times;
+                    </button>
+                </div>
+                <div className="modal-body">
+                    <BlockedSelectField
+                        label={t("admin.users.filters.blocked", { defaultValue: "Blocked status" })}
+                        value={draftFilters.blocked}
+                        onChange={(value) => setDraftFilters((prev) => ({ ...prev, blocked: value }))}
+                    />
+                    <AdminCatalogSelectField
+                        label={t("admin.users.filters.university", { defaultValue: "University" })}
+                        placeholder={t("admin.users.filters.university.placeholder", { defaultValue: "Search for a university..." })}
+                        value={draftFilters.universityId && draftFilters.universityName ? { id: draftFilters.universityId, name: draftFilters.universityName } : null}
+                        onChange={(option) =>
+                            setDraftFilters((prev) => ({
+                                ...prev,
+                                universityId: option?.id ?? null,
+                                universityName: option?.name ?? "",
+                            }))
+                        }
+                        fetcher={searchUniversities}
+                        catalogKey="admin-users-university"
+                    />
+                    <AdminCatalogSelectField
+                        label={t("admin.users.filters.career", { defaultValue: "Career" })}
+                        placeholder={t("admin.users.filters.career.placeholder", { defaultValue: "Search for a career..." })}
+                        value={draftFilters.careerId && draftFilters.careerName ? { id: draftFilters.careerId, name: draftFilters.careerName } : null}
+                        onChange={(option) =>
+                            setDraftFilters((prev) => ({
+                                ...prev,
+                                careerId: option?.id ?? null,
+                                careerName: option?.name ?? "",
+                            }))
+                        }
+                        fetcher={searchCareers}
+                        catalogKey="admin-users-career"
+                    />
+                    <AdminCatalogSelectField
+                        label={t("admin.users.filters.interest", { defaultValue: "Interest" })}
+                        placeholder={t("admin.users.filters.interest.placeholder", { defaultValue: "Search for an interest..." })}
+                        value={draftFilters.interestId && draftFilters.interestName ? { id: draftFilters.interestId, name: draftFilters.interestName } : null}
+                        onChange={(option) =>
+                            setDraftFilters((prev) => ({
+                                ...prev,
+                                interestId: option?.id ?? null,
+                                interestName: option?.name ?? "",
+                            }))
+                        }
+                        fetcher={searchInterests}
+                        catalogKey="admin-users-interest"
+                    />
+                </div>
+                <div className="modal-footer">
+                    <button
+                        type="button"
+                        className="cta-button secondary"
+                        onClick={() => {
+                            setDraftFilters(EMPTY_ADMIN_USER_FILTERS);
+                            onReset();
+                        }}
+                    >
+                        {t("listing.filters.reset", { defaultValue: "Reset" })}
+                    </button>
+                    <button type="button" className="cta-button primary" onClick={() => onApply(draftFilters)}>
+                        {t("listing.filters.apply", { defaultValue: "Apply filters" })}
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
@@ -366,10 +379,13 @@ function AdminCatalogSelectField({
     const [query, setQuery] = useState(value?.name ?? "");
     const [open, setOpen] = useState(false);
     const debouncedQuery = useDebouncedValue(query);
-
-    useEffect(() => {
+    // El texto tipeado es un borrador de la opción elegida: si la selección
+    // cambia desde afuera, el borrador vuelve a reflejarla.
+    const [lastValue, setLastValue] = useState(value);
+    if (lastValue !== value) {
+        setLastValue(value);
         setQuery(value?.name ?? "");
-    }, [value]);
+    }
 
     const { data: options = [], isLoading } = useQuery<CatalogOption[]>({
         queryKey: ["admin", "users", "catalog", catalogKey, debouncedQuery],
@@ -463,6 +479,7 @@ interface BlockedSelectFieldProps {
 }
 
 function BlockedSelectField({ label, value, onChange }: BlockedSelectFieldProps) {
+    const { t } = useI18n();
     const inputId = useId();
     return (
         <div className="form-field">
@@ -483,9 +500,9 @@ function BlockedSelectField({ label, value, onChange }: BlockedSelectFieldProps)
                     }
                 }}
             >
-                <option value="all">All</option>
-                <option value="active">Active only</option>
-                <option value="blocked">Blocked only</option>
+                <option value="all">{t("admin.users.filter.all")}</option>
+                <option value="active">{t("admin.users.filter.active")}</option>
+                <option value="blocked">{t("admin.users.filter.blocked")}</option>
             </select>
         </div>
     );

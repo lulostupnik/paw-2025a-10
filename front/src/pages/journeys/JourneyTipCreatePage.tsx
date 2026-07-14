@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import PageStatus from "@/components/ui/PageStatus";
+import { useToast } from "@/components/ui/ToastProvider";
 import { createJourneyTip, listJourneyTips } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
@@ -14,6 +15,7 @@ export default function JourneyTipCreatePage() {
     const { t } = useI18n();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { showToast } = useToast();
     const { journeyId } = useParams();
     const [searchParams] = useSearchParams();
     const tipsPage = searchParams.get("tipsPage");
@@ -72,6 +74,7 @@ export default function JourneyTipCreatePage() {
             } catch (tipListError) {
                 console.warn("Failed to resolve last tips page after tip creation", tipListError);
             }
+            showToast(t("tip.toast.created"), { variant: "success" });
             navigate(destination);
         } catch (err) {
             console.error("Failed to create tip", err);
@@ -93,10 +96,10 @@ export default function JourneyTipCreatePage() {
     }
 
     const titleError = touched.title && !title.trim()
-        ? t("NotEmpty.createTipForm.title", { defaultValue: "Completa este campo." })
+        ? t("NotEmpty.createTipForm.title")
         : "";
     const contentError = touched.content && !content.trim()
-        ? t("NotEmpty.createTipForm.content", { defaultValue: "Completa este campo." })
+        ? t("NotEmpty.createTipForm.content")
         : "";
 
     return (

@@ -1,33 +1,12 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { setApiLocale } from "@/lib/api/client";
+import { I18nContext, type I18nContextValue, type Locale, type TranslateFn } from "./context";
 import en from "./messages/en.json";
 import es from "./messages/es.json";
 
-export type Locale = "en" | "es";
-
-type TranslateOptions = {
-    defaultValue?: string;
-    values?: Record<string | number, string | number>;
-};
-
-type TranslateFn = (key: string, options?: TranslateOptions) => string;
-
-interface I18nContextValue {
-    locale: Locale;
-    availableLocales: Locale[];
-    setLocale: (locale: Locale) => void;
-    t: TranslateFn;
-}
-
 const catalogs: Record<Locale, Record<string, string>> = { en, es };
 const fallbackLocale: Locale = "en";
-
-// Native display name for each locale. When adding a language, register its
-// catalog above and its label here so the selector picks it up automatically.
-export const localeLabels: Record<Locale, string> = { en: "English", es: "Español" };
-
-const I18nContext = createContext<I18nContextValue | undefined>(undefined);
 
 const isLocale = (value: string | null): value is Locale => value === "en" || value === "es";
 
@@ -44,11 +23,7 @@ const formatTemplate = (template: string, values?: Record<string | number, strin
 
 const LOCALE_STORAGE_KEY = "gotogether.locale";
 
-const detectInitialLocale = (preferred?: Locale): Locale => {
-    if (preferred && isLocale(preferred)) {
-        return preferred;
-    }
-
+const detectInitialLocale = (): Locale => {
     if (typeof localStorage !== "undefined") {
         const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
         if (isLocale(stored)) {
@@ -68,20 +43,14 @@ const detectInitialLocale = (preferred?: Locale): Locale => {
 
 interface I18nProviderProps {
     children: ReactNode;
-    initialLocale?: Locale;
 }
 
-export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
-    const [locale, setLocale] = useState<Locale>(() => detectInitialLocale(initialLocale));
-
-    useEffect(() => {
-        if (initialLocale && initialLocale !== locale) {
-            setLocale(initialLocale);
-        }
-    }, [initialLocale, locale]);
+export function I18nProvider({ children }: I18nProviderProps) {
+    const [locale, setLocale] = useState<Locale>(detectInitialLocale);
 
     useEffect(() => {
         setApiLocale(locale);
+        document.documentElement.lang = locale;
         if (typeof localStorage !== "undefined") {
             localStorage.setItem(LOCALE_STORAGE_KEY, locale);
         }
@@ -105,18 +74,4 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     }, [locale]);
 
     return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
-}
-
-export function useI18n() {
-    const context = useContext(I18nContext);
-
-    if (!context) {
-        throw new Error("useI18n must be used within an I18nProvider");
-    }
-
-    return context;
-}
-
-export function useTranslate(): TranslateFn {
-    return useI18n().t;
 }

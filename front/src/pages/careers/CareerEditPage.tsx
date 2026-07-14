@@ -1,5 +1,5 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
@@ -8,11 +8,17 @@ import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useAdminCareerDetailData } from "@/hooks/useAdminDetailData";
 import { updateCareer } from "@/lib/api/careers";
 import PageStatus from "@/components/ui/PageStatus";
+import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
-import { invalidateAdminEntityDetailQueries } from "@/lib/api/queryInvalidation";
+import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
 
 interface CareerFormState {
     name: string;
+}
+
+interface CareerEditFormProps {
+    id: string;
+    career: { name: string };
 }
 
 // Campo del ErrorDto de la API → campo del formulario.
@@ -29,22 +35,36 @@ const formatTitleCase = (value: string) =>
 
 export default function CareerEditPage() {
     const { t } = useI18n();
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { id } = useParams();
     const { data: career, isLoading, isError } = useAdminCareerDetailData({ id });
-    const [form, setForm] = useState<CareerFormState>({ name: "" });
+
+    if (!isAdmin()) {
+        return <ForbiddenPage />;
+    }
+
+    if (isLoading) {
+        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
+    }
+
+    if (isError || !career || !id) {
+        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // El form se monta recién con la carrera cargada, así arranca precargado sin
+    // tener que sincronizar el estado con un efecto.
+    return <CareerEditForm key={id} id={id} career={career} />;
+}
+
+function CareerEditForm({ id, career }: CareerEditFormProps) {
+    const { t } = useI18n();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
+    const [form, setForm] = useState<CareerFormState>({ name: career.name ?? "" });
     const [touched, setTouched] = useState({ name: false });
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [serverErrors, setServerErrors] = useState<Partial<Record<keyof CareerFormState, string>>>({});
     const [submitting, setSubmitting] = useState(false);
-
-    useEffect(() => {
-        if (!career) {
-            return;
-        }
-        setForm({ name: career.name ?? "" });
-    }, [career]);
 
     const clientErrors = useMemo(
         () => ({
@@ -67,15 +87,12 @@ export default function CareerEditPage() {
         if (clientErrors.name) {
             return;
         }
-        if (!id) {
-            setSubmitError(t("admin.dashboard.error", { defaultValue: "Error cargando datos." }));
-            return;
-        }
         setSubmitting(true);
         setSubmitError(null);
         updateCareer(id, { name: form.name.trim() })
             .then(async () => {
-                await invalidateAdminEntityDetailQueries(queryClient, "career", id);
+                await invalidateAdminEntityQueries(queryClient, "career", id);
+                showToast(t("admin.toast.updated"), { variant: "success" });
                 navigate(`/careers/${id}`);
             })
             .catch((error) => {
@@ -89,21 +106,6 @@ export default function CareerEditPage() {
             })
             .finally(() => setSubmitting(false));
     };
-
-    if (!isAdmin()) {
-        return <ForbiddenPage />;
-    }
-
-    if (isLoading) {
-        return <PageStatus className="entity-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
-    }
-
-    if (isError) {
-        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
-    if (!career) {
-        return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
 
     return (
         <div className="entity-create-page">

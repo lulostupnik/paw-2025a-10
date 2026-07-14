@@ -41,6 +41,7 @@ const report = (over: Partial<ReportListItem> = {}): ReportListItem => ({
 
 const page = (content: ReportListItem[]): PageResult<ReportListItem> => ({
     content,
+    totalElements: content.length,
     next: null,
     prev: null,
     first: null,

@@ -142,7 +142,7 @@ export default function UserDetailPage() {
                             <h2>
                                 {user.blocked ? t("user.unblock.confirm.title") : t("user.block.confirm.title")}
                             </h2>
-                            <button type="button" className="close-modal" aria-label="Close" onClick={() => setModalOpen(false)}>
+                            <button type="button" className="close-modal" aria-label={t("common.close")} onClick={() => setModalOpen(false)}>
                                 &times;
                             </button>
                         </div>

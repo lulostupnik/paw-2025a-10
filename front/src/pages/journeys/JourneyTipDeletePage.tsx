@@ -5,9 +5,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import PageStatus from "@/components/ui/PageStatus";
+import ForbiddenPage from "@/pages/errors/ForbiddenPage";
+import { useToast } from "@/components/ui/ToastProvider";
 import { deleteJourneyTip, getJourneyTip, listJourneyTips } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
+import { getUserId, isAdmin } from "@/lib/auth/auth";
 
 const TIPS_PAGE_SIZE = 4;
 
@@ -23,6 +26,7 @@ export default function JourneyTipDeletePage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { showToast } = useToast();
     const { tipId } = useParams();
     const [searchParams] = useSearchParams();
     const journeyId = searchParams.get("journeyId");
@@ -106,6 +110,7 @@ export default function JourneyTipDeletePage() {
             setSubmitting(true);
             setSubmitError(null);
             await deleteJourneyTip(Number(journeyId), Number(tipId));
+            showToast(t("tip.toast.deleted"), { variant: "success" });
             await clearJourneyTipData(journeyId);
 
             let destinationPage = Number(tipsPage ?? "1");
@@ -138,6 +143,11 @@ export default function JourneyTipDeletePage() {
     }
     if (!data) {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // Los consejos son parte del viaje: los borra su autor o un administrador.
+    if (data.user?.id !== getUserId() && !isAdmin()) {
+        return <ForbiddenPage />;
     }
 
     return (

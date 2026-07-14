@@ -10,6 +10,7 @@ export interface MockEventDto {
     attendeesLimit?: number | null;
     attendeesCount?: number | null;
     rating?: number | null;
+    cityName?: string | null;
     links?: {
         selfUrl?: string | null;
         creatorUrl?: string | null;
@@ -33,6 +34,7 @@ export function createMockEvent(overrides: Partial<MockEventDto> = {}): MockEven
         attendeesLimit: 50,
         attendeesCount: 10,
         rating: 4.5,
+        cityName: "Buenos Aires",
         links: {
             selfUrl: `${BASE_URL}/events/1`,
             creatorUrl: `${BASE_URL}/users/1`,

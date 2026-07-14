@@ -5,12 +5,22 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import PageStatus from "@/components/ui/PageStatus";
+import ForbiddenPage from "@/pages/errors/ForbiddenPage";
+import { useToast } from "@/components/ui/ToastProvider";
 import { deleteJourneyResponse, getJourneyResponse, getJourneyResponses, getUserByUrl } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
-import { isAdmin } from "@/lib/auth/auth";
+import { getUserId, isAdmin } from "@/lib/auth/auth";
 
 const COMMENTS_PAGE_SIZE = 4;
+
+const parseIdFromUrl = (url?: string | null) => {
+    if (!url) {
+        return null;
+    }
+    const match = url.match(/(\d+)\/?$/);
+    return match ? Number(match[1]) : null;
+};
 
 const parsePageParam = (value: string | null) => {
     const parsed = Number(value ?? "1");
@@ -35,6 +45,7 @@ export default function JourneyReplyDeletePage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { showToast } = useToast();
     const { responseId } = useParams();
     const [searchParams] = useSearchParams();
     const journeyId = searchParams.get("journeyId");
@@ -79,6 +90,7 @@ export default function JourneyReplyDeletePage() {
                 id: response.id,
                 message: response.message,
                 dateTime: response.dateTime,
+                authorId: parseIdFromUrl(response.links?.authorUrl),
                 user: {
                     username: user?.username ?? fallbackResponse?.user.username ?? "—",
                 },
@@ -134,6 +146,7 @@ export default function JourneyReplyDeletePage() {
                 parsedResponseId,
                 message.trim() ? { message: message.trim() } : undefined
             );
+            showToast(t("journeyResponse.toast.deleted"), { variant: "success" });
             await clearJourneyResponseData(parsedJourneyId);
 
             let destinationPage = commentsPage;
@@ -161,7 +174,7 @@ export default function JourneyReplyDeletePage() {
         }
     };
 
-    if (isLoading) {
+    if (isLoading || responseQuery.isLoading) {
         return <PageStatus className="journey-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
@@ -170,6 +183,13 @@ export default function JourneyReplyDeletePage() {
     }
     if (!data) {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // El comentario sólo lo puede borrar su autor o un administrador; el resto no
+    // debe llegar a ver la confirmación.
+    const authorId = responseQuery.data?.authorId ?? null;
+    if (!isAdmin() && (authorId == null || authorId !== getUserId())) {
+        return <ForbiddenPage />;
     }
 
     return (

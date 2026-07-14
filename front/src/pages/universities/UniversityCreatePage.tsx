@@ -4,11 +4,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createUniversity } from "@/lib/api/universities";
 import { listCities } from "@/lib/api/cities";
 import { emptyPage } from "@/types/pagination";
+import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
+import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
 
 interface UniversityFormState {
     name: string;
@@ -39,6 +41,8 @@ const formatTitleCase = (value: string) =>
 export default function UniversityCreatePage() {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { showToast } = useToast();
     const [form, setForm] = useState(initialForm);
     const [touched, setTouched] = useState({ name: false, abbreviation: false, city: false });
     const [cityQuery, setCityQuery] = useState("");
@@ -113,7 +117,11 @@ export default function UniversityCreatePage() {
             abbreviation: form.abbreviation.trim(),
             cityId,
         })
-            .then((created) => navigate(`/universities/${created.id}`, { replace: true }))
+            .then(async (created) => {
+                await invalidateAdminEntityQueries(queryClient, "university");
+                showToast(t("admin.toast.created"), { variant: "success" });
+                navigate(`/universities/${created.id}`, { replace: true });
+            })
             .catch((error) => {
                 console.error("Failed to create university", error);
                 const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);

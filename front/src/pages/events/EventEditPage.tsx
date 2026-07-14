@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import Button from "@/components/ui/Button";
 import TextField from "@/components/ui/TextField";
@@ -11,10 +11,14 @@ import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField
 import { useI18n } from "@/lib/i18n";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import PageStatus from "@/components/ui/PageStatus";
+import ForbiddenPage from "@/pages/errors/ForbiddenPage";
+import { useToast } from "@/components/ui/ToastProvider";
+import { getUserId } from "@/lib/auth/auth";
 import { updateEvent, updateEventFlyer } from "@/lib/api/events";
 import { apiErrorMessage, apiErrorStatus } from "@/lib/api/client";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { invalidateEventDetailQueries } from "@/lib/api/queryInvalidation";
+import type { EventDetail } from "@/types/event";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -48,66 +52,72 @@ const API_FIELD_TO_FORM_FIELD: Record<string, FormField> = {
 };
 type TouchedState = Partial<Record<FormField, boolean>>;
 
-const INITIAL_FORM: FormState = {
-    name: "",
-    city: null,
-    date: "",
-    time: "",
-    allDay: false,
-    description: "",
-    address: "",
-    participantLimit: "",
-    unlimited: false,
-    flyer: null,
+const buildInitialForm = (event: EventDetail): FormState => {
+    const unlimited = !event.attendeesLimit || event.attendeesLimit <= 0;
+    return {
+        name: event.title ?? "",
+        city: event.city?.name ? { id: event.city.id ?? 0, name: event.city.name } : null,
+        date: event.date ?? "",
+        time: event.time ?? "",
+        allDay: !event.time,
+        description: event.description ?? "",
+        address: event.address ?? "",
+        participantLimit: unlimited ? "" : String(event.attendeesLimit ?? ""),
+        unlimited,
+        flyer: null,
+    };
 };
 
 export default function EventEditPage() {
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { t } = useI18n();
     const { id } = useParams();
     const { data, isLoading, isError } = useEventDetailData({ eventId: id });
+
+    if (isLoading) {
+        return <PageStatus className="event-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
+    }
+
+    if (isError || !data) {
+        return <PageStatus className="event-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    }
+
+    // Sólo el organizador puede editar el contenido del evento: sin este corte la
+    // ruta directa mostraría el formulario completo para morir en un 403 al enviar.
+    if (data.user?.id !== getUserId()) {
+        return <ForbiddenPage />;
+    }
+
+    // El formulario arranca con los datos ya resueltos, así que se siembra con el
+    // estado inicial de cada campo en lugar de copiarlos con un efecto.
+    return <EventEditForm key={data.id} event={data} />;
+}
+
+interface EventEditFormProps {
+    event: EventDetail;
+}
+
+function EventEditForm({ event }: EventEditFormProps) {
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { t } = useI18n();
+    const { showToast } = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [form, setForm] = useState<FormState>({ ...INITIAL_FORM });
+    const [form, setForm] = useState<FormState>(() => buildInitialForm(event));
     const [errors, setErrors] = useState<FormErrors>({});
     const [touched, setTouched] = useState<TouchedState>({});
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [dragging, setDragging] = useState(false);
-    const [cityQuery, setCityQuery] = useState("");
-    const [seeded, setSeeded] = useState(false);
-    const [flyerPreviewUrl, setFlyerPreviewUrl] = useState<string | null>(null);
+    const [cityQuery, setCityQuery] = useState(() => event.city?.name ?? "");
+
+    const flyerPreviewUrl = useMemo(() => (form.flyer ? URL.createObjectURL(form.flyer) : null), [form.flyer]);
 
     useEffect(() => {
-        if (seeded || !data) {
+        if (!flyerPreviewUrl) {
             return;
         }
-        const hasUnlimited = !data.attendeesLimit || data.attendeesLimit <= 0;
-        setForm({
-            name: data.title ?? "",
-            city: data.city?.name ? { id: data.city.id ?? 0, name: data.city.name } : null,
-            date: data.date ?? "",
-            time: data.time ?? "",
-            allDay: !data.time,
-            description: data.description ?? "",
-            address: data.address ?? "",
-            participantLimit: hasUnlimited ? "" : String(data.attendeesLimit ?? ""),
-            unlimited: hasUnlimited,
-            flyer: null,
-        });
-        setCityQuery(data.city?.name ?? "");
-        setSeeded(true);
-    }, [data, seeded]);
-
-    useEffect(() => {
-        if (!form.flyer) {
-            setFlyerPreviewUrl(null);
-            return;
-        }
-        const nextUrl = URL.createObjectURL(form.flyer);
-        setFlyerPreviewUrl(nextUrl);
-        return () => URL.revokeObjectURL(nextUrl);
-    }, [form.flyer]);
+        return () => URL.revokeObjectURL(flyerPreviewUrl);
+    }, [flyerPreviewUrl]);
 
     const markTouched = useCallback((field: FormField) => {
         setTouched((prev) => ({ ...prev, [field]: true }));
@@ -234,8 +244,8 @@ export default function EventEditPage() {
         [markTouched, t]
     );
 
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const handleSubmit = async (submitEvent: FormEvent<HTMLFormElement>) => {
+        submitEvent.preventDefault();
         const nextErrors = validate(form);
         const touchedAll: TouchedState = {
             name: true,
@@ -253,10 +263,6 @@ export default function EventEditPage() {
         if (Object.keys(nextErrors).length > 0) {
             return;
         }
-        if (!id) {
-            setSubmitError(t("event.edit.error", { defaultValue: "Missing event id." }));
-            return;
-        }
 
         const cityId = form.city?.id;
         if (!cityId) {
@@ -267,7 +273,7 @@ export default function EventEditPage() {
 
         try {
             setSubmitting(true);
-            await updateEvent(Number(id), {
+            await updateEvent(event.id, {
                 cityId,
                 date: form.date,
                 description: form.description.trim(),
@@ -277,10 +283,11 @@ export default function EventEditPage() {
                 attendeesLimit: form.unlimited ? null : Number(form.participantLimit),
             });
             if (form.flyer) {
-                await updateEventFlyer(Number(id), form.flyer);
+                await updateEventFlyer(event.id, form.flyer);
             }
-            await invalidateEventDetailQueries(queryClient, id);
-            navigate(`/events/${id}`);
+            await invalidateEventDetailQueries(queryClient, event.id);
+            showToast(t("event.toast.updated"), { variant: "success" });
+            navigate(`/events/${event.id}`);
         } catch (err) {
             console.error("Failed to update event", err);
             const serverErrors: FormErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
@@ -299,26 +306,11 @@ export default function EventEditPage() {
     };
 
     const handleCancel = () => {
-        if (id) {
-            navigate(`/events/${id}`);
-        } else {
-            navigate("/events");
-        }
+        navigate(`/events/${event.id}`);
     };
 
     const timeFieldDisabled = form.allDay;
     const limitFieldDisabled = form.unlimited;
-
-    if (isLoading) {
-        return <PageStatus className="event-create-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
-    }
-
-    if (isError) {
-        return <PageStatus className="event-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
-    if (!data) {
-        return <PageStatus className="event-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
 
     return (
         <div className="page-shell event-create-page">
@@ -402,8 +394,8 @@ export default function EventEditPage() {
                                 />
                                 <p className="form-field__text">
                                     {timeFieldDisabled
-                                        ? t("event.create.time.optional.allDay", { defaultValue: "No hace falta horario si marcás todo el día." })
-                                        : t("event.create.time.required.unlessAllDay", { defaultValue: "Obligatorio salvo que marques todo el día." })}
+                                        ? t("event.create.time.optional.allDay")
+                                        : t("event.create.time.required.unlessAllDay")}
                                 </p>
                                 {touched.time && errors.time && (
                                     <p className="form-field__text form-field__text--error">{errors.time}</p>
@@ -414,7 +406,7 @@ export default function EventEditPage() {
                         <Checkbox
                             label={t("event.create.allDay")}
                             checked={form.allDay}
-                            onChange={(event) => handleAllDayToggle(event.target.checked)}
+                            onChange={(changeEvent) => handleAllDayToggle(changeEvent.target.checked)}
                         />
                     </div>
 
@@ -461,12 +453,7 @@ export default function EventEditPage() {
                             helperText={t(
                                 limitFieldDisabled
                                     ? "event.create.limit.optional.unlimited"
-                                    : "event.create.limit.required.unlessUnlimited",
-                                {
-                                    defaultValue: limitFieldDisabled
-                                        ? "No hace falta límite si marcás sin límite."
-                                        : "Obligatorio salvo que marques sin límite.",
-                                }
+                                    : "event.create.limit.required.unlessUnlimited"
                             )}
                             errorText={touched.participantLimit ? errors.participantLimit : undefined}
                         />
@@ -474,7 +461,7 @@ export default function EventEditPage() {
                         <Checkbox
                             label={t("event.create.unlimited")}
                             checked={form.unlimited}
-                            onChange={(event) => handleUnlimitedToggle(event.target.checked)}
+                            onChange={(changeEvent) => handleUnlimitedToggle(changeEvent.target.checked)}
                         />
                     </div>
 
@@ -488,25 +475,25 @@ export default function EventEditPage() {
                                 dragging && "is-dragging",
                                 touched.flyer && errors.flyer && "has-error"
                             )}
-                            onDragOver={(event) => {
-                                event.preventDefault();
+                            onDragOver={(dragEvent) => {
+                                dragEvent.preventDefault();
                                 setDragging(true);
                             }}
-                            onDragLeave={(event) => {
-                                event.preventDefault();
+                            onDragLeave={(dragEvent) => {
+                                dragEvent.preventDefault();
                                 setDragging(false);
                             }}
-                            onDrop={(event) => {
-                                event.preventDefault();
+                            onDrop={(dropEvent) => {
+                                dropEvent.preventDefault();
                                 setDragging(false);
-                                handleFileSelection(event.dataTransfer.files);
+                                handleFileSelection(dropEvent.dataTransfer.files);
                             }}
                             onClick={() => fileInputRef.current?.click()}
                             role="button"
                             tabIndex={0}
-                            onKeyDown={(event) => {
-                                if (event.key === "Enter" || event.key === " ") {
-                                    event.preventDefault();
+                            onKeyDown={(keyEvent) => {
+                                if (keyEvent.key === "Enter" || keyEvent.key === " ") {
+                                    keyEvent.preventDefault();
                                     fileInputRef.current?.click();
                                 }
                             }}
@@ -533,7 +520,7 @@ export default function EventEditPage() {
                             type="file"
                             accept={ACCEPTED_EXTENSIONS.join(",")}
                             style={{ display: "none" }}
-                            onChange={(event) => handleFileSelection(event.target.files)}
+                            onChange={(changeEvent) => handleFileSelection(changeEvent.target.files)}
                             onBlur={() => markTouched("flyer")}
                         />
                         <p className="upload-hint">{t("event.flyer.edit.hint")}</p>
