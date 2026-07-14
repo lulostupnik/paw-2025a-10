@@ -1,4 +1,4 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createUniversity } from "@/lib/api/universities";
 import { listCities } from "@/lib/api/cities";
 import { emptyPage } from "@/types/pagination";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
 
 interface UniversityFormState {
     name: string;
@@ -115,13 +116,7 @@ export default function UniversityCreatePage() {
             .then((created) => navigate(`/universities/${created.id}`, { replace: true }))
             .catch((error) => {
                 console.error("Failed to create university", error);
-                const nextServerErrors: Partial<Record<keyof UniversityFormState, string>> = {};
-                for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
-                    const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                    if (formField) {
-                        nextServerErrors[formField] = message;
-                    }
-                }
+                const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
                 if (Object.keys(nextServerErrors).length > 0) {
                     setServerErrors(nextServerErrors);
                 } else {

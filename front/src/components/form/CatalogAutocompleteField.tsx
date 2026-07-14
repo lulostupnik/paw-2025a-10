@@ -1,7 +1,8 @@
-import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
+import { useId, useRef, type ChangeEvent } from "react";
 import { classNames } from "@/lib/utils/classNames";
 import type { CatalogOption, CatalogSearchFn } from "@/lib/api/catalog";
 import { useI18n } from "@/lib/i18n";
+import { useAsyncCatalogOptions, useDropdownState } from "@/components/form/catalogAutocompleteHooks";
 
 interface CatalogAutocompleteFieldProps {
     label: string;
@@ -33,58 +34,10 @@ export default function CatalogAutocompleteField({
     onBlur,
 }: CatalogAutocompleteFieldProps) {
     const { t } = useI18n();
-    const [open, setOpen] = useState(false);
-    const [options, setOptions] = useState<CatalogOption[]>([]);
-    const [loading, setLoading] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
+    const { open, setOpen, ref: containerRef } = useDropdownState();
     const inputRef = useRef<HTMLInputElement>(null);
     const inputId = useId();
-
-    useEffect(() => {
-        if (!open) {
-            return;
-        }
-        const controller = new AbortController();
-        let isActive = true;
-        const handle = window.setTimeout(() => {
-            setLoading(true);
-            fetcher(query.trim(), controller.signal)
-                .then((result) => {
-                    if (!isActive) {
-                        return;
-                    }
-                    setOptions(result);
-                })
-                .catch(() => {
-                    if (!isActive || controller.signal.aborted) {
-                        return;
-                    }
-                    setOptions([]);
-                })
-                .finally(() => {
-                    if (!isActive) {
-                        return;
-                    }
-                    setLoading(false);
-                });
-        }, 250);
-
-        return () => {
-            isActive = false;
-            controller.abort();
-            window.clearTimeout(handle);
-        };
-    }, [fetcher, open, query]);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    const { options, loading } = useAsyncCatalogOptions(fetcher, open, query.trim(), 250);
 
     const showClear = Boolean(value);
 

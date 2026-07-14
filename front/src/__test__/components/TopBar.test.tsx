@@ -13,6 +13,7 @@ vi.mock("@/lib/auth/auth", () => ({
     isAdmin: () => false,
     isLoggedIn: () => mockIsLoggedIn(),
     logout: vi.fn(),
+    withProfilePictureVersion: (url: string | null) => url,
 }));
 
 vi.mock("@/lib/i18n", () => ({

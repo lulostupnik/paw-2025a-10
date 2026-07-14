@@ -1,4 +1,4 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { isAdmin } from "@/lib/auth/auth";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { createInterest, type InterestPayload } from "@/lib/api/interests";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
 
 interface InterestFormState {
     name: string;
@@ -58,13 +59,7 @@ export default function InterestCreatePage() {
         },
         onError: (error) => {
             console.error("Failed to create interest", error);
-            const nextServerErrors: Partial<Record<keyof InterestFormState, string>> = {};
-            for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
-                const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                if (formField) {
-                    nextServerErrors[formField] = message;
-                }
-            }
+            const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(nextServerErrors).length > 0) {
                 setServerErrors(nextServerErrors);
             } else {

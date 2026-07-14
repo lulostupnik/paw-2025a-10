@@ -1,4 +1,4 @@
-import { apiErrorMessage, apiFieldErrors } from "@/lib/api/client";
+import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useMemo, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createCity } from "@/lib/api/cities";
 import { listCountries, type CountryDto } from "@/lib/api/countries";
 import { useNavigate } from "react-router-dom";
+import { mapApiFieldErrors } from "@/lib/api/formErrors";
 
 interface CityFormState {
     name: string;
@@ -103,13 +104,7 @@ export default function CityCreatePage() {
             .then((created) => navigate(`/cities/${created.id}`, { replace: true }))
             .catch((error) => {
                 console.error("Failed to create city", error);
-                const nextServerErrors: Partial<Record<keyof CityFormState, string>> = {};
-                for (const [apiField, message] of Object.entries(apiFieldErrors(error))) {
-                    const formField = API_FIELD_TO_FORM_FIELD[apiField];
-                    if (formField) {
-                        nextServerErrors[formField] = message;
-                    }
-                }
+                const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
                 if (Object.keys(nextServerErrors).length > 0) {
                     setServerErrors(nextServerErrors);
                 } else {
