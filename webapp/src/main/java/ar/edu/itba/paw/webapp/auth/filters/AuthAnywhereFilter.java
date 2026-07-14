@@ -6,6 +6,7 @@ import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.webapp.auth.JwtUtils;
 import ar.edu.itba.paw.webapp.dto.ErrorDto;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -64,7 +65,8 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
     private static final String BLOCKED_MESSAGE_KEY = "error.userBlocked";
     private static final String NOT_VERIFIED_MESSAGE_KEY = "exception.UserNotVerifiedException";
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);  //consistencia con los exceptionMappers 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
