@@ -47,7 +47,7 @@ export const apiErrorMessage = (error: unknown, fallback: string): string => {
         if (fieldMessages) {
             return fieldMessages;
         }
-        if (data?.message && data.message !== "Validation failed") {
+        if (data?.message && !Array.isArray(data.errors)) {
             return data.message;
         }
     }

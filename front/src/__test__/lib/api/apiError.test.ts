@@ -51,8 +51,13 @@ describe("apiErrorMessage", () => {
         expect(apiErrorMessage(err, "fallback")).toBe("email already in use");
     });
 
-    it("ignores the generic 'Validation failed' message and uses the fallback", () => {
-        const err = axiosError(400, { message: "Validation failed" });
+    it("ignores the generic validation wrapper message and uses the fallback", () => {
+        const err = axiosError(400, { message: "Validation failed", errors: [] });
+        expect(apiErrorMessage(err, "fallback")).toBe("fallback");
+    });
+
+    it("ignores the generic validation wrapper whatever language it comes in", () => {
+        const err = axiosError(400, { message: "La validación falló", errors: [{ field: "email", message: "" }] });
         expect(apiErrorMessage(err, "fallback")).toBe("fallback");
     });
 
