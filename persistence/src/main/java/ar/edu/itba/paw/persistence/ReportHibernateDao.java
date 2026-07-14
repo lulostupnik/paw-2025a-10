@@ -3,11 +3,9 @@ package ar.edu.itba.paw.persistence;
 import ar.edu.itba.paw.interfaces.persistence.ReportDao;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.ReportReason;
-import ar.edu.itba.paw.models.enums.ReportStatus;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.util.Map;
 import java.util.Optional;
 
@@ -73,103 +71,6 @@ public class ReportHibernateDao implements ReportDao {
     }
 
 
-
-    @Override
-    public long countReportsAgainstUser(User reportedUser) {
-        final TypedQuery<Long> query = em.createQuery(
-                "SELECT COUNT(r) FROM Report r WHERE r.reportedUser = :reportedUser AND r.deleted = false",
-                Long.class
-        );
-        query.setParameter("reportedUser", reportedUser);
-        return query.getSingleResult();
-    }
-
-
-    @Override
-    public Page<Report> findAllPaginated(PageParams params) {
-        final String countSql = """
-                SELECT COUNT(*)
-                FROM reports r
-                WHERE r.deleted = false
-                """;
-        final String idSql = """
-                SELECT r.id
-                FROM reports r
-                WHERE r.deleted = false
-                """;
-
-        final String jpqlFetch = """
-                FROM Report r
-                WHERE r.id IN :ids
-                """;
-
-        return fetchPageByIds(
-                em,
-                countSql,
-                idSql,
-                Map.of(),
-                jpqlFetch,
-                Report.class,
-                params,
-                Map.of()
-        );
-    }
-
-    @Override
-    public Page<Report> findByStatusPaginated(ReportStatus status, PageParams params) {
-        final String countSql = """
-                SELECT COUNT(*)
-                FROM reports r
-                WHERE r.status = :status AND r.deleted = false
-                """;
-        final String idSql = """
-                SELECT r.id
-                FROM reports r
-                WHERE r.status = :status AND r.deleted = false
-                """;
-        final String jpqlFetch = """
-                FROM Report r
-                WHERE r.id IN :ids
-                """;
-        return fetchPageByIds(
-                em,
-                countSql,
-                idSql,
-                Map.of("status", status.toString()),
-                jpqlFetch,
-                Report.class,
-                params,
-                Map.of()
-        );
-    }
-
-    @Override
-    public Page<Report> findByUserPaginated(User user, PageParams params) {
-        final String countSql = """
-                SELECT COUNT(*)
-                FROM reports r
-                WHERE r.reporting_user_id = :user AND r.deleted = false
-                """;
-        final String idSql = """
-                SELECT r.id
-                FROM reports r
-                WHERE r.reporting_user_id = :user AND r.deleted = false
-                """;
-        final String jpqlFetch = """
-                FROM Report r
-                WHERE r.id IN :ids
-                """;
-        return fetchPageByIds(
-                em,
-                countSql,
-                idSql,
-                Map.of("user", user),
-                jpqlFetch,
-                Report.class,
-                params,
-                Map.of()
-        );
-    }
 
 
     @Override

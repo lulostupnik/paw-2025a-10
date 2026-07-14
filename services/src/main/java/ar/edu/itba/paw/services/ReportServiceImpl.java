@@ -107,33 +107,6 @@ public class ReportServiceImpl implements ReportService {
         return reportDao.findById(id);
     }
 
-    @Override
-    public Page<Report> findByUserPaginated(User user, PageParams params) {
-        return reportDao.findByUserPaginated(user, params);
-    }
-
-    @Override
-    public long countReportsAgainstUser(User reportedUser) {
-        return reportDao.countReportsAgainstUser(reportedUser);
-    }
-
-    @Override
-    public Page<Report> findAllPaginated(PageParams params) {
-        return reportDao.findAllPaginated(params);
-    }
-
-    @Override
-    public Page<Report> findByStatusPaginated(ReportStatus status, PageParams params) {
-        return reportDao.findByStatusPaginated(status, params);
-    }
-
-    @Transactional
-    @Override
-    public void delete(Report report) {
-        report.setDeleted(true);
-        LOGGER.info("Report with id: " + report.getId() + " has been marked as deleted.");
-    }
-
 
     @Transactional
     @Override

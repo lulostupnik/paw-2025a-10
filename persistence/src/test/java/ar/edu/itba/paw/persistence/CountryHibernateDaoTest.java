@@ -62,33 +62,4 @@ public class CountryHibernateDaoTest {
         assertEquals(0, countries.size());
     }
 
-    @Test
-    public void testFindByName(){
-        Optional<Country> result = countryDao.findByName(COUNTRY_1_NAME);
-
-        assertNotNull(result);
-        assertTrue(result.isPresent());
-        assertEqualsCountry(COUNTRY_1, result.get());
-    }
-    @Test
-    public void testFindByNameMissing(){
-        Optional<Country> result = countryDao.findByName("COUNTRY_1_NAME");
-
-        assertNotNull(result);
-        assertFalse(result.isPresent());
-    }
-    @Test
-    public void testFindByNameEmptyName(){
-        Optional<Country> result = countryDao.findByName("");
-
-        assertNotNull(result);
-        assertFalse(result.isPresent());
-    }
-    @Test
-    public void testFindByNameNullName(){
-        Optional<Country> result = countryDao.findByName(null);
-
-        assertNotNull(result);
-        assertFalse(result.isPresent());
-    }
 }

@@ -273,65 +273,6 @@ public class ReportServiceImplTest {
     }
 
     @Test
-    public void testFindByUserPaginated(){
-        when(
-            reportDao.findByUserPaginated(eq(USER), any(PageParams.class))
-        ).thenReturn(REPORT_PAGE);
-
-        Page<Report> reports = reportService.findByUserPaginated(USER, PAGE_PARAMS);
-
-        assertNotNull(reports);
-        assertEquals(REPORT_PAGE, reports);
-    }
-
-    @Test
-    public void testCountReportsAgainstUser(){
-        when(
-            reportDao.countReportsAgainstUser(eq(USER))
-        ).thenReturn((long)REPORTS.size());
-
-        long reports = reportService.countReportsAgainstUser(USER);
-
-        assertEquals(REPORTS.size(), reports);
-    }
-
-    @Test
-    public void testFindAllPaginated(){
-        when(
-            reportDao.findAllPaginated(any(PageParams.class))
-        ).thenReturn(REPORT_PAGE);
-
-        Page<Report> reports = reportService.findAllPaginated(PAGE_PARAMS);
-
-        assertNotNull(reports);
-        assertEquals(REPORT_PAGE, reports);
-    }
-
-    @Test
-    public void testFindByStatusPaginated(){
-        when(
-            reportDao.findByStatusPaginated(
-                eq(ReportStatus.PENDING), 
-                any(PageParams.class)
-            )
-        ).thenReturn(REPORT_PAGE);
-
-        Page<Report> reports = reportService.findByStatusPaginated(ReportStatus.PENDING, PAGE_PARAMS);
-
-        assertNotNull(reports);
-        assertEquals(REPORT_PAGE, reports);
-    }
-
-    @Test
-    public void testDelete(){
-        Report newReport = new Report(USER, USER, DESC, MISINFORMATION);
-        
-        reportService.delete(newReport);
-
-        assertTrue(newReport.isDeleted());
-    }
-
-    @Test
     public void testDeleteById(){
         Report newReport = new Report(USER, USER, DESC, MISINFORMATION);
         when(

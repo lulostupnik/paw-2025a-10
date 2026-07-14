@@ -20,15 +20,10 @@ public interface ReportService {
 
     Optional<Report> findById(Long id);
 
-    Page<Report> findByUserPaginated(User user, PageParams params);
 
-    long countReportsAgainstUser(User reportedUser);
 
-    Page<Report> findAllPaginated(PageParams params);
 
-    Page<Report> findByStatusPaginated(ReportStatus status, PageParams params);
 
-    void delete(Report report);
 
 
     void deleteById(Long id);
