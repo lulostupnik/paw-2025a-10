@@ -53,7 +53,7 @@ public class UserController {
     private UriInfo uriInfo;
 
     @GET
-    @Produces(GoTogetherMediaType.APPLICATION_USER_LIST)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC_LIST)
     @PreAuthorize("@accessHelper.canListUsers(#search, #blocked)")
     public Response listUsers(
             @QueryParam("attendingEvent") Long attendingEventId,
@@ -73,7 +73,7 @@ public class UserController {
     }
 
     @GET
-    @Produces(GoTogetherMediaType.APPLICATION_USER_PRIVATE_LIST)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_LIST)
     @PreAuthorize("hasRole('ADMIN')")
     public Response listUsersAdmin(
             @QueryParam("attendingEvent") Long attendingEventId,
