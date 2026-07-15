@@ -28,4 +28,8 @@ export const handlers = [
         { id: 2, name: "Music", links: { selfUrl: "http://localhost/webapp_war_exploded/api/interests/2" } },
         { id: 3, name: "Sports", links: { selfUrl: "http://localhost/webapp_war_exploded/api/interests/3" } },
     ], { list: "application/vnd.gotogether.interest-list.v1+json", single: "application/vnd.gotogether.interest.v1+json" }),
+    ...createCatalogHandlers("countries", [
+        { id: 1, name: "Argentina", links: { selfUrl: "http://localhost/webapp_war_exploded/api/countries/1" } },
+        { id: 2, name: "USA", links: { selfUrl: "http://localhost/webapp_war_exploded/api/countries/2" } },
+    ], { list: "application/vnd.gotogether.country-list.v1+json", single: "application/vnd.gotogether.country.v1+json" }),
 ];
