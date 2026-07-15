@@ -162,10 +162,10 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/events").access("isAuthenticated()")
                 .antMatchers(HttpMethod.PATCH, "/api/events/{id}").access("isAuthenticated()")
 
-                .antMatchers(HttpMethod.GET, "/api/reports", "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
+                .antMatchers(HttpMethod.GET, "/api/reports", "/api/reports/{id}").access("hasRole('ADMIN')")
                 .antMatchers(HttpMethod.POST, "/api/reports").access("isAuthenticated()")
-                .antMatchers(HttpMethod.DELETE, "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
-                .antMatchers(HttpMethod.PATCH, "/api/reports/{id}").access("hasRole('ADMIN') and isAuthenticated()")
+                .antMatchers(HttpMethod.DELETE, "/api/reports/{id}").access("hasRole('ADMIN')")
+                .antMatchers(HttpMethod.PATCH, "/api/reports/{id}").access("hasRole('ADMIN')")
 
                 .antMatchers("/**").access("isAuthenticated()")
                 .and()

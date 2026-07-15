@@ -21,7 +21,7 @@ public class PagingUtils {
         if (page.getCurrentPage() > 1)
             responseBuilder.link(uriBuilder.build( page.getCurrentPage() - 1), "prev");
         responseBuilder.link(uriBuilder.build(1), "first");
-        responseBuilder.link(uriBuilder.build(page.getTotalPages()), "last");
+        responseBuilder.link(uriBuilder.build(Math.max(page.getTotalPages(), 1)), "last");
         responseBuilder.header(TOTAL_COUNT_HEADER, page.getTotalElements());
         return responseBuilder;
     }

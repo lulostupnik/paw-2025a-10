@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "reports")
 public class Report {
@@ -53,9 +52,11 @@ public class Report {
     @Column(name = "reason", length = 255, nullable = false)
     private ReportReason reason;
 
+    @Setter
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ReportStatus status = ReportStatus.PENDING;

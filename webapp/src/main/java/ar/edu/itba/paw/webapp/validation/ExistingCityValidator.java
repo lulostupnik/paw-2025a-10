@@ -6,12 +6,12 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 
-public class CityNameValidator implements ConstraintValidator<ExistingCity, Long> {
+public class ExistingCityValidator implements ConstraintValidator<ExistingCity, Long> {
 
     private final CityService cityService;
 
     @Autowired
-    public CityNameValidator(CityService cityService) {
+    public ExistingCityValidator(CityService cityService) {
         this.cityService = cityService;
     }
 

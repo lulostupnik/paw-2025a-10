@@ -103,116 +103,80 @@ public class RootIndexDto {
         return dto;
     }
 
-    // Top-level collection getters/setters
+    // Top-level collection getters
     public String getUsersUrl() { return usersUrl; }
-    public void setUsersUrl(String usersUrl) { this.usersUrl = usersUrl; }
 
     public String getEventsUrl() { return eventsUrl; }
-    public void setEventsUrl(String eventsUrl) { this.eventsUrl = eventsUrl; }
 
     public String getJourneysUrl() { return journeysUrl; }
-    public void setJourneysUrl(String journeysUrl) { this.journeysUrl = journeysUrl; }
 
     public String getRecommendedEventsUrl() { return recommendedEventsUrl; }
-    public void setRecommendedEventsUrl(String recommendedEventsUrl) { this.recommendedEventsUrl = recommendedEventsUrl; }
 
     public String getRecommendedJourneysUrl() { return recommendedJourneysUrl; }
-    public void setRecommendedJourneysUrl(String recommendedJourneysUrl) { this.recommendedJourneysUrl = recommendedJourneysUrl; }
 
     public String getReportsUrl() { return reportsUrl; }
-    public void setReportsUrl(String reportsUrl) { this.reportsUrl = reportsUrl; }
 
     public String getInterestsUrl() { return interestsUrl; }
-    public void setInterestsUrl(String interestsUrl) { this.interestsUrl = interestsUrl; }
 
     public String getUniversitiesUrl() { return universitiesUrl; }
-    public void setUniversitiesUrl(String universitiesUrl) { this.universitiesUrl = universitiesUrl; }
 
     public String getCareersUrl() { return careersUrl; }
-    public void setCareersUrl(String careersUrl) { this.careersUrl = careersUrl; }
 
     public String getCitiesUrl() { return citiesUrl; }
-    public void setCitiesUrl(String citiesUrl) { this.citiesUrl = citiesUrl; }
 
     public String getCountriesUrl() { return countriesUrl; }
-    public void setCountriesUrl(String countriesUrl) { this.countriesUrl = countriesUrl; }
 
-    // By-ID URI template getters/setters
+    // By-ID URI template getters
     public String getUserByIdUrl() { return userByIdUrl; }
-    public void setUserByIdUrl(String userByIdUrl) { this.userByIdUrl = userByIdUrl; }
 
     public String getEventByIdUrl() { return eventByIdUrl; }
-    public void setEventByIdUrl(String eventByIdUrl) { this.eventByIdUrl = eventByIdUrl; }
 
     public String getJourneyByIdUrl() { return journeyByIdUrl; }
-    public void setJourneyByIdUrl(String journeyByIdUrl) { this.journeyByIdUrl = journeyByIdUrl; }
 
     public String getReportByIdUrl() { return reportByIdUrl; }
-    public void setReportByIdUrl(String reportByIdUrl) { this.reportByIdUrl = reportByIdUrl; }
 
     public String getInterestByIdUrl() { return interestByIdUrl; }
-    public void setInterestByIdUrl(String interestByIdUrl) { this.interestByIdUrl = interestByIdUrl; }
 
     public String getUniversityByIdUrl() { return universityByIdUrl; }
-    public void setUniversityByIdUrl(String universityByIdUrl) { this.universityByIdUrl = universityByIdUrl; }
 
     public String getCareerByIdUrl() { return careerByIdUrl; }
-    public void setCareerByIdUrl(String careerByIdUrl) { this.careerByIdUrl = careerByIdUrl; }
 
     public String getCityByIdUrl() { return cityByIdUrl; }
-    public void setCityByIdUrl(String cityByIdUrl) { this.cityByIdUrl = cityByIdUrl; }
 
     public String getCountryByIdUrl() { return countryByIdUrl; }
-    public void setCountryByIdUrl(String countryByIdUrl) { this.countryByIdUrl = countryByIdUrl; }
 
-    // User sub-resource getters/setters
+    // User sub-resource getters
     public String getUserInterestsUrl() { return userInterestsUrl; }
-    public void setUserInterestsUrl(String userInterestsUrl) { this.userInterestsUrl = userInterestsUrl; }
 
     public String getUserInterestByIdUrl() { return userInterestByIdUrl; }
-    public void setUserInterestByIdUrl(String userInterestByIdUrl) { this.userInterestByIdUrl = userInterestByIdUrl; }
 
     public String getUserRatingUrl() { return userRatingUrl; }
-    public void setUserRatingUrl(String userRatingUrl) { this.userRatingUrl = userRatingUrl; }
 
     public String getUserProfilePictureUrl() { return userProfilePictureUrl; }
-    public void setUserProfilePictureUrl(String userProfilePictureUrl) { this.userProfilePictureUrl = userProfilePictureUrl; }
 
-    // Event sub-resource getters/setters
+    // Event sub-resource getters
     public String getEventFlyerUrl() { return eventFlyerUrl; }
-    public void setEventFlyerUrl(String eventFlyerUrl) { this.eventFlyerUrl = eventFlyerUrl; }
 
     public String getEventResponsesUrl() { return eventResponsesUrl; }
-    public void setEventResponsesUrl(String eventResponsesUrl) { this.eventResponsesUrl = eventResponsesUrl; }
 
     public String getEventResponseByIdUrl() { return eventResponseByIdUrl; }
-    public void setEventResponseByIdUrl(String eventResponseByIdUrl) { this.eventResponseByIdUrl = eventResponseByIdUrl; }
 
     public String getEventAttendancesUrl() { return eventAttendancesUrl; }
-    public void setEventAttendancesUrl(String eventAttendancesUrl) { this.eventAttendancesUrl = eventAttendancesUrl; }
 
     public String getEventAttendanceByIdUrl() { return eventAttendanceByIdUrl; }
-    public void setEventAttendanceByIdUrl(String eventAttendanceByIdUrl) { this.eventAttendanceByIdUrl = eventAttendanceByIdUrl; }
 
     public String getEventRatingsUrl() { return eventRatingsUrl; }
-    public void setEventRatingsUrl(String eventRatingsUrl) { this.eventRatingsUrl = eventRatingsUrl; }
 
     public String getEventRatingByIdUrl() { return eventRatingByIdUrl; }
-    public void setEventRatingByIdUrl(String eventRatingByIdUrl) { this.eventRatingByIdUrl = eventRatingByIdUrl; }
 
     public String getEventStatisticsUrl() { return eventStatisticsUrl; }
-    public void setEventStatisticsUrl(String eventStatisticsUrl) { this.eventStatisticsUrl = eventStatisticsUrl; }
 
-    // Journey sub-resource getters/setters
+    // Journey sub-resource getters
     public String getJourneyTipsUrl() { return journeyTipsUrl; }
-    public void setJourneyTipsUrl(String journeyTipsUrl) { this.journeyTipsUrl = journeyTipsUrl; }
 
     public String getJourneyTipByIdUrl() { return journeyTipByIdUrl; }
-    public void setJourneyTipByIdUrl(String journeyTipByIdUrl) { this.journeyTipByIdUrl = journeyTipByIdUrl; }
 
     public String getJourneyResponsesUrl() { return journeyResponsesUrl; }
-    public void setJourneyResponsesUrl(String journeyResponsesUrl) { this.journeyResponsesUrl = journeyResponsesUrl; }
 
     public String getJourneyResponseByIdUrl() { return journeyResponseByIdUrl; }
-    public void setJourneyResponseByIdUrl(String journeyResponseByIdUrl) { this.journeyResponseByIdUrl = journeyResponseByIdUrl; }
 }

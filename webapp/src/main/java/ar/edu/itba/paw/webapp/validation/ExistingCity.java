@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {CityNameValidator.class})
+@Constraint(validatedBy = {ExistingCityValidator.class})
 public @interface ExistingCity {
     String message() default "{validation.city.notExists}";
 
