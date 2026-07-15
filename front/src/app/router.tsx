@@ -63,7 +63,8 @@ const withSuspense = (element: ReactNode) => (
     </Suspense>
 );
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+    [
     {
         path: "/",
         element: <MainLayout />,
@@ -142,4 +143,5 @@ export const router = createBrowserRouter([
             { path: "*", element: <NotFoundPage /> },
         ],
     },
-]);
+    ],
+);
