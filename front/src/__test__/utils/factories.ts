@@ -54,35 +54,32 @@ export interface MockJourneyDto {
     description: string;
     startDate: string;
     endDate: string;
-    city?: string | null;
-    country?: string | null;
-    university?: string | null;
-    userName?: string | null;
-    profilePictureUrl?: string | null;
+    destinationUniversityName?: string | null;
     links?: {
         selfUrl?: string | null;
         userUrl?: string | null;
         destinationUniversityUrl?: string | null;
+        tipsUrl?: string | null;
+        responsesUrl?: string | null;
     } | null;
 }
 
 export function createMockJourney(overrides: Partial<MockJourneyDto> = {}): MockJourneyDto {
+    const id = overrides.id ?? 1;
     return {
-        id: 1,
+        id,
         description: "Test journey description",
         startDate: "2026-07-01",
         endDate: "2026-12-01",
-        city: "Buenos Aires",
-        country: "Argentina",
-        university: "MIT",
-        userName: "testuser",
-        profilePictureUrl: null,
-        links: {
-            selfUrl: `${BASE_URL}/journeys/1`,
+        destinationUniversityName: "MIT",
+        ...overrides,
+        links: overrides.links ?? {
+            selfUrl: `${BASE_URL}/journeys/${id}`,
             userUrl: `${BASE_URL}/users/1`,
             destinationUniversityUrl: `${BASE_URL}/universities/1`,
+            tipsUrl: `${BASE_URL}/journeys/${id}/tips`,
+            responsesUrl: `${BASE_URL}/journeys/${id}/responses`,
         },
-        ...overrides,
     };
 }
 

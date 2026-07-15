@@ -251,11 +251,11 @@ export const resolveJourneySummary = async (journey: JourneySummary, signal?: Ab
 
     return {
         ...journey,
-        userName: user?.username ?? journey.userName,
-        university: university?.name ?? journey.university,
-        city: city?.name ?? journey.city,
-        country: city?.country ?? journey.country,
-        profilePictureUrl: user?.links?.profilePictureUrl ?? journey.profilePictureUrl ?? null,
+        userName: user?.username,
+        university: university?.name,
+        city: city?.name,
+        country: city?.country,
+        profilePictureUrl: user?.links?.profilePictureUrl ?? null,
     };
 };
 
@@ -276,7 +276,7 @@ export const buildJourneyCreator = async (
         firstname: user?.firstname ?? user?.username ?? "—",
         lastname: user?.lastname ?? "",
         username: user?.username ?? "—",
-        profilePictureUrl: user?.links?.profilePictureUrl ?? journey.profilePictureUrl ?? null,
+        profilePictureUrl: user?.links?.profilePictureUrl ?? null,
         university: creatorUniversity ? { name: creatorUniversity.name } : null,
         career: creatorCareer ? { name: creatorCareer.name } : null,
     };
