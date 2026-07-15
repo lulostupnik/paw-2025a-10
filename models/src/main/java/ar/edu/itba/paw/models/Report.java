@@ -119,22 +119,6 @@ public class Report {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void markAsDeleted() {
-        this.deleted = true;
-    }
-
-    public void resolve() {
-        this.status = ReportStatus.RESOLVED;
-    }
-
-    public void dismiss() {
-        this.status = ReportStatus.DISMISSED;
-    }
-
-    public boolean isPending() {
-        return this.status == ReportStatus.PENDING;
-    }
-
     @Override
     public String toString() {
         return "Report{" +
