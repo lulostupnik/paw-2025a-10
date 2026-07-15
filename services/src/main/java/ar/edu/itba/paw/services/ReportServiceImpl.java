@@ -103,22 +103,22 @@ public class ReportServiceImpl implements ReportService {
         return  report; }
 
     @Override
-    public Optional<Report> findById(Long id) {
+    public Optional<Report> findById(long id) {
         return reportDao.findById(id);
     }
 
 
     @Transactional
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(long id) {
         Optional<Report> maybeReport = reportDao.findById(id);
         if (maybeReport.isEmpty()) {
-            LOGGER.info("Report with id: " + id + " not found.");
+            LOGGER.info("Report with id {} not found.", id);
             return;
         }
 
         maybeReport.get().setDeleted(true);
-        LOGGER.info("Report with id: " + id + " has been marked as deleted.");
+        LOGGER.info("Report with id {} has been marked as deleted.", id);
     }
 
     @Override

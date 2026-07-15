@@ -55,7 +55,7 @@ public class ReportHibernateDao implements ReportDao {
 
 
     @Override
-    public Optional<Report> findById(Long id) {
+    public Optional<Report> findById(long id) {
         return Optional.ofNullable(em.find(Report.class, id));
     }
 

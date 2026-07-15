@@ -18,15 +18,9 @@ public interface ReportService {
 
     Report createReportForJourneyResponse(User reportingUser,long responseId, String description, ReportReason reason);
 
-    Optional<Report> findById(Long id);
+    Optional<Report> findById(long id);
 
-
-
-
-
-
-
-    void deleteById(Long id);
+    void deleteById(long id);
 
     Page<Report> findAll(String search, PageParams params);
 

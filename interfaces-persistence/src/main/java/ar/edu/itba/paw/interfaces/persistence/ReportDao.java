@@ -10,7 +10,7 @@ public interface ReportDao {
     Report create(User reportedUser, User reportingUser, Event event, String description, ReportReason reason);
     Report create(User reportedUser, User reportingUser, EventResponse eventResponse, String description, ReportReason reason);
     Report create(User reportedUser, User reportingUser, JourneyResponse eventResponse, String description, ReportReason reason);
-    Optional<Report> findById(Long id);
+    Optional<Report> findById(long id);
     void hardDeleteByJourneyId(long journeyId);
     Page<Report> findAll(String search, PageParams params);
 }
