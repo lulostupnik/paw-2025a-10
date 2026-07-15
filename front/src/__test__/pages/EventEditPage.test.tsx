@@ -106,7 +106,6 @@ describe("EventEditPage", () => {
 
         renderPage();
 
-        // El formulario arranca sembrado con lo que devolvió la API.
         const nameField = await screen.findByLabelText(/event\.create\.name\.label/);
         expect(nameField).toHaveValue("Test Event");
         expect(screen.getByPlaceholderText("event.create.city.placeholder")).toHaveValue("Buenos Aires");
@@ -189,7 +188,6 @@ describe("EventEditPage", () => {
 
         await user.click(screen.getByRole("button", { name: "event.edit" }));
 
-        // title → name y attendeesLimit → participantLimit, según API_FIELD_TO_FORM_FIELD.
         expect(await screen.findByText("El título es demasiado largo")).toBeInTheDocument();
         expect(screen.getByText("El límite supera el máximo")).toBeInTheDocument();
         expect(screen.getByLabelText(/event\.create\.name\.label/)).toHaveAttribute("aria-invalid", "true");

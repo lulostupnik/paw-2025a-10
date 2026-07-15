@@ -69,7 +69,6 @@ export const router = createBrowserRouter([
         element: <MainLayout />,
         errorElement: <ServerErrorPage />,
         children: [
-            // PUBLIC
             { index: true, element: <HomeRoute /> },
 
             { path: "journeys", element: <JourneysListPage /> },
@@ -90,7 +89,6 @@ export const router = createBrowserRouter([
             { path: "error/415", element: <UnsupportedMediaPage /> },
             { path: "error/500", element: <ServerErrorPage /> },
 
-            // PRIVATE PAGES (same layout, guarded)
             {
                 element: <RequireAuth />,
                 children: [
@@ -123,7 +121,6 @@ export const router = createBrowserRouter([
                 ],
             },
 
-            // ADMIN PAGES (same layout, guarded)
             {
                 element: <RequireAuth requireAdmin />,
                 children: [

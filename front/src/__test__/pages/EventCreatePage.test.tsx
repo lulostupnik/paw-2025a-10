@@ -269,7 +269,6 @@ describe("EventCreatePage", () => {
 
         await user.click(submitButton());
 
-        // API_FIELD_TO_FORM_FIELD mapea "title" → el input de nombre del form.
         const message = await screen.findByText("Ya existe un evento con ese título");
         expect(message).toBeInTheDocument();
         expect(nameInput()).toHaveAttribute("aria-invalid", "true");

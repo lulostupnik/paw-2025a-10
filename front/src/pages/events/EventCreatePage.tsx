@@ -33,7 +33,6 @@ type FormField = "name" | "city" | "date" | "time" | "description" | "address" |
 type FormErrors = Partial<Record<FormField, string>>;
 type TouchedState = Partial<Record<FormField, boolean>>;
 
-// Campo del ErrorDto de la API → campo del formulario.
 const API_FIELD_TO_FORM_FIELD: Record<string, FormField> = {
     title: "name",
     cityId: "city",

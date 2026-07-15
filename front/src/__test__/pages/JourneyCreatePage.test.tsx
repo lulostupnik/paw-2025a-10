@@ -233,7 +233,6 @@ describe("JourneyCreatePage", () => {
 
         await user.click(submitButton());
 
-        // API_FIELD_TO_FORM_FIELD mapea "destinationUniversityId" → el input de destino del form.
         expect(await screen.findByText("La universidad no existe")).toBeInTheDocument();
         expect(mockNavigate).not.toHaveBeenCalled();
     });

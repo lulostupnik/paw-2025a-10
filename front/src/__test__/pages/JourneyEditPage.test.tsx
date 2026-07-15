@@ -122,7 +122,6 @@ describe("JourneyEditPage", () => {
 
         renderPage();
 
-        // El formulario arranca sembrado con lo que ya tenía el viaje.
         expect(await screen.findByDisplayValue("Un intercambio increíble")).toBeInTheDocument();
         expect(startDateInput()).toHaveValue(START_DATE);
         expect(endDateInput()).toHaveValue(END_DATE);
@@ -203,7 +202,6 @@ describe("JourneyEditPage", () => {
 
         await user.click(submitButton());
 
-        // destinationUniversityId (API) → destination (form), vía API_FIELD_TO_FORM_FIELD.
         const fieldError = await screen.findByText("La universidad no existe");
         // El error tiene que colgar del campo de destino, no aparecer suelto como error general.
         const destinationField = container.querySelector(".create-autocomplete");
