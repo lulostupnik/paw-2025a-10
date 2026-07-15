@@ -1,7 +1,12 @@
 package ar.edu.itba.paw.webapp.dto;
 
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class RootIndexDto {
 
     // Top-level collection URLs
