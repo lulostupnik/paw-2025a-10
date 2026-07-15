@@ -47,8 +47,6 @@ public class EventController {
     @Context
     private UriInfo uriInfo;
 
-    // ==================== EVENTS ====================
-
     @GET
     @Produces(GoTogetherMediaType.APPLICATION_EVENT_LIST)
     @PreAuthorize("@accessHelper.canListRecommendedFor(#recommendedForUser)")
@@ -164,8 +162,6 @@ public class EventController {
     }
 
 
-    // ==================== EVENT FLYER ====================z
-
     @GET
     @Path("/{id}/flyer")
     @Produces({"image/jpeg", "image/png", "image/webp"})
@@ -191,8 +187,6 @@ public class EventController {
                 .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))
                 .build();
     }
-
-    // ==================== EVENT RESPONSES ====================
 
     @GET
     @Path("/{eventId}/responses")
@@ -248,8 +242,6 @@ public class EventController {
         return Response.noContent().build();
     }
 
-    // ==================== ATTENDANCES ====================
-
     @GET
     @Path("/{eventId}/attendances")
     @Produces(GoTogetherMediaType.APPLICATION_EVENT_ATTENDANCE_LIST)
@@ -298,8 +290,6 @@ public class EventController {
         eventService.deleteEventAttendance(userId, eventId);
         return Response.noContent().build();
     }
-
-    // ==================== RATINGS ====================
 
     @GET
     @Path("/{eventId}/ratings")

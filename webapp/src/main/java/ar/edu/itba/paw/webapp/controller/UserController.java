@@ -151,8 +151,6 @@ public class UserController {
     }
 
 
-    // ==================== USER INTERESTS ====================
-
     @GET
     @Path("/{userId}/interests")
     @Produces(GoTogetherMediaType.APPLICATION_USER_INTEREST_LIST)
@@ -204,8 +202,6 @@ public class UserController {
         return Response.noContent().build();
     }
 
-    // ==================== USER RATING (Computed value) ====================
-
     @GET
     @Path("/{userId}/rating")
     @Produces(GoTogetherMediaType.APPLICATION_USER_RATING)
@@ -216,8 +212,6 @@ public class UserController {
 
 
 
-
-    // ==================== USER PROFILE PICTURE ====================
 
     @GET
     @Path("/{userId}/profilePicture")
