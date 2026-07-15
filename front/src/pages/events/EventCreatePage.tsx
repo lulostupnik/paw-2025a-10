@@ -331,14 +331,24 @@ export default function EventCreatePage() {
                 address: form.address.trim() || null,
                 attendeesLimit: form.unlimited ? null : Number(form.participantLimit),
             });
+            // El evento ya existe: si falla el flyer no se puede reportar como alta fallida, porque
+            // reintentar el submit crearía un evento duplicado.
+            let flyerFailed = false;
             if (form.flyer) {
-                await updateEventFlyer(eventResponse.id, form.flyer);
+                try {
+                    await updateEventFlyer(eventResponse.id, form.flyer);
+                } catch (flyerError) {
+                    console.error("Failed to upload event flyer", flyerError);
+                    flyerFailed = true;
+                }
             }
             setForm({ ...INITIAL_FORM });
             setCityQuery("");
             setTouched({});
             setErrors({});
-            showToast(t("event.toast.created"), { variant: "success" });
+            showToast(flyerFailed ? t("event.toast.createdWithoutFlyer") : t("event.toast.created"), {
+                variant: flyerFailed ? "info" : "success",
+            });
             navigate(`/events/${eventResponse.id}`, { replace: true });
         } catch (error) {
             console.error("Failed to create event", error);

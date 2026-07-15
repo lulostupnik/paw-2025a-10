@@ -119,6 +119,36 @@ describe("EventCreatePage", () => {
         expect(mockShowToast).toHaveBeenCalledWith("event.toast.created", { variant: "success" });
     });
 
+    it("si el evento se creó pero falla la subida del flyer, navega igual en vez de invitar a reintentar el alta", async () => {
+        const user = setupUser();
+        let creates = 0;
+        server.use(
+            http.post(`${BASE_URL}/events`, () => {
+                creates += 1;
+                return HttpResponse.json({ id: 7, title: "Asado en el parque" }, { status: 201 });
+            }),
+            http.put(`${BASE_URL}/events/7/flyer`, () => new HttpResponse(null, { status: 500 })),
+        );
+
+        renderPage();
+        await screen.findByLabelText(/event\.create\.name\.label/);
+
+        await user.type(nameInput(), "Asado en el parque");
+        await pickCity(user, "Buenos Aires");
+        await user.type(dateInput(), "2030-05-20");
+        await user.type(timeInput(), "18:30");
+        await user.type(descriptionInput(), "Nos juntamos a comer");
+        await user.type(limitInput(), "25");
+        await user.upload(flyerInput(), flyerFile());
+
+        await user.click(submitButton());
+
+        // El evento ya existe: quedarse en el form haría que el usuario reintente y lo duplique.
+        await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/events/7", { replace: true }));
+        expect(mockShowToast).toHaveBeenCalledWith("event.toast.createdWithoutFlyer", { variant: "info" });
+        expect(creates).toBe(1);
+    });
+
     it("manda time y attendeesLimit en null cuando el evento es de todo el día y sin cupo", async () => {
         const user = setupUser();
         let body: unknown;

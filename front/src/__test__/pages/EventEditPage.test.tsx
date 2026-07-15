@@ -62,6 +62,35 @@ describe("EventEditPage", () => {
         mockUserId.mockReturnValue(OWNER_ID);
     });
 
+    it("si el evento se actualizó pero falla la subida del flyer, navega igual en vez de invitar a reintentar el update", async () => {
+        const user = userEvent.setup({ pointerEventsCheck: 0 });
+        let patches = 0;
+        server.use(
+            http.patch(`${BASE_URL}/events/1`, () => {
+                patches += 1;
+                return HttpResponse.json(
+                    { id: 1, title: "Test Event" },
+                    { headers: { "Content-Type": "application/vnd.gotogether.event.v1+json" } },
+                );
+            }),
+            http.put(`${BASE_URL}/events/1/flyer`, () => new HttpResponse(null, { status: 500 })),
+        );
+
+        renderPage();
+        await screen.findByLabelText(/event\.create\.name\.label/);
+
+        await user.upload(
+            screen.getByLabelText(/event\.edit\.flyer\.label/),
+            new File(["flyer-bytes"], "flyer.png", { type: "image/png" }),
+        );
+        await user.click(screen.getByRole("button", { name: "event.edit" }));
+
+        // Los datos ya se guardaron: quedarse en el form haría reintentar un update ya aplicado.
+        await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/events/1"));
+        expect(mockShowToast).toHaveBeenCalledWith("event.toast.updatedWithoutFlyer", { variant: "info" });
+        expect(patches).toBe(1);
+    });
+
     it("precarga el formulario con los datos del evento y guarda los cambios", async () => {
         const user = userEvent.setup();
         let body: unknown;

@@ -282,14 +282,24 @@ function EventEditForm({ event }: EventEditFormProps) {
                 address: form.address.trim() || null,
                 attendeesLimit: form.unlimited ? null : Number(form.participantLimit),
             });
+            // Los datos del evento ya se guardaron: si falla el flyer no se puede reportar como
+            // edición fallida, porque el usuario reintentaría un update ya aplicado.
+            let flyerFailed = false;
             if (form.flyer) {
-                await updateEventFlyer(event.id, form.flyer);
+                try {
+                    await updateEventFlyer(event.id, form.flyer);
+                } catch (flyerError) {
+                    console.error("Failed to upload event flyer", flyerError);
+                    flyerFailed = true;
+                }
             }
             await Promise.all([
                 invalidateEventDetailQueries(queryClient, event.id),
                 invalidateEventListQueries(queryClient),
             ]);
-            showToast(t("event.toast.updated"), { variant: "success" });
+            showToast(flyerFailed ? t("event.toast.updatedWithoutFlyer") : t("event.toast.updated"), {
+                variant: flyerFailed ? "info" : "success",
+            });
             navigate(`/events/${event.id}`);
         } catch (err) {
             console.error("Failed to update event", err);
