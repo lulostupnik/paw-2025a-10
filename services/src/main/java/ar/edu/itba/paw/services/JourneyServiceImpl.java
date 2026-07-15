@@ -49,12 +49,15 @@ public class JourneyServiceImpl implements JourneyService {
 
     private void checkDates(final LocalDate startDate, final LocalDate endDate) {
         if(startDate == null || endDate == null) {
+            LOGGER.warn("Journey dates are incomplete: start {}, end {}", startDate, endDate);
             throw new InvalidDateException();
         }
         if(startDate.isAfter(endDate)) {
+            LOGGER.warn("Journey start date {} is after end date {}", startDate, endDate);
             throw new InvalidDateException();
         }
         if(startDate.isBefore(LocalDate.now())) {
+            LOGGER.warn("Journey start date {} is in the past", startDate);
             throw new InvalidDateException();
         }
     }
@@ -174,7 +177,8 @@ public class JourneyServiceImpl implements JourneyService {
     private void validateMutuallyExclusiveTimeFilters(boolean isPast, boolean isUpcoming, boolean isOngoing) {
         int count = (isPast ? 1 : 0) + (isUpcoming ? 1 : 0) + (isOngoing ? 1 : 0);
         if (count > 1) {
-            throw new MutuallyExclusiveFiltersException(); // ¿Es correcto mandar esto?
+            LOGGER.warn("Mutually exclusive time filters: past {}, upcoming {}, ongoing {}", isPast, isUpcoming, isOngoing);
+            throw new MutuallyExclusiveFiltersException();
         }
     }
 
@@ -231,6 +235,7 @@ public class JourneyServiceImpl implements JourneyService {
         if (city != null || university != null || startDate != null || endDate != null || interest != null
                 || isPast || isUpcoming || isOngoing || destinationCityId != null || excludeUserId != null
                 || search != null || sortBy != null || direction != null) {
+            LOGGER.warn("Recommended journeys do not admit any other filter");
             throw new MutuallyExclusiveFiltersException();
         }
     }
@@ -433,7 +438,10 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     @Transactional
     public void deleteTip(long journeyId, long tipId) {
-        findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException());
+        findTipById(journeyId, tipId).orElseThrow(() -> {
+            LOGGER.warn("Tip {} of journey {} not found", tipId, journeyId);
+            return new TipNotFoundException();
+        });
         tipDao.delete(tipId);
     }
 
@@ -451,7 +459,10 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     public boolean isTipOwnedByUser(long journeyId, long tipId, String email) {
-        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException());
+        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> {
+            LOGGER.warn("Tip {} of journey {} not found", tipId, journeyId);
+            return new TipNotFoundException();
+        });
         return tip.getJourney().getUser().getEmail().equals(email);
     }
 }
