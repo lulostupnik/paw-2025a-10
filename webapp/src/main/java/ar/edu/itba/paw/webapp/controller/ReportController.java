@@ -56,7 +56,7 @@ public class ReportController {
     @Path("/{id}")
     @Produces(GoTogetherMediaType.APPLICATION_REPORT)
     public Response getReportById(@Context Request req, @PathParam("id") final long id) {
-        final Report report = reportService.findById(id).orElseThrow(() -> new ReportNotFoundException(id));
+        final Report report = reportService.findById(id).orElseThrow(() -> new ReportNotFoundException());
         return CacheUtils.withLastModified(req, report.getUpdatedAt(), () -> ReportDto.fromReport(uriInfo, report));
     }
 

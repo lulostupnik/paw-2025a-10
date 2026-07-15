@@ -53,7 +53,7 @@ public class InterestController {
     @Path("/{id}")
     @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
     public Response getInterestById(@Context Request req, @PathParam("id") final long id) {
-        final Interest interest = interestService.findInterestById(id).orElseThrow(() -> new InterestsNotFoundException(id));
+        final Interest interest = interestService.findInterestById(id).orElseThrow(() -> new InterestsNotFoundException());
         return CacheUtils.withEtag(req, interest, () -> InterestDto.fromInterest(uriInfo, interest));
     }
 

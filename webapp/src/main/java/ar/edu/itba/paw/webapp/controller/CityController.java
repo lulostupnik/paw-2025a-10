@@ -52,7 +52,7 @@ public class CityController {
     @Path("/{id}")
     @Produces(GoTogetherMediaType.APPLICATION_CITY)
     public Response getCityById(@Context Request req, @PathParam("id") final long id) {
-        final City city = cityService.findCityById(id).orElseThrow(() -> new CityNotFoundException(id));
+        final City city = cityService.findCityById(id).orElseThrow(() -> new CityNotFoundException());
         return CacheUtils.withEtag(req, city, () -> CityDto.fromCity(uriInfo, city));
     }
 

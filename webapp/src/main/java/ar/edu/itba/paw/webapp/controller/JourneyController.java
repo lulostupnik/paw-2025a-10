@@ -104,7 +104,7 @@ public class JourneyController {
     @Path("/{id}")
     @Produces(GoTogetherMediaType.APPLICATION_JOURNEY)
     public Response getJourneyById(@Context Request req, @PathParam("id") final long id) {
-        final Journey journey = journeyService.findJourneyById(id).orElseThrow(() -> new JourneyNotFoundException(id));
+        final Journey journey = journeyService.findJourneyById(id).orElseThrow(() -> new JourneyNotFoundException());
         return CacheUtils.withEtag(req, journey, () -> JourneyDto.fromJourney(uriInfo, journey));
     }
 
@@ -172,7 +172,7 @@ public class JourneyController {
             @PathParam("journeyId") final long journeyId,
             @PathParam("tipId") final long tipId
     ) {
-        final Tip tip = journeyService.findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
+        final Tip tip = journeyService.findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException());
         return CacheUtils.withEtag(req, tip, () -> TipDto.fromTip(uriInfo, tip));
     }
 
@@ -241,7 +241,7 @@ public class JourneyController {
             @PathParam("journeyId") final long journeyId,
             @PathParam("responseId") final long responseId
     ) {
-        final JourneyResponse response = journeyService.findJourneyResponseById(journeyId, responseId).orElseThrow(() -> new JourneyResponseNotFoundException(journeyId, responseId));
+        final JourneyResponse response = journeyService.findJourneyResponseById(journeyId, responseId).orElseThrow(() -> new JourneyResponseNotFoundException());
         return CacheUtils.withEtag(req, response, () -> JourneyResponseDto.fromJourneyResponse(uriInfo, response));
     }
 

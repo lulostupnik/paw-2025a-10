@@ -40,7 +40,7 @@ public class CountryController {
     @Produces(GoTogetherMediaType.APPLICATION_COUNTRY)
     public Response getCountryById(@Context Request req, @PathParam("id") final long id) {
         final Country country = countryService.findCountryById(id)
-                .orElseThrow(() -> new CountryNotFoundException("Country not found", String.valueOf(id)));
+                .orElseThrow(() -> new CountryNotFoundException());
         return CacheUtils.withEtag(req, country, () -> CountryDto.fromCountry(uriInfo, country));
     }
 }

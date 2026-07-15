@@ -23,10 +23,10 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
         final Event event = em.find(Event.class, eventId);
         final User user = em.find(User.class, userId);
         if (event == null) {
-            throw new EventNotFoundException( eventId );
+            throw new EventNotFoundException();
         }
         if (user == null) {
-            throw new UserNotFoundException(userId);
+            throw new UserNotFoundException();
         }
 
         return create(user, event);

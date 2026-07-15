@@ -15,7 +15,7 @@ public class PageParams {
 
     public PageParams(int page, int size){
         if(page <= 0 || size <= 0){
-            throw new InvalidPaginationParamsException("Pagination variables can't be negative");
+            throw new InvalidPaginationParamsException();
         }
         this.page = page;
         this.size = Math.min(size, MAX_PAGE_SIZE);

@@ -21,7 +21,7 @@ public final class DateUtils {
         try {
             return LocalDate.parse(dateStr, FORMATTER);
         } catch (DateTimeParseException e) {
-            throw new InvalidDateException("Invalid date format: " + dateStr + ". Expected format: " + Constants.DATE_FORMAT);
+            throw new InvalidDateException();
         }
     }
 }

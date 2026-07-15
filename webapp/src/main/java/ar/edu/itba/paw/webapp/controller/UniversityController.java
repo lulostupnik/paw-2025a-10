@@ -54,7 +54,7 @@ public class UniversityController {
     @Path("/{id}")
     @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY)
     public Response getUniversityById(@Context Request req, @PathParam("id") final long id) {
-        final University university = universityService.findById(id).orElseThrow(() -> new UniversityNotFoundException(id));
+        final University university = universityService.findById(id).orElseThrow(() -> new UniversityNotFoundException());
         return CacheUtils.withEtag(req, university, () -> UniversityDto.fromUniversity(uriInfo, university));
     }
 

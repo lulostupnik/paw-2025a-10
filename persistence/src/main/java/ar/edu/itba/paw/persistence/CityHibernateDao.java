@@ -118,7 +118,7 @@ public class CityHibernateDao implements CityDao {
                 em.merge(city);
                 return city;
             } else {
-                throw new CityAlreadyExistsException(nameEn, country.getName());
+                throw new CityAlreadyExistsException();
             }
         }
         final City city = new City(nameEn, country);

@@ -1,7 +1,8 @@
 package ar.edu.itba.paw.models.exceptions;
 
 public class UserAlreadyAttendingException extends BusinessException {
-    public UserAlreadyAttendingException(long id, long eventId) {
+
+    public UserAlreadyAttendingException() {
         super("exception.UserAlreadyAttendingException", BusinessException.CONFLICT);
     }
 }

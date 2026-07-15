@@ -49,13 +49,13 @@ public class JourneyServiceImpl implements JourneyService {
 
     private void checkDates(final LocalDate startDate, final LocalDate endDate) {
         if(startDate == null || endDate == null) {
-            throw new InvalidDateException("Start date and end date cannot be null");
+            throw new InvalidDateException();
         }
         if(startDate.isAfter(endDate)) {
-            throw new InvalidDateException("Start date cannot be after end date");
+            throw new InvalidDateException();
         }
         if(startDate.isBefore(LocalDate.now())) {
-            throw new InvalidDateException("Start date cannot be before today");
+            throw new InvalidDateException();
         }
     }
 
@@ -67,14 +67,14 @@ public class JourneyServiceImpl implements JourneyService {
         User user = userService.findUserById(userId)
                 .orElseThrow(() -> {
                     LOGGER.warn("User with id {} not found", userId);
-                    return new UserNotFoundException(userId);
+                    return new UserNotFoundException();
                 });
 
         checkDates(startDate, endDate);
         University destination = universityService.findById(destinationUniversityId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Destination university not found: {}", destinationUniversityId);
-                    return new InvalidReferenceException("University", destinationUniversityId);
+                    return new InvalidReferenceException();
                 }
         );
 
@@ -82,7 +82,7 @@ public class JourneyServiceImpl implements JourneyService {
         if (existingJourney != null) {
             if (!existingJourney.isDeleted()) {
                 LOGGER.warn("User {} already has an active journey", userId);
-                throw new UserWithActiveJourneyException(userId);
+                throw new UserWithActiveJourneyException();
             }
             // Hard delete the soft-deleted journey and its responses
             LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), userId);
@@ -106,13 +106,13 @@ public class JourneyServiceImpl implements JourneyService {
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Journey with id {} not found", journeyId);
-                    return new JourneyNotFoundException(journeyId);
+                    return new JourneyNotFoundException();
                 });
 
         User responder = userService.findUserById(userId)
                 .orElseThrow(() -> {
                     LOGGER.warn("User with id {} not found", userId);
-                    return new UserNotFoundException(userId);
+                    return new UserNotFoundException();
                 });
 
         JourneyResponse journeyResponse = journeyResponseDao.create(responder, journey, message);
@@ -174,7 +174,7 @@ public class JourneyServiceImpl implements JourneyService {
     private void validateMutuallyExclusiveTimeFilters(boolean isPast, boolean isUpcoming, boolean isOngoing) {
         int count = (isPast ? 1 : 0) + (isUpcoming ? 1 : 0) + (isOngoing ? 1 : 0);
         if (count > 1) {
-            throw new MutuallyExclusiveFiltersException("past", "upcoming", "ongoing"); // ¿Es correcto mandar esto?
+            throw new MutuallyExclusiveFiltersException(); // ¿Es correcto mandar esto?
         }
     }
 
@@ -231,7 +231,7 @@ public class JourneyServiceImpl implements JourneyService {
         if (city != null || university != null || startDate != null || endDate != null || interest != null
                 || isPast || isUpcoming || isOngoing || destinationCityId != null || excludeUserId != null
                 || search != null || sortBy != null || direction != null) {
-            throw new MutuallyExclusiveFiltersException("recommendedForUser");
+            throw new MutuallyExclusiveFiltersException();
         }
     }
 
@@ -242,7 +242,7 @@ public class JourneyServiceImpl implements JourneyService {
 
         final User user = userService.findUserById(userId).orElseThrow(() -> {
             LOGGER.warn("User with id {} not found", userId);
-            return new UserNotFoundException(userId);
+            return new UserNotFoundException();
         });
 
         if (user.hasActiveJourney()) {
@@ -265,10 +265,10 @@ public class JourneyServiceImpl implements JourneyService {
                                 final LocalDate endDate, final String description,
                                 final Boolean deleted, final String deletionMessage) {
         LOGGER.debug("Patching journey {}", id);
-        Journey journey = journeyDao.findById(id).orElseThrow(() -> new JourneyNotFoundException(id));
+        Journey journey = journeyDao.findById(id).orElseThrow(() -> new JourneyNotFoundException());
 
         if (destinationUniversityId != null) {
-            University university = universityService.findById(destinationUniversityId).orElseThrow(() -> new InvalidReferenceException("University", destinationUniversityId));
+            University university = universityService.findById(destinationUniversityId).orElseThrow(() -> new InvalidReferenceException());
             journey.setDestinationUniversity(university);
         }
         if (startDate != null) {
@@ -366,7 +366,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public void deleteJourneyResponse(final long journeyId, final long responseId, final String message) {
         LOGGER.debug("Deleting journey response {} for journey {}", responseId, journeyId);
-        findJourneyResponseById(journeyId, responseId).orElseThrow(() -> new JourneyResponseNotFoundException(journeyId, responseId));
+        findJourneyResponseById(journeyId, responseId).orElseThrow(() -> new JourneyResponseNotFoundException());
         deleteJourneyResponse(responseId, message);
     }
 
@@ -387,7 +387,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Finding all journey responses for journey {}", journeyId);
         journeyDao.findById(journeyId).orElseThrow(() -> {
             LOGGER.warn("Journey with id {} not found", journeyId);
-            return new JourneyNotFoundException(journeyId);
+            return new JourneyNotFoundException();
         });
         return journeyResponseDao.findAllByJourneyId(journeyId, pageParams);
     }
@@ -397,7 +397,7 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.debug("Finding tips for journey {}", journeyId);
         journeyDao.findById(journeyId).orElseThrow(() -> {
             LOGGER.warn("Journey with id {} not found", journeyId);
-            return new JourneyNotFoundException(journeyId);
+            return new JourneyNotFoundException();
         });
         return tipDao.findByJourneyId(journeyId, pageParams);
     }
@@ -407,7 +407,7 @@ public class JourneyServiceImpl implements JourneyService {
     public Tip createTip(long journeyId, String title, String content) {
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> {
             LOGGER.error("Journey with id {} not found", journeyId);
-            return new JourneyNotFoundException(journeyId);
+            return new JourneyNotFoundException();
         });
          return tipDao.create(journey, title, content);
     }
@@ -417,7 +417,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Transactional
     public Tip patchTip(long journeyId, long tipId, String title, String content) {
         LOGGER.debug("Patching tip {} for journey {}", tipId, journeyId);
-        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
+        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException());
 
         if (title != null) {
             tip.setTitle(title);
@@ -433,7 +433,7 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     @Transactional
     public void deleteTip(long journeyId, long tipId) {
-        findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
+        findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException());
         tipDao.delete(tipId);
     }
 
@@ -451,7 +451,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     public boolean isTipOwnedByUser(long journeyId, long tipId, String email) {
-        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException(journeyId, tipId));
+        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException());
         return tip.getJourney().getUser().getEmail().equals(email);
     }
 }

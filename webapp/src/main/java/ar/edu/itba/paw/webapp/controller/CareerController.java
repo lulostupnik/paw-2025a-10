@@ -52,7 +52,7 @@ public class CareerController {
     @Path("/{id}")
     @Produces(GoTogetherMediaType.APPLICATION_CAREER)
     public Response getCareerById(@Context Request req, @PathParam("id") final long id) {
-        final Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException(id));
+        final Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException());
         return CacheUtils.withEtag(req, career, () -> CareerDto.fromCareer(uriInfo, career));
     }
 

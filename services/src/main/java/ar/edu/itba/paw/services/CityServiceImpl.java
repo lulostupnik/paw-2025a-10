@@ -55,13 +55,13 @@ public class CityServiceImpl implements CityService {
     @Transactional
     public City patchCity(final long id, final String name, final Long countryId) {
         LOGGER.debug("Patching city with id {}", id);
-        City city = cityDao.findById(id).orElseThrow(() -> new CityNotFoundException(id));
+        City city = cityDao.findById(id).orElseThrow(() -> new CityNotFoundException());
 
         if (name != null) {
             city.setName(name);
         }
         if (countryId != null) {
-            Country country = countryService.findCountryById(countryId).orElseThrow(() -> new InvalidReferenceException("Country", countryId));
+            Country country = countryService.findCountryById(countryId).orElseThrow(() -> new InvalidReferenceException());
             city.setCountry(country);
         }
 
@@ -76,7 +76,7 @@ public class CityServiceImpl implements CityService {
         Country country = countryService.findCountryById(countryId)
                 .orElseThrow(() -> {
                     LOGGER.error("Country {} not found", countryId);
-                    return new InvalidReferenceException("Country", countryId);});
+                    return new InvalidReferenceException();});
         City city = cityDao.create(cityName, country);
         LOGGER.info("City with name {} and country {} created successfully", cityName, countryId);
         return city;

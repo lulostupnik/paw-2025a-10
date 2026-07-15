@@ -58,7 +58,7 @@ public class CareerServiceImpl implements CareerService {
     @Transactional
     public Career patchCareer(final long id, final String name) {
         LOGGER.debug("Patching career {} with name {}", id, name);
-        Career career = careerDao.findById(id).orElseThrow(() -> new CareerNotFoundException(id));
+        Career career = careerDao.findById(id).orElseThrow(() -> new CareerNotFoundException());
 
         if (name != null) {
             career.setName(name);

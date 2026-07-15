@@ -48,13 +48,13 @@ public class UserServiceImpl implements UserService {
         University university = universityService.findById(universityId)
                 .orElseThrow(() -> {
                     LOGGER.error("University not found: '{}' during user creation for email: {}", universityId, email);
-                    return new InvalidReferenceException("University", universityId);
+                    return new InvalidReferenceException();
                 });
 
         Career career = careerService.findCareerById(careerId)
                 .orElseThrow(() -> {
                     LOGGER.error("Career not found: '{}' during user creation for email: {}", careerId, email);
-                    return new InvalidReferenceException("Career", careerId);
+                    return new InvalidReferenceException();
                 });
 
         User user = userDao.create(email, username, firstname, lastname, university, career, null, passwordEncoder.encode(password), Locale.of(locale.getLanguage()), false);
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
     public void verifyUser(final long id) {
         final User user = userDao.findById(id).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", id);
-            return new UserNotFoundException(id);
+            return new UserNotFoundException();
         });
 
         if (!user.isValidated()) {
@@ -135,7 +135,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to block user with ID: {}", userId);
         User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new UserNotFoundException(userId);
+            return new UserNotFoundException();
         });
 
         user.setBlocked(true);
@@ -150,7 +150,7 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to unblock user with ID: {}", userId);
         User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new UserNotFoundException(userId);
+            return new UserNotFoundException();
         });
         user.setBlocked(false);
         runAfterCommit(() -> emailService.sendUserUnblockedNotification(new EmailUser(user)));
@@ -181,7 +181,7 @@ public class UserServiceImpl implements UserService {
     public UserRating getUserRating(long userId) {
         userDao.findById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new UserNotFoundException(userId);
+            return new UserNotFoundException();
         });
         final Double createdEventsRating = findAverageRatingForCreatedEvents(userId).orElse(null);
         final Double attendedEventsRating = findAverageRatingForAttendedEvents(userId).orElse(null);
@@ -214,10 +214,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void resendVerificationEmail(final String email) {
         LOGGER.debug("Attempting to resend verification email to: {}", email);
-        final User user = userDao.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+        final User user = userDao.findByEmail(email).orElseThrow(() -> new UserNotFoundException());
         if (user.isValidated()) {
             LOGGER.warn("User with email {} is already validated; skipping verification resend", email);
-            throw new UserValidatedException(email);
+            throw new UserValidatedException();
         }
         String rawToken = tokenService.issueUserToken(user);
         runAfterCommit(() -> emailService.sendValidationEmail(new EmailUser(user), rawToken));
@@ -232,7 +232,7 @@ public class UserServiceImpl implements UserService {
                           final String password, final Boolean blocked) {
         LOGGER.debug("Patching user with ID: {}", userId);
 
-        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException());
 
         if (username != null) {
             user.setUsername(username);
@@ -247,12 +247,12 @@ public class UserServiceImpl implements UserService {
         }
 
         if (universityId != null) {
-            University university = universityService.findById(universityId).orElseThrow(() -> new InvalidReferenceException("University", universityId));
+            University university = universityService.findById(universityId).orElseThrow(() -> new InvalidReferenceException());
             user.setUniversity(university);
         }
 
         if (careerId != null) {
-            Career career = careerService.findCareerById(careerId).orElseThrow(() -> new InvalidReferenceException("Career", careerId));
+            Career career = careerService.findCareerById(careerId).orElseThrow(() -> new InvalidReferenceException());
             user.setCareer(career);
         }
 
@@ -278,7 +278,7 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findById(userId)
                 .orElseThrow(() -> {
                     LOGGER.error("User with id {} not found", userId);
-                    return new UserNotFoundException(userId);
+                    return new UserNotFoundException();
                 });
 
         final Long oldProfilePictureId = user.getProfilePictureId();
@@ -300,7 +300,7 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findById(userId)
                 .orElseThrow(() -> {
                     LOGGER.error("User with id {} not found", userId);
-                    return new UserNotFoundException(userId);
+                    return new UserNotFoundException();
                 });
 
         if (user.getProfilePictureId() == null) {

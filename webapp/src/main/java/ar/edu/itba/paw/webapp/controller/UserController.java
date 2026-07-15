@@ -96,7 +96,7 @@ public class UserController {
     @Path("/{id}")
     @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC)
     public Response getById(@Context Request req, @PathParam("id") final long id) {
-        final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
+        final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException());
         // Vary the ETag by media type so the public and full representations never share an ETag.
         return CacheUtils.withEtag(req, user, GoTogetherMediaType.APPLICATION_USER_PUBLIC,
                 () -> UserDto.fromUser(uriInfo, user));
@@ -107,7 +107,7 @@ public class UserController {
     @Produces(GoTogetherMediaType.APPLICATION_USER)
     @PreAuthorize("hasRole('ADMIN') or @accessHelper.isCurrentUser(#id)")
     public Response getByIdAdmin(@Context Request req, @PathParam("id") final long id) {
-        final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException(id));
+        final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException());
         return CacheUtils.privateWithEtag(req, user, GoTogetherMediaType.APPLICATION_USER,  ////@TODO creo que tiene sentido, usa mismo hash para el modelo USER, pero distingue el media type.
                 () -> UserPrivateDto.fromUser(uriInfo, user));
     }
@@ -190,7 +190,7 @@ public class UserController {
             @PathParam("interestId") final long interestId
     ) {
         final UserInterest userInterest = interestService.findUserInterest(userId, interestId)
-                .orElseThrow(() -> new UserInterestNotFoundException(userId, interestId));
+                .orElseThrow(() -> new UserInterestNotFoundException());
         return CacheUtils.withEtag(req, userInterest, () -> UserInterestDto.fromUserInterest(uriInfo, userInterest));
     }
 
@@ -223,7 +223,7 @@ public class UserController {
     @Path("/{userId}/profilePicture")
     @Produces({"image/jpeg", "image/png", "image/webp"})
     public Response getUserProfilePicture(@Context Request req, @PathParam("userId") final long userId) {
-        final Image image = us.getProfilePicture(userId).orElseThrow(() -> new ImageNotFoundException("Profile picture not found"));
+        final Image image = us.getProfilePicture(userId).orElseThrow(() -> new ImageNotFoundException());
         final Response.ResponseBuilder responseBuilder = Response.ok(image.getData())
                 .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"profile_%d\"", userId));

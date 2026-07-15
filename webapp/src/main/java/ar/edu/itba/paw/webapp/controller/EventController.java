@@ -104,7 +104,7 @@ public class EventController {
     @Path("/{id}")
     @Produces(GoTogetherMediaType.APPLICATION_EVENT)
     public Response getEventById(@Context Request req, @PathParam("id") final long id) {
-        final Event event = eventService.findEventById(id).orElseThrow(() -> new EventNotFoundException(id));
+        final Event event = eventService.findEventById(id).orElseThrow(() -> new EventNotFoundException());
         return CacheUtils.withEtag(req, event, () -> EventDto.fromEvent(uriInfo, event));
     }
 
@@ -159,7 +159,7 @@ public class EventController {
     @Produces(GoTogetherMediaType.APPLICATION_EVENT_STATISTICS)
     public Response getEventStatistics(@Context Request req, @PathParam("eventId") final long eventId) {
         final EventWithStatistics statistics = eventService.findEventWithStatistics(eventId)
-                .orElseThrow(() -> new EventNotFoundException(eventId));
+                .orElseThrow(() -> new EventNotFoundException());
         return CacheUtils.withEtag(req, statistics, () -> EventStatisticsDto.fromEventWithStatistics(uriInfo, statistics));
     }
 
@@ -170,7 +170,7 @@ public class EventController {
     @Path("/{id}/flyer")
     @Produces({"image/jpeg", "image/png", "image/webp"})
     public Response getEventFlyer(@Context Request req, @PathParam("id") final long id) {
-        final Image image = eventService.getEventFlyer(id).orElseThrow(() -> new ImageNotFoundException("Event flyer not found"));
+        final Image image = eventService.getEventFlyer(id).orElseThrow(() -> new ImageNotFoundException());
         final Response.ResponseBuilder responseBuilder = Response.ok(image.getData())
                 .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"event_%d_flyer\"", id));
@@ -216,7 +216,7 @@ public class EventController {
             @PathParam("eventId") final long eventId,
             @PathParam("responseId") final long responseId
     ) {
-        final EventResponse response = eventService.findEventResponseById(eventId, responseId).orElseThrow(() -> new EventResponseNotFoundException(eventId, responseId));
+        final EventResponse response = eventService.findEventResponseById(eventId, responseId).orElseThrow(() -> new EventResponseNotFoundException());
         return CacheUtils.withEtag(req, response, () -> EventResponseDto.fromEventResponse(uriInfo, response));
     }
 
@@ -284,7 +284,7 @@ public class EventController {
             @PathParam("userId") final long userId
     ) {
         final EventAttendance attendance = eventService.findEventAttendance(userId, eventId)
-                .orElseThrow(() -> new EventAttendanceNotFoundException(userId, eventId));
+                .orElseThrow(() -> new EventAttendanceNotFoundException());
         return CacheUtils.withEtag(req, attendance, () -> EventAttendanceDto.fromEventAttendance(uriInfo, attendance));
     }
 
@@ -323,7 +323,7 @@ public class EventController {
             @PathParam("eventId") final long eventId,
             @PathParam("ratingId") final long ratingId
     ) {
-        final Rating rating = eventService.findRatingById(eventId, ratingId).orElseThrow(() -> new RatingNotFoundException(eventId, ratingId, true));
+        final Rating rating = eventService.findRatingById(eventId, ratingId).orElseThrow(() -> new RatingNotFoundException());
         return CacheUtils.withEtag(req, rating, () -> RatingDto.fromRating(uriInfo, rating));
     }
 

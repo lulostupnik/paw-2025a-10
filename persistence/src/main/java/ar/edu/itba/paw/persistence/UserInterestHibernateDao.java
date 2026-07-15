@@ -51,16 +51,16 @@ public class UserInterestHibernateDao implements UserInterestDao {
     @Override
     public UserInterest create(long userId, long interestId) {
         User user = userDao.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new UserNotFoundException());
         Interest interest = interestDao.findById(interestId)
-                .orElseThrow(() -> new InterestsNotFoundException(interestId));
+                .orElseThrow(() -> new InterestsNotFoundException());
         return create(user, interest);
     }
 
     @Override
     public void delete(long userId, long interestId) {
         UserInterest userInterest = findById(userId, interestId)
-                .orElseThrow(() -> new UserInterestNotFoundException(userId, interestId));
+                .orElseThrow(() -> new UserInterestNotFoundException());
         em.remove(userInterest);
     }
 
@@ -101,7 +101,7 @@ public class UserInterestHibernateDao implements UserInterestDao {
     @Override
     public void createUserInterests(List<Long> interestIds, long userId) {
         User user = userDao.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new UserNotFoundException());
         if (interestIds == null) {
             return;
         }
@@ -110,7 +110,7 @@ public class UserInterestHibernateDao implements UserInterestDao {
                 continue;
             }
             Interest i = interestDao.findById(interestId)
-                    .orElseThrow(() -> new InterestsNotFoundException(interestId));
+                    .orElseThrow(() -> new InterestsNotFoundException());
             create(user, i);
         }
     }

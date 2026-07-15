@@ -49,7 +49,7 @@ public class InterestServiceImpl implements InterestService {
         LOGGER.debug("Getting interests of user {} with pageParams {}", userId, pageParams);
         final User user = userDao.findById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new UserNotFoundException(userId);
+            return new UserNotFoundException();
         });
         return userInterestDao.findAllByUser(user, pageParams);
     }
@@ -90,7 +90,7 @@ public class InterestServiceImpl implements InterestService {
     @Transactional
     public Interest patchInterest(final long id, final String interest) {
         LOGGER.debug("Patching interest {} with name {}", id, interest);
-        Interest i = interestDao.findById(id).orElseThrow(() -> new InterestsNotFoundException(id));
+        Interest i = interestDao.findById(id).orElseThrow(() -> new InterestsNotFoundException());
 
         if (interest != null) {
             i.setName(interest);
