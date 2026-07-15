@@ -1,9 +1,7 @@
 package ar.edu.itba.paw.persistence;
 
 import ar.edu.itba.paw.interfaces.persistence.InterestDao;
-import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.models.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -17,13 +15,6 @@ import static ar.edu.itba.paw.persistence.HibernateDaoUtils.likePattern;
 public class InterestHibernateDao implements InterestDao {
     @PersistenceContext
     private EntityManager em;
-
-    private final UserDao userDao;
-
-    @Autowired
-    public InterestHibernateDao(UserDao userDao) {
-        this.userDao = userDao;
-    }
 
     @Override
     public Optional<Interest> findById(long id) {
@@ -78,12 +69,6 @@ public class InterestHibernateDao implements InterestDao {
     @Override
     public Page<Interest> search(String searchTerm, PageParams pageParams) {
         final String pattern = likePattern(searchTerm);
-
-        final String sql = """
-                SELECT i
-                FROM Interest i
-                WHERE LOWER(i.name) LIKE LOWER( :pattern )
-                """;
 
         final String countSql = """
                 SELECT COUNT(*)
