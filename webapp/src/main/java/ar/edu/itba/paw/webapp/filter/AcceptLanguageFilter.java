@@ -4,11 +4,13 @@ import org.springframework.context.i18n.LocaleContextHolder;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.ext.Provider;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+@PreMatching
 @Provider
 public class AcceptLanguageFilter implements ContainerRequestFilter {
 
