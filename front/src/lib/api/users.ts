@@ -248,10 +248,21 @@ export const buildProfileInfo = async (
     signal?: AbortSignal,
     queryClient?: QueryClient
 ): Promise<Pick<ProfileDetail, "ratingStats" | "university" | "career">> => {
+    const getOptionalLinkedResource = async <T>(fetcher: () => Promise<T | null>) => {
+        try {
+            return await fetcher();
+        } catch (error) {
+            if ((error as { response?: { status?: number } } | undefined)?.response?.status === 404) {
+                return null;
+            }
+            throw error;
+        }
+    };
+
     const [ratingStats, university, career] = await Promise.all([
         getUserRatingStats(user.id, signal),
-        getUniversityByUrl(user.links?.universityUrl, signal, queryClient),
-        getCareerByUrl(user.links?.careerUrl, signal, queryClient),
+        getOptionalLinkedResource(() => getUniversityByUrl(user.links?.universityUrl, signal, queryClient)),
+        getOptionalLinkedResource(() => getCareerByUrl(user.links?.careerUrl, signal, queryClient)),
     ]);
 
     return { ratingStats, university, career };

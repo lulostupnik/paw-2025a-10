@@ -167,6 +167,22 @@ export const getCareerByUrl = async (url?: string | null, signal?: AbortSignal, 
         return response.data;
     }, signal);
 
+const isMissingOptionalRelation = (error: unknown) =>
+    (error as { response?: { status?: number } } | undefined)?.response?.status === 404;
+
+const getOptionalByUrl = async <T>(
+    fetcher: () => Promise<T | null>
+): Promise<T | null> => {
+    try {
+        return await fetcher();
+    } catch (error) {
+        if (isMissingOptionalRelation(error)) {
+            return null;
+        }
+        throw error;
+    }
+};
+
 export const getUserInterests = async (userId: number, signal?: AbortSignal) => {
     const response = await apiClient.get<InterestApi[]>(`/users/${userId}/interests`, { signal, headers: { Accept: ContentTypes.USER_INTEREST_LIST } });
     return response.data ?? [];
@@ -268,8 +284,12 @@ export const buildJourneyCreator = async (
 ): Promise<JourneyCreator> => {
     const user = journey.links?.userUrl ? await getUserByUrl(journey.links.userUrl, signal, queryClient) : null;
     const [creatorUniversity, creatorCareer] = await Promise.all([
-        user?.links?.universityUrl ? getUniversityByUrl(user.links.universityUrl, signal, queryClient) : Promise.resolve(null),
-        user?.links?.careerUrl ? getCareerByUrl(user.links.careerUrl, signal, queryClient) : Promise.resolve(null),
+        user?.links?.universityUrl
+            ? getOptionalByUrl(() => getUniversityByUrl(user.links?.universityUrl, signal, queryClient))
+            : Promise.resolve(null),
+        user?.links?.careerUrl
+            ? getOptionalByUrl(() => getCareerByUrl(user.links?.careerUrl, signal, queryClient))
+            : Promise.resolve(null),
     ]);
     return {
         id: user?.id ?? parseIdFromUrl(journey.links?.userUrl) ?? 0,

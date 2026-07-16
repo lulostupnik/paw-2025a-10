@@ -233,9 +233,23 @@ export const buildEventCreator = async (
     const creator = event.links?.creatorUrl
         ? await getUserByUrl(event.links.creatorUrl, signal, queryClient)
         : null;
+    const getOptionalLinkedResource = async <T>(fetcher: () => Promise<T | null>) => {
+        try {
+            return await fetcher();
+        } catch (error) {
+            if ((error as { response?: { status?: number } } | undefined)?.response?.status === 404) {
+                return null;
+            }
+            throw error;
+        }
+    };
     const [creatorUniversity, creatorCareer] = await Promise.all([
-        creator?.links?.universityUrl ? getUniversityByUrl(creator.links.universityUrl, signal, queryClient) : Promise.resolve(null),
-        creator?.links?.careerUrl ? getCareerByUrl(creator.links.careerUrl, signal, queryClient) : Promise.resolve(null),
+        creator?.links?.universityUrl
+            ? getOptionalLinkedResource(() => getUniversityByUrl(creator.links?.universityUrl, signal, queryClient))
+            : Promise.resolve(null),
+        creator?.links?.careerUrl
+            ? getOptionalLinkedResource(() => getCareerByUrl(creator.links?.careerUrl, signal, queryClient))
+            : Promise.resolve(null),
     ]);
     return {
         id: creator?.id ?? 0,
