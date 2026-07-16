@@ -19,6 +19,7 @@ import type { EventAttendee, EventComment } from "@/types/event";
 import { parseApiDate } from "@/lib/utils/date";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 import type { QueryClient } from "@tanstack/react-query";
+import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 const TAB_PARAM = "tab";
 const ATTENDEES_PAGE_PARAM = "attendeesPage";
@@ -188,6 +189,8 @@ export default function EventDetailPage() {
     const username = getUsername();
     const isOwner = data?.user?.id === userId;
     const admin = isAdmin();
+    const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
+    const currentLocation = `${location.pathname}${location.search}`;
     const canViewAttendees = isOwner;
     const attendanceQuery = useQuery({
         queryKey: ["eventAttendance", id, userId],
@@ -439,8 +442,12 @@ export default function EventDetailPage() {
     }
 
     const handleBack = () => {
+        if (fromState && fromState !== currentLocation) {
+            navigate(fromState);
+            return;
+        }
         const previous = popFromNavigationStack();
-        if (previous && previous !== `${location.pathname}${location.search}`) {
+        if (previous && previous !== currentLocation) {
             navigate(previous);
             return;
         }
@@ -738,7 +745,7 @@ return (
                                                             className="action-menu__item is-danger"
                                                             onClick={() => {
                                                                 setActionMenuOpen(false);
-                                                                pushToNavigationStack(`${location.pathname}${location.search}`);
+                                                                pushToNavigationStack(currentLocation);
                                                             }}
                                                             style={{
                                                                 gap: "12px",
@@ -1117,7 +1124,8 @@ return (
                                                                                     <Link
                                                                                         to={`/reports/event-responses/${response.id}/create`}
                                                                                         className="action-menu__item is-danger"
-                                                                                        onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
+                                                                                        state={{ from: currentLocation }}
+                                                                                        onClick={() => pushToNavigationStack(currentLocation)}
                                                                                         style={{
                                                                                             gap: "10px",
                                                                                         }}

@@ -21,6 +21,7 @@ import type { ProfileInterest } from "@/types/profile";
 import { parseApiDate } from "@/lib/utils/date";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 import type { QueryClient } from "@tanstack/react-query";
+import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 const TIPS_PAGE_PARAM = "tipsPage";
 const COMMENTS_PAGE_PARAM = "commentsPage";
@@ -155,6 +156,7 @@ export default function JourneyDetailPage() {
     const isOwner = data?.user?.id === getUserId();
     const admin = isAdmin();
     const currentUsername = getUsername();
+    const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
     const interestsPageSize = 8;
     const tipsPageSize = TIPS_PAGE_SIZE;
@@ -415,9 +417,15 @@ export default function JourneyDetailPage() {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
+    const currentJourneyLocation = `${location.pathname}${location.search}`;
+
     const handleBack = () => {
+        if (fromState && fromState !== currentJourneyLocation) {
+            navigate(fromState);
+            return;
+        }
         const previous = popFromNavigationStack();
-        if (previous && previous !== `${location.pathname}${location.search}`) {
+        if (previous && previous !== currentJourneyLocation) {
             navigate(previous);
             return;
         }
@@ -427,8 +435,6 @@ export default function JourneyDetailPage() {
         }
         navigate("/journeys");
     };
-
-    const currentJourneyLocation = `${location.pathname}${location.search}`;
 
     const handleCreateTip = () => {
         if (!id) {
@@ -801,7 +807,13 @@ export default function JourneyDetailPage() {
                                             <>
                                                 <div className="journey-events-container">
                                                     {activeEventsPage.content.map((event) => (
-                                                        <Link key={event.id} to={`/events/${event.id}`} className="journey-event-card-link">
+                                                        <Link
+                                                            key={event.id}
+                                                            to={`/events/${event.id}`}
+                                                            state={{ from: currentJourneyLocation }}
+                                                            className="journey-event-card-link"
+                                                            onClick={() => pushToNavigationStack(currentJourneyLocation)}
+                                                        >
                                                             <div className="journey-event-card">
                                                                 <div className="journey-event-left">
                                                                     {event.flyerImageUrl ? (

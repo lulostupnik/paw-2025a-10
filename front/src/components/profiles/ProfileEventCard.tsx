@@ -28,6 +28,7 @@ export default function ProfileEventCard({ event, isOwner = false }: ProfileEven
         <div className="event-card-wrapper">
             <Link
                 to={`/events/${event.id}`}
+                state={{ from: `${location.pathname}${location.search}` }}
                 className="event-card-link"
                 onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
             >

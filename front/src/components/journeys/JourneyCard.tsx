@@ -33,6 +33,7 @@ export default function JourneyCard({ journey }: JourneyCardProps) {
         <div className="event-card-wrapper">
             <Link
                 to={`/journeys/${journey.id}`}
+                state={{ from: `${location.pathname}${location.search}` }}
                 className="event-card-link"
                 onMouseEnter={handlePrefetch}
                 onFocus={handlePrefetch}

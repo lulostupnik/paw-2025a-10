@@ -445,7 +445,11 @@ export default function ReportDetailPage() {
                                                 {report.journey.deleted ? (
                                                     <span className="deleted-badge">{t("report.content.deleted")}</span>
                                                 ) : (
-                                                    <Link to={`/journeys/${report.journey.id}`} className="view-content-link">
+                                                    <Link
+                                                        to={`/journeys/${report.journey.id}`}
+                                                        state={{ from: listReturnPath }}
+                                                        className="view-content-link"
+                                                    >
                                                         {t("report.view.original.content")} ↗
                                                     </Link>
                                                 )}
@@ -472,7 +476,11 @@ export default function ReportDetailPage() {
                                                 {report.event.deleted ? (
                                                     <span className="deleted-badge">{t("report.content.deleted")}</span>
                                                 ) : (
-                                                    <Link to={`/events/${report.event.id}`} className="view-content-link">
+                                                    <Link
+                                                        to={`/events/${report.event.id}`}
+                                                        state={{ from: listReturnPath }}
+                                                        className="view-content-link"
+                                                    >
                                                         {t("report.view.original.content")} ↗
                                                     </Link>
                                                 )}
@@ -503,6 +511,7 @@ export default function ReportDetailPage() {
                                                     ) : report.journeyResponse.journey.id > 0 ? (
                                                         <Link
                                                             to={`/journeys/${report.journeyResponse.journey.id}`}
+                                                            state={{ from: listReturnPath }}
                                                             className="view-content-link"
                                                         >
                                                             {t("report.view.original.content")} ↗
@@ -538,6 +547,7 @@ export default function ReportDetailPage() {
                                                     ) : report.eventResponse.event.id > 0 ? (
                                                         <Link
                                                             to={`/events/${report.eventResponse.event.id}`}
+                                                            state={{ from: listReturnPath }}
                                                             className="view-content-link"
                                                         >
                                                             {t("report.view.original.content")} ↗

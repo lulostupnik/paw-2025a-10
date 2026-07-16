@@ -85,6 +85,7 @@ export default function EventCard({ event }: EventCardProps) {
     return (
         <Link
             to={`/events/${event.id}`}
+            state={{ from: `${location.pathname}${location.search}` }}
             className="listing-card-link"
             onMouseEnter={handlePrefetch}
             onFocus={handlePrefetch}

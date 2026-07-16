@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import type { AdminEvent } from "@/types/admin";
 import AdminTabHeader from "./AdminTabHeader";
@@ -35,6 +35,7 @@ export default function EventsTab({
     isError,
 }: EventsTabProps) {
     const navigate = useNavigate();
+    const location = useLocation();
     const { t } = useI18n();
     const isEmpty = !isLoading && !isError && data.content.length === 0;
     const loadingLabel = t("admin.dashboard.loading", { defaultValue: "Cargando datos..." });
@@ -63,7 +64,10 @@ export default function EventsTab({
                     </thead>
                     <tbody>
                         {data.content.map((event) => (
-                            <ClickableRow key={event.id} onClick={() => navigate(`/events/${event.id}`)}>
+                            <ClickableRow
+                                key={event.id}
+                                onClick={() => navigate(`/events/${event.id}`, { state: { from: `${location.pathname}${location.search}` } })}
+                            >
                                 <td>{event.title}</td>
                                 <td>{event.user.username}</td>
                                 <td>{event.city}</td>

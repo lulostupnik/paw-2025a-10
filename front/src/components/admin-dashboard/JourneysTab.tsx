@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import type { AdminJourney } from "@/types/admin";
 import Pagination from "../listing/Pagination";
@@ -27,6 +27,7 @@ export default function JourneysTab({
     isError,
 }: JourneysTabProps) {
     const navigate = useNavigate();
+    const location = useLocation();
     const { t } = useI18n();
     const isEmpty = !isLoading && !isError && data.content.length === 0;
     const loadingLabel = t("admin.dashboard.loading", { defaultValue: "Cargando datos..." });
@@ -57,7 +58,7 @@ export default function JourneysTab({
                         {data.content.map((journey) => (
                             <ClickableRow
                                 key={journey.id}
-                                onClick={() => navigate(`/journeys/${journey.id}`)}
+                                onClick={() => navigate(`/journeys/${journey.id}`, { state: { from: `${location.pathname}${location.search}` } })}
                             >
                                 <td>{journey.user.username}</td>
                                 <td>{journey.destinationUniversity.city}</td>
