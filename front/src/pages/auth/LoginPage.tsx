@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import { login } from "@/lib/api/auth";
+import { isLoggedIn } from "@/lib/auth/auth";
 import { apiErrorMessage } from "@/lib/api/client";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
@@ -30,6 +31,10 @@ export default function LoginPage() {
     const nav = useNavigate();
     const location = useLocation();
     const next = getNext(location.search);
+
+    if (isLoggedIn()) {
+        return <Navigate to="/explore" replace />;
+    }
 
     const [form, setForm] = useState(initialForm);
     const [touched, setTouched] = useState({ email: false, password: false });

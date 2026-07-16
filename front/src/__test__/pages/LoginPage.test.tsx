@@ -5,6 +5,10 @@ import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LoginPage from "@/pages/auth/LoginPage";
 
+const { mockIsLoggedIn } = vi.hoisted(() => ({
+    mockIsLoggedIn: vi.fn(),
+}));
+
 vi.mock("@/lib/i18n", () => ({
     useI18n: () => ({
         t: (key: string) => key,
@@ -19,6 +23,10 @@ vi.mock("@/lib/i18n", () => ({
 const mockLogin = vi.fn();
 vi.mock("@/lib/api/auth", () => ({
     login: (...args: unknown[]) => mockLogin(...args),
+}));
+
+vi.mock("@/lib/auth/auth", () => ({
+    isLoggedIn: () => mockIsLoggedIn(),
 }));
 
 const mockNavigate = vi.fn();
@@ -48,6 +56,7 @@ function renderLoginPage() {
 describe("LoginPage", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockIsLoggedIn.mockReturnValue(false);
         localStorage.clear();
         sessionStorage.clear();
     });
@@ -153,5 +162,29 @@ describe("LoginPage", () => {
     it("should have remember me checkbox", () => {
         renderLoginPage();
         expect(screen.getByText("remember_me")).toBeInTheDocument();
+    });
+
+    it("redirects logged users to explore instead of rendering the form", async () => {
+        mockIsLoggedIn.mockReturnValue(true);
+        const queryClient = new QueryClient({
+            defaultOptions: { queries: { retry: false } },
+        });
+        const router = createMemoryRouter(
+            [
+                { path: "/login", element: <LoginPage /> },
+                { path: "/explore", element: <div>explore-page</div> },
+            ],
+            { initialEntries: ["/login"] },
+        );
+
+        render(
+            <QueryClientProvider client={queryClient}>
+                <RouterProvider router={router} />
+            </QueryClientProvider>,
+        );
+
+        await screen.findByText("explore-page");
+        expect(router.state.location.pathname).toBe("/explore");
+        expect(screen.queryByText("login.title")).not.toBeInTheDocument();
     });
 });
