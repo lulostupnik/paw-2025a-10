@@ -190,7 +190,7 @@ export default function TopBar() {
                                     <AvatarFallbackIcon size={16} />
                                 )}
                             </span>
-                            <span className="top-bar__profile-name">{username}</span>
+                            <span className="top-bar__profile-name" title={username}>{username}</span>
                             <span className="top-bar__chevron" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />

@@ -479,6 +479,13 @@ h4 { font-size: 1.125rem; }
     flex-wrap: nowrap;
     gap: 0;
   }
+
+  /* En pantallas angostas la toolbar no entra en una linea: sin esto el
+     `flex-shrink: 0` la mantiene en su ancho de contenido y desborda. */
+  .listing-toolbar {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
 }
 
 .listing-content {
@@ -2428,6 +2435,11 @@ textarea.input-control {
 .top-bar__profile-name {
   font-weight: 600;
   color: var(--color-gray-800);
+  /* El username puede no tener puntos de corte y estirar la barra: se acota. */
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .top-bar__chevron {
@@ -4310,6 +4322,9 @@ textarea.input-control {
   flex: 1;
   display: flex;
   justify-content: center;
+  /* Como item flex su min-width por defecto es `auto`, o sea el min-content de
+     lo que contiene: sin esto no baja del ancho de la fila mas larga y desborda. */
+  min-width: 0;
 }
 
 .journey-detail-page .content-container,
@@ -5376,6 +5391,7 @@ textarea.input-control {
 
 .event-detail-page .tabs-container {
   background-color: var(--color-white);
+  overflow-x: auto;
 }
 
 .event-detail-page .tabs-header {
@@ -5383,6 +5399,7 @@ textarea.input-control {
   gap: 0.5rem;
   border-bottom: 1px solid var(--color-gray-200);
   padding: 0 2rem;
+  min-width: max-content;
 }
 
 .event-detail-page .tab-btn {
@@ -6206,6 +6223,7 @@ textarea.input-control {
 
 .profile-page .profile-info {
   margin-bottom: 1.5rem;
+  min-width: 0;
 }
 
 .profile-page .profile-name {
@@ -6214,12 +6232,14 @@ textarea.input-control {
   margin: 0;
   color: var(--color-gray-900);
   letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
 }
 
 .profile-page .profile-username {
   font-size: 1.125rem;
   color: var(--color-gray-500);
   margin: 0.5rem 0 0;
+  overflow-wrap: anywhere;
 }
 
 .profile-page .profile-actions {
