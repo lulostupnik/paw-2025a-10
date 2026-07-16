@@ -2950,12 +2950,14 @@ textarea.input-control {
   font-weight: 700;
   margin: 0 0 0.5rem;
   color: var(--color-gray-900);
+  overflow-wrap: anywhere;
 }
 
 .report-detail-page .journey-card-subtitle {
   font-size: 1.25rem;
   color: var(--color-gray-500);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .report-detail-page .detail-content {
@@ -2981,6 +2983,8 @@ textarea.input-control {
   border-radius: var(--radius-md);
   padding: 1.5rem;
   border: 1px solid var(--color-border);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .report-detail-page .feature-title {
@@ -2997,12 +3001,15 @@ textarea.input-control {
   font-size: 1.125rem;
   line-height: 1.6;
   margin-bottom: 0;
+  overflow-wrap: anywhere;
 }
 
 .report-detail-page .detail-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--color-border);
   margin-top: auto;
@@ -3132,6 +3139,7 @@ textarea.input-control {
 
 .report-detail-page .reported-content {
   margin-top: 0.5rem;
+  overflow-wrap: anywhere;
 }
 
 .report-detail-page .content-preview {
@@ -3141,6 +3149,7 @@ textarea.input-control {
   border: 1px solid var(--color-gray-200);
   font-style: italic;
   margin: 0.5rem 0;
+  overflow-wrap: anywhere;
 }
 
 .report-detail-page .content-meta {
@@ -3150,6 +3159,7 @@ textarea.input-control {
   font-size: 0.875rem;
   color: var(--color-gray-500);
   margin: 0.5rem 0;
+  overflow-wrap: anywhere;
 }
 
 .report-detail-page .parent-content {
@@ -3994,12 +4004,14 @@ textarea.input-control {
   font-weight: 700;
   margin: 0 0 0.5rem;
   color: var(--color-gray-900);
+  overflow-wrap: anywhere;
 }
 
 .entity-detail-page .journey-card-subtitle {
   font-size: 1.25rem;
   color: var(--color-gray-500);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .entity-detail-page .detail-content {
@@ -4024,6 +4036,8 @@ textarea.input-control {
   background-color: var(--color-gray-50);
   border-radius: 0.75rem;
   padding: 1.5rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .entity-detail-page .feature-title {
@@ -4040,6 +4054,7 @@ textarea.input-control {
   font-size: 1.125rem;
   line-height: 1.6;
   margin-bottom: 0;
+  overflow-wrap: anywhere;
 }
 
 .entity-detail-page .profile-picture-container {
@@ -4072,8 +4087,10 @@ textarea.input-control {
 
 .entity-detail-page .detail-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--color-gray-200);
   margin-top: auto;
@@ -4095,6 +4112,7 @@ textarea.input-control {
 
 .entity-detail-page .hero-cta {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   align-items: center;
 }
