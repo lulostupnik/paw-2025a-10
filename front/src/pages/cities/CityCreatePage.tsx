@@ -22,7 +22,6 @@ const initialForm: CityFormState = {
     country: "",
 };
 
-// Campo del ErrorDto de la API → campo del formulario.
 const API_FIELD_TO_FORM_FIELD: Record<string, keyof CityFormState> = {
     name: "name",
     countryId: "country",

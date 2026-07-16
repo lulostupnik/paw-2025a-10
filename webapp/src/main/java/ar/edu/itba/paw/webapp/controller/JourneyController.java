@@ -147,8 +147,6 @@ public class JourneyController {
     }
 
 
-    // ==================== TIPS ====================
-
     @GET
     @Path("/{journeyId}/tips")
     @Produces(GoTogetherMediaType.APPLICATION_TIP_LIST)
@@ -216,8 +214,6 @@ public class JourneyController {
         journeyService.deleteTip(journeyId, tipId);
         return Response.noContent().build();
     }
-
-    // ==================== RESPONSES ====================
 
     @GET
     @Path("/{journeyId}/responses")

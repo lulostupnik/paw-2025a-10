@@ -29,7 +29,6 @@ type JourneyField = keyof JourneyFormState;
 type JourneyErrors = Partial<Record<JourneyField, string>>;
 type JourneyTouched = Partial<Record<JourneyField, boolean>>;
 
-// Campo del ErrorDto de la API → campo del formulario.
 const API_FIELD_TO_FORM_FIELD: Record<string, JourneyField> = {
     startDate: "startDate",
     endDate: "endDate",

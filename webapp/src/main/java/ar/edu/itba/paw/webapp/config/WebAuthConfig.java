@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.Resource;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.http.HttpMethod;
@@ -173,13 +172,13 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint((request, response, ex) -> {
                     response.addHeader("WWW-Authenticate", "Bearer realm=\"GoTogether\"");
                     final String message = messageSource.getMessage("error.unauthorized", null,
-                            "Authentication is required to access this resource.", LocaleContextHolder.getLocale());
+                            "Authentication is required to access this resource.", request.getLocale());
                     writeErrorResponse(response, Response.Status.UNAUTHORIZED, message);
                 })
 
                 .accessDeniedHandler((request, response, ex) -> {
                     final String message = messageSource.getMessage("error.accessDenied", null,
-                            "Access denied. You do not have the necessary permissions.", LocaleContextHolder.getLocale());
+                            "Access denied. You do not have the necessary permissions.", request.getLocale());
                     writeErrorResponse(response, Response.Status.FORBIDDEN, message);
                 })
 

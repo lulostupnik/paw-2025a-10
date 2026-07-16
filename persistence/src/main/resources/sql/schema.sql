@@ -371,5 +371,13 @@ COMMIT;
 -- ALTER TABLE events
 -- DROP COLUMN IF EXISTS attendees_count;
 
--- Allow users to not have a profile picture (nullable)
-ALTER TABLE users ALTER COLUMN profile_picture_id DROP NOT NULL;
+
+-- BEGIN;
+--
+
+-- ALTER TABLE users ALTER COLUMN profile_picture_id DROP NOT NULL;
+-- ALTER TABLE events ALTER COLUMN flyer_image_id DROP NOT NULL;
+-- ALTER TABLE tokens ALTER COLUMN token TYPE varchar(128);
+-- DELETE FROM tokens WHERE length(token) <> 64;
+--
+-- COMMIT;

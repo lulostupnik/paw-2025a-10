@@ -257,7 +257,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<Rating> findRatingsByEventId(long eventId, PageParams pageParams) {
-        eventDao.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+        eventDao.findById(eventId).orElseThrow(() -> {
+            LOGGER.error("Event not found {}", eventId);
+            return new EventNotFoundException();
+        });
         return eventRatingDao.findByEventId(eventId, pageParams);
     }
 

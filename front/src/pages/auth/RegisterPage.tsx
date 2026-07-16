@@ -75,7 +75,6 @@ const initialTouchedState: Record<RegisterField, boolean> = {
     interests: false,
 };
 
-// Campo del ErrorDto de la API → campo del formulario.
 const API_FIELD_TO_FORM_FIELD: Record<string, RegisterField> = {
     email: "email",
     username: "username",

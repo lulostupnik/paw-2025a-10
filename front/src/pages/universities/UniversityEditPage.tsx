@@ -32,7 +32,6 @@ const formatTitleCase = (value: string) =>
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
 
-// Campo del ErrorDto de la API → campo del formulario.
 const API_FIELD_TO_FORM_FIELD: Record<string, keyof UniversityFormState> = {
     name: "name",
     abbreviation: "abbreviation",

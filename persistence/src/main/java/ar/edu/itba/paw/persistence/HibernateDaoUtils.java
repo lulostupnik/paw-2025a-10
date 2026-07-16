@@ -34,9 +34,6 @@ class HibernateDaoUtils {
         return (Math.max(1, pageParams.getPage()) - 1) * pageParams.getSize();
     }
 
-    public static int pageCount(int total, int size) {
-        return (int) Math.ceil((double) total / size);
-    }
     public static <T> Page<T> fetchPageByIds(
             EntityManager em,
             String countSql,

@@ -18,7 +18,6 @@ const initialForm: InterestFormState = {
     name: "",
 };
 
-// Campo del ErrorDto de la API → campo del formulario.
 const API_FIELD_TO_FORM_FIELD: Record<string, keyof InterestFormState> = {
     name: "name",
 };

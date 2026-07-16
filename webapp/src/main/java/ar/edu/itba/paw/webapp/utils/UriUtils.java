@@ -46,8 +46,6 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(USERS_URL).path(String.valueOf(userId)).path("profilePicture").build();
     }
 
-    // ==================== JOURNEYS ====================
-
     public static URI getJourneysUri(final UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(JOURNEYS_URL).build();
     }
@@ -79,8 +77,6 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(JOURNEYS_URL).path(String.valueOf(journeyId))
                 .path("responses").path(String.valueOf(responseId)).build();
     }
-
-    // ==================== EVENTS ====================
 
     public static URI getEventsUri(final UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).build();
@@ -143,8 +139,6 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("statistics").build();
     }
 
-    // ==================== REPORTS ====================
-
     public static URI getReportsUri(final UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(REPORTS_URL).build();
     }
@@ -152,8 +146,6 @@ public final class UriUtils {
     public static URI getReportUri(final UriInfo uriInfo, final long reportId) {
         return uriInfo.getBaseUriBuilder().path(REPORTS_URL).path(String.valueOf(reportId)).build();
     }
-
-    // ==================== INTERESTS ====================
 
     public static URI getInterestsUri(final UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(INTERESTS_URL).build();
@@ -163,8 +155,6 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(INTERESTS_URL).path(String.valueOf(interestId)).build();
     }
 
-    // ==================== UNIVERSITIES ====================
-
     public static URI getUniversitiesUri(final UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(UNIVERSITIES_URL).build();
     }
@@ -172,8 +162,6 @@ public final class UriUtils {
     public static URI getUniversityUri(final UriInfo uriInfo, final long universityId) {
         return uriInfo.getBaseUriBuilder().path(UNIVERSITIES_URL).path(String.valueOf(universityId)).build();
     }
-
-    // ==================== CAREERS ====================
 
     public static URI getCareersUri(final UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(CAREERS_URL).build();
@@ -183,8 +171,6 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(CAREERS_URL).path(String.valueOf(careerId)).build();
     }
 
-    // ==================== CITIES ====================
-
     public static URI getCitiesUri(final UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(CITIES_URL).build();
     }
@@ -192,8 +178,6 @@ public final class UriUtils {
     public static URI getCityUri(final UriInfo uriInfo, final long cityId) {
         return uriInfo.getBaseUriBuilder().path(CITIES_URL).path(String.valueOf(cityId)).build();
     }
-
-    // ==================== COUNTRIES ====================
 
     public static URI getCountriesUri(final UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().path(COUNTRIES_URL).build();

@@ -16,7 +16,6 @@ export interface CityDto {
 
 export interface CityPayload {
     name: string;
-    /** Id of the country resource. */
     countryId: number;
 }
 
