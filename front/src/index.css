@@ -685,21 +685,25 @@ h4 { font-size: 1.125rem; }
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-width: 0;
 }
 
 .listing-card__title {
   margin: 0;
   font-size: 1.1rem;
+  overflow-wrap: anywhere;
 }
 
 .listing-card__subtitle {
   margin: 0;
   color: var(--color-gray-500);
+  overflow-wrap: anywhere;
 }
 
 .listing-card__description {
   margin: 0;
   color: var(--color-gray-600);
+  overflow-wrap: anywhere;
 }
 
 .listing-card__meta {
@@ -712,6 +716,7 @@ h4 { font-size: 1.125rem; }
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  min-width: 0;
 }
 
 .card-meta-icon {
@@ -5132,6 +5137,7 @@ textarea.input-control {
   padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--color-gray-200);
+  min-width: 0;
 }
 
 .journey-detail-page .journey-event-card:hover {
@@ -5159,12 +5165,14 @@ textarea.input-control {
 
 .journey-detail-page .journey-event-content {
   flex: 1;
+  min-width: 0;
 }
 
 .journey-detail-page .journey-event-title {
   margin: 0 0 0.5rem;
   font-size: 1.1rem;
   color: var(--color-gray-900);
+  overflow-wrap: anywhere;
 }
 
 .journey-detail-page .journey-event-meta {
@@ -5180,11 +5188,14 @@ textarea.input-control {
   gap: 0.35rem;
   color: var(--color-gray-600);
   font-size: 0.875rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .journey-detail-page .journey-event-description {
   margin: 0;
   color: var(--color-gray-600);
+  overflow-wrap: anywhere;
 }
 
 .journey-detail-page .journey-event-arrow {
@@ -5786,6 +5797,7 @@ textarea.input-control {
   display: flex;
   gap: 1rem;
   align-items: center;
+  min-width: 0;
 }
 
 .journey-detail-page .creator-avatar-placeholder,
@@ -5815,6 +5827,7 @@ textarea.input-control {
   font-size: 1rem;
   font-weight: 600;
   color: var(--color-gray-900);
+  overflow-wrap: anywhere;
 }
 
 .journey-detail-page .creator-username,
@@ -5822,6 +5835,7 @@ textarea.input-control {
   margin: 0;
   color: var(--color-gray-500);
   font-size: 0.875rem;
+  overflow-wrap: anywhere;
 }
 
 .journey-detail-page .creator-details,
@@ -5839,6 +5853,8 @@ textarea.input-control {
   gap: 0.35rem;
   font-size: 0.875rem;
   color: var(--color-gray-600);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 /* Rating section */
@@ -6895,6 +6911,7 @@ textarea.input-control {
   font-size: 0.875rem;
   color: #6b7280;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .profile-page .event-card-description {
@@ -7997,11 +8014,13 @@ textarea.input-control {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
   overflow: hidden;
 }
 
 .event-card-header {
   margin-bottom: 1rem;
+  min-width: 0;
 }
 
 .event-location h3 {
@@ -8009,6 +8028,7 @@ textarea.input-control {
   font-weight: 600;
   color: #222222;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .event-card-subtitle {
@@ -8018,6 +8038,8 @@ textarea.input-control {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .event-organizer {
@@ -8027,6 +8049,7 @@ textarea.input-control {
   font-size: 0.875rem;
   color: #6b7280;
   margin-top: 0.5rem;
+  min-width: 0;
 }
 
 .event-icon,
@@ -8053,6 +8076,7 @@ textarea.input-control {
   font-size: 0.875rem;
   color: #4b5563;
   margin-bottom: 0.75rem;
+  min-width: 0;
 }
 
 .card-date-range {
