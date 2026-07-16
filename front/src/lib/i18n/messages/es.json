@@ -524,6 +524,7 @@
   "admin.search.events": "Buscar eventos...",
   "admin.column.user": "Usuario",
   "admin.column.name": "Nombre",
+  "admin.column.username": "Usuario",
   "admin.column.email": "Correo Electrónico",
   "admin.column.title": "Título",
   "admin.column.organizer": "Organizador",

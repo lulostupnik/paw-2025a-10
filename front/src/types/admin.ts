@@ -24,6 +24,7 @@ export interface AdminJourney {
 export interface AdminUser {
     id: number;
     firstname: string;
+    username: string;
     email: string;
     university: string;
     blocked: boolean;

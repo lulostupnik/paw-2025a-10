@@ -470,6 +470,7 @@
   "admin.search.events": "Search events...",
   "admin.column.user": "User",
   "admin.column.name": "Name",
+  "admin.column.username": "Username",
   "admin.column.email": "Email",
   "admin.column.title": "Title",
   "admin.column.organizer": "Organizer",

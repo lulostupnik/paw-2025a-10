@@ -31,8 +31,8 @@ vi.mock("@/lib/api/catalog", () => ({
     searchUniversities: vi.fn().mockResolvedValue([]),
 }));
 
-const ACTIVO: AdminUser = { id: 1, firstname: "Ana", email: "ana@t.com", university: "ITBA", blocked: false };
-const BLOQUEADO: AdminUser = { id: 2, firstname: "Beto", email: "beto@t.com", university: "UBA", blocked: true };
+const ACTIVO: AdminUser = { id: 1, firstname: "Ana", username: "ana", email: "ana@t.com", university: "ITBA", blocked: false };
+const BLOQUEADO: AdminUser = { id: 2, firstname: "Beto", username: "beto", email: "beto@t.com", university: "UBA", blocked: true };
 
 const page = (content: AdminUser[]): PageResult<AdminUser> => ({
     content,
@@ -82,6 +82,8 @@ describe("UsersTab", () => {
     it("lista los usuarios que recibe", () => {
         renderTab();
 
+        expect(screen.getByText("@ana")).toBeInTheDocument();
+        expect(screen.getByText("@beto")).toBeInTheDocument();
         expect(screen.getByText("ana@t.com")).toBeInTheDocument();
         expect(screen.getByText("beto@t.com")).toBeInTheDocument();
     });

@@ -104,6 +104,7 @@ export default function UsersTab({
                     <thead>
                         <tr>
                             <th>{t("admin.column.name")}</th>
+                            <th>{t("admin.column.username")}</th>
                             <th>{t("admin.column.email")}</th>
                             <th>{t("admin.column.university")}</th>
                             <th>{t("admin.column.actions")}</th>
@@ -118,6 +119,7 @@ export default function UsersTab({
                                 }}
                             >
                                 <td>{user.firstname}</td>
+                                <td>@{user.username}</td>
                                 <td>{user.email}</td>
                                 <td>{user.university}</td>
                                 <td>

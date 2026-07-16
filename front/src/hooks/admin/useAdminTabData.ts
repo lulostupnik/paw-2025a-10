@@ -128,6 +128,7 @@ export const useAdminUsers = ({
                     return {
                         id: user.id,
                         firstname: user.firstname ?? "",
+                        username: user.username ?? "",
                         email: user.email,
                         university: university?.name ?? "",
                         blocked: user.blocked,
