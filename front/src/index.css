@@ -7440,6 +7440,9 @@ textarea.input-control {
 
 .profile-form-page .profile-picture-section {
   display: grid;
+  /* Sin esto la columna implícita es `auto` y crece hasta el max-content: un
+     nombre de archivo largo estira la grilla y desborda la tarjeta. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
 }
@@ -7514,6 +7517,7 @@ textarea.input-control {
   align-items: center;
   gap: 0.75rem;
   margin-top: 1rem;
+  max-width: 100%;
 }
 
 .profile-form-page .file-preview-image {
@@ -7521,11 +7525,17 @@ textarea.input-control {
   height: 48px;
   border-radius: 0.5rem;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .profile-form-page .file-preview-name {
   font-size: 0.875rem;
   color: #6b7280;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-form-page .file-preview-remove {
@@ -7533,6 +7543,7 @@ textarea.input-control {
   border: none;
   color: #ef4444;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .profile-password-page .password-field-container {

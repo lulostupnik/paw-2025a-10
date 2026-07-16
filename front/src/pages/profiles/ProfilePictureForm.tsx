@@ -127,7 +127,9 @@ export default function ProfilePictureForm() {
                                             className="file-preview-image"
                                             alt={t("profile.picture.preview.alt")}
                                         />
-                                        <span className="file-preview-name">{picture.file.name}</span>
+                                        <span className="file-preview-name" title={picture.file.name}>
+                                            {picture.file.name}
+                                        </span>
                                         <button
                                             type="button"
                                             className="file-preview-remove"
