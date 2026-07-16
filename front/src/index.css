@@ -3237,6 +3237,7 @@ textarea.input-control {
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+  overflow-wrap: anywhere;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
@@ -3244,14 +3245,17 @@ textarea.input-control {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   margin-bottom: 20px;
 }
 
 .report-detail-page .modal-header h2 {
   margin: 0;
+  min-width: 0;
   font-size: 20px;
   font-weight: 600;
   color: #111111;
+  overflow-wrap: anywhere;
 }
 
 .report-detail-page .close-modal {
@@ -3275,10 +3279,12 @@ textarea.input-control {
 
 .report-detail-page .modal-body {
   margin-bottom: 24px;
+  overflow-wrap: anywhere;
 }
 
 .report-detail-page .modal-footer {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   justify-content: flex-end;
 }
@@ -3287,6 +3293,7 @@ textarea.input-control {
   color: #dc2626;
   font-weight: 500;
   margin-top: 12px;
+  overflow-wrap: anywhere;
 }
 
 .report-detail-page .status-badge {
@@ -3785,6 +3792,9 @@ textarea.input-control {
   border-radius: var(--radius-md);
   width: 90%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
   box-shadow: var(--shadow-card);
   animation: modalFadeIn 0.3s ease;
 }
@@ -3806,6 +3816,7 @@ textarea.input-control {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .admin-dashboard .modal-header h2 {
@@ -3813,6 +3824,8 @@ textarea.input-control {
   font-weight: 600;
   color: var(--color-gray-900);
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .admin-dashboard .close-modal {
@@ -3831,6 +3844,7 @@ textarea.input-control {
 
 .admin-dashboard .modal-body {
   padding: 1.5rem;
+  overflow-wrap: anywhere;
 }
 
 .admin-dashboard .warning-text {
@@ -3840,12 +3854,14 @@ textarea.input-control {
   padding: 0.75rem;
   background-color: #fee2e2;
   border-radius: 0.5rem;
+  overflow-wrap: anywhere;
 }
 
 .admin-dashboard .modal-footer {
   padding: 1.5rem;
   border-top: 1px solid var(--color-gray-200);
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 1rem;
 }
@@ -4150,6 +4166,9 @@ textarea.input-control {
   border-radius: var(--radius-md);
   width: 90%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
   box-shadow: var(--shadow-card);
 }
 
@@ -4159,6 +4178,7 @@ textarea.input-control {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .entity-detail-page .modal-header h2 {
@@ -4166,6 +4186,8 @@ textarea.input-control {
   font-weight: 600;
   color: var(--color-gray-900);
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .entity-detail-page .close-modal {
@@ -4184,6 +4206,7 @@ textarea.input-control {
 
 .entity-detail-page .modal-body {
   padding: 1.5rem;
+  overflow-wrap: anywhere;
 }
 
 .entity-detail-page .warning-text {
@@ -4193,12 +4216,14 @@ textarea.input-control {
   padding: 0.75rem;
   background-color: #fee2e2;
   border-radius: 0.5rem;
+  overflow-wrap: anywhere;
 }
 
 .entity-detail-page .modal-footer {
   padding: 1.5rem;
   border-top: 1px solid var(--color-gray-200);
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 1rem;
 }

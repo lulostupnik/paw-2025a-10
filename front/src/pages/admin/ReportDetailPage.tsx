@@ -104,11 +104,15 @@ export default function ReportDetailPage() {
     const { id } = useParams();
     const location = useLocation();
     const queryClient = useQueryClient();
-    const stateReport = (location.state as { report?: ReportDetail } | null)?.report ?? null;
-    const [report, setReport] = useState<ReportDetail | null>(stateReport);
+    const reportId = id ? Number(id) : null;
+    const navigationState = location.state as { report?: ReportDetail; from?: string } | null;
+    const stateReport = navigationState?.report ?? null;
+    const listReturnPath = navigationState?.from ?? REPORTS_LIST_PATH;
+    const matchingStateReport = stateReport && reportId === stateReport.id ? stateReport : null;
+    const [report, setReport] = useState<ReportDetail | null>(matchingStateReport);
     // Sólo hay carga pendiente si el reporte no vino en el state de navegación y
     // además hay un id que buscar.
-    const [loading, setLoading] = useState(!stateReport && Boolean(id));
+    const [loading, setLoading] = useState(!matchingStateReport && Boolean(id));
     const [errorMessage, setErrorMessage] = useState("");
     const [actionError, setActionError] = useState("");
     const [blockModalOpen, setBlockModalOpen] = useState(false);
@@ -117,7 +121,13 @@ export default function ReportDetailPage() {
     const actionsButtonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        if (stateReport || !id) {
+        setReport(matchingStateReport);
+        setErrorMessage("");
+        setLoading(!matchingStateReport && Boolean(id));
+    }, [id, matchingStateReport]);
+
+    useEffect(() => {
+        if (matchingStateReport || !id) {
             return;
         }
 
@@ -149,7 +159,7 @@ export default function ReportDetailPage() {
             active = false;
             controller.abort();
         };
-    }, [id, stateReport, t]);
+    }, [id, matchingStateReport, t]);
 
     if (!isAdmin()) {
         return <ForbiddenPage />;
@@ -265,7 +275,7 @@ export default function ReportDetailPage() {
             setDeleteModalOpen(false);
             queryClient.invalidateQueries({ queryKey: ["reports"] });
             queryClient.invalidateQueries({ queryKey: ["report", report.id] });
-            navigate(REPORTS_LIST_PATH, { replace: true });
+            navigate(listReturnPath, { replace: true });
         } catch (error) {
             console.error("Failed to delete report", error);
             setActionError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
@@ -555,7 +565,7 @@ export default function ReportDetailPage() {
                             </div>
 
                             <div className="detail-actions">
-                                <Link to={REPORTS_LIST_PATH} className="btn-text">
+                                <Link to={listReturnPath} className="btn-text">
                                     {t("report.back")}
                                 </Link>
 

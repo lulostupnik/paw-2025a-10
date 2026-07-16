@@ -128,11 +128,17 @@ describe("ReportsTab", () => {
     });
 
     it("el click en la fila abre el detalle del reporte", async () => {
-        renderTab({ data: page([report({ id: 42 })]) });
+        const selectedReport = report({ id: 42 });
+        renderTab({ data: page([selectedReport]) });
 
         await userEvent.click(screen.getByText("@acusado"));
 
-        expect(navigate).toHaveBeenCalledWith("/reports/42");
+        expect(navigate).toHaveBeenCalledWith("/reports/42", {
+            state: {
+                from: "/",
+                report: selectedReport,
+            },
+        });
     });
 
     it("muestra carga y error", () => {

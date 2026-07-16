@@ -49,11 +49,11 @@ export default function CareerDetailPage() {
                             </div>
 
                             <div className="detail-content">
-                                <h2 className="section-title-landing">{t("interest.detail.information")}</h2>
+                                <h2 className="section-title-landing">{t("career.detail.information")}</h2>
 
                                 <div className="features-grid">
                                     <div className="feature-card">
-                                        <h3 className="feature-title">{t("interest.detail.name")}</h3>
+                                        <h3 className="feature-title">{t("career.detail.name")}</h3>
                                         <p className="feature-description">{career.name}</p>
                                     </div>
                                 </div>
@@ -65,7 +65,7 @@ export default function CareerDetailPage() {
                                 </Link>
                                 <div className="hero-cta">
                                     <Link to={`/careers/${id}/edit`} className="cta-button primary">
-                                        {t("interest.detail.edit")}
+                                        {t("career.detail.edit")}
                                     </Link>
                                     <button type="button" className="cta-button delete-button" onClick={() => setModalOpen(true)}>
                                         {t("career.detail.delete")}
@@ -90,18 +90,18 @@ export default function CareerDetailPage() {
                 >
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h2>{t("interest.delete.confirm.title")}</h2>
+                            <h2>{t("career.delete.confirm.title")}</h2>
                             <button type="button" className="close-modal" aria-label={t("common.close")} onClick={() => setModalOpen(false)}>
                                 &times;
                             </button>
                         </div>
                         <div className="modal-body">
-                            <p>{t("interest.delete.confirm.message")}</p>
-                            <p className="warning-text">{t("interest.delete.confirm.warning")}</p>
+                            <p>{t("career.delete.confirm.message")}</p>
+                            <p className="warning-text">{t("career.delete.confirm.warning")}</p>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="cta-button secondary" onClick={() => setModalOpen(false)}>
-                                {t("interest.delete.cancel")}
+                                {t("career.delete.cancel")}
                             </button>
                             <button
                                 type="button"
@@ -126,7 +126,7 @@ export default function CareerDetailPage() {
                                     }
                                 }}
                             >
-                                {t("interest.delete.confirm")}
+                                {t("career.delete.confirm")}
                             </button>
                         </div>
                         {actionError && <p className="error-message">{actionError}</p>}

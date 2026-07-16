@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import type { ReportListItem } from "@/lib/api/reports";
 import Pagination from "../listing/Pagination";
@@ -108,6 +108,7 @@ export default function ReportsTab({
     isError,
 }: ReportsTabProps) {
     const navigate = useNavigate();
+    const location = useLocation();
     const { t, locale } = useI18n();
     const isEmpty = !isLoading && !isError && data.content.length === 0;
     const loadingLabel = t("admin.dashboard.loading", { defaultValue: "Cargando datos..." });
@@ -143,7 +144,17 @@ export default function ReportsTab({
                                 ? normalizeDescription(report.description)
                                 : t("report.no.additional.details");
                             return (
-                                <ClickableRow key={report.id} onClick={() => navigate(`/reports/${report.id}`)}>
+                                <ClickableRow
+                                    key={report.id}
+                                    onClick={() =>
+                                        navigate(`/reports/${report.id}`, {
+                                            state: {
+                                                report,
+                                                from: `${location.pathname}${location.search}`,
+                                            },
+                                        })
+                                    }
+                                >
                                     <td>
                                         <div className="report-user">
                                             <span>@{report.reportedUser.username}</span>

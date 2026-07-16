@@ -20,7 +20,11 @@ vi.mock("@/lib/i18n", () => ({
 }));
 
 const updateUserBlocked = vi.fn();
-vi.mock("@/lib/api/users", () => ({ updateUserBlocked: (...args: unknown[]) => updateUserBlocked(...args) }));
+const invalidateUserViewQueries = vi.fn();
+vi.mock("@/lib/api/users", () => ({
+    updateUserBlocked: (...args: unknown[]) => updateUserBlocked(...args),
+    invalidateUserViewQueries: (...args: unknown[]) => invalidateUserViewQueries(...args),
+}));
 vi.mock("@/lib/api/catalog", () => ({
     searchCareers: vi.fn().mockResolvedValue([]),
     searchInterests: vi.fn().mockResolvedValue([]),
@@ -72,6 +76,7 @@ describe("UsersTab", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         updateUserBlocked.mockResolvedValue(undefined);
+        invalidateUserViewQueries.mockResolvedValue(undefined);
     });
 
     it("lista los usuarios que recibe", () => {

@@ -1,12 +1,12 @@
 import { apiErrorMessage } from "@/lib/api/client";
 import { useEffect, useId, useState, type MouseEvent } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { classNames } from "@/lib/utils/classNames";
 import { useI18n } from "@/lib/i18n";
 import { searchCareers, searchInterests, searchUniversities, type CatalogOption, type CatalogSearchFn } from "@/lib/api/catalog";
 import { EMPTY_ADMIN_USER_FILTERS, type AdminUser, type AdminUserFilters } from "@/types/admin";
-import { updateUserBlocked } from "@/lib/api/users";
+import { invalidateUserViewQueries, updateUserBlocked } from "@/lib/api/users";
 import Pagination from "../listing/Pagination";
 import AdminTabHeader from "./AdminTabHeader";
 import ClickableRow from "./ClickableRow";
@@ -52,6 +52,7 @@ export default function UsersTab({
     onResetFilters,
 }: UsersTabProps) {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { t } = useI18n();
     const [modalState, setModalState] = useState<ModalState | null>(null);
     const [filtersOpen, setFiltersOpen] = useState(false);
@@ -211,6 +212,7 @@ export default function UsersTab({
                                     setActionSubmitting(true);
                                     try {
                                         await updateUserBlocked(modalState.user.id, modalState.action === "block");
+                                        await invalidateUserViewQueries(queryClient, modalState.user.id);
                                         onRefresh();
                                         closeModal();
                                     } catch (error) {
