@@ -75,6 +75,12 @@ export default function EmailVerificationPage() {
         };
     }, [token, userId, email]);
 
+    useEffect(() => {
+        if (status === "success") {
+            navigate("/explore", { replace: true });
+        }
+    }, [navigate, status]);
+
     const renderStatusCard = () => {
         switch (status) {
             case "loading":
@@ -91,16 +97,6 @@ export default function EmailVerificationPage() {
                         variant="success"
                         title={t("verification.success.title")}
                         description={t("verification.success.description")}
-                        actions={
-                            <>
-                                <Button onClick={() => navigate("/login")}>
-                                    {t("verification.actions.login")}
-                                </Button>
-                                <Button variant="ghost" onClick={() => navigate("/explore")}>
-                                    {t("verification.actions.explore")}
-                                </Button>
-                            </>
-                        }
                     >
                         <ul className="status-card__list">
                             <li>{t("validated.feature1.description")}</li>
