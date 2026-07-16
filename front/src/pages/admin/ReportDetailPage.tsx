@@ -9,7 +9,7 @@ import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import ErrorState from "@/components/ErrorState";
 import { deleteEvent, deleteEventResponse } from "@/lib/api/events";
 import { deleteJourney, deleteJourneyResponse } from "@/lib/api/journeys";
-import { deleteReport, getReportDetail, updateReportStatus, type ReportDetail, type ReportStatus } from "@/lib/api/reports";
+import { deleteReport, getReportDetail, updateReportStatus, type ReportDetail, type ReportListItem, type ReportStatus } from "@/lib/api/reports";
 import { invalidateUserViewQueries, updateUserBlocked } from "@/lib/api/users";
 import ActionMenu, { type ActionMenuItem } from "@/components/ui/ActionMenu";
 import PageStatus from "@/components/ui/PageStatus";
@@ -98,6 +98,9 @@ const getContentBadge = (report: ReportDetail, t: (key: string, options?: { defa
     return null;
 };
 
+const hasResolvedReportContent = (report: ReportDetail | ReportListItem | null): report is ReportDetail =>
+    Boolean(report && ("journey" in report || "event" in report || "journeyResponse" in report || "eventResponse" in report));
+
 export default function ReportDetailPage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
@@ -105,14 +108,15 @@ export default function ReportDetailPage() {
     const location = useLocation();
     const queryClient = useQueryClient();
     const reportId = id ? Number(id) : null;
-    const navigationState = location.state as { report?: ReportDetail; from?: string } | null;
+    const navigationState = location.state as { report?: ReportDetail | ReportListItem; from?: string } | null;
     const stateReport = navigationState?.report ?? null;
     const listReturnPath = navigationState?.from ?? REPORTS_LIST_PATH;
     const matchingStateReport = stateReport && reportId === stateReport.id ? stateReport : null;
-    const [report, setReport] = useState<ReportDetail | null>(matchingStateReport);
-    // Sólo hay carga pendiente si el reporte no vino en el state de navegación y
-    // además hay un id que buscar.
-    const [loading, setLoading] = useState(!matchingStateReport && Boolean(id));
+    const initialReport = hasResolvedReportContent(matchingStateReport) ? matchingStateReport : null;
+    const [report, setReport] = useState<ReportDetail | null>(initialReport);
+    // Si venimos desde la lista, el state sólo trae el resumen del reporte; igual
+    // hace falta buscar el detalle completo para resolver el contenido reportado.
+    const [loading, setLoading] = useState(Boolean(id) && !hasResolvedReportContent(matchingStateReport));
     const [errorMessage, setErrorMessage] = useState("");
     const [actionError, setActionError] = useState("");
     const [blockModalOpen, setBlockModalOpen] = useState(false);
@@ -121,13 +125,13 @@ export default function ReportDetailPage() {
     const actionsButtonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        setReport(matchingStateReport);
+        setReport(hasResolvedReportContent(matchingStateReport) ? matchingStateReport : null);
         setErrorMessage("");
-        setLoading(!matchingStateReport && Boolean(id));
+        setLoading(Boolean(id) && !hasResolvedReportContent(matchingStateReport));
     }, [id, matchingStateReport]);
 
     useEffect(() => {
-        if (matchingStateReport || !id) {
+        if (!id || hasResolvedReportContent(matchingStateReport)) {
             return;
         }
 

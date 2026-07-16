@@ -12,7 +12,7 @@ import { createJourneyResponse, getCityByUrl, getJourneyResponses, getUserByUrl,
 import { fetchEvents, type EventDto } from "@/lib/api/events";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import { getUserInterests } from "@/lib/api/users";
-import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
+import { consumeNavigationEntry, popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 import NotFoundPage from "@/pages/errors/NotFoundPage";
@@ -421,7 +421,8 @@ export default function JourneyDetailPage() {
 
     const handleBack = () => {
         if (fromState && fromState !== currentJourneyLocation) {
-            navigate(fromState);
+            consumeNavigationEntry(fromState);
+            navigate(fromState, { replace: true });
             return;
         }
         const previous = popFromNavigationStack();

@@ -10,7 +10,7 @@ import LoginRequiredModal from "@/components/LoginRequiredModal";
 import NotFoundPage from "@/pages/errors/NotFoundPage";
 import PageStatus from "@/components/ui/PageStatus";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
-import { popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
+import { consumeNavigationEntry, popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { attendEvent, createEventRating, createEventResponse, deleteEventRating, getEventAttendance, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
@@ -443,7 +443,8 @@ export default function EventDetailPage() {
 
     const handleBack = () => {
         if (fromState && fromState !== currentLocation) {
-            navigate(fromState);
+            consumeNavigationEntry(fromState);
+            navigate(fromState, { replace: true });
             return;
         }
         const previous = popFromNavigationStack();

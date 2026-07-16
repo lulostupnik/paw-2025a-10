@@ -48,6 +48,20 @@ export const peekNavigationStack = (): string | null => {
     return stack.length > 0 ? stack[stack.length - 1] : null;
 };
 
+export const consumeNavigationEntry = (expectedPath: string | null | undefined): boolean => {
+    const safePath = sanitizeInternalPath(expectedPath);
+    if (!safePath) {
+        return false;
+    }
+    const stack = getNavigationStack();
+    if (stack[stack.length - 1] !== safePath) {
+        return false;
+    }
+    stack.pop();
+    setNavigationStack(stack);
+    return true;
+};
+
 export const clearNavigationStack = () => {
     sessionStorage.removeItem(STORAGE_KEY);
 };
