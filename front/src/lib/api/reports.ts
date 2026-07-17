@@ -126,6 +126,7 @@ export interface ReportDetail {
         journey: {
             id: number;
             user: { username: string };
+            deleted: boolean;
         };
     } | null;
     eventResponse?: {
@@ -136,6 +137,7 @@ export interface ReportDetail {
         event: {
             id: number;
             title: string;
+            deleted: boolean;
         };
     } | null;
 }
@@ -335,6 +337,7 @@ export const getReportDetail = async (id: number, signal?: AbortSignal): Promise
                   journey: {
                       id: parseIdFromUrl(journeyResponseData.links?.journeyUrl) ?? 0,
                       user: { username: journeyResponseOwner?.username ?? "—" },
+                      deleted: Boolean(journeyResponseData.links?.journeyUrl) && !journeyResponseJourney,
                   },
               }
             : null,
@@ -347,6 +350,7 @@ export const getReportDetail = async (id: number, signal?: AbortSignal): Promise
                   event: {
                       id: parseIdFromUrl(eventResponseData.links?.eventUrl) ?? 0,
                       title: eventResponseEvent?.title ?? "—",
+                      deleted: Boolean(eventResponseData.links?.eventUrl) && !eventResponseEvent,
                   },
               }
             : null,

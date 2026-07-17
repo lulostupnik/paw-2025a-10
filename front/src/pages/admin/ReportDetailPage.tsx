@@ -532,7 +532,7 @@ export default function ReportDetailPage() {
                                                 <div className="parent-content">
                                                     <h5>{t("report.detail.parent.journey")}:</h5>
                                                     <p>{report.journeyResponse.journey.user.username}</p>
-                                                    {report.journeyResponse.deleted ? (
+                                                    {report.journeyResponse.deleted || report.journeyResponse.journey.deleted ? (
                                                         <span className="deleted-badge">{t("report.content.deleted")}</span>
                                                     ) : report.journeyResponse.journey.id > 0 ? (
                                                         <Link
@@ -568,7 +568,7 @@ export default function ReportDetailPage() {
                                                 <div className="parent-content">
                                                     <h5>{t("report.detail.parent.event")}:</h5>
                                                     <p>{report.eventResponse.event.title}</p>
-                                                    {report.eventResponse.deleted ? (
+                                                    {report.eventResponse.deleted || report.eventResponse.event.deleted ? (
                                                         <span className="deleted-badge">{t("report.content.deleted")}</span>
                                                     ) : report.eventResponse.event.id > 0 ? (
                                                         <Link
