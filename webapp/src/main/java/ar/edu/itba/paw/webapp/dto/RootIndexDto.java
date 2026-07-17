@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RootIndexDto {
 
-    // Top-level collection URLs
     private String usersUrl;
     private String eventsUrl;
     private String journeysUrl;
@@ -22,7 +21,6 @@ public class RootIndexDto {
     private String citiesUrl;
     private String countriesUrl;
 
-    // By-ID URI templates
     private String userByIdUrl;
     private String eventByIdUrl;
     private String journeyByIdUrl;
@@ -33,13 +31,11 @@ public class RootIndexDto {
     private String cityByIdUrl;
     private String countryByIdUrl;
 
-    // User sub-resources
     private String userInterestsUrl;
     private String userInterestByIdUrl;
     private String userRatingUrl;
     private String userProfilePictureUrl;
 
-    // Event sub-resources
     private String eventFlyerUrl;
     private String eventResponsesUrl;
     private String eventResponseByIdUrl;
@@ -49,7 +45,6 @@ public class RootIndexDto {
     private String eventRatingByIdUrl;
     private String eventStatisticsUrl;
 
-    // Journey sub-resources
     private String journeyTipsUrl;
     private String journeyTipByIdUrl;
     private String journeyResponsesUrl;
@@ -59,7 +54,6 @@ public class RootIndexDto {
         final RootIndexDto dto = new RootIndexDto();
         final String baseUri = uriInfo.getBaseUri().toString();
 
-        // Top-level collection URLs with query param templates
         dto.usersUrl = baseUri + "users{?attendingEvent,university,career,interest,search,blocked,page,size}";
         dto.eventsUrl = baseUri + "events{?recommendedForUser,top,destination,interest,afterDate,beforeDate,search,sort,direction,page,size,attendedBy,university,minRating,hasCapacity,creatorId}";
         dto.journeysUrl = baseUri + "journeys{?recommendedForUser,city,university,startDate,endDate,interest,upcoming,past,ongoing,destinationCity,excludeUser,search,sort,direction,page,size}";
@@ -72,7 +66,6 @@ public class RootIndexDto {
         dto.citiesUrl = baseUri + "cities{?search,page,size}";
         dto.countriesUrl = baseUri + "countries";
 
-        // By-ID URI templates
         dto.userByIdUrl = baseUri + "users/{id}";
         dto.eventByIdUrl = baseUri + "events/{id}";
         dto.journeyByIdUrl = baseUri + "journeys/{id}";
@@ -83,13 +76,11 @@ public class RootIndexDto {
         dto.cityByIdUrl = baseUri + "cities/{id}";
         dto.countryByIdUrl = baseUri + "countries/{id}";
 
-        // User sub-resources
         dto.userInterestsUrl = baseUri + "users/{id}/interests{?page,size}";
         dto.userInterestByIdUrl = baseUri + "users/{userId}/interests/{interestId}";
         dto.userRatingUrl = baseUri + "users/{id}/rating";
         dto.userProfilePictureUrl = baseUri + "users/{id}/profilePicture";
 
-        // Event sub-resources
         dto.eventFlyerUrl = baseUri + "events/{id}/flyer";
         dto.eventResponsesUrl = baseUri + "events/{id}/responses{?page,size}";
         dto.eventResponseByIdUrl = baseUri + "events/{eventId}/responses/{responseId}";
@@ -99,7 +90,6 @@ public class RootIndexDto {
         dto.eventRatingByIdUrl = baseUri + "events/{eventId}/ratings/{ratingId}";
         dto.eventStatisticsUrl = baseUri + "events/{id}/statistics";
 
-        // Journey sub-resources
         dto.journeyTipsUrl = baseUri + "journeys/{id}/tips{?search,page,size}";
         dto.journeyTipByIdUrl = baseUri + "journeys/{journeyId}/tips/{tipId}";
         dto.journeyResponsesUrl = baseUri + "journeys/{id}/responses{?page,size}";
@@ -108,7 +98,6 @@ public class RootIndexDto {
         return dto;
     }
 
-    // Top-level collection getters
     public String getUsersUrl() { return usersUrl; }
 
     public String getEventsUrl() { return eventsUrl; }
@@ -131,7 +120,6 @@ public class RootIndexDto {
 
     public String getCountriesUrl() { return countriesUrl; }
 
-    // By-ID URI template getters
     public String getUserByIdUrl() { return userByIdUrl; }
 
     public String getEventByIdUrl() { return eventByIdUrl; }
@@ -150,7 +138,6 @@ public class RootIndexDto {
 
     public String getCountryByIdUrl() { return countryByIdUrl; }
 
-    // User sub-resource getters
     public String getUserInterestsUrl() { return userInterestsUrl; }
 
     public String getUserInterestByIdUrl() { return userInterestByIdUrl; }
@@ -159,7 +146,6 @@ public class RootIndexDto {
 
     public String getUserProfilePictureUrl() { return userProfilePictureUrl; }
 
-    // Event sub-resource getters
     public String getEventFlyerUrl() { return eventFlyerUrl; }
 
     public String getEventResponsesUrl() { return eventResponsesUrl; }
@@ -176,7 +162,6 @@ public class RootIndexDto {
 
     public String getEventStatisticsUrl() { return eventStatisticsUrl; }
 
-    // Journey sub-resource getters
     public String getJourneyTipsUrl() { return journeyTipsUrl; }
 
     public String getJourneyTipByIdUrl() { return journeyTipByIdUrl; }

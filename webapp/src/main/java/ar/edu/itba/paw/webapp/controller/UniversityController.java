@@ -37,8 +37,6 @@ public class UniversityController {
     @Produces(GoTogetherMediaType.APPLICATION_UNIVERSITY_LIST)
     public Response listUniversities(
             @Context Request req,
-            // @QueryParam("city") Long cityId, --> por lo menos por ahora no
-            // @QueryParam("country") Long countryId, --> idem
             @QueryParam("search") String search,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size

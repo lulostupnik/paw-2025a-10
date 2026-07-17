@@ -56,7 +56,6 @@ public class EventController {
             @QueryParam("interest") String interest,
             @QueryParam("afterDate") String afterDateStr,
             @QueryParam("beforeDate") String beforeDateStr,
-            // @QueryParam("attending") @DefaultValue("false") boolean attending, --> usar attendedBy
             @QueryParam("search") String search,
             @QueryParam("sort") String sort,
             @QueryParam("direction") String direction,

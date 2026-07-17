@@ -15,7 +15,6 @@ public class UserRatingDto {
 
     private Double attendedEventsRating;
     private Double hostedEventsRating;
-    // private int totalRatings;
     private Links links;
 
     public static UserRatingDto fromUserRating(final UriInfo uriInfo, final UserRating rating) {

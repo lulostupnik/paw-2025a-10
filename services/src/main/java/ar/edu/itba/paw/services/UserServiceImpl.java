@@ -269,7 +269,6 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    // todo: ¿esta bien retornar la imagen? ¿o devolvemos a que retorne long/void?
     @Override
     @Transactional
     public Image updateProfilePicture(final long userId, final byte[] profilePicture) {

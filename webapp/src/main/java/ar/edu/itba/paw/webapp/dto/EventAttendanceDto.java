@@ -14,7 +14,6 @@ import java.util.List;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class EventAttendanceDto {
-    // TODO: El DTO puede estar "vacío"? O deberíamos poner acá userId y eventId o algo por el estilo?
 
     private Links links;
 

@@ -9,7 +9,6 @@ public class ValidImageValidator implements ConstraintValidator<ValidImage, byte
 
     @Override
     public void initialize(ValidImage constraintAnnotation) {
-        // No initialization needed
     }
 
     @Override

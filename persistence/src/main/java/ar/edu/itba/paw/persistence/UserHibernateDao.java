@@ -63,14 +63,10 @@ public class UserHibernateDao implements UserDao {
                               Long careerId,
                               Long interestId,
                              Boolean blocked) {
-            // 1) Partes acumulables
             final List<String> joins = new ArrayList<>();
             final List<String> predicates = new ArrayList<>();
             final Map<String, Object> parameters = new HashMap<>();
 
-            // 2) Filtros
-
-            // --- SEARCH (requiere join con universities para un.name)
             if (search != null && !search.isBlank()) {
                 maybeAddJoin(joins, "JOIN universities un ON u.university = un.id");
 
@@ -85,16 +81,13 @@ public class UserHibernateDao implements UserDao {
                 parameters.put("pattern", pattern);
             }
 
-            // --- attendingEventId (requiere join event_attendances)
             if (attendingEventId != null) {
                 maybeAddJoin(joins, "JOIN event_attendances ea ON u.id = ea.user_id");
                 predicates.add("ea.event_id = :attendingEventId");
                 parameters.put("attendingEventId", attendingEventId);
             }
 
-            // --- Ejemplos de otros filtros que ya tenés (ajustá columnas/tablas reales)
             if (universityId != null) {
-                // si u.university es FK directa (id), no necesitás join:
                 predicates.add("u.university = :universityId");
                 parameters.put("universityId", universityId);
             }
@@ -104,7 +97,6 @@ public class UserHibernateDao implements UserDao {
                 parameters.put("blocked", blocked);
             }
 
-            // Si careerId/interestId dependen de tablas puente, hacés join + predicate:
             if (careerId != null) {
                 predicates.add("u.career_id = :careerId");
                 parameters.put("careerId", careerId);
@@ -116,7 +108,6 @@ public class UserHibernateDao implements UserDao {
                 parameters.put("interestId", interestId);
             }
 
-            // 3) Build final SQL (count + ids) sin riesgo de orden
             final String baseFrom = "FROM users u\n";
             final String joinSql = joins.isEmpty() ? "" : String.join("\n", joins) + "\n";
             final String whereSql = predicates.isEmpty()
@@ -146,7 +137,6 @@ public class UserHibernateDao implements UserDao {
 
 
 
-    /** Evita duplicar joins si dos filtros requieren el mismo */
     private static void maybeAddJoin(List<String> joins, String join) {
         if (!joins.contains(join)) joins.add(join);
     }
