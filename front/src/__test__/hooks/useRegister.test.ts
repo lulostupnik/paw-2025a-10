@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook, act } from "../setup/utils";
 import { useRegister } from "@/hooks/useRegister";
+import { noop } from "@/lib/utils/noop";
 
 describe("useRegister", () => {
     beforeEach(() => {
@@ -47,6 +48,7 @@ describe("useRegister", () => {
                     email: "conflict@example.com",
                 });
             } catch {
+                noop();
             }
         });
 

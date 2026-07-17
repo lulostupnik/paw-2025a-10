@@ -1,6 +1,7 @@
 import { apiClient, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import { getAuthToken, setAuthTokens, setSession } from "@/lib/auth/auth";
+import { noop } from "@/lib/utils/noop";
 
 export interface LoginCredentials {
     email: string;
@@ -142,6 +143,7 @@ async function hydrateSessionFromStoredToken(signal?: AbortSignal): Promise<void
         const username = data.username ?? email;
         setSession({ username, email, isAdmin: data.isAdmin ?? false, userId: data.id, profilePictureUrl: data.links?.profilePictureUrl ?? null });
     } catch {
+        noop();
     }
 }
 

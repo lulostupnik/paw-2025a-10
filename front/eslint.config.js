@@ -20,4 +20,16 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['src/__test__/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
+    files: ['src/lib/utils/internalPath.ts'],
+    rules: {
+      'no-control-regex': 'off',
+    },
+  },
 ])

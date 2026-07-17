@@ -121,12 +121,16 @@ export default function ReportDetailPage() {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [actionsOpen, setActionsOpen] = useState(false);
     const actionsButtonRef = useRef<HTMLButtonElement>(null);
+    const [syncedId, setSyncedId] = useState(id);
+    const [syncedStateReport, setSyncedStateReport] = useState(matchingStateReport);
 
-    useEffect(() => {
-        setReport(hasResolvedReportContent(matchingStateReport) ? matchingStateReport : null);
+    if (syncedId !== id || syncedStateReport !== matchingStateReport) {
+        setSyncedId(id);
+        setSyncedStateReport(matchingStateReport);
+        setReport(initialReport);
         setErrorMessage("");
         setLoading(Boolean(id) && !hasResolvedReportContent(matchingStateReport));
-    }, [id, matchingStateReport]);
+    }
 
     useEffect(() => {
         if (!id || hasResolvedReportContent(matchingStateReport)) {
