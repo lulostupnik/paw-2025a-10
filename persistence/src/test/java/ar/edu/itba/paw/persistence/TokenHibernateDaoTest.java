@@ -129,7 +129,6 @@ public class TokenHibernateDaoTest {
 
     @Test
     public void testFindByTokenExpiredReturnsEmpty(){
-        // The row exists in the table but its expiration is in the past.
         assertEquals(
             1,
             JdbcTestUtils.countRowsInTableWhere(

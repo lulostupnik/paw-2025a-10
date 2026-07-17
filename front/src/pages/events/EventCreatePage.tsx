@@ -14,7 +14,7 @@ import { useToast } from "@/components/ui/ToastProvider";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 interface FormState {
     name: string;
@@ -330,8 +330,6 @@ export default function EventCreatePage() {
                 address: form.address.trim() || null,
                 attendeesLimit: form.unlimited ? null : Number(form.participantLimit),
             });
-            // El evento ya existe: si falla el flyer no se puede reportar como alta fallida, porque
-            // reintentar el submit crearía un evento duplicado.
             let flyerFailed = false;
             if (form.flyer) {
                 try {

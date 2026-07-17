@@ -30,7 +30,7 @@ public class Rating {
     @Column(name = "rating", nullable = false)
     private double rating;
 
-    /* For hibernate */ Rating() {
+     Rating() {
     }
 
     public Rating(User user, Event event, double rating) {

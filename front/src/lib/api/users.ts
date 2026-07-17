@@ -241,8 +241,6 @@ export const invalidateCurrentUserInterestQueries = async (queryClient: QueryCli
     ]);
 };
 
-// Resolves the profile's rating stats, university and career. Kept separate from
-// the core profile fetch so the profile header can render before these complete.
 export const buildProfileInfo = async (
     user: Pick<ProfileDetail, "id" | "links">,
     signal?: AbortSignal,

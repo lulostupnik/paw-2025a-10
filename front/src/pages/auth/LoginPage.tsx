@@ -69,8 +69,6 @@ export default function LoginPage() {
             await login({ email: form.email.trim(), password: form.password, remember: form.remember });
             nav(next, { replace: true });
         } catch (error) {
-            // Blocked and not-verified accounts both come back as 403 with a localized message in the
-            // body; wrong credentials come back as 401 without one, so we fall back to a generic message.
             setAuthError(apiErrorMessage(error, t("login.error.description")));
         } finally {
             setSubmitting(false);

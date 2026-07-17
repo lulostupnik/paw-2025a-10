@@ -42,7 +42,7 @@ public class JourneyResponse {
     @Setter
     private  String deletionMessage;
 
-    /* For hibernate */ JourneyResponse() {
+     JourneyResponse() {
     }
 
     public JourneyResponse(final User user, final Journey journey, final String message) {

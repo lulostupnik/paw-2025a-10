@@ -54,7 +54,6 @@ describe("navigationStack", () => {
     });
 
     it("descarta las entradas no internas que ya estuvieran guardadas", () => {
-        // sessionStorage lo escribe el cliente: puede venir manipulado
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(["/events", "https://evil.com", "/events/1"]));
 
         expect(popFromNavigationStack()).toBe("/events/1");

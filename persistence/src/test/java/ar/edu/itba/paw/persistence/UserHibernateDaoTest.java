@@ -438,7 +438,6 @@ public class UserHibernateDaoTest {
     public void testFindAverageRatingForAttendedEvents(){
         Optional<Double> rating = userDao.findAverageRatingForAttendedEvents(USER_1_ID);
 
-        //average rating of event 1 and 2 (all of them, not just my ratings)
         assertNotNull(rating);
         assertTrue(rating.isPresent());
         assertEquals(USER_1_ATTENDED_EVENTS_RATING, rating.get(), 0.1);

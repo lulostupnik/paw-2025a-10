@@ -114,8 +114,6 @@ export default function ReportDetailPage() {
     const matchingStateReport = stateReport && reportId === stateReport.id ? stateReport : null;
     const initialReport = hasResolvedReportContent(matchingStateReport) ? matchingStateReport : null;
     const [report, setReport] = useState<ReportDetail | null>(initialReport);
-    // Si venimos desde la lista, el state sólo trae el resumen del reporte; igual
-    // hace falta buscar el detalle completo para resolver el contenido reportado.
     const [loading, setLoading] = useState(Boolean(id) && !hasResolvedReportContent(matchingStateReport));
     const [errorMessage, setErrorMessage] = useState("");
     const [actionError, setActionError] = useState("");

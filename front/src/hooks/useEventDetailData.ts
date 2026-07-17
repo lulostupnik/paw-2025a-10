@@ -14,10 +14,6 @@ const parseIdFromUrl = (url?: string | null): number | null => {
     return match ? Number(match[1]) : null;
 };
 
-// Splits the event detail into a fast core fetch (GET /events/{id}) and slower
-// secondary lookups (creator, city, ratings). The page can render its main
-// information as soon as the core resolves; each secondary block reports its own
-// loading/error state so it can fill in independently.
 export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
     const queryClient = useQueryClient();
 
@@ -51,8 +47,6 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
         placeholderData: keepPreviousData,
     });
 
-    // Creator id is derivable from its URL, so ownership-dependent controls can
-    // resolve immediately without waiting for the creator profile fetch.
     const fallbackCreator: EventCreator = {
         id: parseIdFromUrl(creatorUrl) ?? 0,
         firstname: "",

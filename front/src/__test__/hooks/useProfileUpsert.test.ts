@@ -65,7 +65,6 @@ describe("useProfileUpsert", () => {
             try {
                 await result.current.updateProfile({ firstName: "Test", lastName: "User", username: "test" });
             } catch {
-                // expected
             }
         });
 

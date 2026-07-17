@@ -96,8 +96,6 @@ export function useListingFilters(initial?: Partial<ListingFiltersState>): Listi
 
 export function useUrlSyncedListingFilters(): ListingFiltersController {
     const [searchParams, setSearchParams] = useSearchParams();
-    // La URL es la única fuente de verdad: los filtros se derivan de ella en vez
-    // de vivir en un estado espejo que hay que re-sincronizar.
     const filters = useMemo(() => parseFiltersFromParams(searchParams), [searchParams]);
 
     const applyFilters = useCallback(

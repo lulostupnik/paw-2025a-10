@@ -53,8 +53,6 @@ export default function CityEditPage() {
         return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // El form se monta recién con la ciudad cargada, así arranca precargado sin
-    // tener que sincronizar el estado con un efecto.
     return <CityEditForm key={id} id={id} city={city} />;
 }
 
@@ -86,8 +84,6 @@ function CityEditForm({ id, city }: CityEditFormProps) {
         return countries.filter((country) => country.name.toLowerCase().includes(query));
     }, [countries, countryQuery]);
 
-    // The body references the country by its id, so the typed/selected name is
-    // resolved to the country's id at submit time using the loaded list.
     const resolveCountryId = useCallback(
         (name: string) =>
             countries.find((c) => c.name.trim().toLowerCase() === name.trim().toLowerCase())?.id ?? null,

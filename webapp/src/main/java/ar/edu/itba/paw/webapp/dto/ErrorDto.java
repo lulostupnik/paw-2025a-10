@@ -59,7 +59,6 @@ public class ErrorDto {
 
         private static String extractFieldName(Path propertyPath) {
             String fullPath = propertyPath.toString();
-            // Extract just the field name from paths like "createUniversity.arg0.city"
             int lastDot = fullPath.lastIndexOf('.');
             return lastDot >= 0 ? fullPath.substring(lastDot + 1) : fullPath;
         }

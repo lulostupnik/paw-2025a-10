@@ -44,8 +44,6 @@ const renderPage = () => {
     );
 };
 
-// El input del flyer está oculto (display:none) y sólo se abre a través del dropzone,
-// así que se sube el archivo directo al input sin el chequeo de pointer-events.
 const setupUser = () => userEvent.setup({ pointerEventsCheck: 0 });
 
 const flyerFile = () => new File(["flyer-bytes"], "flyer.png", { type: "image/png" });
@@ -65,7 +63,6 @@ const pickCity = async (user: ReturnType<typeof setupUser>, name: string) => {
     await user.click(await screen.findByRole("option", { name }));
 };
 
-// El PUT del flyer se pide con responseType arraybuffer: devolvemos bytes, no JSON.
 const flyerHandler = (eventId: number) =>
     http.put(`${BASE_URL}/events/${eventId}/flyer`, () =>
         HttpResponse.arrayBuffer(new Uint8Array([137, 80, 78, 71]).buffer, {
@@ -103,7 +100,6 @@ describe("EventCreatePage", () => {
 
         await user.click(submitButton());
 
-        // El form muestra el NOMBRE de la ciudad, pero el body la referencia por id.
         await waitFor(() =>
             expect(body).toEqual({
                 cityId: 1,
@@ -143,7 +139,6 @@ describe("EventCreatePage", () => {
 
         await user.click(submitButton());
 
-        // El evento ya existe: quedarse en el form haría que el usuario reintente y lo duplique.
         await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/events/7", { replace: true }));
         expect(mockShowToast).toHaveBeenCalledWith("event.toast.createdWithoutFlyer", { variant: "info" });
         expect(creates).toBe(1);

@@ -283,8 +283,6 @@ public class JourneyHibernateDaoTest {
 
     @Test
     public void testRecommendedJourneysBasic(){
-        // JOURNEY_2 debería tener un puntaje interno de 95 (30 por coincidencia de ciudad, 50 por coincidencia de universidad, 15 por superposición de fechas)
-        // debería tener un puntaje interno de 80 (30 por coincidencia de ciudad, 50 por coincidencia de universidad)
         Journey newJourney = insertJourney(ds, Map.of("user", USER_3, "startDate", JOURNEY_END_DATE.plusDays(2), "endDate", JOURNEY_END_DATE.plusDays(40)));
 
         Page<Journey> page1 = journeyDao.findRecommended(USER_1_ID, PAGE_1_BIG);
@@ -314,9 +312,7 @@ public class JourneyHibernateDaoTest {
     public void testRecommendedJourneysGoingToMyCity(){
         deleteJourneys(jdbcTemplate);
         insertJourney(ds, Map.of("user", USER_1));
-        // debería tener un puntaje interno de 80 (30 por coincidencia con ciudad de origen mientras está allí, 50 por coincidencia con universidad de origen mientras está allí)
         Journey newJourney1 = insertJourney(ds, Map.of("user", USER_3, "destination", UNI_1, "startDate", JOURNEY_END_DATE.plusDays(-5), "endDate", JOURNEY_END_DATE.plusDays(20)));
-        // debería tener un puntaje interno de 15 (solo superposición de fechas)
         Journey newJourney2 = insertJourney(ds, Map.of("user", USER_4, "destination", UNI_1, "startDate", JOURNEY_END_DATE.plusDays(-10), "endDate", JOURNEY_END_DATE.plusDays(-2)));
 
         Page<Journey> page1 = journeyDao.findRecommended(USER_1_ID, PAGE_1_BIG);
@@ -331,13 +327,9 @@ public class JourneyHibernateDaoTest {
 
     @Test
     public void testRecommendedJourneysWithInterests(){
-        // debería tener un puntaje interno de 116 (50 + 30 por coincidencia con universidad de destino, 15 superposición, 21 coincidencia de intereses)
         Journey newJourney1 = insertJourney(ds, Map.of("user", USER_I3));
-        // debería tener un puntaje interno de 113 (50 + 30 por coincidencia con universidad de destino, 15 superposición, 18 coincidencia de intereses)
         Journey newJourney2 = insertJourney(ds, Map.of("user", USER_I2));
-        // debería tener un puntaje interno de 107 (50 + 30 por coincidencia con universidad de destino, 15 superposición, 12 coincidencia de intereses)
         Journey newJourney3 = insertJourney(ds, Map.of("user", USER_I1));
-        // JOURNEY_2 debería tener un puntaje interno de 95 (50 + 30 por coincidencia con universidad de destino, 15 superposición)
 
         Page<Journey> page1 = journeyDao.findRecommended(USER_1_ID, PAGE_1_BIG);
 
@@ -353,16 +345,10 @@ public class JourneyHibernateDaoTest {
     public void testRecommendedJourneysWithInterestsComplex(){
         deleteJourneys(jdbcTemplate);
         insertJourney(ds, Map.of("user", USER_1));
-        // debería tener un puntaje interno de 107 (50 + 30 por coincidencia con universidad de destino, 15 superposición, 12 coincidencia de intereses)
         Journey newJourney1 = insertJourney(ds, Map.of("user", USER_I1));
-        // debería tener un puntaje interno de 98 (50 + 30 por coincidencia con universidad de origen, 18 coincidencia de intereses)
         Journey newJourney2 = insertJourney(ds, Map.of("user", USER_I2, "destination", UNI_1, "startDate", JOURNEY_END_DATE.plusDays(2), "endDate", JOURNEY_END_DATE.plusDays(30)));
-        // debería tener un puntaje interno de 36 (15 superposición, 21 coincidencia de intereses)
         Journey newJourney3 = insertJourney(ds, Map.of("user", USER_I3, "destination", UNI_1, "startDate", JOURNEY_END_DATE.plusDays(-7), "endDate", JOURNEY_END_DATE.plusDays(-3)));
-        // JOURNEY_2 debería tener un puntaje interno de 95 (50 + 30 por coincidencia con universidad de destino, 15 superposición)
-        // debería tener un puntaje interno de 80 (50 + 30 por coincidencia con universidad de destino)
         Journey newJourney4 = insertJourney(ds, Map.of("user", USER_3, "startDate", JOURNEY_END_DATE.plusDays(2), "endDate", JOURNEY_END_DATE.plusDays(20)));
-        // debería tener un puntaje interno de 45 (30 por coincidencia de ciudad, 15 superposición)
         Journey newJourney5 = insertJourney(ds, Map.of("user", USER_4, "destination", UNI_3));
 
         Page<Journey> page1 = journeyDao.findRecommended(USER_1_ID, PAGE_1_BIG);

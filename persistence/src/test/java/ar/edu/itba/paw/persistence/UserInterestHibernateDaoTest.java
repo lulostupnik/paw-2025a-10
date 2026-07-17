@@ -181,7 +181,6 @@ public class UserInterestHibernateDaoTest {
         interestDao.updateMatchingInterestScores(USER_I1_ID, USER_1_ID);
         em.flush();
 
-        //Only updates score of reply author, not event creator.
         assertEquals(
             USER_I1_INTEREST_1_SCORE + 1, 
             Optional.ofNullable(jdbcTemplate.queryForObject(
@@ -197,7 +196,6 @@ public class UserInterestHibernateDaoTest {
         interestDao.updateMatchingInterestScores(USER_3_ID, USER_1_ID);
         em.flush();
 
-        //Solo actualiza el puntaje de quien contesta, no del creador.
         assertEquals(
             0,
             JdbcTestUtils.countRowsInTableWhere(

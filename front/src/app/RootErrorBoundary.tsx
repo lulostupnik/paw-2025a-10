@@ -9,8 +9,6 @@ interface RootErrorBoundaryState {
     hasError: boolean;
 }
 
-// Último recurso: los errores dentro del router los atiende su `errorElement`.
-// Esto sólo cubre lo que queda por fuera, donde no hay contexto de router.
 export class RootErrorBoundary extends Component<RootErrorBoundaryProps, RootErrorBoundaryState> {
     state: RootErrorBoundaryState = { hasError: false };
 

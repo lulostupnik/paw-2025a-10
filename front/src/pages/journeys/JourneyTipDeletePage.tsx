@@ -145,7 +145,6 @@ export default function JourneyTipDeletePage() {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // Los consejos son parte del viaje: los borra su autor o un administrador.
     if (data.user?.id !== getUserId() && !isAdmin()) {
         return <ForbiddenPage />;
     }

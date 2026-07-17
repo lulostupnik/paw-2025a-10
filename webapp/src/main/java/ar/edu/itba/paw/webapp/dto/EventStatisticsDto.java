@@ -31,7 +31,6 @@ public class EventStatisticsDto {
         dto.eventsOrganizerAttends = statistics.getAttendedEventsCount();
 
         dto.totalParticipants = event.getAttendeesCount();
-        // sin límite de asistentes el campo se omite, en vez de afirmar un límite de 0
         dto.maxParticipants = event.getAttendeesLimit();
 
         final Links links = new Links();

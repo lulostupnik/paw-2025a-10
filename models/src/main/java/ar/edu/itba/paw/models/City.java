@@ -27,7 +27,7 @@ public class City {
     @Column(name="deleted", nullable = false)
     private  boolean deleted;
 
-    /* For hibernate */ City() {
+     City() {
     }
     public City(final String name, final Country country) {
         this.name = name;

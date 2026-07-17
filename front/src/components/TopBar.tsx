@@ -24,8 +24,6 @@ export default function TopBar() {
     const langRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLElement | null>(null);
     const showProfilePicture = Boolean(profilePictureUrl && !avatarError);
-    // El menú de perfil sólo existe para usuarios logueados: derivarlo evita
-    // que quede abierto si la sesión se pierde mientras está desplegado.
     const menuOpen = logged && profileMenuOpen;
 
     const updateTopBarOffset = useCallback(() => {
@@ -216,8 +214,6 @@ export default function TopBar() {
                                     setProfileMenuOpen(false);
                                     setNavOpen(false);
                                     logout();
-                                    // Los datos cacheados son de la sesión que se cierra:
-                                    // descartarlos evita servirlos al próximo usuario.
                                     queryClient.clear();
                                     nav("/", { replace: true });
                                 }}

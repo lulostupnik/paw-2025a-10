@@ -35,7 +35,7 @@ public class JourneyDto {
         final Links links = new Links();
         links.selfUrl = UriUtils.getJourneyUri(uriInfo, journey.getId());
         links.userUrl = UriUtils.getUserUri(uriInfo, journey.getUser().getId());
-        links.destinationUniversityUrl = UriUtils.getUniversityUri(uriInfo, journey.getDestinationUniversity().getId()); // TODO: revisar
+        links.destinationUniversityUrl = UriUtils.getUniversityUri(uriInfo, journey.getDestinationUniversity().getId());
         links.tipsUrl = UriUtils.getJourneyTipsUri(uriInfo, journey.getId());
         links.responsesUrl = UriUtils.getJourneyResponsesUri(uriInfo, journey.getId());
         dto.links = links;

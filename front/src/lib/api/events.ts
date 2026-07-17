@@ -223,8 +223,6 @@ export const buildProfileEvent = async (events: EventDto[], signal?: AbortSignal
     return results;
 };
 
-// Resolves the event creator plus their university/career. Kept separate from the
-// core event fetch so the page can render before these lookups complete.
 export const buildEventCreator = async (
     event: EventDto,
     signal?: AbortSignal,
@@ -262,8 +260,6 @@ export const buildEventCreator = async (
     };
 };
 
-// Resolves the event ratings plus the username of each rater. Separate lookup so
-// the rating tab can show its own loading state without blocking the page.
 export const buildEventRatings = async (
     eventId: number,
     signal?: AbortSignal,

@@ -72,7 +72,7 @@
 
 
 
-        /* For hibernate */ Event() {
+         Event() {
         }
         public Event(final User user, final LocalDate date, final String description,
                      final Long flyerImageId, final City city, final String title,

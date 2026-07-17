@@ -668,7 +668,6 @@ public class EventHibernateDaoTest {
 
     @Test
     public void testFindAllWithFiltersByMinRating(){
-        // fixture: evento 1 -> AVG 4.5, evento 2 -> AVG 2.5, evento 3 -> AVG 1, evento 4 -> sin ratings
         Page<Event> page = findByMinRating(4);
 
         assertNotNull(page);
@@ -678,7 +677,6 @@ public class EventHibernateDaoTest {
 
     @Test
     public void testFindAllWithFiltersByMinRatingIncludesAverageAboveBound(){
-        // 2.5 del evento 2 supera el minimo de 2; el evento 3 (AVG 1) no
         Page<Event> page = findByMinRating(2);
 
         assertNotNull(page);
@@ -687,7 +685,6 @@ public class EventHibernateDaoTest {
 
     @Test
     public void testFindAllWithFiltersByMinRatingExcludesUnratedEvents(){
-        // un evento sin ratings no puede probar que alcanza el minimo: cuenta como 0
         Page<Event> page = findByMinRating(1);
 
         assertNotNull(page);
@@ -697,7 +694,6 @@ public class EventHibernateDaoTest {
 
     @Test
     public void testFindAllWithFiltersByMinRatingZeroIncludesUnratedEvents(){
-        // con minimo 0 el filtro no excluye a nadie, ni siquiera a los que no tienen ratings
         Page<Event> page = findByMinRating(0);
 
         assertNotNull(page);
@@ -706,7 +702,6 @@ public class EventHibernateDaoTest {
 
     @Test
     public void testFindAllWithFiltersByMinRatingAboveEveryAverage(){
-        // el mejor evento promedia 4.5, asi que ninguno alcanza 5
         Page<Event> page = findByMinRating(5);
 
         assertNotNull(page);
@@ -728,9 +723,6 @@ public class EventHibernateDaoTest {
 
     @Test
     public void testFindAllWithFiltersSearchMatchesTheCityOfTheEvent(){
-        // el fixture tiene a todos los organizadores estudiando en la misma ciudad donde ocurren
-        // sus eventos, asi que no distingue una ciudad de la otra: user4 estudia en city2 y este
-        // evento ocurre en city1.
         final User organizadorDeCity2 = em.find(User.class, USER_4_ID);
         final Event eventoEnCity1 = eventDao.create(
             organizadorDeCity2, CITY_1, EVENT_DATE_DEFAULT, EVENT_DESCRIPTION_DEFAULT, IMAGE_1_ID,
@@ -750,7 +742,6 @@ public class EventHibernateDaoTest {
         );
         em.flush();
 
-        // buscar la ciudad de la universidad del organizador no debe traer su evento
         assertFalse(contiene(searchEvents(CITY_2_NAME), eventoEnCity1));
     }
 

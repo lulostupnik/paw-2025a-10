@@ -40,13 +40,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // Get authorization header and validate
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (!StringUtils.hasText(header) || !header.startsWith(AUTH_HEADER_TYPE)) {
             filterChain.doFilter(request, response);
             return;
         }
-        // Get jwt token and validate
         final String token = header.substring(AUTH_HEADER_TYPE.length() + 1).trim();
         final JwtDetails jwtDetails = jwtTokenUtil.validate(token);
 
@@ -65,7 +63,6 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Check if refresh token was sent to refresh tokens
         if (jwtDetails.getTokenType().isRefreshToken()) {
             final Optional<User> maybeUser = userService.findUserByEmail(userDetails.getUsername());
             if (maybeUser.isPresent()) {
@@ -77,7 +74,6 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        // Get user identity and set it on the spring security context
         final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

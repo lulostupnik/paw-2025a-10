@@ -47,7 +47,6 @@ describe("useRegister", () => {
                     email: "conflict@example.com",
                 });
             } catch {
-                // expected
             }
         });
 

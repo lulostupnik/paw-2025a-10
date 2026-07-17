@@ -49,8 +49,6 @@ export default function InterestEditPage() {
         return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // El form se monta recién con el interés cargado, así arranca precargado sin
-    // tener que sincronizar el estado con un efecto.
     return <InterestEditForm key={id} id={id} interest={interest} />;
 }
 

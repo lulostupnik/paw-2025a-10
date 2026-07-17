@@ -8,9 +8,6 @@ import { listUniversities, getUniversityById, createUniversity, deleteUniversity
 import { listInterests, getInterestById, createInterest, deleteInterest } from "@/lib/api/interests";
 import { listCountries } from "@/lib/api/countries";
 
-/**
- * Captura el request que msw recibe para el handler dado, para poder afirmar sobre headers y body.
- */
 const captureRequest = (method: "get" | "post" | "patch" | "delete", path: string, response: JsonBodyType, status = 200) => {
     const seen: { headers?: Headers; body?: unknown } = {};
     server.use(
@@ -69,7 +66,6 @@ describe("catálogo — listados", () => {
 
         const page = await listCities();
 
-        // El total y los links salen de X-Total-Count / Link, no del cuerpo (que trae 1 sola ciudad).
         expect(page.totalElements).toBe(37);
         expect(page.content).toHaveLength(1);
         expect(page.last).toContain("page=4");

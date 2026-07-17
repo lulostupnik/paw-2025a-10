@@ -104,7 +104,7 @@ public class InterestServiceImpl implements InterestService {
     @Transactional
     public void createUserInterests(final List<Long> interestIds, final  long userId) {
         if (interestIds == null || interestIds.isEmpty()) {
-            return;   // a user may have no interests
+            return;
         }
         userInterestDao.createUserInterests(interestIds, userId);
         LOGGER.info("Interests {} added to user {}", interestIds, userId);

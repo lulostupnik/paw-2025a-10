@@ -128,8 +128,6 @@ function SingleSelectField({ label, name, placeholder, value, onChange, fetcher,
     const { open, setOpen, ref } = useDropdownState();
     const { options, loading } = useAsyncCatalogOptions(fetcher, open, query);
 
-    // Al limpiarse la selección el input vuelve a mostrarse: la búsqueda previa
-    // se descarta durante el render, sin sincronizarla por efecto.
     if (value !== lastValue) {
         setLastValue(value);
         if (!value) {
@@ -335,7 +333,6 @@ export default function RegisterPage() {
             const nextServerErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(nextServerErrors).length > 0) {
                 setServerErrors(nextServerErrors);
-                // Con errores por campo no mostramos el banner global del hook.
                 reset();
             }
         }

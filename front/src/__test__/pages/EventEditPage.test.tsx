@@ -19,11 +19,8 @@ vi.mock("@/lib/i18n", () => ({
     I18nProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-// El evento del mock lo creó el usuario 1 (creatorUrl → /users/1).
 const OWNER_ID = 1;
 const mockUserId = vi.fn<() => number | null>(() => OWNER_ID);
-// Sólo se sustituye getUserId: el resto del módulo lo usa el interceptor de axios (getAuthToken,
-// getRefreshToken, setAuthTokens, logout) y mockearlo entero deja al apiClient sin esas funciones.
 vi.mock("@/lib/auth/auth", async () => {
     const actual = await vi.importActual<typeof import("@/lib/auth/auth")>("@/lib/auth/auth");
     return { ...actual, getUserId: () => mockUserId() };
@@ -85,7 +82,6 @@ describe("EventEditPage", () => {
         );
         await user.click(screen.getByRole("button", { name: "event.edit" }));
 
-        // Los datos ya se guardaron: quedarse en el form haría reintentar un update ya aplicado.
         await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/events/1"));
         expect(mockShowToast).toHaveBeenCalledWith("event.toast.updatedWithoutFlyer", { variant: "info" });
         expect(patches).toBe(1);
@@ -119,7 +115,6 @@ describe("EventEditPage", () => {
         await user.type(nameField, "Renamed Event");
         await user.click(screen.getByRole("button", { name: "event.edit" }));
 
-        // El form muestra el nombre de la ciudad, pero el body referencia al recurso por id.
         await waitFor(() =>
             expect(body).toEqual({
                 cityId: 1,

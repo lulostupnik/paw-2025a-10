@@ -72,7 +72,6 @@ export default function ForgotPasswordPage() {
                 try {
                     window.sessionStorage.setItem(RESET_EMAIL_STORAGE_KEY, normalizedEmail);
                 } catch {
-                    // Ignore storage errors.
                 }
             }
             setStatus("success");

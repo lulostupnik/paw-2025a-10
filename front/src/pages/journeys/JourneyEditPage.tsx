@@ -81,14 +81,10 @@ export default function JourneyEditPage() {
         return <PageStatus className="journey-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // Sólo el autor puede editar el contenido del viaje: sin este corte la ruta
-    // directa mostraría el formulario completo para morir en un 403 al enviar.
     if (data.user?.id !== getUserId()) {
         return <ForbiddenPage />;
     }
 
-    // El formulario arranca con los datos ya resueltos, así que se siembra con el
-    // estado inicial de cada campo en lugar de copiarlos con un efecto.
     return <JourneyEditForm key={data.id} journey={data} />;
 }
 

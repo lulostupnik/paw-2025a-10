@@ -11,7 +11,7 @@ public class DateRangeValidator implements ConstraintValidator<ValidDateRange, D
     @Override
     public boolean isValid(DateRangeForm form, ConstraintValidatorContext context) {
         if (form.getStartDate() == null || form.getEndDate() == null) {
-            return true; // @NotNull should handle nulls
+            return true;
         }
 
         if (!form.getEndDate().isAfter(form.getStartDate())) {

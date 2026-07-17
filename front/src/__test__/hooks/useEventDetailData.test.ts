@@ -42,7 +42,6 @@ describe("useEventDetailData", () => {
 
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-        // Comments are fetched by the page's own paginated query, not the detail hook.
         expect(result.current.data!.comments).toEqual([]);
     });
 

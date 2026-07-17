@@ -42,7 +42,6 @@ describe("useJourneyDetailData", () => {
 
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-        // These collections are fetched by the page's own paginated queries, not the detail hook.
         expect(result.current.data!.comments).toEqual([]);
         expect(result.current.data!.tips).toEqual([]);
         expect(result.current.data!.interests).toEqual([]);

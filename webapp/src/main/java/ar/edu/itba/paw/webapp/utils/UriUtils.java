@@ -4,7 +4,6 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
 public final class UriUtils {
-    // Base URI already includes /webapp/api from Jersey; keep resource paths relative.
     public static final String API_BASE_URL = "";
     public static final String USERS_URL = API_BASE_URL + "/users";
     public static final String JOURNEYS_URL = API_BASE_URL + "/journeys";
@@ -88,7 +87,6 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).build();
     }
 
-    // Events created by / attended by a user, referenced as query params on the events collection.
     public static URI getUserCreatedEventsUri(final UriInfo uriInfo, final long userId) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).queryParam("creatorId", userId).build();
     }

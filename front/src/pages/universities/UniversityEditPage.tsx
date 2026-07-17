@@ -55,8 +55,6 @@ export default function UniversityEditPage() {
         return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // El form se monta recién con la universidad cargada, así arranca precargado
-    // sin tener que sincronizar el estado con un efecto.
     return <UniversityEditForm key={id} id={id} university={university} />;
 }
 

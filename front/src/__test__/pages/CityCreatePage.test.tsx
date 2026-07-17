@@ -20,8 +20,6 @@ vi.mock("@/lib/i18n", () => ({
 }));
 
 const mockIsAdmin = vi.fn(() => true);
-// Sólo se sustituye isAdmin: el resto del módulo lo usa el interceptor de axios (getAuthToken,
-// getRefreshToken, setAuthTokens, logout) y mockearlo entero deja al apiClient sin esas funciones.
 vi.mock("@/lib/auth/auth", async () => {
     const actual = await vi.importActual<typeof import("@/lib/auth/auth")>("@/lib/auth/auth");
     return { ...actual, isAdmin: () => mockIsAdmin() };
@@ -84,7 +82,6 @@ describe("CityCreatePage", () => {
         await user.click(await screen.findByRole("option", { name: "Argentina" }));
         await user.click(screen.getByRole("button", { name: "createCity.submit" }));
 
-        // El form muestra el nombre del país, pero el body referencia al recurso por id.
         await waitFor(() => expect(body).toEqual({ name: "Córdoba", countryId: 1 }));
         await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/cities/42", { replace: true }));
         expect(mockShowToast).toHaveBeenCalledWith("admin.toast.created", { variant: "success" });

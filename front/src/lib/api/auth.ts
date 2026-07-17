@@ -45,7 +45,6 @@ function encodeBasicCredentials({ email, password }: LoginCredentials) {
         });
         return globalThis.btoa(binary);
     }
-    // Fallback to btoa for environments where TextEncoder is not available
     if (typeof globalThis.btoa === "function") {
         return globalThis.btoa(raw);
     }
@@ -92,8 +91,6 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
     const basic = encodeBasicCredentials(credentials);
     const storage = credentials.remember ? "local" : "session";
 
-    // GET (not HEAD) so that on an auth error the server's ErrorDto body — carrying the localized
-    // reason (blocked / not verified) — reaches the client to be shown to the user.
     const loginResponse = await apiClient.get("/", {
         headers: { Authorization: `Basic ${basic}` },
     });
@@ -110,8 +107,6 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
         throw new Error("login-missing-user-context");
     }
 
-    // Source of truth for profile data (email, admin role) is the user resource, not the JWT.
-    // At login we are the resource owner, so the private representation is authorized.
     const { data } = await apiClient.get<PrivateUserDto>(normalizeApiPath(selfUrl), { headers: { Accept: ContentTypes.USER } });
     const email = data.email ?? credentials.email;
     const username = data.username ?? email;
@@ -128,8 +123,6 @@ export async function requestPasswordReset(body: PasswordResetRequest): Promise<
     await apiClient.post("/users", body, { headers: { "Content-Type": ContentTypes.USER_PASSWORD } });
 }
 
-// Resending the verification email has no endpoint: it happens automatically server-side when an
-// unverified user attempts to log in (see AuthAnywhereFilter).
 
 async function hydrateSessionFromStoredToken(signal?: AbortSignal): Promise<void> {
     const authToken = getAuthToken();
@@ -149,7 +142,6 @@ async function hydrateSessionFromStoredToken(signal?: AbortSignal): Promise<void
         const username = data.username ?? email;
         setSession({ username, email, isAdmin: data.isAdmin ?? false, userId: data.id, profilePictureUrl: data.links?.profilePictureUrl ?? null });
     } catch {
-        // Ignore — session hydration is non-critical.
     }
 }
 
@@ -172,9 +164,6 @@ export async function verifyEmailToken(payload: EmailVerificationPayload, signal
         throw new Error("missing-user");
     }
 
-    // The email carries a one-time token; authenticating with Basic email:token makes the server
-    // (AuthAnywhereFilter) verify the account, consume the token and reply with the JWTs. 'verified'
-    // is an authentication concern, not a user property, so the PATCH body carries no fields.
     const basic = encodeBasicCredentials({ email, password: token });
     await apiClient.patch(
         `/users/${payload.userId}`,
@@ -209,8 +198,6 @@ export async function resetPasswordWithToken(payload: PasswordResetWithTokenPayl
         throw new Error("missing-user");
     }
 
-    // The email carries a one-time token; the PATCH authenticates with Basic email:token and the
-    // server (AuthAnywhereFilter) verifies it against the token service and replies with the JWTs.
     const basic = encodeBasicCredentials({ email, password: token });
     await apiClient.patch(
         `/users/${payload.userId}`,

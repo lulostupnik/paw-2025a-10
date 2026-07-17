@@ -20,8 +20,6 @@ interface AdminDetailParams {
 export const useAdminUserDetailData = (params?: AdminDetailParams) => {
     const userId = params?.id;
     const queryClient = useQueryClient();
-    // Core user record renders immediately; the university/career lookups load
-    // separately so they don't block the rest of the profile.
     const userQuery = useQuery({
         queryKey: ["adminUserDetail", userId],
         queryFn: ({ signal }) => {

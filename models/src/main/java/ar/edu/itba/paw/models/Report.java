@@ -68,7 +68,7 @@ public class Report {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
 
-    /* hibernate */ Report() {
+     Report() {
     }
 
     public Report(Long id, User reported, User reporting, String desc, ReportReason reason, Journey journey, Event event, EventResponse eventResponse, JourneyResponse journeyResponse, boolean deleted, ReportStatus status){
