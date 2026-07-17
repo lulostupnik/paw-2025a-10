@@ -160,6 +160,7 @@ export default function EventDetailPage() {
         data,
         isLoading,
         isError,
+        isNotFound,
         isFetching,
         creatorLoading,
         creatorError,
@@ -430,6 +431,10 @@ export default function EventDetailPage() {
 
     if (isLoading) {
         return <PageStatus className="event-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
+    }
+
+    if (isNotFound) {
+        return <NotFoundPage />;
     }
 
     if (isError || !data) {

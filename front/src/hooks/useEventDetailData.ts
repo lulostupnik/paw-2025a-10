@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiErrorStatus } from "@/lib/api/client";
 import { buildEventCreator, buildEventRatings, getEventById, isEventFuture } from "@/lib/api/events";
 import type { EventCreator, EventDetail } from "@/types/event";
 
@@ -57,6 +58,8 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
         career: null,
     };
 
+    const isNotFound = apiErrorStatus(eventQuery.error) === 404;
+
     const ratingsResult = ratingsQuery.data ?? { ratings: [], total: 0 };
     const ratings = ratingsResult.ratings;
     const averageRating = event
@@ -92,7 +95,8 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
     return {
         data,
         isLoading: eventQuery.isLoading,
-        isError: eventQuery.isError,
+        isError: eventQuery.isError && !isNotFound,
+        isNotFound,
         isFetching: eventQuery.isFetching,
         creatorLoading: creatorQuery.isLoading,
         creatorError: creatorQuery.isError,
