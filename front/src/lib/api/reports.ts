@@ -1,4 +1,4 @@
-import { apiClient, normalizeApiPath } from "@/lib/api/client";
+import { apiClient, apiErrorStatus, normalizeApiPath } from "@/lib/api/client";
 import { ContentTypes } from "@/lib/api/contentTypes";
 import { getEventById, type EventDto } from "@/lib/api/events";
 import { getJourneyById } from "@/lib/api/journeys";
@@ -101,6 +101,8 @@ export interface ReportDetail {
     status: ReportStatus;
     reportedUser: ReportUser;
     reportingUser: ReportUser;
+    contentType: ReportListItem["contentType"];
+    contentDeleted: boolean;
     journey?: {
         id: number;
         description: string;
@@ -180,6 +182,17 @@ const parseReportTarget = (url?: string | null): ReportTarget | null => {
     return { kind: "unknown", url, id: parseIdFromUrl(url) };
 };
 
+const fetchMissingAsNull = async <T>(loader: () => Promise<T | null>): Promise<T | null> => {
+    try {
+        return await loader();
+    } catch (error) {
+        if (apiErrorStatus(error) === 404) {
+            return null;
+        }
+        throw error;
+    }
+};
+
 const fetchByUrl = async <T>(url: string | null | undefined, accept: string, signal?: AbortSignal): Promise<T | null> => {
     if (!url) {
         return null;
@@ -249,28 +262,40 @@ export const getReportDetail = async (id: number, signal?: AbortSignal): Promise
 
     const [journeyData, eventData, journeyResponseData, eventResponseData] = await Promise.all([
         target?.kind === "journey"
-            ? (target.id ? getJourneyById(target.id, signal) : fetchByUrl<JourneySummary>(target.url, ContentTypes.JOURNEY, signal))
+            ? fetchMissingAsNull(() =>
+                  target.id ? getJourneyById(target.id, signal) : fetchByUrl<JourneySummary>(target.url, ContentTypes.JOURNEY, signal)
+              )
             : null,
         target?.kind === "event"
-            ? (target.id ? getEventById(target.id, signal) : fetchByUrl<EventDto>(target.url, ContentTypes.EVENT, signal))
+            ? fetchMissingAsNull(() =>
+                  target.id ? getEventById(target.id, signal) : fetchByUrl<EventDto>(target.url, ContentTypes.EVENT, signal)
+              )
             : null,
         target?.kind === "journeyResponse"
-            ? fetchByUrl<JourneyResponseDto>(target.url, ContentTypes.JOURNEY_RESPONSE, signal)
+            ? fetchMissingAsNull(() => fetchByUrl<JourneyResponseDto>(target.url, ContentTypes.JOURNEY_RESPONSE, signal))
             : null,
         target?.kind === "eventResponse"
-            ? fetchByUrl<EventResponseDto>(target.url, ContentTypes.EVENT_RESPONSE, signal)
+            ? fetchMissingAsNull(() => fetchByUrl<EventResponseDto>(target.url, ContentTypes.EVENT_RESPONSE, signal))
             : null,
     ]);
 
+    const contentDeleted = Boolean(target) && !journeyData && !eventData && !journeyResponseData && !eventResponseData;
+
     const journeyResponseJourney = journeyResponseData?.links?.journeyUrl
-        ? await fetchByUrl<JourneySummary>(journeyResponseData.links.journeyUrl, ContentTypes.JOURNEY, signal)
+        ? await fetchMissingAsNull(() =>
+              fetchByUrl<JourneySummary>(journeyResponseData.links!.journeyUrl!, ContentTypes.JOURNEY, signal)
+          )
         : null;
     const journeyResponseOwner = journeyResponseJourney?.links?.userUrl
-        ? await fetchByUrl<UserDto>(journeyResponseJourney.links.userUrl, ContentTypes.USER_PUBLIC, signal)
+        ? await fetchMissingAsNull(() =>
+              fetchByUrl<UserDto>(journeyResponseJourney.links!.userUrl!, ContentTypes.USER_PUBLIC, signal)
+          )
         : null;
 
     const eventResponseEvent = eventResponseData?.links?.eventUrl
-        ? await fetchByUrl<EventDto>(eventResponseData.links.eventUrl, ContentTypes.EVENT, signal)
+        ? await fetchMissingAsNull(() =>
+              fetchByUrl<EventDto>(eventResponseData.links!.eventUrl!, ContentTypes.EVENT, signal)
+          )
         : null;
 
     return {
@@ -280,6 +305,8 @@ export const getReportDetail = async (id: number, signal?: AbortSignal): Promise
         status: report.status,
         reportedUser: mapUser(reportedUser),
         reportingUser: mapUser(reportingUser),
+        contentType: resolveContentType(report),
+        contentDeleted,
         journey: journeyData
             ? {
                   id: journeyData.id,
