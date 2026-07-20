@@ -1044,6 +1044,10 @@ h4 { font-size: 1.125rem; }
 .status-card__icon {
   width: 56px;
   height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -1081,16 +1085,19 @@ h4 { font-size: 1.125rem; }
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .status-card__body h3 {
   margin: 0;
   font-size: 1.25rem;
+  overflow-wrap: anywhere;
 }
 
 .status-card__body p {
   margin: 0;
   color: var(--color-gray-600);
+  overflow-wrap: anywhere;
 }
 
 .status-card__list {
@@ -1427,11 +1434,16 @@ h4 { font-size: 1.125rem; }
   border-color: var(--color-primary);
   box-shadow: var(--shadow-soft);
   transform: translateY(-2px);
+  text-decoration: none;
 }
 
 .explore-action-icon {
   width: 40px;
   height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
   border-radius: 999px;
   background: var(--color-primary-light);
   color: var(--color-primary);
@@ -1479,6 +1491,7 @@ h4 { font-size: 1.125rem; }
   margin: 0;
   font-weight: 600;
   color: var(--color-gray-800);
+  overflow-wrap: anywhere;
 }
 
 .event-file-info__change {
@@ -1585,6 +1598,7 @@ h4 { font-size: 1.125rem; }
 .selected-option__value {
   margin: 0;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .selected-option__action {
@@ -1967,6 +1981,17 @@ textarea.input-control {
 }
 
 .form-field__text--error {
+  color: var(--color-error);
+}
+
+.character-counter {
+  margin: 0.35rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+.character-counter.is-error {
   color: var(--color-error);
 }
 
@@ -2494,6 +2519,8 @@ textarea.input-control {
 
   .top-bar__menu-toggle {
     display: inline-flex;
+    order: -1;
+    margin-right: 0.75rem;
   }
 
   .top-bar__actions {
@@ -4909,6 +4936,11 @@ textarea.input-control {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  min-width: 0;
+}
+
+.journey-detail-page .user-details {
+  min-width: 0;
 }
 
 .journey-detail-page .journey-title {
@@ -4917,6 +4949,8 @@ textarea.input-control {
   color: var(--color-gray-900);
   margin: 0 0 0.75rem;
   line-height: 1.2;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .journey-detail-page .journey-meta {
@@ -4936,11 +4970,14 @@ textarea.input-control {
   background-color: var(--color-gray-100);
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
+  min-width: 0;
 }
 
 .journey-detail-page .destination-text,
 .journey-detail-page .date-range {
   font-weight: 500;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .journey-detail-page .journey-destination .icon,
@@ -5082,6 +5119,11 @@ textarea.input-control {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: 0;
+}
+
+.journey-detail-page .response-user-info {
+  min-width: 0;
 }
 
 .journey-detail-page .response-username {
@@ -5089,6 +5131,8 @@ textarea.input-control {
   margin: 0 0 0.125rem;
   color: var(--color-gray-900);
   font-size: 1rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .journey-detail-page .response-date {
@@ -5844,6 +5888,7 @@ textarea.input-control {
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 0.5rem;
+  min-width: 0;
 }
 
 .journey-detail-page .creator-detail,
@@ -5855,6 +5900,17 @@ textarea.input-control {
   color: var(--color-gray-600);
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.journey-detail-page .creator-info,
+.event-detail-page .creator-info {
+  min-width: 0;
+}
+
+.journey-detail-page .creator-detail span,
+.event-detail-page .creator-detail span {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* Rating section */
@@ -6112,6 +6168,7 @@ textarea.input-control {
   border-radius: var(--profile-radius);
   box-shadow: var(--profile-shadow);
   position: relative;
+  min-width: 0;
 }
 
 .profile-page .profile-avatar-container {
@@ -6206,6 +6263,8 @@ textarea.input-control {
 
 .profile-page .profile-info {
   margin-bottom: 1.5rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .profile-page .profile-name {
@@ -6214,12 +6273,16 @@ textarea.input-control {
   margin: 0;
   color: var(--color-gray-900);
   letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .profile-page .profile-username {
   font-size: 1.125rem;
   color: var(--color-gray-500);
   margin: 0.5rem 0 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .profile-page .profile-actions {
@@ -6372,6 +6435,7 @@ textarea.input-control {
   border-radius: var(--profile-radius);
   padding: 1.5rem;
   transition: none;
+  min-width: 0;
 }
 
 .profile-page .section-title {
@@ -6415,6 +6479,7 @@ textarea.input-control {
   border-radius: var(--profile-radius-sm);
   background-color: var(--color-gray-50);
   transition: none;
+  min-width: 0;
 }
 
 .profile-page .info-label {
@@ -6430,6 +6495,7 @@ textarea.input-control {
   font-size: 1.125rem;
   color: var(--color-gray-900);
   margin: 0;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 
@@ -7465,7 +7531,8 @@ textarea.input-control {
 .profile-form-page .current-avatar-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
   background-color: #f3f4f6;
 }
 
@@ -8063,6 +8130,7 @@ textarea.input-control {
 .organizer-name,
 .university-name {
   max-width: 200px;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
