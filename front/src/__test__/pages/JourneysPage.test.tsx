@@ -154,4 +154,16 @@ describe("JourneysPage", () => {
         expect(params.get("sort")).toBe("journey-end-desc");
         expect(params.get("tab")).toBe("upcoming");
     });
+
+    it("should fall back to all when tab query param is invalid", () => {
+        mockUseJourneys.mockReturnValue({
+            journeys: emptyPage(),
+            loading: false,
+            error: null,
+            refetch: vi.fn(),
+        });
+
+        renderPage("/journeys?tab=weird");
+        expect(screen.getByRole("tab", { name: "journey.tabs.all" })).toHaveAttribute("aria-selected", "true");
+    });
 });

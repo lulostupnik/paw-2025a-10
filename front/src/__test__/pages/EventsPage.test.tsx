@@ -155,4 +155,16 @@ describe("EventsPage", () => {
         expect(params.get("sort")).toBe("event-rating-desc");
         expect(params.get("tab")).toBe("upcoming");
     });
+
+    it("should fall back to all when tab query param is invalid", () => {
+        mockUseEvents.mockReturnValue({
+            events: emptyPage(),
+            loading: false,
+            error: null,
+            refetch: vi.fn(),
+        });
+
+        renderPage("/events?tab=weird");
+        expect(screen.getByRole("tab", { name: "events.tabs.all" })).toHaveAttribute("aria-selected", "true");
+    });
 });

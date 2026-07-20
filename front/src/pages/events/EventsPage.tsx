@@ -30,6 +30,7 @@ const SORT_MAPPING: Record<
 };
 const DEFAULT_SORT = "event-date-asc";
 const SORT_IDS = new Set(Object.keys(SORT_MAPPING));
+const EVENT_TAB_IDS = new Set(["all", "upcoming", "past", "attending"]);
 
 const mapSortParams = (id: string) => SORT_MAPPING[id] ?? SORT_MAPPING["event-date-asc"];
 
@@ -64,7 +65,8 @@ export default function EventsListPage() {
     const sortButtonRef = useRef<HTMLButtonElement>(null);
     const { filters, applyFilters, resetFilters } = useUrlSyncedListingFilters();
     const tabParam = searchParams.get("tab") ?? "all";
-    const activeTab = logged || tabParam !== "attending" ? tabParam : "all";
+    const sanitizedTab = EVENT_TAB_IDS.has(tabParam) ? tabParam : "all";
+    const activeTab = logged || sanitizedTab !== "attending" ? sanitizedTab : "all";
     const sortParam = searchParams.get("sort") ?? DEFAULT_SORT;
     const selectedSort = SORT_IDS.has(sortParam) ? sortParam : DEFAULT_SORT;
     const appliedSearch = (searchParams.get("search") ?? "").trim();

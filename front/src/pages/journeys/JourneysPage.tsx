@@ -19,6 +19,7 @@ import Pagination from "@/components/listing/Pagination";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 
 const DEFAULT_SORT = "journey-start-asc";
+const JOURNEY_TAB_IDS = new Set(["all", "myDestination", "ongoing", "upcoming", "past"]);
 
 const parseIdFromUrl = (url?: string | null) => {
     if (!url) {
@@ -55,7 +56,8 @@ export default function JourneysListPage() {
     const sortButtonRef = useRef<HTMLButtonElement>(null);
     const { filters, applyFilters, resetFilters } = useUrlSyncedListingFilters();
     const tabParam = searchParams.get("tab") ?? "all";
-    const activeTab = canSeeMyDestination || tabParam !== "myDestination" ? tabParam : "all";
+    const sanitizedTab = JOURNEY_TAB_IDS.has(tabParam) ? tabParam : "all";
+    const activeTab = canSeeMyDestination || sanitizedTab !== "myDestination" ? sanitizedTab : "all";
     const sortParam = searchParams.get("sort") ?? DEFAULT_SORT;
     const selectedSort = ["journey-start-asc", "journey-start-desc", "journey-end-asc", "journey-end-desc"].includes(sortParam)
         ? sortParam
