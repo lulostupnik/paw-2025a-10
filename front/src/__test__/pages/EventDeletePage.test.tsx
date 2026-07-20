@@ -65,7 +65,7 @@ beforeEach(() => {
     vi.clearAllMocks();
     mockUserId = 7;
     mockDeleteEvent.mockResolvedValue(undefined);
-    mockUseEventDetailData.mockReturnValue({ data: ownedEvent, isLoading: false, isError: false });
+    mockUseEventDetailData.mockReturnValue({ data: ownedEvent, isLoading: false, isError: false, isNotFound: false });
 });
 
 describe("EventDeletePage", () => {
@@ -94,5 +94,14 @@ describe("EventDeletePage", () => {
         await waitFor(() => expect(mockDeleteEvent).toHaveBeenCalled());
         expect(router.state.location.pathname).toBe("/events/1/delete");
         expect(queryClient.getQueryState(["events", { page: 1 }])?.isInvalidated).toBe(false);
+    });
+
+    it("shows not found message when event does not exist", () => {
+        mockUseEventDetailData.mockReturnValue({ data: null, isLoading: false, isError: false, isNotFound: true });
+        const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+        renderPage(queryClient);
+
+        expect(screen.getByText("event.not.found.title")).toBeInTheDocument();
     });
 });

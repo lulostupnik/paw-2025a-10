@@ -52,8 +52,10 @@ export default function EventCard({ event }: EventCardProps) {
 
     const dateLabel = event.date ? dateFormatter.format(new Date(`${event.date}T00:00:00`)) : t("events.card.dateFallback");
     const timeLabel =
-        "time" in event && event.date && event.time
-            ? timeFormatter.format(new Date(`${event.date}T${event.time}`))
+        "time" in event && event.date
+            ? (event.time
+                ? timeFormatter.format(new Date(`${event.date}T${event.time}`))
+                : t("event.allDayEvent"))
             : t("events.card.timeFallback");
     const locationLabel =
         ("city" in event && event.city?.name) || ("address" in event && event.address?.trim()) || t("events.card.locationFallback");

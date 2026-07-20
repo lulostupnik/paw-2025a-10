@@ -95,10 +95,14 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
           }
         : null;
 
+    const status = (eventQuery.error as { response?: { status?: number } } | undefined)?.response?.status;
+    const isNotFound = status === 404;
+
     return {
         data,
         isLoading: eventQuery.isLoading,
-        isError: eventQuery.isError,
+        isError: eventQuery.isError && !isNotFound,
+        isNotFound,
         isFetching: eventQuery.isFetching,
         creatorLoading: creatorQuery.isLoading,
         creatorError: creatorQuery.isError,

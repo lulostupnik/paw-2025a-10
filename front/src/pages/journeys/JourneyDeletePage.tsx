@@ -12,6 +12,7 @@ import { invalidateJourneyDetailQueries, invalidateJourneyListQueries } from "@/
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
+const DELETE_MESSAGE_MAX_LENGTH = 1000;
 
 const formatDate = (value: string, locale: string) => {
     const date = parseApiDate(value);
@@ -53,6 +54,11 @@ export default function JourneyDeletePage() {
             setSubmitError(t("journey.edit.error", { defaultValue: "No journey id provided." }));
             return;
         }
+        if (message.trim().length > DELETE_MESSAGE_MAX_LENGTH) {
+            document.getElementById("journey-delete-message")?.focus();
+            document.getElementById("journey-delete-message")?.scrollIntoView({ block: "center", behavior: "smooth" });
+            return;
+        }
         try {
             setSubmitting(true);
             setSubmitError(null);
@@ -76,7 +82,14 @@ export default function JourneyDeletePage() {
     }
 
     if (isNotFound) {
-        return <div className="journey-detail-page">{t("journey.not.found.title", { defaultValue: "Journey not found." })}</div>;
+        return (
+            <div className="journey-detail-page">
+                <div className="empty-state">
+                    <p className="empty-message">{t("journey.not.found.title", { defaultValue: "Journey not found." })}</p>
+                    <p className="empty-message">{t("journey.not.found.message")}</p>
+                </div>
+            </div>
+        );
     }
 
     if (isError) {
@@ -147,6 +160,9 @@ export default function JourneyDeletePage() {
                                             onChange={(event) => setMessage(event.target.value)}
                                             rows={4}
                                         />
+                                        <p className={`character-counter ${message.trim().length > DELETE_MESSAGE_MAX_LENGTH ? "is-error" : ""}`}>
+                                            {message.trim().length}/{DELETE_MESSAGE_MAX_LENGTH}
+                                        </p>
                                     </div>
                                 )}
 

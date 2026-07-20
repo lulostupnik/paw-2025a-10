@@ -41,7 +41,7 @@ export const useProfileEvents = (profileId: string, params: ProfileEventsParams 
             const [createdEvents, attendingEvents, finishedEvents] = await Promise.all([
                 fetchEvents({ creatorId: Number(resolvedId), page: params.createdPage, size: params.size }, signal),
                 fetchEvents({ attendedBy: Number(resolvedId), afterDate: today, page: params.attendingPage, size: params.size }, signal),
-                fetchEvents({ creatorId: Number(resolvedId), beforeDate: today, page: params.finishedPage, size: params.size }, signal),
+                fetchEvents({ attendedBy: Number(resolvedId), beforeDate: today, page: params.finishedPage, size: params.size }, signal),
             ]);
             return {
                 created: mapPageList(createdEvents, await buildProfileEvent(createdEvents.content, signal, queryClient)),

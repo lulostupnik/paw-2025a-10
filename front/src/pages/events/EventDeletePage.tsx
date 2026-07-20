@@ -12,6 +12,7 @@ import { invalidateEventDetailQueries, invalidateEventListQueries } from "@/lib/
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import { parseApiDate } from "@/lib/utils/date";
+const DELETE_MESSAGE_MAX_LENGTH = 1000;
 
 const formatDate = (value: string, locale: string) => {
     const date = parseApiDate(value);
@@ -27,7 +28,7 @@ export default function EventDeletePage() {
     const { showToast } = useToast();
     const queryClient = useQueryClient();
     const { id } = useParams();
-    const { data, isLoading, isError } = useEventDetailData({ eventId: id });
+    const { data, isLoading, isError, isNotFound } = useEventDetailData({ eventId: id });
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
@@ -52,6 +53,11 @@ export default function EventDeletePage() {
             setSubmitError(t("event.edit.error", { defaultValue: "Missing event id." }));
             return;
         }
+        if (message.trim().length > DELETE_MESSAGE_MAX_LENGTH) {
+            document.getElementById("event-delete-message")?.focus();
+            document.getElementById("event-delete-message")?.scrollIntoView({ block: "center", behavior: "smooth" });
+            return;
+        }
         try {
             setSubmitting(true);
             setSubmitError(null);
@@ -72,6 +78,17 @@ export default function EventDeletePage() {
 
     if (isLoading) {
         return <PageStatus className="event-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
+    }
+
+    if (isNotFound) {
+        return (
+            <div className="event-detail-page">
+                <div className="empty-state">
+                    <p className="empty-message">{t("event.not.found.title", { defaultValue: "Event not found." })}</p>
+                    <p className="empty-message">{t("event.not.found.message")}</p>
+                </div>
+            </div>
+        );
     }
 
     if (isError) {
@@ -152,6 +169,9 @@ export default function EventDeletePage() {
                                             onChange={(event) => setMessage(event.target.value)}
                                             rows={4}
                                         />
+                                        <p className={`character-counter ${message.trim().length > DELETE_MESSAGE_MAX_LENGTH ? "is-error" : ""}`}>
+                                            {message.trim().length}/{DELETE_MESSAGE_MAX_LENGTH}
+                                        </p>
                                     </div>
                                 )}
 
