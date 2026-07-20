@@ -5,6 +5,7 @@ import { classNames } from "@/lib/utils/classNames";
 interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     label: ReactNode;
     helperText?: string;
+    helperTextClassName?: string;
     errorText?: string;
     containerClassName?: string;
 }
@@ -12,6 +13,7 @@ interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 export default function TextField({
     label,
     helperText,
+    helperTextClassName,
     errorText,
     id,
     className,
@@ -20,7 +22,9 @@ export default function TextField({
 }: TextFieldProps) {
     const autoId = useId();
     const inputId = id ?? autoId;
-    const describedBy = errorText ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined;
+    const describedBy = [helperText ? `${inputId}-helper` : null, errorText ? `${inputId}-error` : null]
+        .filter(Boolean)
+        .join(" ") || undefined;
 
     return (
         <div className={classNames("form-field", containerClassName)}>
@@ -34,13 +38,14 @@ export default function TextField({
                 aria-describedby={describedBy}
                 {...props}
             />
+            {helperText ? (
+                <p id={`${inputId}-helper`} className={classNames("form-field__text", helperTextClassName)}>
+                    {helperText}
+                </p>
+            ) : null}
             {errorText ? (
                 <p id={`${inputId}-error`} className="form-field__text form-field__text--error">
                     {errorText}
-                </p>
-            ) : helperText ? (
-                <p id={`${inputId}-helper`} className="form-field__text">
-                    {helperText}
                 </p>
             ) : null}
         </div>

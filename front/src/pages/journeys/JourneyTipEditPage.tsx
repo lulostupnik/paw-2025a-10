@@ -12,6 +12,9 @@ import { getJourneyTip, updateJourneyTip } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import type { JourneyDetail, JourneyTip } from "@/types/journey";
 
+const TIP_TITLE_MAX_LENGTH = 255;
+const TIP_CONTENT_MAX_LENGTH = 2047;
+
 export default function JourneyTipEditPage() {
     const { t } = useI18n();
     const navigate = useNavigate();
@@ -134,6 +137,10 @@ function JourneyTipEditForm({ journey, tip, journeyId, tipsPage, onBack }: Journ
             setSubmitError(null);
             return;
         }
+        if (title.length > TIP_TITLE_MAX_LENGTH || content.length > TIP_CONTENT_MAX_LENGTH) {
+            setSubmitError(null);
+            return;
+        }
         try {
             setSubmitting(true);
             setSubmitError(null);
@@ -152,8 +159,16 @@ function JourneyTipEditForm({ journey, tip, journeyId, tipsPage, onBack }: Journ
         }
     };
 
-    const titleError = touched.title && !title.trim() ? t("NotEmpty.createTipForm.title") : "";
-    const contentError = touched.content && !content.trim() ? t("NotEmpty.createTipForm.content") : "";
+    const titleError = touched.title && !title.trim()
+        ? t("NotEmpty.createTipForm.title")
+        : title.length > TIP_TITLE_MAX_LENGTH
+          ? t("tip.validation.title.length")
+          : "";
+    const contentError = touched.content && !content.trim()
+        ? t("NotEmpty.createTipForm.content")
+        : content.length > TIP_CONTENT_MAX_LENGTH
+          ? t("tip.validation.content.length")
+          : "";
 
     return (
         <div className="journey-detail-page journey-tip-form-page">
@@ -234,7 +249,7 @@ function JourneyTipEditForm({ journey, tip, journeyId, tipsPage, onBack }: Journ
                                             </label>
                                             <input
                                                 id="tip-title"
-                                                className={titleError ? "form-input error" : "form-input"}
+                                                className={titleError || title.length > TIP_TITLE_MAX_LENGTH ? "form-input error" : "form-input"}
                                                 placeholder={t("tip.title.hint")}
                                                 value={title}
                                                 onChange={(event) => {
@@ -243,6 +258,9 @@ function JourneyTipEditForm({ journey, tip, journeyId, tipsPage, onBack }: Journ
                                                 }}
                                                 onBlur={() => setTouched((prev) => ({ ...prev, title: true }))}
                                             />
+                                            <p className={`character-counter ${title.length > TIP_TITLE_MAX_LENGTH ? "is-error" : ""}`}>
+                                                {title.length}/{TIP_TITLE_MAX_LENGTH}
+                                            </p>
                                             {titleError && <p className="form-field__text form-field__text--error">{titleError}</p>}
                                         </div>
 
@@ -252,7 +270,7 @@ function JourneyTipEditForm({ journey, tip, journeyId, tipsPage, onBack }: Journ
                                             </label>
                                             <textarea
                                                 id="tip-content"
-                                                className={contentError ? "form-textarea error" : "form-textarea"}
+                                                className={contentError || content.length > TIP_CONTENT_MAX_LENGTH ? "form-textarea error" : "form-textarea"}
                                                 placeholder={t("tip.content.hint")}
                                                 value={content}
                                                 onChange={(event) => {
@@ -262,6 +280,9 @@ function JourneyTipEditForm({ journey, tip, journeyId, tipsPage, onBack }: Journ
                                                 onBlur={() => setTouched((prev) => ({ ...prev, content: true }))}
                                                 rows={6}
                                             />
+                                            <p className={`character-counter ${content.length > TIP_CONTENT_MAX_LENGTH ? "is-error" : ""}`}>
+                                                {content.length}/{TIP_CONTENT_MAX_LENGTH}
+                                            </p>
                                             {contentError && <p className="form-field__text form-field__text--error">{contentError}</p>}
                                         </div>
 

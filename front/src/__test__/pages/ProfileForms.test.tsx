@@ -211,6 +211,19 @@ describe("Profile forms", () => {
         expect(screen.getByTestId("career")).toHaveTextContent("Math");
     });
 
+    it("shows field-specific validation when username is too long", async () => {
+        const user = userEvent.setup();
+        renderWithRouter("/profiles/me/edit", { from: "/profiles/me/info" });
+
+        const usernameInput = screen.getByLabelText("profile.username");
+        await user.clear(usernameInput);
+        await user.type(usernameInput, "a".repeat(51));
+        await user.click(screen.getByRole("button", { name: /profile.save.changes/i }));
+
+        expect(screen.getByText("profile.validation.username.length")).toBeInTheDocument();
+        expect(mockUpdateProfile).not.toHaveBeenCalled();
+    });
+
     it("shows backend error when picture update fails", async () => {
         const user = userEvent.setup();
         mockUpdatePicture.mockRejectedValueOnce({

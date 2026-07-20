@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { ProfileDetail } from "@/types/profile";
 import { useI18n } from "@/lib/i18n";
@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/ToastProvider";
 import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 import { apiErrorMessage } from "@/lib/api/client";
 import PageStatus from "@/components/ui/PageStatus";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 interface ProfileFormState {
     firstName: string;
@@ -32,6 +33,12 @@ interface ProfileEditFormProps {
     careers: Option[];
     hasOptionsError: boolean;
 }
+
+const PROFILE_LIMITS = {
+    username: { min: 2, max: 50 },
+    firstName: { min: 2, max: 100 },
+    lastName: { min: 2, max: 100 },
+} as const;
 
 export default function ProfileForm() {
     const { t } = useI18n();
@@ -101,6 +108,7 @@ function ProfileEditForm({ profileId, profile, universities, careers, hasOptions
     const [selectedCareer, setSelectedCareer] = useState<Option | null>(
         () => careers.find((item) => item.name === profile.career?.name) ?? null
     );
+    const formRef = useRef<HTMLFormElement>(null);
     const returnPathKey = `profile:return:${profileId}`;
     const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
     const returnPath = fromState ?? sanitizeInternalPath(sessionStorage.getItem(returnPathKey));
@@ -113,9 +121,21 @@ function ProfileEditForm({ profileId, profile, universities, careers, hasOptions
 
     const errors = useMemo(
         () => ({
-            firstName: form.firstName.trim() ? "" : t("NotNull.createUserForm.firstName", { defaultValue: "Campo obligatorio." }),
-            lastName: form.lastName.trim() ? "" : t("NotNull.createUserForm.lastName", { defaultValue: "Campo obligatorio." }),
-            username: form.username.trim() ? "" : t("NotNull.createUserForm.username", { defaultValue: "Campo obligatorio." }),
+            firstName: !form.firstName.trim()
+                ? t("NotNull.createUserForm.firstName", { defaultValue: "Campo obligatorio." })
+                : form.firstName.trim().length < PROFILE_LIMITS.firstName.min || form.firstName.trim().length > PROFILE_LIMITS.firstName.max
+                  ? t("profile.validation.firstName.length")
+                  : "",
+            lastName: !form.lastName.trim()
+                ? t("NotNull.createUserForm.lastName", { defaultValue: "Campo obligatorio." })
+                : form.lastName.trim().length < PROFILE_LIMITS.lastName.min || form.lastName.trim().length > PROFILE_LIMITS.lastName.max
+                  ? t("profile.validation.lastName.length")
+                  : "",
+            username: !form.username.trim()
+                ? t("NotNull.createUserForm.username", { defaultValue: "Campo obligatorio." })
+                : form.username.trim().length < PROFILE_LIMITS.username.min || form.username.trim().length > PROFILE_LIMITS.username.max
+                  ? t("profile.validation.username.length")
+                  : "",
         }),
         [form, t]
     );
@@ -125,6 +145,7 @@ function ProfileEditForm({ profileId, profile, universities, careers, hasOptions
         setTouched({ firstName: true, lastName: true, username: true });
         setSubmitError(null);
         if (errors.firstName || errors.lastName || errors.username) {
+            focusFirstInvalidField(formRef.current ?? event.currentTarget);
             return;
         }
         try {
@@ -167,7 +188,7 @@ function ProfileEditForm({ profileId, profile, universities, careers, hasOptions
                         <p className="auth-subtitle">{t("profile.edit.subtitle")}</p>
                     </div>
 
-                    <form className="auth-form profile-edit-form" onSubmit={handleSubmit} noValidate>
+                    <form ref={formRef} className="auth-form profile-edit-form" onSubmit={handleSubmit} noValidate>
                         <div className="form-section">
                             <h3 className="section-title">{t("profile.edit.personal.info")}</h3>
 
@@ -179,10 +200,14 @@ function ProfileEditForm({ profileId, profile, universities, careers, hasOptions
                                     <input
                                         id="firstName"
                                         className={`form-input required ${touched.firstName && errors.firstName ? "error" : ""}`}
+                                        aria-invalid={touched.firstName && errors.firstName ? true : undefined}
                                         value={form.firstName}
                                         onChange={(event) => setForm((prev) => ({ ...prev, firstName: event.target.value }))}
                                         onBlur={() => setTouched((prev) => ({ ...prev, firstName: true }))}
                                     />
+                                    <p className={`character-counter ${form.firstName.trim().length > PROFILE_LIMITS.firstName.max ? "is-error" : ""}`}>
+                                        {form.firstName.trim().length}/{PROFILE_LIMITS.firstName.max}
+                                    </p>
                                     {touched.firstName && errors.firstName && <p className="error-message">{errors.firstName}</p>}
                                 </div>
 
@@ -193,10 +218,14 @@ function ProfileEditForm({ profileId, profile, universities, careers, hasOptions
                                     <input
                                         id="lastName"
                                         className={`form-input required ${touched.lastName && errors.lastName ? "error" : ""}`}
+                                        aria-invalid={touched.lastName && errors.lastName ? true : undefined}
                                         value={form.lastName}
                                         onChange={(event) => setForm((prev) => ({ ...prev, lastName: event.target.value }))}
                                         onBlur={() => setTouched((prev) => ({ ...prev, lastName: true }))}
                                     />
+                                    <p className={`character-counter ${form.lastName.trim().length > PROFILE_LIMITS.lastName.max ? "is-error" : ""}`}>
+                                        {form.lastName.trim().length}/{PROFILE_LIMITS.lastName.max}
+                                    </p>
                                     {touched.lastName && errors.lastName && <p className="error-message">{errors.lastName}</p>}
                                 </div>
                             </div>
@@ -208,10 +237,14 @@ function ProfileEditForm({ profileId, profile, universities, careers, hasOptions
                                 <input
                                     id="username"
                                     className={`form-input required ${touched.username && errors.username ? "error" : ""}`}
+                                    aria-invalid={touched.username && errors.username ? true : undefined}
                                     value={form.username}
                                     onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
                                     onBlur={() => setTouched((prev) => ({ ...prev, username: true }))}
                                 />
+                                <p className={`character-counter ${form.username.trim().length > PROFILE_LIMITS.username.max ? "is-error" : ""}`}>
+                                    {form.username.trim().length}/{PROFILE_LIMITS.username.max}
+                                </p>
                                 {touched.username && errors.username && <p className="error-message">{errors.username}</p>}
                             </div>
                         </div>

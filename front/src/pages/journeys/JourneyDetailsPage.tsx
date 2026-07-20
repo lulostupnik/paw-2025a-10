@@ -25,6 +25,7 @@ import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 const TIPS_PAGE_PARAM = "tipsPage";
 const COMMENTS_PAGE_PARAM = "commentsPage";
+const JOURNEY_COMMENT_MAX_LENGTH = 2047;
 const INTERESTS_PAGE_PARAM = "interestsPage";
 const EVENTS_TAB_PARAM = "eventsTab";
 const CREATED_EVENTS_PAGE_PARAM = "createdEventsPage";
@@ -477,6 +478,10 @@ export default function JourneyDetailPage() {
             }
             if (!replyMessage.trim()) {
                 setReplyError(t("NotNull.replyJourneyForm.message", { defaultValue: "Please enter a message." }));
+                return;
+            }
+            if (replyMessage.length > JOURNEY_COMMENT_MAX_LENGTH) {
+                setReplyError(t("comment.validation.length"));
                 return;
             }
             try {
@@ -1200,7 +1205,7 @@ export default function JourneyDetailPage() {
                                                 </label>
                                                 <textarea
                                                     id="journey-reply"
-                                                    className="form-textarea"
+                                                    className={replyMessage.length > JOURNEY_COMMENT_MAX_LENGTH ? "form-textarea error" : "form-textarea"}
                                                     placeholder={t("reply.message.hint")}
                                                     value={replyMessage}
                                                     onChange={(event) => {
@@ -1213,6 +1218,12 @@ export default function JourneyDetailPage() {
                                                         }
                                                     }}
                                                 />
+                                                <p className={`character-counter ${replyMessage.length > JOURNEY_COMMENT_MAX_LENGTH ? "is-error" : ""}`}>
+                                                    {replyMessage.length}/{JOURNEY_COMMENT_MAX_LENGTH}
+                                                </p>
+                                                {replyMessage.length > JOURNEY_COMMENT_MAX_LENGTH && (
+                                                    <p className="form-field__text form-field__text--error">{t("comment.validation.length")}</p>
+                                                )}
                                             </div>
                                             {replySuccess && <p className="form-field__text">{replySuccess}</p>}
                                             {replyError && <p className="error-message">{replyError}</p>}

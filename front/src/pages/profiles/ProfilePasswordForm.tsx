@@ -6,6 +6,7 @@ import { classNames } from "@/lib/utils/classNames";
 import { useToast } from "@/components/ui/ToastProvider";
 import { apiErrorMessage } from "@/lib/api/client";
 import { sanitizeInternalPath } from "@/lib/utils/internalPath";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 type PasswordStrengthStatus = "empty" | "very-weak" | "weak" | "medium" | "strong";
 
@@ -60,6 +61,7 @@ export default function ProfilePasswordForm() {
         setTouched({ password: true, confirmPassword: true });
         setSubmitError(null);
         if (!password || !confirmPassword || !passwordsMatch) {
+            focusFirstInvalidField(event.currentTarget);
             return;
         }
         try {

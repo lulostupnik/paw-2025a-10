@@ -1,5 +1,5 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useCallback, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useCallback, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/ui/Button";
@@ -17,6 +17,7 @@ import { getTodayIsoDate } from "@/lib/utils/date";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { invalidateJourneyDetailQueries, invalidateJourneyListQueries } from "@/lib/api/queryInvalidation";
 import type { JourneyDetail } from "@/types/journey";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 interface JourneyFormState {
     startDate: string;
@@ -35,6 +36,7 @@ const API_FIELD_TO_FORM_FIELD: Record<string, JourneyField> = {
     destinationUniversityId: "destination",
     description: "description",
 };
+const JOURNEY_DESCRIPTION_MAX_LENGTH = 2047;
 
 const addDays = (dateValue: string, days: number) => {
     const [year, month, day] = dateValue.split("-").map(Number);
@@ -107,7 +109,6 @@ function JourneyEditForm({ journey }: JourneyEditFormProps) {
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [destinationQuery, setDestinationQuery] = useState(() => journey.destinationUniversity?.name ?? "");
-    const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
     const markTouched = useCallback((field: JourneyField) => {
         setTouched((prev) => ({ ...prev, [field]: true }));
@@ -148,6 +149,8 @@ function JourneyEditForm({ journey }: JourneyEditFormProps) {
             }
             if (!state.description.trim()) {
                 nextErrors.description = t("journey.create.validation.description");
+            } else if (state.description.trim().length < 2 || state.description.trim().length > JOURNEY_DESCRIPTION_MAX_LENGTH) {
+                nextErrors.description = t("event.create.validation.descriptionLength");
             }
             return nextErrors;
         },
@@ -167,9 +170,7 @@ function JourneyEditForm({ journey }: JourneyEditFormProps) {
         setErrors(nextErrors);
         setSubmitError(null);
         if (Object.keys(nextErrors).length > 0) {
-            if (nextErrors.description) {
-                descriptionRef.current?.focus();
-            }
+            focusFirstInvalidField(event.currentTarget);
             return;
         }
 
@@ -196,6 +197,7 @@ function JourneyEditForm({ journey }: JourneyEditFormProps) {
             const serverErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(serverErrors).length > 0) {
                 setErrors((prev) => ({ ...prev, ...serverErrors }));
+                focusFirstInvalidField(event.currentTarget);
             } else {
                 setSubmitError(apiErrorMessage(err, t("journey.edit.error", { defaultValue: "Error al actualizar el viaje." })));
             }
@@ -287,7 +289,6 @@ function JourneyEditForm({ journey }: JourneyEditFormProps) {
                         </label>
                         <textarea
                             id="journey-description"
-                            ref={descriptionRef}
                             className={classNames("input-control", touched.description && errors.description && "input-control--error")}
                             placeholder={t("journey.description.hint")}
                             value={form.description}
@@ -295,6 +296,9 @@ function JourneyEditForm({ journey }: JourneyEditFormProps) {
                             onBlur={() => markTouched("description")}
                             rows={6}
                         />
+                        <p className={`character-counter ${form.description.trim().length > JOURNEY_DESCRIPTION_MAX_LENGTH ? "is-error" : ""}`}>
+                            {form.description.trim().length}/{JOURNEY_DESCRIPTION_MAX_LENGTH}
+                        </p>
                         {!errors.description && <p className="form-field__text">{t("journey.create.description.helper")}</p>}
                         {touched.description && errors.description && (
                             <p className="form-field__text form-field__text--error">{errors.description}</p>

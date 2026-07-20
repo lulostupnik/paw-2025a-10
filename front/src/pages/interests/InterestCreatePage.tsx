@@ -9,6 +9,7 @@ import { createInterest, type InterestPayload } from "@/lib/api/interests";
 import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 interface InterestFormState {
     name: string;
@@ -65,6 +66,7 @@ export default function InterestCreatePage() {
             const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(nextServerErrors).length > 0) {
                 setServerErrors(nextServerErrors);
+                focusFirstInvalidField(document.querySelector(".auth-form"));
             } else {
                 setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             }
@@ -76,6 +78,7 @@ export default function InterestCreatePage() {
         setTouched({ name: true });
         setServerErrors({});
         if (clientErrors.name) {
+            focusFirstInvalidField(event.currentTarget);
             return;
         }
         setSubmitError(null);

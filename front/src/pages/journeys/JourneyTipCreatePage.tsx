@@ -10,6 +10,8 @@ import { createJourneyTip, listJourneyTips } from "@/lib/api/journeys";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 
 const TIPS_PAGE_SIZE = 4;
+const TIP_TITLE_MAX_LENGTH = 255;
+const TIP_CONTENT_MAX_LENGTH = 2047;
 
 export default function JourneyTipCreatePage() {
     const { t } = useI18n();
@@ -61,6 +63,10 @@ export default function JourneyTipCreatePage() {
             setSubmitError(null);
             return;
         }
+        if (title.length > TIP_TITLE_MAX_LENGTH || content.length > TIP_CONTENT_MAX_LENGTH) {
+            setSubmitError(null);
+            return;
+        }
         try {
             setSubmitting(true);
             setSubmitError(null);
@@ -97,9 +103,13 @@ export default function JourneyTipCreatePage() {
 
     const titleError = touched.title && !title.trim()
         ? t("NotEmpty.createTipForm.title")
+        : title.length > TIP_TITLE_MAX_LENGTH
+          ? t("tip.validation.title.length")
         : "";
     const contentError = touched.content && !content.trim()
         ? t("NotEmpty.createTipForm.content")
+        : content.length > TIP_CONTENT_MAX_LENGTH
+          ? t("tip.validation.content.length")
         : "";
 
     return (
@@ -169,7 +179,7 @@ export default function JourneyTipCreatePage() {
                                             </label>
                                             <input
                                                 id="tip-title"
-                                                className={titleError ? "form-input error" : "form-input"}
+                                                className={titleError || title.length > TIP_TITLE_MAX_LENGTH ? "form-input error" : "form-input"}
                                                 placeholder={t("tip.title.hint")}
                                                 value={title}
                                                 onChange={(event) => {
@@ -178,6 +188,9 @@ export default function JourneyTipCreatePage() {
                                                 }}
                                                 onBlur={() => setTouched((prev) => ({ ...prev, title: true }))}
                                             />
+                                            <p className={`character-counter ${title.length > TIP_TITLE_MAX_LENGTH ? "is-error" : ""}`}>
+                                                {title.length}/{TIP_TITLE_MAX_LENGTH}
+                                            </p>
                                             {titleError && <p className="form-field__text form-field__text--error">{titleError}</p>}
                                         </div>
 
@@ -187,7 +200,7 @@ export default function JourneyTipCreatePage() {
                                             </label>
                                             <textarea
                                                 id="tip-content"
-                                                className={contentError ? "form-textarea error" : "form-textarea"}
+                                                className={contentError || content.length > TIP_CONTENT_MAX_LENGTH ? "form-textarea error" : "form-textarea"}
                                                 placeholder={t("tip.content.hint")}
                                                 value={content}
                                                 onChange={(event) => {
@@ -197,6 +210,9 @@ export default function JourneyTipCreatePage() {
                                                 onBlur={() => setTouched((prev) => ({ ...prev, content: true }))}
                                                 rows={6}
                                             />
+                                            <p className={`character-counter ${content.length > TIP_CONTENT_MAX_LENGTH ? "is-error" : ""}`}>
+                                                {content.length}/{TIP_CONTENT_MAX_LENGTH}
+                                            </p>
                                             {contentError && <p className="form-field__text form-field__text--error">{contentError}</p>}
                                         </div>
 

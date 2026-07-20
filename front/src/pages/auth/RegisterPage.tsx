@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
@@ -15,6 +15,7 @@ import { useRegister } from "@/hooks/useRegister";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import InterestMultiSelectField from "@/components/form/InterestMultiSelectField";
 import { useAsyncCatalogOptions, useDropdownState } from "@/components/form/catalogAutocompleteHooks";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 type RegisterField =
     | "email"
@@ -85,6 +86,12 @@ const API_FIELD_TO_FORM_FIELD: Record<string, RegisterField> = {
     careerId: "career",
     interestIds: "interests",
 };
+
+const REGISTER_LIMITS = {
+    username: 50,
+    firstName: 100,
+    lastName: 100,
+} as const;
 
 function evaluatePassword(value: string): PasswordStrength {
     if (!value) {
@@ -228,6 +235,8 @@ function validateForm(data: RegisterFormData, t: (key: string, options?: Record<
         errors.username = t("register.validation.username.min");
     } else if (/\s/.test(data.username)) {
         errors.username = t("register.validation.username.spaces");
+    } else if (data.username.trim().length > REGISTER_LIMITS.username) {
+        errors.username = t("register.validation.username.length");
     }
 
     if (!data.password) {
@@ -244,10 +253,14 @@ function validateForm(data: RegisterFormData, t: (key: string, options?: Record<
 
     if (!data.firstName.trim()) {
         errors.firstName = t("register.validation.firstName.required");
+    } else if (data.firstName.trim().length > REGISTER_LIMITS.firstName) {
+        errors.firstName = t("register.validation.firstName.length");
     }
 
     if (!data.lastName.trim()) {
         errors.lastName = t("register.validation.lastName.required");
+    } else if (data.lastName.trim().length > REGISTER_LIMITS.lastName) {
+        errors.lastName = t("register.validation.lastName.length");
     }
 
     if (!data.career) {
@@ -275,6 +288,7 @@ export default function RegisterPage() {
     const [serverErrors, setServerErrors] = useState<ValidationResult>({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const formRef = useRef<HTMLFormElement>(null);
 
     const passwordStrength = useMemo(() => evaluatePassword(form.password), [form.password]);
     const clientErrors = useMemo(() => validateForm(form, t), [form, t]);
@@ -315,6 +329,7 @@ export default function RegisterPage() {
         setServerErrors({});
 
         if (Object.keys(clientErrors).length > 0) {
+            focusFirstInvalidField(formRef.current ?? event.currentTarget);
             return;
         }
 
@@ -335,6 +350,7 @@ export default function RegisterPage() {
             const nextServerErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(nextServerErrors).length > 0) {
                 setServerErrors(nextServerErrors);
+                focusFirstInvalidField(formRef.current);
                 // Con errores por campo no mostramos el banner global del hook.
                 reset();
             }
@@ -375,7 +391,7 @@ export default function RegisterPage() {
         <div className="page-shell register-page">
             {header}
 
-            <form className="register-form card" onSubmit={onSubmit} noValidate>
+            <form ref={formRef} className="register-form card" onSubmit={onSubmit} noValidate>
                 <div className="register-grid">
                     <div className="register-column">
                         <div className="form-field">
@@ -406,11 +422,15 @@ export default function RegisterPage() {
                                 id="field-username"
                                 type="text"
                                 className={classNames("input-control", touched.username && errors.username && "input-control--error")}
+                                aria-invalid={touched.username && errors.username ? true : undefined}
                                 value={form.username}
                                 onChange={handleTextChange("username")}
                                 onBlur={() => markTouched("username")}
                                 placeholder="gogether_user"
                             />
+                            <p className={`character-counter ${form.username.trim().length > REGISTER_LIMITS.username ? "is-error" : ""}`}>
+                                {form.username.trim().length}/{REGISTER_LIMITS.username}
+                            </p>
                             {touched.username && errors.username && (
                                 <p className="form-field__text form-field__text--error">{errors.username}</p>
                             )}
@@ -522,6 +542,9 @@ export default function RegisterPage() {
                                     onBlur={() => markTouched("firstName")}
                                     placeholder={t("register.firstNamePlaceholder")}
                                 />
+                                <p className={`character-counter ${form.firstName.trim().length > REGISTER_LIMITS.firstName ? "is-error" : ""}`}>
+                                    {form.firstName.trim().length}/{REGISTER_LIMITS.firstName}
+                                </p>
                                 {touched.firstName && errors.firstName && (
                                     <p className="form-field__text form-field__text--error">{errors.firstName}</p>
                                 )}
@@ -544,6 +567,9 @@ export default function RegisterPage() {
                                     onBlur={() => markTouched("lastName")}
                                     placeholder={t("register.lastNamePlaceholder")}
                                 />
+                                <p className={`character-counter ${form.lastName.trim().length > REGISTER_LIMITS.lastName ? "is-error" : ""}`}>
+                                    {form.lastName.trim().length}/{REGISTER_LIMITS.lastName}
+                                </p>
                                 {touched.lastName && errors.lastName && (
                                     <p className="form-field__text form-field__text--error">{errors.lastName}</p>
                                 )}

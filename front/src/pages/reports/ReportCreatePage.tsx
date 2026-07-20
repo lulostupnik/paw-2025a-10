@@ -1,10 +1,11 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import { createReport, type ReportReason, type ReportType } from "@/lib/api/reports";
 import { useI18n } from "@/lib/i18n";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 const REASONS: ReportReason[] = [
     "SPAM",
@@ -16,7 +17,7 @@ const REASONS: ReportReason[] = [
     "OTHER",
 ];
 
-const MAX_DESCRIPTION_LENGTH = 500;
+const MAX_DESCRIPTION_LENGTH = 2047;
 
 interface ReportCreatePageProps {
     reportType: ReportType;
@@ -32,6 +33,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
     const [touched, setTouched] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [serverError, setServerError] = useState("");
+    const formRef = useRef<HTMLFormElement>(null);
 
     const descriptionError = useMemo(() => {
         const trimmed = description.trim();
@@ -75,6 +77,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
         event.preventDefault();
         setTouched(true);
         if (!Number.isFinite(targetId) || reasonError || descriptionError) {
+            focusFirstInvalidField(formRef.current ?? event.currentTarget);
             return;
         }
 
@@ -125,7 +128,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
 
                 {serverError && <p className="form-field__text form-field__text--error">{serverError}</p>}
 
-                <form className="journey-form" onSubmit={handleSubmit} noValidate>
+                <form ref={formRef} className="journey-form" onSubmit={handleSubmit} noValidate>
                     <div className="form-field">
                         <label className="input-label" htmlFor="report-reason">
                             {t("report.reason.label")}
@@ -136,6 +139,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
                         <select
                             id="report-reason"
                             className={touched && reasonError ? "input-control input-control--error" : "input-control"}
+                            aria-invalid={touched && reasonError ? true : undefined}
                             value={reason}
                             onChange={(event) => {
                                 setServerError("");
@@ -168,7 +172,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
                             id="report-description"
                             className={touched && descriptionError ? "input-control input-control--error" : "input-control"}
                             rows={6}
-                            maxLength={MAX_DESCRIPTION_LENGTH}
+                            aria-invalid={touched && descriptionError ? true : undefined}
                             value={description}
                             onChange={(event) => {
                                 setServerError("");

@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAsyncCatalogOptions, useDropdownState } from "@/components/form/catalogAutocompleteHooks";
 
 interface CatalogAutocompleteFieldProps {
+    id?: string;
     label: string;
     placeholder: string;
     value: CatalogOption | null;
@@ -20,6 +21,7 @@ interface CatalogAutocompleteFieldProps {
 }
 
 export default function CatalogAutocompleteField({
+    id,
     label,
     placeholder,
     value,
@@ -37,6 +39,7 @@ export default function CatalogAutocompleteField({
     const { open, setOpen, ref: containerRef } = useDropdownState();
     const inputRef = useRef<HTMLInputElement>(null);
     const inputId = useId();
+    const fieldId = id ?? inputId;
     const { options, loading } = useAsyncCatalogOptions(fetcher, open, query.trim(), 250);
 
     const showClear = Boolean(value);
@@ -77,7 +80,7 @@ export default function CatalogAutocompleteField({
 
     return (
         <div className="form-field create-autocomplete" ref={containerRef}>
-            <label className="input-label" htmlFor={inputId}>
+            <label className="input-label" htmlFor={fieldId}>
                 {label}
                 {required && (
                     <span className="required-indicator" aria-hidden="true">
@@ -87,7 +90,7 @@ export default function CatalogAutocompleteField({
             </label>
             <div className="filters-field__control">
                 <input
-                    id={inputId}
+                    id={fieldId}
                     className={classNames("input-control", error && "input-control--error")}
                     ref={inputRef}
                     type="text"
@@ -98,6 +101,7 @@ export default function CatalogAutocompleteField({
                     onBlur={handleInputBlur}
                     autoComplete="off"
                     spellCheck="false"
+                    aria-invalid={error ? true : undefined}
                     aria-autocomplete="list"
                     aria-expanded={open}
                     aria-haspopup="listbox"

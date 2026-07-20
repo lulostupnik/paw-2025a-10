@@ -13,6 +13,7 @@ import PageStatus from "@/components/ui/PageStatus";
 import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 interface CityFormState {
     name: string;
@@ -116,13 +117,16 @@ function CityEditForm({ id, city }: CityEditFormProps) {
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        const formElement = event.currentTarget;
         setTouched({ name: true, country: true });
         setServerErrors({});
         if (clientErrors.name || clientErrors.country) {
+            focusFirstInvalidField(formElement);
             return;
         }
         const countryId = resolveCountryId(form.country);
         if (countryId == null) {
+            focusFirstInvalidField(formElement);
             return;
         }
         setSubmitting(true);
@@ -138,6 +142,7 @@ function CityEditForm({ id, city }: CityEditFormProps) {
                 const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
                 if (Object.keys(nextServerErrors).length > 0) {
                     setServerErrors(nextServerErrors);
+                    focusFirstInvalidField(formElement);
                 } else {
                     setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
                 }

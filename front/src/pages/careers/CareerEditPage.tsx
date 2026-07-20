@@ -11,6 +11,7 @@ import PageStatus from "@/components/ui/PageStatus";
 import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 interface CareerFormState {
     name: string;
@@ -81,9 +82,11 @@ function CareerEditForm({ id, career }: CareerEditFormProps) {
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        const formElement = event.currentTarget;
         setTouched({ name: true });
         setServerErrors({});
         if (clientErrors.name) {
+            focusFirstInvalidField(formElement);
             return;
         }
         setSubmitting(true);
@@ -99,6 +102,7 @@ function CareerEditForm({ id, career }: CareerEditFormProps) {
                 const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
                 if (Object.keys(nextServerErrors).length > 0) {
                     setServerErrors(nextServerErrors);
+                    focusFirstInvalidField(formElement);
                 } else {
                     setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
                 }

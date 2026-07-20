@@ -6,6 +6,7 @@ import StatusCard from "@/components/ui/StatusCard";
 import { resetPasswordWithToken } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 type ResetStatus = "form" | "submitting" | "expired" | "invalid" | "blocked" | "error";
 type PasswordStrengthStatus = "empty" | "very-weak" | "weak" | "medium" | "strong";
@@ -97,6 +98,7 @@ export default function PasswordResetPage() {
         event.preventDefault();
         setTouched({ password: true, confirmPassword: true });
         if (!token || !userId || passwordError || confirmPasswordError || !passwordsMatch) {
+            focusFirstInvalidField(event.currentTarget);
             return;
         }
         setStatus("submitting");

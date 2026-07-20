@@ -11,6 +11,7 @@ import { emptyPage } from "@/types/pagination";
 import { useToast } from "@/components/ui/ToastProvider";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { invalidateAdminEntityQueries } from "@/lib/api/queryInvalidation";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 interface UniversityFormState {
     name: string;
@@ -100,13 +101,16 @@ export default function UniversityCreatePage() {
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        const formElement = event.currentTarget;
         setTouched({ name: true, abbreviation: true, city: true });
         setServerErrors({});
         if (clientErrors.name || clientErrors.abbreviation || clientErrors.city) {
+            focusFirstInvalidField(formElement);
             return;
         }
         const cityId = resolveCityId(form.city);
         if (cityId == null) {
+            focusFirstInvalidField(formElement);
             return;
         }
         setSubmitting(true);
@@ -126,6 +130,7 @@ export default function UniversityCreatePage() {
                 const nextServerErrors = mapApiFieldErrors(error, API_FIELD_TO_FORM_FIELD);
                 if (Object.keys(nextServerErrors).length > 0) {
                     setServerErrors(nextServerErrors);
+                    focusFirstInvalidField(formElement);
                 } else {
                     setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
                 }

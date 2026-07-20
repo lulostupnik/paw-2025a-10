@@ -24,6 +24,7 @@ import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 const TAB_PARAM = "tab";
 const ATTENDEES_PAGE_PARAM = "attendeesPage";
 const COMMENTS_PAGE_PARAM = "commentsPage";
+const EVENT_COMMENT_MAX_LENGTH = 2047;
 
 const parsePageParam = (value: string | null) => {
     const raw = Number(value ?? "1");
@@ -577,6 +578,10 @@ export default function EventDetailPage() {
             }
             if (!replyMessage.trim()) {
                 setReplyError(t("NotNull.replyEventForm.message", { defaultValue: "Please enter a message." }));
+                return;
+            }
+            if (replyMessage.length > EVENT_COMMENT_MAX_LENGTH) {
+                setReplyError(t("comment.validation.length"));
                 return;
             }
             try {
@@ -1193,7 +1198,7 @@ return (
                                                             </label>
                                                             <textarea
                                                                 id="event-reply"
-                                                                className="form-textarea"
+                                                                className={replyMessage.length > EVENT_COMMENT_MAX_LENGTH ? "form-textarea error" : "form-textarea"}
                                                                 placeholder={t("reply.message.hint")}
                                                                 value={replyMessage}
                                                                 onChange={(event) => {
@@ -1206,6 +1211,12 @@ return (
                                                                     }
                                                                 }}
                                                             />
+                                                            <p className={`character-counter ${replyMessage.length > EVENT_COMMENT_MAX_LENGTH ? "is-error" : ""}`}>
+                                                                {replyMessage.length}/{EVENT_COMMENT_MAX_LENGTH}
+                                                            </p>
+                                                            {replyMessage.length > EVENT_COMMENT_MAX_LENGTH && (
+                                                                <p className="form-field__text form-field__text--error">{t("comment.validation.length")}</p>
+                                                            )}
                                                         </div>
                                                         {replySuccess && <p className="form-field__text">{replySuccess}</p>}
                                                         {replyError && <p className="error-message">{replyError}</p>}

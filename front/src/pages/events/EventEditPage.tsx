@@ -19,10 +19,14 @@ import { apiErrorMessage, apiErrorStatus } from "@/lib/api/client";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { invalidateEventDetailQueries, invalidateEventListQueries } from "@/lib/api/queryInvalidation";
 import type { EventDetail } from "@/types/event";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const EVENT_TITLE_MAX_LENGTH = 50;
+const EVENT_DESCRIPTION_MAX_LENGTH = 2047;
+const EVENT_ADDRESS_MAX_LENGTH = 255;
 
 interface FormState {
     name: string;
@@ -169,6 +173,8 @@ function EventEditForm({ event }: EventEditFormProps) {
             const nextErrors: FormErrors = {};
             if (!state.name.trim()) {
                 nextErrors.name = t("event.create.validation.name");
+            } else if (state.name.trim().length > EVENT_TITLE_MAX_LENGTH) {
+                nextErrors.name = t("event.create.validation.nameLength");
             }
             if (!state.city) {
                 nextErrors.city = t("event.create.validation.city");
@@ -181,6 +187,11 @@ function EventEditForm({ event }: EventEditFormProps) {
             }
             if (!state.description.trim()) {
                 nextErrors.description = t("event.create.validation.description");
+            } else if (state.description.trim().length < 2 || state.description.trim().length > EVENT_DESCRIPTION_MAX_LENGTH) {
+                nextErrors.description = t("event.create.validation.descriptionLength");
+            }
+            if (state.address.trim().length > EVENT_ADDRESS_MAX_LENGTH) {
+                nextErrors.address = t("event.create.validation.addressLength");
             }
             if (!state.unlimited && state.participantLimit.trim()) {
                 const parsed = Number(state.participantLimit);
@@ -260,6 +271,7 @@ function EventEditForm({ event }: EventEditFormProps) {
         setErrors(nextErrors);
         setSubmitError(null);
         if (Object.keys(nextErrors).length > 0) {
+            focusFirstInvalidField(submitEvent.currentTarget);
             return;
         }
 
@@ -267,6 +279,7 @@ function EventEditForm({ event }: EventEditFormProps) {
         if (!cityId) {
             setErrors((prev) => ({ ...prev, city: t("event.create.validation.city") }));
             setTouched((prev) => ({ ...prev, city: true }));
+            focusFirstInvalidField(submitEvent.currentTarget);
             return;
         }
 
@@ -309,6 +322,7 @@ function EventEditForm({ event }: EventEditFormProps) {
             }
             if (Object.keys(serverErrors).length > 0) {
                 setErrors((prev) => ({ ...prev, ...serverErrors }));
+                focusFirstInvalidField(submitEvent.currentTarget);
             } else {
                 setSubmitError(apiErrorMessage(err, t("event.edit.error", { defaultValue: "Error al actualizar el evento." })));
             }
@@ -340,6 +354,7 @@ function EventEditForm({ event }: EventEditFormProps) {
 
                 <form className="event-form" onSubmit={handleSubmit} noValidate>
                     <TextField
+                        id="field-name"
                         label={
                             <span className="input-label">
                                 {t("event.create.name.label")} <span className="required-indicator" aria-hidden="true">*</span>
@@ -349,10 +364,13 @@ function EventEditForm({ event }: EventEditFormProps) {
                         value={form.name}
                         onChange={handleTextChange("name")}
                         onBlur={() => markTouched("name")}
+                        helperText={`${form.name.trim().length}/${EVENT_TITLE_MAX_LENGTH}`}
+                        helperTextClassName={`character-counter ${form.name.trim().length > EVENT_TITLE_MAX_LENGTH ? "is-error" : ""}`}
                         errorText={touched.name ? errors.name : undefined}
                     />
 
                     <CatalogAutocompleteField
+                        id="field-city"
                         label={t("event.create.city.label")}
                         placeholder={t("event.create.city.placeholder")}
                         value={form.city}
@@ -379,6 +397,7 @@ function EventEditForm({ event }: EventEditFormProps) {
                                     id="field-date"
                                     type="date"
                                     className={classNames("input-control", touched.date && errors.date && "input-control--error")}
+                                    aria-invalid={touched.date && errors.date ? true : undefined}
                                     value={form.date}
                                     onChange={handleDateChange}
                                     onBlur={() => markTouched("date")}
@@ -398,6 +417,7 @@ function EventEditForm({ event }: EventEditFormProps) {
                                     id="field-time"
                                     type="time"
                                     className={classNames("input-control", touched.time && errors.time && "input-control--error")}
+                                    aria-invalid={touched.time && errors.time ? true : undefined}
                                     value={form.time}
                                     onChange={handleTimeChange}
                                     onBlur={() => markTouched("time")}
@@ -429,23 +449,30 @@ function EventEditForm({ event }: EventEditFormProps) {
                         <textarea
                             id="field-description"
                             className={classNames("input-control", touched.description && errors.description && "input-control--error")}
+                            aria-invalid={touched.description && errors.description ? true : undefined}
                             placeholder={t("event.create.description.placeholder")}
                             value={form.description}
                             onChange={handleTextChange("description")}
                             onBlur={() => markTouched("description")}
                             rows={5}
                         />
+                        <p className={`character-counter ${form.description.trim().length > EVENT_DESCRIPTION_MAX_LENGTH ? "is-error" : ""}`}>
+                            {form.description.trim().length}/{EVENT_DESCRIPTION_MAX_LENGTH}
+                        </p>
                         {touched.description && errors.description && (
                             <p className="form-field__text form-field__text--error">{errors.description}</p>
                         )}
                     </div>
 
                     <TextField
+                        id="field-address"
                         label={<span className="input-label">{t("event.create.address.label")}</span>}
                         placeholder={t("event.create.address.placeholder")}
                         value={form.address}
                         onChange={handleTextChange("address")}
                         onBlur={() => markTouched("address")}
+                        helperText={`${form.address.trim().length}/${EVENT_ADDRESS_MAX_LENGTH}`}
+                        helperTextClassName={`character-counter ${form.address.trim().length > EVENT_ADDRESS_MAX_LENGTH ? "is-error" : ""}`}
                         errorText={touched.address ? errors.address : undefined}
                     />
 

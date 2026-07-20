@@ -6,6 +6,7 @@ import StatusCard from "@/components/ui/StatusCard";
 import { requestPasswordReset } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESET_EMAIL_STORAGE_KEY = "forgot_password_email";
@@ -57,6 +58,7 @@ export default function ForgotPasswordPage() {
         event.preventDefault();
         setTouched(true);
         if (emailError) {
+            focusFirstInvalidField(event.currentTarget);
             return;
         }
 

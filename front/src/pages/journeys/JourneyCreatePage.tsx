@@ -1,5 +1,5 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import { classNames } from "@/lib/utils/classNames";
@@ -12,6 +12,7 @@ import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import PageStatus from "@/components/ui/PageStatus";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { useToast } from "@/components/ui/ToastProvider";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 interface JourneyFormState {
     startDate: string;
@@ -37,6 +38,7 @@ const API_FIELD_TO_FORM_FIELD: Record<string, JourneyField> = {
     destinationUniversityId: "destination",
     description: "description",
 };
+const JOURNEY_DESCRIPTION_MAX_LENGTH = 2047;
 
 const addDays = (dateValue: string, days: number) => {
     const [year, month, day] = dateValue.split("-").map(Number);
@@ -66,7 +68,6 @@ export default function JourneyCreatePage() {
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [destinationQuery, setDestinationQuery] = useState(form.destination?.name ?? "");
-    const descriptionRef = useRef<HTMLTextAreaElement>(null);
     const journeyId = parseIdFromUrl(profile?.links?.journeyUrl);
 
     useEffect(() => {
@@ -113,6 +114,8 @@ export default function JourneyCreatePage() {
         }
         if (!state.description.trim()) {
             nextErrors.description = t("journey.create.validation.description");
+        } else if (state.description.trim().length < 2 || state.description.trim().length > JOURNEY_DESCRIPTION_MAX_LENGTH) {
+            nextErrors.description = t("event.create.validation.descriptionLength");
         }
         return nextErrors;
     }, [t]);
@@ -130,9 +133,7 @@ export default function JourneyCreatePage() {
         setErrors(nextErrors);
         setSubmitError(null);
         if (Object.keys(nextErrors).length > 0) {
-            if (nextErrors.description) {
-                descriptionRef.current?.focus();
-            }
+            focusFirstInvalidField(event.currentTarget);
             return;
         }
 
@@ -160,6 +161,7 @@ export default function JourneyCreatePage() {
             const serverErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
             if (Object.keys(serverErrors).length > 0) {
                 setErrors((prev) => ({ ...prev, ...serverErrors }));
+                focusFirstInvalidField(event.currentTarget);
             } else {
                 setSubmitError(apiErrorMessage(err, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             }
@@ -257,7 +259,6 @@ export default function JourneyCreatePage() {
                         </label>
                         <textarea
                             id="journey-description"
-                            ref={descriptionRef}
                             className={classNames("input-control", touched.description && errors.description && "input-control--error")}
                             placeholder={t("journey.create.description.placeholder")}
                             value={form.description}
@@ -265,6 +266,9 @@ export default function JourneyCreatePage() {
                             onBlur={() => markTouched("description")}
                             rows={6}
                         />
+                        <p className={`character-counter ${form.description.trim().length > JOURNEY_DESCRIPTION_MAX_LENGTH ? "is-error" : ""}`}>
+                            {form.description.trim().length}/{JOURNEY_DESCRIPTION_MAX_LENGTH}
+                        </p>
                         {!errors.description && <p className="form-field__text">{descriptionHelper}</p>}
                         {touched.description && errors.description && (
                             <p className="form-field__text form-field__text--error">{errors.description}</p>
