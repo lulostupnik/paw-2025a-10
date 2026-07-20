@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import type { ProfileJourney, JourneySummary } from "@/types/journey";
 import { getProfileDetail } from "@/lib/api/users";
 import { getJourneyById, resolveJourneySummary } from "@/lib/api/journeys";
@@ -31,8 +32,10 @@ const buildJourneyTitle = (journey: JourneySummary) =>
 
 export const useProfileTrips = (profileId: string, params: ProfileTripsParams = {}): ProfileTripsResult => {
     const queryClient = useQueryClient();
+    const serializedParams = useMemo(() => JSON.stringify(params), [params]);
+    const memoizedParams = useMemo<ProfileTripsParams>(() => JSON.parse(serializedParams) as ProfileTripsParams, [serializedParams]);
     const query = useQuery({
-        queryKey: ["profileTrips", profileId, params],
+        queryKey: ["profileTrips", profileId, memoizedParams],
         queryFn: async ({ signal }) => {
             let resolvedId = profileId;
             if (resolvedId === "me") {
