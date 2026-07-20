@@ -1,7 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import Button from "./ui/Button";
-import { getProfilePictureUrl, getUsername, isAdmin, isLoggedIn, logout, withProfilePictureVersion } from "@/lib/auth/auth";
+import {
+    getAuthSessionSnapshot,
+    logout,
+    subscribeAuthSession,
+    withProfilePictureVersion,
+} from "@/lib/auth/auth";
 import { classNames } from "@/lib/utils/classNames";
 import { localeLabels, useI18n } from "@/lib/i18n";
 import { queryClient } from "@/lib/api/queryClient";
@@ -12,9 +17,10 @@ const linkClassName = ({ isActive }: { isActive: boolean }) => classNames("top-b
 
 export default function TopBar() {
     const nav = useNavigate();
-    const logged = isLoggedIn();
-    const username = getUsername();
-    const profilePictureUrl = logged ? withProfilePictureVersion(getProfilePictureUrl()) : null;
+    const session = useSyncExternalStore(subscribeAuthSession, getAuthSessionSnapshot, getAuthSessionSnapshot);
+    const logged = session.logged;
+    const username = session.username;
+    const profilePictureUrl = logged ? withProfilePictureVersion(session.profilePictureUrl) : null;
     const { t, locale,availableLocales, setLocale } = useI18n();
     const [navOpen, setNavOpen] = useState(false);
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -110,7 +116,7 @@ export default function TopBar() {
                 <NavLink to="/events" className={linkClassName} onClick={() => setNavOpen(false)}>
                     {t("nav.events")}
                 </NavLink>
-                {logged && isAdmin() && (
+                {logged && session.admin && (
                     <NavLink to="/admin" className={linkClassName} onClick={() => setNavOpen(false)}>
                         {t("admin.manage.reports")}
                     </NavLink>

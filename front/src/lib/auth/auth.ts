@@ -6,8 +6,19 @@ const USER_ID_KEY = "userId";
 const EMAIL_KEY = "email";
 const PROFILE_PICTURE_URL_KEY = "profilePictureUrl";
 const PROFILE_PICTURE_VERSION_KEY = "profilePictureVersion";
+const AUTH_SESSION_EVENT = "gotogether:auth-session-change";
 
 type AuthStorage = "local" | "session";
+
+export interface AuthSessionSnapshot {
+    logged: boolean;
+    username: string;
+    profilePictureUrl: string | null;
+    admin: boolean;
+}
+
+let lastSnapshotKey: string | null = null;
+let lastSnapshot: AuthSessionSnapshot | null = null;
 
 function getStoredValue(key: string): string | null {
     return sessionStorage.getItem(key) ?? localStorage.getItem(key);
@@ -36,6 +47,12 @@ function getActiveStorage(): AuthStorage {
         return "session";
     }
     return "local";
+}
+
+function notifyAuthSessionChange() {
+    if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event(AUTH_SESSION_EVENT));
+    }
 }
 
 export function isLoggedIn(): boolean {
@@ -100,6 +117,7 @@ export function setAuthTokens(tokens: {
     if (tokens.refreshToken) {
         setStoredValue(REFRESH_TOKEN_KEY, tokens.refreshToken, storage);
     }
+    notifyAuthSessionChange();
 }
 
 export function setSession(session: {
@@ -136,6 +154,7 @@ export function setSession(session: {
         clearStoredValue(PROFILE_PICTURE_VERSION_KEY, "local");
         clearStoredValue(PROFILE_PICTURE_VERSION_KEY, "session");
     }
+    notifyAuthSessionChange();
 }
 
 export function logout() {
@@ -143,4 +162,34 @@ export function logout() {
         clearStoredValue(key, "local");
         clearStoredValue(key, "session");
     });
+    notifyAuthSessionChange();
+}
+
+export function getAuthSessionSnapshot(): AuthSessionSnapshot {
+    const snapshot: AuthSessionSnapshot = {
+        logged: isLoggedIn(),
+        username: getUsername(),
+        profilePictureUrl: getProfilePictureUrl(),
+        admin: isAdmin(),
+    };
+    const key = JSON.stringify(snapshot);
+    if (lastSnapshot && lastSnapshotKey === key) {
+        return lastSnapshot;
+    }
+    lastSnapshotKey = key;
+    lastSnapshot = snapshot;
+    return snapshot;
+}
+
+export function subscribeAuthSession(callback: () => void): () => void {
+    if (typeof window === "undefined") {
+        return () => undefined;
+    }
+    const handler = () => callback();
+    window.addEventListener(AUTH_SESSION_EVENT, handler);
+    window.addEventListener("storage", handler);
+    return () => {
+        window.removeEventListener(AUTH_SESSION_EVENT, handler);
+        window.removeEventListener("storage", handler);
+    };
 }

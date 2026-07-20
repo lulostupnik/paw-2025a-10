@@ -51,6 +51,7 @@ export const useProfileUpsert = (): UseProfileUpsertResult => {
                     throw new Error("missing-user-id");
                 }
                 await updateUserProfile(userId, payload);
+                setSession({ username: payload.username });
                 await invalidateUserViewQueries(queryClient, userId);
             }),
         [queryClient, runMutation]

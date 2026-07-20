@@ -7,12 +7,19 @@ const { mockIsLoggedIn } = vi.hoisted(() => ({
     mockIsLoggedIn: vi.fn(),
 }));
 
+let snapshot = {
+    logged: false,
+    username: "testuser",
+    profilePictureUrl: null as string | null,
+    admin: false,
+};
+
+const getSnapshot = () => snapshot;
+
 vi.mock("@/lib/auth/auth", () => ({
-    getProfilePictureUrl: () => null,
-    getUsername: () => "testuser",
-    isAdmin: () => false,
-    isLoggedIn: () => mockIsLoggedIn(),
+    getAuthSessionSnapshot: () => getSnapshot(),
     logout: vi.fn(),
+    subscribeAuthSession: () => () => undefined,
     withProfilePictureVersion: (url: string | null) => url,
 }));
 
@@ -37,6 +44,7 @@ function renderTopBar() {
 describe("TopBar", () => {
     it("links the brand to landing for anonymous users", () => {
         mockIsLoggedIn.mockReturnValue(false);
+        snapshot = { ...snapshot, logged: false };
 
         renderTopBar();
 
@@ -45,6 +53,7 @@ describe("TopBar", () => {
 
     it("links the brand to explore for logged users", () => {
         mockIsLoggedIn.mockReturnValue(true);
+        snapshot = { ...snapshot, logged: true };
 
         renderTopBar();
 

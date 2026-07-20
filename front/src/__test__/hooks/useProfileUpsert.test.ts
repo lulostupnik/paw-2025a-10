@@ -30,6 +30,7 @@ describe("useProfileUpsert", () => {
 
         expect(spy).toHaveBeenCalledWith(1, payload);
         expect(result.current.isLoading).toBe(false);
+        expect(localStorage.getItem("username")).toBe("updated");
     });
 
     it("should call updateUserPassword on updatePassword", async () => {

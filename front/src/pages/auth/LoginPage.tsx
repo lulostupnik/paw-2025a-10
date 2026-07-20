@@ -6,8 +6,10 @@ import { login } from "@/lib/api/auth";
 import { isLoggedIn } from "@/lib/auth/auth";
 import { apiErrorMessage } from "@/lib/api/client";
 import { useI18n } from "@/lib/i18n";
+import type { TranslateFn } from "@/lib/i18n/context";
 import { classNames } from "@/lib/utils/classNames";
 import { INTERNAL_PATH_FALLBACK, sanitizeInternalPath } from "@/lib/utils/internalPath";
+import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 function getNext(search: string) {
     const params = new URLSearchParams(search);
@@ -25,6 +27,13 @@ const initialForm: LoginFormData = {
     password: "",
     remember: false,
 };
+
+function formatLoginError(message: string, t: TranslateFn) {
+    if (message === "Tu cuenta aún no ha sido verificada" || message === "Your account has not been verified yet") {
+        return t("login.error.notVerified");
+    }
+    return message;
+}
 
 export default function LoginPage() {
     const { t } = useI18n();
@@ -61,6 +70,7 @@ export default function LoginPage() {
         event.preventDefault();
         setTouched({ email: true, password: true });
         if (Object.keys(errors).length > 0) {
+            focusFirstInvalidField(event.currentTarget);
             return;
         }
         setSubmitting(true);
@@ -71,7 +81,7 @@ export default function LoginPage() {
         } catch (error) {
             // Blocked and not-verified accounts both come back as 403 with a localized message in the
             // body; wrong credentials come back as 401 without one, so we fall back to a generic message.
-            setAuthError(apiErrorMessage(error, t("login.error.description")));
+            setAuthError(formatLoginError(apiErrorMessage(error, t("login.error.description")), t));
         } finally {
             setSubmitting(false);
         }

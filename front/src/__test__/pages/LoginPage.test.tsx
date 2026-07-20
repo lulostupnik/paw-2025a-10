@@ -149,6 +149,21 @@ describe("LoginPage", () => {
         expect(await screen.findByText("login.error.description")).toBeInTheDocument();
     });
 
+    it("should display resend verification guidance for unverified accounts", async () => {
+        mockLogin.mockRejectedValue({
+            isAxiosError: true,
+            response: { data: { message: "Your account has not been verified yet" } },
+        });
+        const user = userEvent.setup();
+        renderLoginPage();
+
+        await user.type(screen.getByPlaceholderText("login.email.placeholder"), "test@example.com");
+        await user.type(screen.getByPlaceholderText("login.passwordPlaceholder"), "wrong");
+        await user.click(screen.getByText("login.submit"));
+
+        expect(await screen.findByText("login.error.notVerified")).toBeInTheDocument();
+    });
+
     it("should have link to register page", () => {
         renderLoginPage();
         expect(screen.getByText("login.register")).toBeInTheDocument();
