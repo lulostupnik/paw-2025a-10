@@ -35,11 +35,14 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class AuthAnywhereFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthAnywhereFilter.class);
     private static final String AUTH_HEADER_TYPE = "Basic";
+    private static final Pattern USER_PATH_PATTERN = Pattern.compile(".*/users/(\\d+)(?:/.*)?$");
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -92,6 +95,12 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                 final Optional<Token> maybeToken = tokenService.getByToken(credentials);
 
                 if (maybeToken.isPresent() && tokenService.isTokenValid(maybeToken.get(), user.getId())) {
+                    final Optional<Long> requestedUserId = extractUserId(request);
+                    if (requestedUserId.isPresent() && requestedUserId.get().longValue() != user.getId().longValue()) {
+                        LOGGER.warn("Rejected token authentication for email {} due to mismatched path user id {}", email, requestedUserId.get());
+                        writeError(request, response, Response.Status.FORBIDDEN, "error.accessDenied");
+                        return;
+                    }
                     if (user.isBlocked()) {
                         writeError(request, response, Response.Status.FORBIDDEN, BLOCKED_MESSAGE_KEY);
                         return;
@@ -149,5 +158,13 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private Optional<Long> extractUserId(final HttpServletRequest request) {
+        final Matcher matcher = USER_PATH_PATTERN.matcher(request.getRequestURI());
+        if (!matcher.matches()) {
+            return Optional.empty();
+        }
+        return Optional.of(Long.parseLong(matcher.group(1)));
     }
 }
