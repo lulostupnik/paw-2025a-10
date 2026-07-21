@@ -19,7 +19,6 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const EVENT_TITLE_MAX_LENGTH = 50;
 const EVENT_DESCRIPTION_MAX_LENGTH = 2047;
 const EVENT_ADDRESS_MAX_LENGTH = 255;
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 interface FormState {
     name: string;
