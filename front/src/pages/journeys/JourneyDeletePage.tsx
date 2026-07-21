@@ -12,6 +12,7 @@ import { invalidateJourneyDetailQueries, invalidateJourneyListQueries } from "@/
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
+import NotFoundPage from "@pages/errors/NotFoundPage";
 const DELETE_MESSAGE_MAX_LENGTH = 1000;
 
 const formatDate = (value: string, locale: string) => {
@@ -82,14 +83,7 @@ export default function JourneyDeletePage() {
     }
 
     if (isNotFound) {
-        return (
-            <div className="journey-detail-page">
-                <div className="empty-state">
-                    <p className="empty-message">{t("journey.not.found.title", { defaultValue: "Journey not found." })}</p>
-                    <p className="empty-message">{t("journey.not.found.message")}</p>
-                </div>
-            </div>
-        );
+        return <NotFoundPage />;
     }
 
     if (isError) {

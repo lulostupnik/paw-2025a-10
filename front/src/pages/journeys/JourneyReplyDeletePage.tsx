@@ -11,6 +11,7 @@ import { deleteJourneyResponse, getJourneyResponse, getJourneyResponses, getUser
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
+import NotFoundPage from "@/pages/errors/NotFoundPage";
 
 const COMMENTS_PAGE_SIZE = 4;
 
@@ -181,8 +182,8 @@ export default function JourneyReplyDeletePage() {
     if (isError) {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
-    if (!data) {
-        return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    if (!data || !response) {
+        return <NotFoundPage/>
     }
 
     const authorId = responseQuery.data?.authorId ?? null;

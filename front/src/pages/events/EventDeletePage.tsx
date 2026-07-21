@@ -12,6 +12,7 @@ import { invalidateEventDetailQueries, invalidateEventListQueries } from "@/lib/
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import { parseApiDate } from "@/lib/utils/date";
+import NotFoundPage from "@/pages/errors/NotFoundPage";
 const DELETE_MESSAGE_MAX_LENGTH = 1000;
 
 const formatDate = (value: string, locale: string) => {
@@ -81,14 +82,7 @@ export default function EventDeletePage() {
     }
 
     if (isNotFound) {
-        return (
-            <div className="event-detail-page">
-                <div className="empty-state">
-                    <p className="empty-message">{t("event.not.found.title", { defaultValue: "Event not found." })}</p>
-                    <p className="empty-message">{t("event.not.found.message")}</p>
-                </div>
-            </div>
-        );
+        return <NotFoundPage/>
     }
 
     if (isError) {

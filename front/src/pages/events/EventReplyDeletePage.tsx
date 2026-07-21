@@ -11,6 +11,7 @@ import { deleteEventResponse, getEventResponse } from "@/lib/api/events";
 import { popFromNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
+import NotFoundPage from "@/pages/errors/NotFoundPage";
 
 const parseIdFromUrl = (url?: string | null) => {
     if (!url) {
@@ -107,11 +108,8 @@ export default function EventReplyDeletePage() {
         return <PageStatus className="event-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }
 
-    if (isError) {
-        return <PageStatus className="event-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
-    }
-    if (!data) {
-        return <PageStatus className="event-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+    if (isError || !data || !response) {
+        return <NotFoundPage/>
     }
 
     const authorId = parseIdFromUrl(responseQuery.data?.links?.authorUrl);

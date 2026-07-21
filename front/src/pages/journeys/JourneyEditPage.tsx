@@ -18,6 +18,7 @@ import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { invalidateJourneyDetailQueries, invalidateJourneyListQueries } from "@/lib/api/queryInvalidation";
 import type { JourneyDetail } from "@/types/journey";
 import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
+import NotFoundPage from "@/pages/errors/NotFoundPage";
 
 interface JourneyFormState {
     startDate: string;
@@ -76,7 +77,7 @@ export default function JourneyEditPage() {
     }
 
     if (isNotFound) {
-        return <div className="journey-create-page">{t("journey.not.found.title", { defaultValue: "Journey not found." })}</div>;
+        return <NotFoundPage/>
     }
 
     if (isError || !data) {

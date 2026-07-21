@@ -395,20 +395,7 @@ export default function JourneyDetailPage() {
     }
 
     if (isNotFound) {
-        return (
-            <div className="journey-detail-page">
-                <div className="layout-container">
-                    <div className="main-content">
-                        <div className="content-container">
-                            <div className="empty-state">
-                                <p className="empty-message">{t("journey.not.found.title")}</p>
-                                <p className="empty-message">{t("journey.not.found.message")}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+        return <NotFoundPage />;
     }
 
     if (isError) {

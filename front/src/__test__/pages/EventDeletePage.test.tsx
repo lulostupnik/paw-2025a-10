@@ -102,6 +102,6 @@ describe("EventDeletePage", () => {
 
         renderPage(queryClient);
 
-        expect(screen.getByText("event.not.found.title")).toBeInTheDocument();
+        expect(screen.getByText("error.404.title")).toBeInTheDocument();
     });
 });

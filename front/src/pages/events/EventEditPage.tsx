@@ -20,6 +20,7 @@ import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { invalidateEventDetailQueries, invalidateEventListQueries } from "@/lib/api/queryInvalidation";
 import type { EventDetail } from "@/types/event";
 import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
+import NotFoundPage from "@/pages/errors/NotFoundPage";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
@@ -81,9 +82,9 @@ export default function EventEditPage() {
     }
 
     if (isError || !data) {
-        return <PageStatus className="event-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
+        return <NotFoundPage/>
     }
-
+    
     if (data.user?.id !== getUserId()) {
         return <ForbiddenPage />;
     }
