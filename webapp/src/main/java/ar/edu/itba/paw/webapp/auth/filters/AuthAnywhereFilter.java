@@ -66,7 +66,7 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
     private static final String NOT_VERIFIED_MESSAGE_KEY = "exception.UserNotVerifiedException";
 
     private final ObjectMapper objectMapper = new ObjectMapper()
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);  //consistencia con los exceptionMappers 
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -110,8 +110,6 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
                         writeError(request, response, Response.Status.FORBIDDEN, BLOCKED_MESSAGE_KEY);
                         return;
                     } else {
-                        // Password login. The AuthenticationManager rejects unverified (disabled) or blocked
-                        // (locked) accounts; that just leaves the request anonymous.
                         final Authentication auth = authenticationManager.authenticate(
                                 new UsernamePasswordAuthenticationToken(email, credentials)
                         );
@@ -122,7 +120,6 @@ public class AuthAnywhereFilter extends OncePerRequestFilter {
 
             }
         } catch (Exception e) {
-            // Si el token no es válido esto pasa a ser una request anonima
             LOGGER.debug("Basic authentication attempt could not be completed", e);
             SecurityContextHolder.clearContext();
         }

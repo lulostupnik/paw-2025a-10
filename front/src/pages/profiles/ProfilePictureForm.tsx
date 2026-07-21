@@ -16,8 +16,6 @@ export default function ProfilePictureForm() {
     const { showToast } = useToast();
     const { data: profile, isLoading, isError } = useProfileDetail("me");
     const { updatePicture, isLoading: isSaving } = useProfileUpsert();
-    // La preview vive junto al archivo que la origina: así el object URL se crea
-    // en el handler y no hace falta sincronizar dos estados con un efecto.
     const [picture, setPicture] = useState<{ file: File; previewUrl: string } | null>(null);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
@@ -127,7 +125,9 @@ export default function ProfilePictureForm() {
                                             className="file-preview-image"
                                             alt={t("profile.picture.preview.alt")}
                                         />
-                                        <span className="file-preview-name">{picture.file.name}</span>
+                                        <span className="file-preview-name" title={picture.file.name}>
+                                            {picture.file.name}
+                                        </span>
                                         <button
                                             type="button"
                                             className="file-preview-remove"

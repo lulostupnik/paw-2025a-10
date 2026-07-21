@@ -88,8 +88,6 @@ export default function AdminPage() {
         interestName: searchParams.get("interestName") ?? "",
     };
 
-    // El input de búsqueda es el borrador editable de lo que ya está en la URL:
-    // cuando la URL cambia (navegación, cambio de tab) el borrador se resetea.
     const [searchValue, setSearchValue] = useState(searchQuery);
     const [lastSearchQuery, setLastSearchQuery] = useState(searchQuery);
     if (lastSearchQuery !== searchQuery) {

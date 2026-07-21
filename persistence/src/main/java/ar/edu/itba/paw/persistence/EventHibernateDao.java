@@ -412,7 +412,6 @@ public class EventHibernateDao implements EventDao {
         }
 
 
-        // Build WHERE clause
         sqlBody.append(" WHERE e.deleted = FALSE ");
         if (!filters.isEmpty()) {
             String clause =  String.join(" AND ", filters);

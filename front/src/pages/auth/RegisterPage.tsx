@@ -135,8 +135,6 @@ function SingleSelectField({ label, name, placeholder, value, onChange, fetcher,
     const { open, setOpen, ref } = useDropdownState();
     const { options, loading } = useAsyncCatalogOptions(fetcher, open, query);
 
-    // Al limpiarse la selección el input vuelve a mostrarse: la búsqueda previa
-    // se descarta durante el render, sin sincronizarla por efecto.
     if (value !== lastValue) {
         setLastValue(value);
         if (!value) {

@@ -193,7 +193,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void initiatePasswordReset(final String email) {
         LOGGER.debug("Attempting to send forgot password email to: {}", email);
-        // Siempre responde lo mismo, no revela si el mail existe o no.
         Optional<User> maybeUser = userDao.findByEmail(email);
         if (maybeUser.isEmpty()) {
             LOGGER.info("Ignored password reset request for unknown email");
@@ -261,7 +260,6 @@ public class UserServiceImpl implements UserService {
         }
 
         if (blocked != null) {
-            // Reuses the block/unblock flow so the user still gets the notification email.
             setBlockedStatus(userId, blocked);
         }
 
@@ -269,7 +267,6 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    // todo: ¿esta bien retornar la imagen? ¿o devolvemos a que retorne long/void?
     @Override
     @Transactional
     public Image updateProfilePicture(final long userId, final byte[] profilePicture) {

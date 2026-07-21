@@ -7,6 +7,7 @@ import { requestPasswordReset } from "@/lib/api/auth";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
 import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
+import { noop } from "@/lib/utils/noop";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESET_EMAIL_STORAGE_KEY = "forgot_password_email";
@@ -74,7 +75,7 @@ export default function ForgotPasswordPage() {
                 try {
                     window.sessionStorage.setItem(RESET_EMAIL_STORAGE_KEY, normalizedEmail);
                 } catch {
-                    // Ignore storage errors.
+                    noop();
                 }
             }
             setStatus("success");

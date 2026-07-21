@@ -77,7 +77,6 @@ export default function JourneyTipEditPage() {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // Los consejos son parte del viaje, así que sólo su autor puede editarlos.
     if (data.user?.id !== getUserId()) {
         return <ForbiddenPage />;
     }
@@ -86,8 +85,6 @@ export default function JourneyTipEditPage() {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // El consejo ya está resuelto, así que el formulario lo toma como estado
-    // inicial en lugar de copiarlo con un efecto.
     return (
         <JourneyTipEditForm
             key={tip.id}

@@ -185,8 +185,6 @@ export default function JourneyReplyDeletePage() {
         return <PageStatus className="journey-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // El comentario sólo lo puede borrar su autor o un administrador; el resto no
-    // debe llegar a ver la confirmación.
     const authorId = responseQuery.data?.authorId ?? null;
     if (!isAdmin() && (authorId == null || authorId !== getUserId())) {
         return <ForbiddenPage />;

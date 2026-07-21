@@ -46,7 +46,7 @@ public class Journey{
     private String deletionMessage;
 
 
-    /* For hibernate */ Journey() {
+     Journey() {
     }
 
     public Journey(final User user, final LocalDate startDate, final LocalDate endDate,

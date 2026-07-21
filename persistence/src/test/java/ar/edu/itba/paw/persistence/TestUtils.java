@@ -45,7 +45,6 @@ class TestUtils {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
-    //CONSTANTS
     public static final String CAREER_TABLE = "careers";
     public static final String CITY_TABLE = "cities";
     public static final String COUNTRY_TABLE = "countries";
@@ -373,7 +372,6 @@ class TestUtils {
     public static final String TIP_NEW_CONTENT = "newContent";
     
 
-    //QUERIES
     public static final String USER_SELECT = """
     SELECT
         u.id AS user_id,
@@ -655,7 +653,6 @@ class TestUtils {
     public static final String TOKEN_SELECT_COUNT = "SELECT COUNT(*) FROM tokens";
 
 
-    //ROWMAPPERS
     public static final RowMapper<Interest> INTEREST_ROW_MAPPER = (rs, n) ->
     new Interest(
         rs.getLong("interest_id"),
@@ -781,7 +778,6 @@ class TestUtils {
         rs.getTimestamp("tip_timestamp").toLocalDateTime()
     );
 
-    //DELETES
     public static final void deleteEventAttendances(JdbcTemplate template){
         JdbcTestUtils.deleteFromTables(template, EVENT_ATTENDANCE_TABLE);
     }
@@ -838,7 +834,6 @@ class TestUtils {
     }
 
 
-    //COMPARATORS
     public static void assertEqualsCareer(Career expected, Career actual){
         assertNotNull(expected);
         assertNotNull(actual);
@@ -1072,7 +1067,6 @@ class TestUtils {
         assertEqualsUser(expected.getUser(), actual.getUser());
     }
 
-    //INSERTERS
     public static Event insertEvent(DataSource ds, Map<String, Object> overrides){
         SimpleJdbcInsert insert = new SimpleJdbcInsert(ds).withTableName(EVENT_TABLE).usingGeneratedKeyColumns("id");
         SimpleJdbcInsert insertAttendance = new SimpleJdbcInsert(ds).withTableName(EVENT_ATTENDANCE_TABLE);

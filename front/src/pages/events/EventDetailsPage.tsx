@@ -161,6 +161,7 @@ export default function EventDetailPage() {
         data,
         isLoading,
         isError,
+        isNotFound,
         isFetching,
         creatorLoading,
         creatorError,
@@ -214,8 +215,6 @@ export default function EventDetailPage() {
         placeholderData: keepPreviousData,
     });
     const isAttendingFromData = attendanceQuery.data ?? false;
-    // Optimistic attendance and in-progress errors only apply to the event they were produced for,
-    // so they are discarded as soon as a different event is loaded.
     const activeAttendance = attendanceOverride?.eventId === data?.id ? attendanceOverride : null;
     const isAttending = activeAttendance?.attending ?? isAttendingFromData;
     const attendeesCount = activeAttendance?.attendeesCount ?? (data?.attendeesCount ?? 0);
@@ -226,8 +225,6 @@ export default function EventDetailPage() {
         () => data?.ratings?.find((rating) => rating.user.username === username) ?? null,
         [data?.ratings, username]
     );
-    // The picked rating is a draft over the stored one; it is dropped whenever the event or the
-    // stored rating changes.
     const ratingBaseline = existingRating?.rating ?? 0;
     const ratingKey = `${data?.id ?? ""}:${ratingBaseline}`;
     const ratingValue = ratingDraft?.key === ratingKey ? ratingDraft.value : ratingBaseline;
@@ -397,7 +394,6 @@ export default function EventDetailPage() {
         updatePageParam,
     ]);
 
-    // A future event has no rating tab, so drop the parameter from the URL if it points there.
     useEffect(() => {
         if (data?.isFuture && requestedTab === "rating") {
             updateTabParam("details");
@@ -436,6 +432,10 @@ export default function EventDetailPage() {
 
     if (isLoading) {
         return <PageStatus className="event-detail-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
+    }
+
+    if (isNotFound) {
+        return <NotFoundPage />;
     }
 
     if (isError || !data) {

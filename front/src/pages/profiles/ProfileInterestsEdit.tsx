@@ -28,8 +28,6 @@ export default function ProfileInterestsEdit() {
         );
     }
 
-    // El form se monta recién con los intereses cargados, así arranca precargado
-    // sin sincronizar el estado con un efecto.
     return (
         <InterestsForm
             initialSelected={userInterestsQuery.data.content.map((interest) => ({ id: interest.id, name: interest.name }))}

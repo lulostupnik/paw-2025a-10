@@ -63,8 +63,6 @@ export default function ProfileForm() {
         [careersQuery.data]
     );
 
-    // Se espera al perfil y a las opciones antes de montar el form: así arranca
-    // precargado sin sincronizar el estado con un efecto.
     if (isLoading || infoLoading || universitiesQuery.isLoading || careersQuery.isLoading) {
         return <PageStatus className="profile-form-page" message={t("admin.dashboard.loading", { defaultValue: "Cargando..." })} />;
     }

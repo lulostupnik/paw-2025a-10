@@ -80,7 +80,7 @@ public class User{
         return journey != null && !journey.isDeleted();
     }
 
-    /* For hibernate */ User(){
+     User(){
 
     }
     public User (final String email, final String username, final String firstname,

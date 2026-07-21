@@ -1,4 +1,4 @@
-import { apiErrorMessage } from "@/lib/api/client";
+import { apiErrorMessage, apiErrorStatus } from "@/lib/api/client";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
@@ -83,19 +83,34 @@ const getStatusClass = (status: ReportStatus) => {
 };
 
 const getContentBadge = (report: ReportDetail, t: (key: string, options?: { defaultValue?: string }) => string) => {
-    if (report.journey) {
+    if (report.journey || report.contentType === "journey") {
         return { label: t("report.type.journey"), className: "journey-badge" };
     }
-    if (report.event) {
+    if (report.event || report.contentType === "event") {
         return { label: t("report.type.event"), className: "event-badge" };
     }
-    if (report.journeyResponse) {
+    if (report.journeyResponse || report.contentType === "journeyResponse") {
         return { label: t("report.type.journey.comment"), className: "comment-badge" };
     }
-    if (report.eventResponse) {
+    if (report.eventResponse || report.contentType === "eventResponse") {
         return { label: t("report.type.event.comment"), className: "comment-badge" };
     }
     return null;
+};
+
+const getReportedContentTitleKey = (contentType: ReportDetail["contentType"]) => {
+    switch (contentType) {
+        case "journey":
+            return "report.detail.reported.journey";
+        case "event":
+            return "report.detail.reported.event";
+        case "journeyResponse":
+            return "report.detail.reported.journey.comment";
+        case "eventResponse":
+            return "report.detail.reported.event.comment";
+        default:
+            return "report.detail.reported.event";
+    }
 };
 
 const hasResolvedReportContent = (report: ReportDetail | ReportListItem | null): report is ReportDetail =>
@@ -114,21 +129,25 @@ export default function ReportDetailPage() {
     const matchingStateReport = stateReport && reportId === stateReport.id ? stateReport : null;
     const initialReport = hasResolvedReportContent(matchingStateReport) ? matchingStateReport : null;
     const [report, setReport] = useState<ReportDetail | null>(initialReport);
-    // Si venimos desde la lista, el state sólo trae el resumen del reporte; igual
-    // hace falta buscar el detalle completo para resolver el contenido reportado.
     const [loading, setLoading] = useState(Boolean(id) && !hasResolvedReportContent(matchingStateReport));
     const [errorMessage, setErrorMessage] = useState("");
+    const [errorStatus, setErrorStatus] = useState<number | undefined>(undefined);
     const [actionError, setActionError] = useState("");
     const [blockModalOpen, setBlockModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [actionsOpen, setActionsOpen] = useState(false);
     const actionsButtonRef = useRef<HTMLButtonElement>(null);
+    const [syncedId, setSyncedId] = useState(id);
+    const [syncedStateReport, setSyncedStateReport] = useState(matchingStateReport);
 
-    useEffect(() => {
-        setReport(hasResolvedReportContent(matchingStateReport) ? matchingStateReport : null);
+    if (syncedId !== id || syncedStateReport !== matchingStateReport) {
+        setSyncedId(id);
+        setSyncedStateReport(matchingStateReport);
+        setReport(initialReport);
         setErrorMessage("");
+        setErrorStatus(undefined);
         setLoading(Boolean(id) && !hasResolvedReportContent(matchingStateReport));
-    }, [id, matchingStateReport]);
+    }
 
     useEffect(() => {
         if (!id || hasResolvedReportContent(matchingStateReport)) {
@@ -143,6 +162,7 @@ export default function ReportDetailPage() {
                     return;
                 }
                 setErrorMessage("");
+                setErrorStatus(undefined);
                 setReport(data);
             })
             .catch((error) => {
@@ -150,6 +170,7 @@ export default function ReportDetailPage() {
                     return;
                 }
                 console.error("Failed to load report detail", error);
+                setErrorStatus(apiErrorStatus(error));
                 setErrorMessage(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
             })
             .finally(() => {
@@ -176,7 +197,7 @@ export default function ReportDetailPage() {
     if (errorMessage) {
         return (
             <div className="report-detail-page">
-                <ErrorState variant="500" />
+                <ErrorState variant={errorStatus === 404 ? "404" : "500"} />
             </div>
         );
     }
@@ -189,6 +210,7 @@ export default function ReportDetailPage() {
     const statusLabel = getStatusLabel(report.status, t);
     const statusClass = getStatusClass(report.status);
     const contentBadge = getContentBadge(report, t);
+    const deletedContentTitle = t(getReportedContentTitleKey(report.contentType));
     const canDismiss = true;
     const reportedUserLabel = report.reportedUser.username;
     const reportingUserLabel = report.reportingUser.username;
@@ -510,7 +532,7 @@ export default function ReportDetailPage() {
                                                 <div className="parent-content">
                                                     <h5>{t("report.detail.parent.journey")}:</h5>
                                                     <p>{report.journeyResponse.journey.user.username}</p>
-                                                    {report.journeyResponse.deleted ? (
+                                                    {report.journeyResponse.deleted || report.journeyResponse.journey.deleted ? (
                                                         <span className="deleted-badge">{t("report.content.deleted")}</span>
                                                     ) : report.journeyResponse.journey.id > 0 ? (
                                                         <Link
@@ -546,7 +568,7 @@ export default function ReportDetailPage() {
                                                 <div className="parent-content">
                                                     <h5>{t("report.detail.parent.event")}:</h5>
                                                     <p>{report.eventResponse.event.title}</p>
-                                                    {report.eventResponse.deleted ? (
+                                                    {report.eventResponse.deleted || report.eventResponse.event.deleted ? (
                                                         <span className="deleted-badge">{t("report.content.deleted")}</span>
                                                     ) : report.eventResponse.event.id > 0 ? (
                                                         <Link
@@ -560,6 +582,15 @@ export default function ReportDetailPage() {
                                                         <span className="view-content-link">{t("report.view.original.content")}</span>
                                                     )}
                                                 </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {report.contentDeleted && (
+                                        <div className="feature-card reported-content-card">
+                                            <h3 className="feature-title">{deletedContentTitle}</h3>
+                                            <div className="reported-content">
+                                                <span className="deleted-badge">{t("report.content.deleted")}</span>
                                             </div>
                                         </div>
                                     )}

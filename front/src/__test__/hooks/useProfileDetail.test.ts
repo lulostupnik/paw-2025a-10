@@ -41,7 +41,6 @@ describe("useProfileDetail", () => {
         await waitFor(() => expect(result.current.isLoading).toBe(false));
 
         expect(result.current.data!.ratingStats).toBeDefined();
-        // Rating stats load in a secondary query, so wait for them to populate.
         await waitFor(() => expect(result.current.data!.ratingStats!.averageCreatedEventsRating).toBe(4.8));
         expect(result.current.data!.ratingStats!.averageAttendedEventsRating).toBe(4.2);
     });

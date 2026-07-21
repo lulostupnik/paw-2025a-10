@@ -39,7 +39,7 @@ public class EventResponse {
     @Setter
     private  String deletionMessage;
 
-    /* For hibernate */ EventResponse() {
+     EventResponse() {
     }
     public EventResponse(final User user, final Event event, final String message) {
         this.user = user;

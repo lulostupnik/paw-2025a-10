@@ -87,7 +87,6 @@ public class JourneyServiceImpl implements JourneyService {
                 LOGGER.warn("User {} already has an active journey", userId);
                 throw new UserWithActiveJourneyException();
             }
-            // Hard delete the soft-deleted journey and its responses
             LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), userId);
             reportDao.hardDeleteByJourneyId(existingJourney.getId());
             tipDao.deleteByJourney(existingJourney.getId());

@@ -138,7 +138,6 @@ public class UserServiceImplTest {
             LASTNAME,
             UNI_ID,
             CAREER_ID,
-            // IMAGE.getData(),
             List.of(INTEREST_ID),
             PASSWORD,
             LOCALE
@@ -259,7 +258,6 @@ public class UserServiceImplTest {
             LASTNAME,
             UNI_ID,
             CAREER_ID,
-            // IMAGE.getData(),
             List.of(INTEREST_ID),
             PASSWORD,
             LOCALE
@@ -278,7 +276,6 @@ public class UserServiceImplTest {
             LASTNAME,
             UNI_ID,
             CAREER_ID,
-            // IMAGE.getData(),
             List.of(INTEREST_ID),
             PASSWORD,
             LOCALE

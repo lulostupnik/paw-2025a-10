@@ -13,8 +13,6 @@ interface UseJourneysResult {
 
 export function useJourneys(params?: FetchJourneysParams): UseJourneysResult {
     const queryClient = useQueryClient();
-    // Los params son primitivos serializables: reconstruirlos desde el string da
-    // una identidad estable mientras el contenido no cambie, sin depender del objeto.
     const serializedParams = useMemo(() => JSON.stringify(params ?? {}), [params]);
     const memoizedParams = useMemo<FetchJourneysParams>(() => JSON.parse(serializedParams) as FetchJourneysParams, [serializedParams]);
 

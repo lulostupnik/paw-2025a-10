@@ -41,10 +41,6 @@ export default function LoginPage() {
     const location = useLocation();
     const next = getNext(location.search);
 
-    if (isLoggedIn()) {
-        return <Navigate to="/explore" replace />;
-    }
-
     const [form, setForm] = useState(initialForm);
     const [touched, setTouched] = useState({ email: false, password: false });
     const [showPassword, setShowPassword] = useState(false);
@@ -65,6 +61,10 @@ export default function LoginPage() {
 
         return result;
     }, [form, t]);
+
+    if (isLoggedIn()) {
+        return <Navigate to="/explore" replace />;
+    }
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();

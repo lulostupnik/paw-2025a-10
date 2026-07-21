@@ -216,7 +216,6 @@
         <scope>compile</scope>
       </dependency>
 
-        <!-- JERSEY DEPENDENCIES -->
       <dependency>
         <groupId>org.glassfish.jersey.containers</groupId>
         <artifactId>jersey-container-servlet-core</artifactId>
@@ -238,7 +237,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <!-- JERSEY JSON -->
       <dependency>
         <groupId>org.glassfish.jersey.media</groupId>
         <artifactId>jersey-media-moxy</artifactId>
@@ -260,7 +258,6 @@
         <version>${jersey.version}</version>
       </dependency>
 
-  <!-- JWT DEPENDENCIES -->
       <dependency>
         <groupId>io.jsonwebtoken</groupId>
         <artifactId>jjwt-api</artifactId>
@@ -284,7 +281,6 @@
 
 
   <build>
-    <!-- lock down plugins versions to avoid using Maven defaults -->
     <pluginManagement>
       <plugins>
         <plugin>

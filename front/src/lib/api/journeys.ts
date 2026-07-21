@@ -275,8 +275,6 @@ export const resolveJourneySummary = async (journey: JourneySummary, signal?: Ab
     };
 };
 
-// Resolves the journey host plus their university/career. Kept separate from the
-// core journey fetch so the page can render before these lookups complete.
 export const buildJourneyCreator = async (
     journey: JourneySummary,
     signal?: AbortSignal,
@@ -302,8 +300,6 @@ export const buildJourneyCreator = async (
     };
 };
 
-// Resolves the destination university and its city. Separate lookup so its
-// section can show its own loading state without blocking the page.
 export const buildJourneyDestination = async (
     journey: JourneySummary,
     signal?: AbortSignal,

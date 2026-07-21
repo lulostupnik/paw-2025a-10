@@ -19,7 +19,6 @@ public class UserInterestId implements Serializable {
         this.categoryId = categoryId;
     }
 
-    // equals() y hashCode() son necesarios para claves compuestas
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

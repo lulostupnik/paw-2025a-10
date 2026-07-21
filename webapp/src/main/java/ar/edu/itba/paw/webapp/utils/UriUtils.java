@@ -4,7 +4,6 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
 public final class UriUtils {
-    // Base URI already includes /webapp/api from Jersey; keep resource paths relative.
     public static final String API_BASE_URL = "";
     public static final String USERS_URL = API_BASE_URL + "/users";
     public static final String JOURNEYS_URL = API_BASE_URL + "/journeys";
@@ -58,7 +57,6 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(JOURNEYS_URL).path(String.valueOf(journeyId)).build();
     }
 
-    // Tips (sub-resource of journeys)
     public static URI getJourneyTipsUri(final UriInfo uriInfo, final long journeyId) {
         return uriInfo.getBaseUriBuilder().path(JOURNEYS_URL).path(String.valueOf(journeyId)).path("tips").build();
     }
@@ -68,7 +66,6 @@ public final class UriUtils {
                 .path("tips").path(String.valueOf(tipId)).build();
     }
 
-    // Journey Responses (sub-resource of journeys)
     public static URI getJourneyResponsesUri(final UriInfo uriInfo, final long journeyId) {
         return uriInfo.getBaseUriBuilder().path(JOURNEYS_URL).path(String.valueOf(journeyId)).path("responses").build();
     }
@@ -90,7 +87,6 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).build();
     }
 
-    // Events created by / attended by a user, referenced as query params on the events collection.
     public static URI getUserCreatedEventsUri(final UriInfo uriInfo, final long userId) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).queryParam("creatorId", userId).build();
     }
@@ -99,12 +95,10 @@ public final class UriUtils {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).queryParam("attendedBy", userId).build();
     }
 
-    // Event Flyer (sub-resource of events)
     public static URI getEventFlyerUri(final UriInfo uriInfo, final long eventId) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("flyer").build();
     }
 
-    // Event Responses (sub-resource of events)
     public static URI getEventResponsesUri(final UriInfo uriInfo, final long eventId) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("responses").build();
     }
@@ -114,7 +108,6 @@ public final class UriUtils {
                 .path("responses").path(String.valueOf(responseId)).build();
     }
 
-    // Attendances (sub-resource of events)
     public static URI getEventAttendancesUri(final UriInfo uriInfo, final long eventId) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("attendances").build();
     }
@@ -124,7 +117,6 @@ public final class UriUtils {
                 .path("attendances").path(String.valueOf(userId)).build();
     }
 
-    // Ratings (sub-resource of events)
     public static URI getEventRatingsUri(final UriInfo uriInfo, final long eventId) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("ratings").build();
     }
@@ -134,7 +126,6 @@ public final class UriUtils {
                 .path("ratings").path(String.valueOf(ratingId)).build();
     }
 
-    // Statistics (sub-resource of events)
     public static URI getEventStatisticsUri(final UriInfo uriInfo, final long eventId) {
         return uriInfo.getBaseUriBuilder().path(EVENTS_URL).path(String.valueOf(eventId)).path("statistics").build();
     }

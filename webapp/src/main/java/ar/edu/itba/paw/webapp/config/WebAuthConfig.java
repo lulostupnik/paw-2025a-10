@@ -182,7 +182,6 @@ public class WebAuthConfig extends WebSecurityConfigurerAdapter {
                     writeErrorResponse(response, Response.Status.FORBIDDEN, message);
                 })
 
-                // Disable client-side cache handling
                 .and().headers().cacheControl().disable()
 
                 .and()

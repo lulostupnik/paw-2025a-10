@@ -6,7 +6,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public final class AuthUtils {
 
     private AuthUtils() {
-        // Utility class
     }
 
     public static Long getCurrentUserId() {

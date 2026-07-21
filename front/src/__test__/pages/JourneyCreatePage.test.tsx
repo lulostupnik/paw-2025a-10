@@ -20,9 +20,6 @@ vi.mock("@/lib/i18n", () => ({
     I18nProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-// Sólo se sustituye getUserId: el resto del módulo lo usa el interceptor de axios
-// (getAuthToken, getRefreshToken, setAuthTokens, logout) y mockearlo entero deja
-// al apiClient sin esas funciones.
 vi.mock("@/lib/auth/auth", async () => {
     const actual = await vi.importActual<typeof import("@/lib/auth/auth")>("@/lib/auth/auth");
     return { ...actual, getUserId: () => 1 };
@@ -53,8 +50,6 @@ const renderPage = () => {
     );
 };
 
-// La página sólo muestra el form si el usuario todavía no tiene un journey: el mock por
-// defecto trae journeyUrl poblado y dispararía el redirect a /journeys/1/update.
 const profileWithoutJourney = http.get(`${BASE_URL}/users/1`, () =>
     HttpResponse.json(
         createMockUser({ links: { ...createMockUser().links, journeyUrl: null } }),
@@ -62,10 +57,8 @@ const profileWithoutJourney = http.get(`${BASE_URL}/users/1`, () =>
     ),
 );
 
-// Los labels llevan un "*" de campo requerido, así que se buscan por regex y no por texto exacto.
 const startDateInput = () => screen.getByLabelText(/journey\.create\.startDate/);
 const endDateInput = () => screen.getByLabelText(/journey\.create\.endDate/);
-// El panel del autocomplete comparte el aria-label con el input: se acota al input.
 const destinationInput = () => screen.getByLabelText(/journey\.create\.destination\.label/, { selector: "input" });
 const descriptionInput = () => screen.getByLabelText(/journey\.create\.description\.label/);
 const submitButton = () => screen.getByRole("button", { name: "journey.create.submit" });
@@ -105,7 +98,6 @@ describe("JourneyCreatePage", () => {
 
         await user.click(submitButton());
 
-        // El form muestra el NOMBRE de la universidad, pero el body la referencia por id.
         await waitFor(() =>
             expect(body).toEqual({
                 destinationUniversityId: 1,

@@ -22,8 +22,6 @@ export const useProfileDetail = (params?: ProfileDetailParams): UseProfileDetail
     const enabled = typeof params === "string" ? true : params?.enabled ?? true;
     const queryClient = useQueryClient();
 
-    // Core profile (name, username, avatar) drives the header and renders as soon
-    // as it resolves. Rating stats, university and career load separately.
     const coreQuery = useQuery({
         queryKey: ["profileDetail", profileId],
         queryFn: async ({ signal }) => {

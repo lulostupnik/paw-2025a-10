@@ -21,8 +21,6 @@ vi.mock("@/lib/i18n", () => ({
 
 const AUTHOR_ID = 1;
 const mockGetUserId = vi.fn<() => number | null>(() => AUTHOR_ID);
-// Sólo se sustituye getUserId: el resto del módulo lo usa el interceptor de axios (getAuthToken,
-// getRefreshToken, setAuthTokens, logout) y mockearlo entero deja al apiClient sin esas funciones.
 vi.mock("@/lib/auth/auth", async () => {
     const actual = await vi.importActual<typeof import("@/lib/auth/auth")>("@/lib/auth/auth");
     return { ...actual, getUserId: () => mockGetUserId() };
@@ -42,8 +40,6 @@ vi.mock("react-router-dom", async () => {
 
 const JOURNEY_ID = 7;
 
-// El form valida contra "hoy", así que las fechas del viaje se calculan relativas
-// al reloj real: fechas fijas dejarían de ser futuras con el paso del tiempo.
 const isoDateIn = (days: number) => {
     const date = new Date();
     date.setDate(date.getDate() + days);
@@ -94,7 +90,6 @@ const renderPage = () => {
 
 const startDateInput = () => screen.getByLabelText(/journey\.create\.startDate/);
 const endDateInput = () => screen.getByLabelText(/journey\.create\.endDate/);
-// El panel de opciones repite el label en su aria-label, así que la query se acota al input.
 const destinationInput = () => screen.getByLabelText(/journey\.create\.destination\.label/, { selector: "input" });
 const descriptionInput = () => screen.getByLabelText(/journey\.create\.description\.label/);
 const submitButton = () => screen.getByRole("button", { name: "journey.edit.submit" });
@@ -131,7 +126,6 @@ describe("JourneyEditPage", () => {
         await user.type(descriptionInput(), "Descripción editada");
         await user.click(submitButton());
 
-        // El autocomplete muestra el nombre de la universidad, pero el body la referencia por id.
         await waitFor(() =>
             expect(body).toEqual({
                 destinationUniversityId: 1,
@@ -151,8 +145,6 @@ describe("JourneyEditPage", () => {
 
         renderPage();
 
-        // Se espera al 403 y no sólo a la ausencia del form: si no, el assert pasaría
-        // por el estado de carga, sin llegar a evaluar el corte de ownership.
         expect(await screen.findByText("error.403.title")).toBeInTheDocument();
         expect(screen.queryByRole("button", { name: "journey.edit.submit" })).not.toBeInTheDocument();
         expect(screen.queryByLabelText(/journey\.create\.description\.label/)).not.toBeInTheDocument();
@@ -203,7 +195,6 @@ describe("JourneyEditPage", () => {
         await user.click(submitButton());
 
         const fieldError = await screen.findByText("La universidad no existe");
-        // El error tiene que colgar del campo de destino, no aparecer suelto como error general.
         const destinationField = container.querySelector(".create-autocomplete");
         expect(destinationField).toContainElement(fieldError);
         expect(fieldError).toHaveClass("form-field__text--error");

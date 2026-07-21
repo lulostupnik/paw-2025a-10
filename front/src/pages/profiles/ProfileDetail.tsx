@@ -27,8 +27,6 @@ export default function ProfileDetail() {
     const page = Number(searchParams.get("page")) || 1;
     const pageSize = Number(searchParams.get("size")) || 6;
 
-    // Sólo se ve un sub-listado a la vez, así que el `page` de la URL pagina el
-    // sub-tab activo; los otros dos vuelven a su primera página.
     const profileEvents = useProfileEvents(profileId, {
         createdPage: eventsTab === "created" ? page : 1,
         attendingPage: eventsTab === "attending" ? page : 1,

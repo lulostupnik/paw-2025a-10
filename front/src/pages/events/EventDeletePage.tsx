@@ -98,8 +98,6 @@ export default function EventDeletePage() {
         return <PageStatus className="event-detail-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // El organizador y los administradores son los únicos que pueden dar de baja
-    // el evento; el resto no debe llegar a ver la confirmación.
     if (!isOwner && !admin) {
         return <ForbiddenPage />;
     }

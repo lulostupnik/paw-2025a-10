@@ -14,10 +14,6 @@ const parseIdFromUrl = (url?: string | null): number | null => {
     return match ? Number(match[1]) : null;
 };
 
-// Splits the journey detail into a fast core fetch (GET /journeys/{id}) and slower
-// secondary lookups (host, destination university). The page can render its main
-// information as soon as the core resolves; each secondary block reports its own
-// loading/error state so it can fill in independently.
 export const useJourneyDetailData = ({ journeyId }: JourneyDetailParams = {}) => {
     const queryClient = useQueryClient();
 
@@ -51,8 +47,6 @@ export const useJourneyDetailData = ({ journeyId }: JourneyDetailParams = {}) =>
         placeholderData: keepPreviousData,
     });
 
-    // Host id is derivable from its URL, so ownership-dependent controls can
-    // resolve immediately without waiting for the host profile fetch.
     const fallbackCreator: JourneyCreator = {
         id: parseIdFromUrl(userUrl) ?? 0,
         firstname: "",
@@ -70,8 +64,6 @@ export const useJourneyDetailData = ({ journeyId }: JourneyDetailParams = {}) =>
               startDate: journey.startDate,
               endDate: journey.endDate,
               links: journey.links ?? null,
-              // The journey carries its destination name, so the edit form can seed
-              // it without waiting for the university lookup (that only adds the city).
               destinationUniversity: {
                   name: journey.destinationUniversityName ?? destinationQuery.data?.name ?? "",
                   city: destinationQuery.data?.city ?? "",

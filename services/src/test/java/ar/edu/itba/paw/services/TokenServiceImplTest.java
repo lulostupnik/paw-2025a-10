@@ -45,7 +45,7 @@ public class TokenServiceImplTest {
         assertNotNull(user.getToken());
         assertEquals(user, user.getToken().getUser());
         assertNotNull(user.getToken().getExpirationDate());
-        assertNotEquals(rawToken, user.getToken().getToken());   // stored hashed, never the raw
+        assertNotEquals(rawToken, user.getToken().getToken());
         assertTrue(user.getToken().getToken().length() <= 100);
     }
 
@@ -57,9 +57,9 @@ public class TokenServiceImplTest {
 
         String rawToken = tokenService.issueUserToken(user);
 
-        assertSame(existingToken, user.getToken());              // reuses the same row
-        assertNotEquals(TOKEN_VALUE, existingToken.getToken());  // refreshed with a new hash
-        assertNotEquals(rawToken, existingToken.getToken());     // stored hashed, never the raw
+        assertSame(existingToken, user.getToken());
+        assertNotEquals(TOKEN_VALUE, existingToken.getToken());
+        assertNotEquals(rawToken, existingToken.getToken());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class TokenServiceImplTest {
 
         assertTrue(maybeToken.isPresent());
         assertEquals(TOKEN, maybeToken.get());
-        verify(tokenDao).findByToken(argThat(queried -> !TOKEN_VALUE.equals(queried)));   // looked up by hash
+        verify(tokenDao).findByToken(argThat(queried -> !TOKEN_VALUE.equals(queried)));
     }
 
     @Test

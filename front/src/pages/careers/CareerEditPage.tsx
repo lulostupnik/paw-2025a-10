@@ -50,8 +50,6 @@ export default function CareerEditPage() {
         return <PageStatus className="entity-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // El form se monta recién con la carrera cargada, así arranca precargado sin
-    // tener que sincronizar el estado con un efecto.
     return <CareerEditForm key={id} id={id} career={career} />;
 }
 

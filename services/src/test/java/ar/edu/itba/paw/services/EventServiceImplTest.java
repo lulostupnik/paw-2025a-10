@@ -781,7 +781,6 @@ public class EventServiceImplTest {
             ratingDao.findById(eq(RATING_ID))
         ).thenReturn(Optional.of(newRating));
 
-        // RATING_ID belongs to EVENT (id EVENT_ID); asking for it under EVENT_2_ID must not honor the URN.
         eventService.updateEventRating(EVENT_2_ID, RATING_ID, RATING_VALUE);
     }
 

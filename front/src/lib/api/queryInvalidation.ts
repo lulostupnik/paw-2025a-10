@@ -19,8 +19,6 @@ export const invalidateEventDetailQueries = async (queryClient: QueryClient, eve
     ]);
 };
 
-// Los listados se keyean por sus filtros (["events", params]), así que invalidar
-// el prefijo alcanza cualquier combinación de filtros/página que esté cacheada.
 export const invalidateJourneyListQueries = async (queryClient: QueryClient) => {
     await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["journeys"] }),
@@ -45,8 +43,6 @@ const ADMIN_ENTITY_QUERY_KEYS = {
 
 export type AdminEntity = keyof typeof ADMIN_ENTITY_QUERY_KEYS;
 
-// Toda mutación de un catálogo (alta/edición/baja) invalida su listado; el
-// detalle sólo cuando la mutación apunta a una entidad concreta.
 export const invalidateAdminEntityQueries = async (
     queryClient: QueryClient,
     entity: AdminEntity,

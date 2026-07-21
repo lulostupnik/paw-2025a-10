@@ -1,8 +1,5 @@
 import { useI18n } from "@/lib/i18n";
 
-// Variante de ServerErrorPage para los errores que ocurren fuera del router:
-// sin contexto de router no se puede usar Link, así que navega con <a> (lo que
-// además fuerza una recarga limpia del árbol que quedó roto).
 export default function RootErrorFallback() {
     const { t } = useI18n();
 

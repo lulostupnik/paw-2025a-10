@@ -4,7 +4,6 @@ import { getAuthToken, getRefreshToken, logout, setAuthTokens } from "@/lib/auth
 
 let apiLocale = "en";
 
-/** Keeps the Accept-Language header in sync with the app locale so API errors arrive localized. */
 export const setApiLocale = (locale: string) => {
     apiLocale = locale;
 };
@@ -14,11 +13,9 @@ interface ApiErrorBody {
     errors?: Array<{ field?: string; message?: string }>;
 }
 
-/** Status HTTP de un error de API, si lo hay. */
 export const apiErrorStatus = (error: unknown): number | undefined =>
     isAxiosError(error) ? error.response?.status : undefined;
 
-/** Errores de campo del ErrorDto de la API como {campo: mensaje}; vacío si no hay. */
 export const apiFieldErrors = (error: unknown): Record<string, string> => {
     if (!isAxiosError(error)) {
         return {};
@@ -33,10 +30,6 @@ export const apiFieldErrors = (error: unknown): Record<string, string> => {
     return result;
 };
 
-/**
- * Mensaje de error para mostrar al usuario: prefiere el `message`/`errors` del
- * ErrorDto de la API (ya localizado por Accept-Language) y cae al fallback genérico.
- */
 export const apiErrorMessage = (error: unknown, fallback: string): string => {
     if (isAxiosError(error)) {
         const data = error.response?.data as ApiErrorBody | undefined;

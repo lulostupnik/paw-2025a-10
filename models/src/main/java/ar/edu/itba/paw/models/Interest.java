@@ -19,7 +19,7 @@ public class Interest {
     private String name;
 
 
-    /* For hibernate */ Interest() {
+     Interest() {
     }
     public Interest(final String name) {
         this.name = name;

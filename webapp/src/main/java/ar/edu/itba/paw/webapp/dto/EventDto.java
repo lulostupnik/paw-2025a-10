@@ -80,7 +80,7 @@ public class EventDto {
         private URI cityUrl;
         private URI flyerUrl;
         private URI responsesUrl;
-        private URI attendancesUrl; // TODO: revisar
+        private URI attendancesUrl;
         private URI ratingsUrl;
         private URI statisticsUrl;
 

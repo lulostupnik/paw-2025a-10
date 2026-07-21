@@ -30,8 +30,6 @@ export default function TopBar() {
     const langRef = useRef<HTMLDivElement>(null);
     const headerRef = useRef<HTMLElement | null>(null);
     const showProfilePicture = Boolean(profilePictureUrl && !avatarError);
-    // El menú de perfil sólo existe para usuarios logueados: derivarlo evita
-    // que quede abierto si la sesión se pierde mientras está desplegado.
     const menuOpen = logged && profileMenuOpen;
 
     const updateTopBarOffset = useCallback(() => {
@@ -196,7 +194,7 @@ export default function TopBar() {
                                     <AvatarFallbackIcon size={16} />
                                 )}
                             </span>
-                            <span className="top-bar__profile-name">{username}</span>
+                            <span className="top-bar__profile-name" title={username}>{username}</span>
                             <span className="top-bar__chevron" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -222,8 +220,6 @@ export default function TopBar() {
                                     setProfileMenuOpen(false);
                                     setNavOpen(false);
                                     logout();
-                                    // Los datos cacheados son de la sesión que se cierra:
-                                    // descartarlos evita servirlos al próximo usuario.
                                     queryClient.clear();
                                     nav("/", { replace: true });
                                 }}

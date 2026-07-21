@@ -23,7 +23,7 @@ import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png"];
 const ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png"];
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const EVENT_TITLE_MAX_LENGTH = 50;
 const EVENT_DESCRIPTION_MAX_LENGTH = 2047;
 const EVENT_ADDRESS_MAX_LENGTH = 255;
@@ -84,14 +84,10 @@ export default function EventEditPage() {
         return <PageStatus className="event-create-page" variant="error" message={t("admin.dashboard.error", { defaultValue: "Error cargando datos." })} />;
     }
 
-    // Sólo el organizador puede editar el contenido del evento: sin este corte la
-    // ruta directa mostraría el formulario completo para morir en un 403 al enviar.
     if (data.user?.id !== getUserId()) {
         return <ForbiddenPage />;
     }
 
-    // El formulario arranca con los datos ya resueltos, así que se siembra con el
-    // estado inicial de cada campo en lugar de copiarlos con un efecto.
     return <EventEditForm key={data.id} event={data} />;
 }
 
@@ -294,8 +290,6 @@ function EventEditForm({ event }: EventEditFormProps) {
                 address: form.address.trim() || null,
                 attendeesLimit: form.unlimited ? null : Number(form.participantLimit),
             });
-            // Los datos del evento ya se guardaron: si falla el flyer no se puede reportar como
-            // edición fallida, porque el usuario reintentaría un update ya aplicado.
             let flyerFailed = false;
             if (form.flyer) {
                 try {
@@ -317,7 +311,6 @@ function EventEditForm({ event }: EventEditFormProps) {
             console.error("Failed to update event", err);
             const serverErrors: FormErrors = mapApiFieldErrors(err, API_FIELD_TO_FORM_FIELD);
             if (apiErrorStatus(err) === 409) {
-                // Único conflicto de estado del update: el límite quedó bajo los asistentes actuales.
                 serverErrors.participantLimit = apiErrorMessage(err, t("event.edit.error", { defaultValue: "Error al actualizar el evento." }));
             }
             if (Object.keys(serverErrors).length > 0) {

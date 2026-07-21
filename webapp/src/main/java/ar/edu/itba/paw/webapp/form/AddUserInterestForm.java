@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 public class AddUserInterestForm {
 
     @NotNull
-    private Long interestId; // TODO: en realidad quizas estaría bueno que mande el nombre en vez del id.
+    private Long interestId;
 
     public Long getInterestId() {
         return interestId;

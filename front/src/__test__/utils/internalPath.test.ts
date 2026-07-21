@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { sanitizeInternalPath, INTERNAL_PATH_FALLBACK } from "@/lib/utils/internalPath";
 
-// jsdom runs with window.location.origin === "http://localhost"
 
 describe("sanitizeInternalPath", () => {
     describe("returns the fallback for non-navigable input", () => {

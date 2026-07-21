@@ -8,8 +8,6 @@ import { useI18n } from "@/lib/i18n";
 
 type VerificationStatus = "loading" | "success" | "expired" | "invalid" | "blocked" | "already" | "error";
 
-// El resultado se guarda junto al token que lo produjo: si el token de la URL
-// cambia, el estado derivado vuelve a "loading" sin sincronizarlo por efecto.
 interface VerificationResult {
     token: string;
     status: VerificationStatus;

@@ -41,7 +41,6 @@ public class InterestController {
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
-        // TODO: parametro de usuarios? ¿Acá o en /users/{id}/interests? ¿en webapp o en capa de servicios?
         final Page<Interest> interests = interestService.findInterests(search, new PageParams(page, size));
         final List<InterestDto> interestDtos = InterestDto.fromInterestCollection(uriInfo, interests.getContent());
         final ResponseBuilder response = PagingUtils.insertPaginationLinks(

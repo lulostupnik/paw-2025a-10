@@ -63,8 +63,6 @@ export default function CityCreatePage() {
         return countries.filter((country) => country.name.toLowerCase().includes(query));
     }, [countries, countryQuery]);
 
-    // The body references the country by its id, so the typed/selected name is
-    // resolved to the country's id at submit time using the loaded list.
     const resolveCountryId = useCallback(
         (name: string) =>
             countries.find((c) => c.name.trim().toLowerCase() === name.trim().toLowerCase())?.id ?? null,

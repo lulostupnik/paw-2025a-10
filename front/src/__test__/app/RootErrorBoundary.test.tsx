@@ -31,7 +31,6 @@ describe("RootErrorBoundary", () => {
     });
 
     it("swaps a throwing tree for the error page instead of unmounting everything", () => {
-        // React reporta el error atrapado por consola; no es una falla del test.
         vi.spyOn(console, "error").mockImplementation(() => {});
 
         render(

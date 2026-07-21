@@ -30,7 +30,7 @@ public class Token {
     @Column(name = "token_expiration",nullable = false)
     private LocalDateTime expirationDate;
 
-    /* para hibernate*/ Token() {
+     Token() {
 
     }
 

@@ -3,6 +3,7 @@ import { renderHook, act } from "../setup/utils";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import * as usersApi from "@/lib/api/users";
 import type { ProfileDetail } from "@/types/profile";
+import { noop } from "@/lib/utils/noop";
 
 describe("useProfileUpsert", () => {
     beforeEach(() => {
@@ -66,7 +67,7 @@ describe("useProfileUpsert", () => {
             try {
                 await result.current.updateProfile({ firstName: "Test", lastName: "User", username: "test" });
             } catch {
-                // expected
+                noop();
             }
         });
 

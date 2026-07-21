@@ -13,7 +13,6 @@ const seed = (queryKey: unknown[]) => {
 
 const isInvalidated = (queryKey: unknown[]) => {
     const state = queryClient.getQueryState(queryKey);
-    // Si la query no está cacheada el assert no significa nada: mejor romper.
     expect(state, `la query ${JSON.stringify(queryKey)} no está en la cache`).toBeDefined();
     return state!.isInvalidated;
 };

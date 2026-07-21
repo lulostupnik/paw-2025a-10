@@ -35,8 +35,8 @@ export default function Pagination({
         let startValue = Math.max(1, currentPage - sideOffset);
         let endValue = Math.min(totalPages, currentPage + sideOffset);
 
-        if (currentPage > sideOffset) startValue += 2;                  //make room for first and ellipsis
-        if (totalPages - currentPage > sideOffset - 1) endValue -= 2;   //make room for last and ellipsis
+        if (currentPage > sideOffset) startValue += 2;
+        if (totalPages - currentPage > sideOffset - 1) endValue -= 2;
 
         const prevEndValue = endValue;
         if (startValue < sideOffset){

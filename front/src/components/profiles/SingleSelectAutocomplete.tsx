@@ -27,8 +27,6 @@ export default function SingleSelectAutocomplete({
     const { t } = useI18n();
     const [query, setQuery] = useState(value?.name ?? "");
     const [open, setOpen] = useState(false);
-    // El texto tipeado es un borrador de la opción elegida: si la selección
-    // cambia desde afuera, el borrador vuelve a reflejarla.
     const [lastValue, setLastValue] = useState(value);
     if (lastValue !== value) {
         setLastValue(value);

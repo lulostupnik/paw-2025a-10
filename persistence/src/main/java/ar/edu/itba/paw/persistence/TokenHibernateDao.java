@@ -48,7 +48,7 @@ public class TokenHibernateDao implements TokenDao {
             Token managedToken = entityManager.find(Token.class, token.getId());
             if (managedToken != null) {
                 User user = managedToken.getUser();
-                user.setToken(null); // This will trigger orphan removal
+                user.setToken(null);
                 entityManager.flush();
             }
     }

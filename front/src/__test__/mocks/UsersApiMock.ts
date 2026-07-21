@@ -39,7 +39,6 @@ export const usersHandlers = [
 
     http.post(`${BASE_URL}/users`, async ({ request }) => {
         const contentType = request.headers.get("Content-Type") ?? "";
-        // Forgot password request rides on POST /users with the user-password media type.
         if (contentType.includes("user-password")) {
             return new HttpResponse(null, { status: 204 });
         }
@@ -56,7 +55,6 @@ export const usersHandlers = [
         );
     }),
 
-    // One PATCH for everything on the user (profile, password, verified, blocked).
     http.patch(`${BASE_URL}/users/:id`, async ({ request, params }) => {
         const body = (await request.json()) as Record<string, unknown>;
         return HttpResponse.json({ ...defaultUser, ...body, id: Number(params.id) }, { headers: { "Content-Type": "application/vnd.gotogether.user.v1+json" } });

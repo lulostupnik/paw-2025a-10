@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import type { ReactElement, ReactNode } from "react";
 import {
     render,

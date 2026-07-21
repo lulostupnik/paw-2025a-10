@@ -257,8 +257,6 @@ interface UsersFiltersModalProps {
     onClose: () => void;
 }
 
-// El modal se monta recién al abrirse, así el borrador de filtros arranca desde
-// los filtros vigentes sin sincronizarlo con un efecto.
 function UsersFiltersModal({ filters, onApply, onReset, onClose }: UsersFiltersModalProps) {
     const { t } = useI18n();
     const [draftFilters, setDraftFilters] = useState<AdminUserFilters>(filters);
@@ -383,8 +381,6 @@ function AdminCatalogSelectField({
     const [query, setQuery] = useState(value?.name ?? "");
     const [open, setOpen] = useState(false);
     const debouncedQuery = useDebouncedValue(query);
-    // El texto tipeado es un borrador de la opción elegida: si la selección
-    // cambia desde afuera, el borrador vuelve a reflejarla.
     const [lastValue, setLastValue] = useState(value);
     if (lastValue !== value) {
         setLastValue(value);

@@ -32,7 +32,6 @@ export function createCatalogHandlers(endpoint: string, items: CatalogItem[], co
             const body = (await request.json()) as Record<string, unknown>;
             return HttpResponse.json({ id: Number(params.id), ...body }, contentTypes ? { headers: { "Content-Type": contentTypes.single } } : undefined);
         }),
-        // La API actualiza los catálogos con PATCH; sin este handler los updates caerían en un 404 del mock.
         http.patch(`${BASE_URL}/${endpoint}/:id`, async ({ request, params }) => {
             const body = (await request.json()) as Record<string, unknown>;
             return HttpResponse.json({ id: Number(params.id), ...body }, contentTypes ? { headers: { "Content-Type": contentTypes.single } } : undefined);

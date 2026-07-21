@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiErrorStatus } from "@/lib/api/client";
 import { buildEventCreator, buildEventRatings, getEventById, isEventFuture } from "@/lib/api/events";
 import type { EventCreator, EventDetail } from "@/types/event";
 
@@ -14,10 +15,6 @@ const parseIdFromUrl = (url?: string | null): number | null => {
     return match ? Number(match[1]) : null;
 };
 
-// Splits the event detail into a fast core fetch (GET /events/{id}) and slower
-// secondary lookups (creator, city, ratings). The page can render its main
-// information as soon as the core resolves; each secondary block reports its own
-// loading/error state so it can fill in independently.
 export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
     const queryClient = useQueryClient();
 
@@ -51,8 +48,6 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
         placeholderData: keepPreviousData,
     });
 
-    // Creator id is derivable from its URL, so ownership-dependent controls can
-    // resolve immediately without waiting for the creator profile fetch.
     const fallbackCreator: EventCreator = {
         id: parseIdFromUrl(creatorUrl) ?? 0,
         firstname: "",
@@ -62,6 +57,8 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
         university: null,
         career: null,
     };
+
+    const isNotFound = apiErrorStatus(eventQuery.error) === 404;
 
     const ratingsResult = ratingsQuery.data ?? { ratings: [], total: 0 };
     const ratings = ratingsResult.ratings;
@@ -94,9 +91,6 @@ export const useEventDetailData = ({ eventId }: EventDetailParams = {}) => {
               averageRating,
           }
         : null;
-
-    const status = (eventQuery.error as { response?: { status?: number } } | undefined)?.response?.status;
-    const isNotFound = status === 404;
 
     return {
         data,

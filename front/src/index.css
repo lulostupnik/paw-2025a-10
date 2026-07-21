@@ -375,7 +375,6 @@ h4 { font-size: 1.125rem; }
   margin-top: 1rem;
 }
 
-/* Listing pages */
 .listing-page-shell {
   padding-bottom: 4rem;
 }
@@ -478,6 +477,11 @@ h4 { font-size: 1.125rem; }
   .listing-toolbar__actions {
     flex-wrap: nowrap;
     gap: 0;
+  }
+
+  .listing-toolbar {
+    flex-wrap: wrap;
+    min-width: 0;
   }
 }
 
@@ -1000,7 +1004,6 @@ h4 { font-size: 1.125rem; }
   margin: 0;
 }
 
-/* Register page */
 .register-page {
   display: flex;
   flex-direction: column;
@@ -1206,7 +1209,6 @@ h4 { font-size: 1.125rem; }
   height: 28px;
 }
 
-/* Event create page */
 .event-create-page,
 .journey-create-page {
   display: flex;
@@ -1332,7 +1334,6 @@ h4 { font-size: 1.125rem; }
   position: relative;
 }
 
-/* Explore page */
 .explore-page {
   display: flex;
   flex-direction: column;
@@ -1795,7 +1796,6 @@ h4 { font-size: 1.125rem; }
   padding: 0.75rem 1rem;
 }
 
-/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -1898,7 +1898,6 @@ h4 { font-size: 1.125rem; }
   flex-wrap: wrap;
 }
 
-/* Form controls */
 .form-card {
   display: flex;
   flex-direction: column;
@@ -2030,7 +2029,6 @@ textarea.input-control {
   gap: 0.75rem;
 }
 
-/* Error pages */
 .error-page {
   display: flex;
   justify-content: center;
@@ -2150,7 +2148,6 @@ textarea.input-control {
   font-weight: 600;
 }
 
-/* Checkbox */
 .checkbox-field {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -2221,7 +2218,6 @@ textarea.input-control {
   border-color: var(--color-white);
 }
 
-/* Top bar */
 .top-bar {
   position: sticky;
   top: 0;
@@ -2453,6 +2449,10 @@ textarea.input-control {
 .top-bar__profile-name {
   font-weight: 600;
   color: var(--color-gray-800);
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .top-bar__chevron {
@@ -2569,7 +2569,6 @@ textarea.input-control {
   }
 }
 
-/* Utility */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -3416,7 +3415,6 @@ textarea.input-control {
   }
 }
 
-/* Admin dashboard */
 .admin-dashboard .main-content {
   width: 100%;
   background: var(--color-background);
@@ -3995,7 +3993,6 @@ textarea.input-control {
   }
 }
 
-/* Entity detail pages */
 .entity-detail-page .container {
   width: 100%;
   max-width: 1200px;
@@ -4324,7 +4321,6 @@ textarea.input-control {
   }
 }
 
-/* Journey and event detail shared styles */
 .journey-detail-page .layout-container,
 .event-detail-page .layout-container {
   display: flex;
@@ -4337,6 +4333,7 @@ textarea.input-control {
   flex: 1;
   display: flex;
   justify-content: center;
+  min-width: 0;
 }
 
 .journey-detail-page .content-container,
@@ -4347,7 +4344,6 @@ textarea.input-control {
   padding: 0 1.5rem 2.5rem;
 }
 
-/* Entity create pages */
 .entity-create-page {
   min-height: calc(100vh - var(--top-bar-offset, 72px));
   background-color: var(--color-background);
@@ -4970,7 +4966,6 @@ textarea.input-control {
   background-color: var(--color-gray-100);
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
-  min-width: 0;
 }
 
 .journey-detail-page .destination-text,
@@ -5420,6 +5415,7 @@ textarea.input-control {
 
 .event-detail-page .tabs-container {
   background-color: var(--color-white);
+  overflow-x: auto;
 }
 
 .event-detail-page .tabs-header {
@@ -5427,6 +5423,7 @@ textarea.input-control {
   gap: 0.5rem;
   border-bottom: 1px solid var(--color-gray-200);
   padding: 0 2rem;
+  min-width: max-content;
 }
 
 .event-detail-page .tab-btn {
@@ -5804,7 +5801,6 @@ textarea.input-control {
   border-color: var(--color-primary);
 }
 
-/* Creator card */
 .journey-detail-page .profile-card-link,
 .event-detail-page .profile-card-link {
   position: relative;
@@ -5913,7 +5909,6 @@ textarea.input-control {
   word-break: break-word;
 }
 
-/* Rating section */
 .event-detail-page .rating-content {
   display: flex;
   flex-direction: column;
@@ -6097,7 +6092,6 @@ textarea.input-control {
   font-weight: 700;
 }
 
-/* Profile pages */
 .profile-page {
   --profile-radius: 0.75rem;
   --profile-radius-sm: 0.375rem;
@@ -7204,7 +7198,6 @@ textarea.input-control {
   }
 }
 
-/* Profile form pages */
 .profile-form-page .auth-container,
 .profile-password-page .auth-container {
   display: flex;
@@ -7506,6 +7499,7 @@ textarea.input-control {
 
 .profile-form-page .profile-picture-section {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
 }
@@ -7581,6 +7575,7 @@ textarea.input-control {
   align-items: center;
   gap: 0.75rem;
   margin-top: 1rem;
+  max-width: 100%;
 }
 
 .profile-form-page .file-preview-image {
@@ -7588,11 +7583,17 @@ textarea.input-control {
   height: 48px;
   border-radius: 0.5rem;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .profile-form-page .file-preview-name {
   font-size: 0.875rem;
   color: #6b7280;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-form-page .file-preview-remove {
@@ -7600,6 +7601,7 @@ textarea.input-control {
   border: none;
   color: #ef4444;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .profile-password-page .password-field-container {
@@ -7655,7 +7657,6 @@ textarea.input-control {
   }
 }
 
-/* Journeys listing (JSP parity) */
 .journeys-page .layout-container {
   display: flex;
   min-height: 100vh;
