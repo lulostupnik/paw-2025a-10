@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import StatusCard from "@/components/ui/StatusCard";
 import { resetPasswordWithToken } from "@/lib/api/auth";
+import { isAccessDeniedAuthError, isBlockedAuthError } from "@/lib/api/authErrorUtils";
 import { useI18n } from "@/lib/i18n";
 import { classNames } from "@/lib/utils/classNames";
 import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
@@ -51,8 +52,11 @@ const mapResetError = (error: unknown): ResetStatus => {
     if (status === 410 || message.includes("expir")) {
         return "expired";
     }
-    if (status === 403) {
+    if (status === 403 && isBlockedAuthError(error)) {
         return "blocked";
+    }
+    if (status === 403 && isAccessDeniedAuthError(error)) {
+        return "invalid";
     }
     if (status === 401 || status === 400 || status === 404 || message.includes("invalid")) {
         return "invalid";

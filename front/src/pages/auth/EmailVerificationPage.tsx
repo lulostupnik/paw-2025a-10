@@ -4,6 +4,7 @@ import { isAxiosError } from "axios";
 import Button from "@/components/ui/Button";
 import StatusCard from "@/components/ui/StatusCard";
 import { verifyEmailToken } from "@/lib/api/auth";
+import { isAccessDeniedAuthError, isBlockedAuthError } from "@/lib/api/authErrorUtils";
 import { useI18n } from "@/lib/i18n";
 
 type VerificationStatus = "loading" | "success" | "expired" | "invalid" | "blocked" | "already" | "error";
@@ -23,8 +24,11 @@ const mapVerificationError = (error: unknown): VerificationStatus => {
     if (status === 410 || message.includes("expir")) {
         return "expired";
     }
-    if (status === 403) {
+    if (status === 403 && isBlockedAuthError(error)) {
         return "blocked";
+    }
+    if (status === 403 && isAccessDeniedAuthError(error)) {
+        return "invalid";
     }
     if (status === 409 && message.includes("validat")) {
         return "already";

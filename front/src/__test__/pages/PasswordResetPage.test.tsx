@@ -82,4 +82,36 @@ describe("PasswordResetPage", () => {
         await user.type(inputs[0], "NewPassword1");
         expect(inputs[0]).toHaveValue("NewPassword1");
     });
+
+    it("should show invalid state when backend returns access denied", async () => {
+        mockResetPasswordWithToken.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 403, data: { message: "You don't have permission to access this resource." } },
+        });
+        const user = userEvent.setup();
+        renderPage();
+
+        const inputs = screen.getAllByPlaceholderText("••••••••");
+        await user.type(inputs[0], "NewPassword1");
+        await user.type(inputs[1], "NewPassword1");
+        await user.click(screen.getByText("profile.edit.password.save"));
+
+        expect(await screen.findByText("invalidtoken.title")).toBeInTheDocument();
+    });
+
+    it("should show blocked state when backend returns blocked message", async () => {
+        mockResetPasswordWithToken.mockRejectedValue({
+            isAxiosError: true,
+            response: { status: 403, data: { message: "Your account has been blocked by an administrator." } },
+        });
+        const user = userEvent.setup();
+        renderPage();
+
+        const inputs = screen.getAllByPlaceholderText("••••••••");
+        await user.type(inputs[0], "NewPassword1");
+        await user.type(inputs[1], "NewPassword1");
+        await user.click(screen.getByText("profile.edit.password.save"));
+
+        expect(await screen.findByText("blocked.title")).toBeInTheDocument();
+    });
 });
