@@ -242,7 +242,7 @@ function JourneyTipEditForm({ journey, tip, journeyId, tipsPage, onBack }: Journ
                                     <form className="tip-form" onSubmit={handleSubmit} noValidate>
                                         <div className="form-group">
                                             <label className="form-label required-field" htmlFor="tip-title">
-                                                {t("tip.title")}
+                                                {t("tip.title")} <span className="required-indicator" aria-hidden="true">*</span>
                                             </label>
                                             <input
                                                 id="tip-title"
@@ -263,7 +263,7 @@ function JourneyTipEditForm({ journey, tip, journeyId, tipsPage, onBack }: Journ
 
                                         <div className="form-group">
                                             <label className="form-label required-field" htmlFor="tip-content">
-                                                {t("tip.content")}
+                                                {t("tip.content")} <span className="required-indicator" aria-hidden="true">*</span>
                                             </label>
                                             <textarea
                                                 id="tip-content"

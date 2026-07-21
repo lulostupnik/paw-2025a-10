@@ -175,7 +175,7 @@ export default function JourneyTipCreatePage() {
                                     <form className="tip-form" onSubmit={handleSubmit} noValidate>
                                         <div className="form-group">
                                             <label className="form-label required-field" htmlFor="tip-title">
-                                                {t("tip.title")}
+                                                {t("tip.title")} <span className="required-indicator" aria-hidden="true">*</span>
                                             </label>
                                             <input
                                                 id="tip-title"
@@ -196,7 +196,7 @@ export default function JourneyTipCreatePage() {
 
                                         <div className="form-group">
                                             <label className="form-label required-field" htmlFor="tip-content">
-                                                {t("tip.content")}
+                                                {t("tip.content")} <span className="required-indicator" aria-hidden="true">*</span>
                                             </label>
                                             <textarea
                                                 id="tip-content"
