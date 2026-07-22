@@ -41,8 +41,10 @@ levantan los usuarios y bloquear cuentas.
 Este proyecto fue realizado en un entorno académico, como parte de la currícula de
 Proyecto de Aplicaciones Web del Instituto Tecnológico de Buenos Aires (ITBA), por:
 
-* Ivo Vilamowski
-* Nicolás Koron
-* Tomás González Colasantti
-* Luca Stupnik
-* Matías Rossi Seifert
+| Nombre | Legajo |
+|--------|--------|
+| Ivo Vilamowski | 64210 |
+| Nicolás Koron | 64094 |
+| Tomás González Colasantti | 63281 |
+| Luciano Stupnik | 64233 |
+| Matías Rossi Seifert | 63202 |
