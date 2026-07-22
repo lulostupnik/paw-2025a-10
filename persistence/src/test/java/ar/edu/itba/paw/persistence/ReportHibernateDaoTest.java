@@ -60,15 +60,35 @@ public class ReportHibernateDaoTest {
                 null, 
                 USER_1, 
                 USER_2, 
-                REPORT_USER_DESC, 
-                HARASSMENT, 
-                null, 
-                null, 
-                null, 
-                null, 
-                false, 
-                ReportStatus.PENDING), 
+                REPORT_USER_DESC,
+                HARASSMENT,
+                null,
+                null,
+                null,
+                null,
+                false,
+                ReportStatus.PENDING),
             report
+        );
+
+        assertEquals(
+            TOTAL_REPORTS + 1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "deleted = FALSE")
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, REPORT_TABLE,
+                "id = " + report.getId()
+                    + " AND reported_user_id = " + USER_1_ID
+                    + " AND reporting_user_id = " + USER_2_ID
+                    + " AND description = '" + REPORT_USER_DESC + "'"
+                    + " AND reason = '" + HARASSMENT.name() + "'"
+                    + " AND status = '" + ReportStatus.PENDING.name() + "'"
+                    + " AND deleted = FALSE"
+                    + " AND journey_id IS NULL AND event_id IS NULL"
+                    + " AND event_response_id IS NULL AND journey_response_id IS NULL"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -82,7 +102,7 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                0, 
+                0L,
                 null, 
                 false, 
                 false), 
@@ -103,8 +123,8 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -171,15 +191,36 @@ public class ReportHibernateDaoTest {
                 null, 
                 USER_1, 
                 USER_2, 
-                REPORT_JOURNEY_DESC, 
-                HARASSMENT, 
-                JOURNEY_1, 
-                null, 
-                null, 
-                null, 
-                false, 
-                ReportStatus.PENDING), 
+                REPORT_JOURNEY_DESC,
+                HARASSMENT,
+                JOURNEY_1,
+                null,
+                null,
+                null,
+                false,
+                ReportStatus.PENDING),
             report
+        );
+
+        assertEquals(
+            TOTAL_REPORTS + 1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "deleted = FALSE")
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, REPORT_TABLE,
+                "id = " + report.getId()
+                    + " AND reported_user_id = " + USER_1_ID
+                    + " AND reporting_user_id = " + USER_2_ID
+                    + " AND description = '" + REPORT_JOURNEY_DESC + "'"
+                    + " AND reason = '" + HARASSMENT.name() + "'"
+                    + " AND status = '" + ReportStatus.PENDING.name() + "'"
+                    + " AND deleted = FALSE"
+                    + " AND journey_id = " + JOURNEY_1_ID
+                    + " AND event_id IS NULL"
+                    + " AND event_response_id IS NULL AND journey_response_id IS NULL"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -192,8 +233,8 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -215,8 +256,8 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -305,15 +346,36 @@ public class ReportHibernateDaoTest {
                 null, 
                 USER_1, 
                 USER_2, 
-                REPORT_JOURNEY_RESPONSE_DESC, 
-                HARASSMENT, 
-                null, 
-                null, 
-                null, 
-                JOURNEY_RESPONSE_1, 
-                false, 
-                ReportStatus.PENDING), 
+                REPORT_JOURNEY_RESPONSE_DESC,
+                HARASSMENT,
+                null,
+                null,
+                null,
+                JOURNEY_RESPONSE_1,
+                false,
+                ReportStatus.PENDING),
             report
+        );
+
+        assertEquals(
+            TOTAL_REPORTS + 1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "deleted = FALSE")
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, REPORT_TABLE,
+                "id = " + report.getId()
+                    + " AND reported_user_id = " + USER_1_ID
+                    + " AND reporting_user_id = " + USER_2_ID
+                    + " AND description = '" + REPORT_JOURNEY_RESPONSE_DESC + "'"
+                    + " AND reason = '" + HARASSMENT.name() + "'"
+                    + " AND status = '" + ReportStatus.PENDING.name() + "'"
+                    + " AND deleted = FALSE"
+                    + " AND journey_response_id = " + JOURNEY_RESPONSE_1_ID
+                    + " AND journey_id IS NULL AND event_id IS NULL"
+                    + " AND event_response_id IS NULL"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -326,8 +388,8 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -349,8 +411,8 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -422,15 +484,36 @@ public class ReportHibernateDaoTest {
                 null, 
                 USER_1, 
                 USER_2, 
-                REPORT_EVENT_DESC, 
-                HARASSMENT, 
-                null, 
-                EVENT_1, 
-                null, 
-                null, 
-                false, 
-                ReportStatus.PENDING), 
+                REPORT_EVENT_DESC,
+                HARASSMENT,
+                null,
+                EVENT_1,
+                null,
+                null,
+                false,
+                ReportStatus.PENDING),
             report
+        );
+
+        assertEquals(
+            TOTAL_REPORTS + 1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "deleted = FALSE")
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, REPORT_TABLE,
+                "id = " + report.getId()
+                    + " AND reported_user_id = " + USER_1_ID
+                    + " AND reporting_user_id = " + USER_2_ID
+                    + " AND description = '" + REPORT_EVENT_DESC + "'"
+                    + " AND reason = '" + HARASSMENT.name() + "'"
+                    + " AND status = '" + ReportStatus.PENDING.name() + "'"
+                    + " AND deleted = FALSE"
+                    + " AND event_id = " + EVENT_1_ID
+                    + " AND journey_id IS NULL"
+                    + " AND event_response_id IS NULL AND journey_response_id IS NULL"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -443,8 +526,8 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -466,8 +549,8 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -531,7 +614,7 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                0, 
+                0L,
                 null, 
                 null, 
                 null, 
@@ -560,15 +643,36 @@ public class ReportHibernateDaoTest {
                 null, 
                 USER_1, 
                 USER_2, 
-                REPORT_EVENT_RESPONSE_DESC, 
-                HARASSMENT, 
-                null, 
-                null, 
-                EVENT_RESPONSE_1, 
-                null, 
-                false, 
-                ReportStatus.PENDING), 
+                REPORT_EVENT_RESPONSE_DESC,
+                HARASSMENT,
+                null,
+                null,
+                EVENT_RESPONSE_1,
+                null,
+                false,
+                ReportStatus.PENDING),
             report
+        );
+
+        assertEquals(
+            TOTAL_REPORTS + 1,
+            JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "deleted = FALSE")
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, REPORT_TABLE,
+                "id = " + report.getId()
+                    + " AND reported_user_id = " + USER_1_ID
+                    + " AND reporting_user_id = " + USER_2_ID
+                    + " AND description = '" + REPORT_EVENT_RESPONSE_DESC + "'"
+                    + " AND reason = '" + HARASSMENT.name() + "'"
+                    + " AND status = '" + ReportStatus.PENDING.name() + "'"
+                    + " AND deleted = FALSE"
+                    + " AND event_response_id = " + EVENT_RESPONSE_1_ID
+                    + " AND journey_id IS NULL AND event_id IS NULL"
+                    + " AND journey_response_id IS NULL"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -581,8 +685,8 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -604,8 +708,8 @@ public class ReportHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -677,137 +781,6 @@ public class ReportHibernateDaoTest {
     }
 
     @Test
-    public void testCountReportsAgainstUser(){
-        long reports = reportDao.countReportsAgainstUser(USER_2);
-
-        assertEquals(USER_2_REPORTS, reports);
-    }
-    @Test
-    public void testCountReportsAgainstUserNoReports(){
-        long reports = reportDao.countReportsAgainstUser(USER_1);
-
-        assertEquals(0, reports);
-    }
-    @Test
-    public void testCountReportsAgainstUserMissing(){
-        long reports = reportDao.countReportsAgainstUser(
-            new User(
-                12341234l, 
-                null, 
-                null, 
-                null, 
-                null, 
-                null, 
-                null, 
-                0, 
-                null, 
-                false, 
-                false
-            )
-        );
-
-        assertEquals(0, reports);
-    }
-
-    @Test
-    public void testFindAllPaginated(){
-        Page<Report> reports = reportDao.findAllPaginated(PAGE_1_BIG);
-        
-        assertNotNull(reports);
-        assertEquals(1, reports.getCurrentPage());
-        assertEquals(1, reports.getTotalPages());
-        assertEquals(TOTAL_REPORTS, reports.getContent().size());
-    }
-    @Test
-    public void testFindAllPaginatedNoReports(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, REPORT_TABLE);
-
-        Page<Report> reports = reportDao.findAllPaginated(PAGE_1_BIG);
-        
-        assertNotNull(reports);
-        assertEquals(1, reports.getCurrentPage());
-        assertEquals(0, reports.getTotalPages());
-        assertEquals(0, reports.getContent().size());
-    }
-    
-    @Test
-    public void testFindByStatusPaginated(){
-        Page<Report> reports = reportDao.findByStatusPaginated(ReportStatus.PENDING, PAGE_1_BIG);
-
-        assertNotNull(reports);
-        assertEquals(1, reports.getCurrentPage());
-        assertEquals(1, reports.getTotalPages());
-        assertEquals(REPORTS_PENDING, reports.getContent().size());
-        for (Report r : reports.getContent()){
-            assertEqualsReport(REPORT_PENDING_DATA.get(r.getId()), r);
-        }
-    }
-    @Test
-    public void testFindByStatusPaginatedResolved(){
-        Page<Report> reports = reportDao.findByStatusPaginated(ReportStatus.RESOLVED, PAGE_1_BIG);
-
-        assertNotNull(reports);
-        assertEquals(1, reports.getCurrentPage());
-        assertEquals(1, reports.getTotalPages());
-        assertEquals(REPORTS_RESOLVED, reports.getContent().size());
-        assertEqualsReport(REPORT_USER_RESOLVED, reports.getContent().getFirst());
-    }
-    @Test
-    public void testFindByStatusPaginatedUnderReview(){
-        Page<Report> reports = reportDao.findByStatusPaginated(
-            ReportStatus.UNDER_REVIEW, PAGE_1_BIG
-        );
-
-        assertNotNull(reports);
-        assertEquals(1, reports.getCurrentPage());
-        assertEquals(1, reports.getTotalPages());
-        assertEquals(REPORTS_UNDER_REVIEW, reports.getContent().size());
-        assertEqualsReport(REPORT_USER_UNDER_REVIEW, reports.getContent().getFirst());
-    }
-    @Test
-    public void testFindByStatusPaginatedDismissed(){
-        Page<Report> reports = reportDao.findByStatusPaginated(
-            ReportStatus.DISMISSED, PAGE_1_BIG
-        );
-
-        assertNotNull(reports);
-        assertEquals(1, reports.getCurrentPage());
-        assertEquals(1, reports.getTotalPages());
-        assertEquals(REPORTS_DISMISSED, reports.getContent().size());
-        assertEqualsReport(REPORT_USER_DISMISSED, reports.getContent().getFirst());
-    }
-    @Test
-    public void testFindByStatusPaginatedNoReports(){
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, REPORT_TABLE);
-
-        Page<Report> reports = reportDao.findByStatusPaginated(ReportStatus.PENDING, PAGE_1_BIG);
-
-        assertNotNull(reports);
-        assertEquals(1, reports.getCurrentPage());
-        assertEquals(0, reports.getTotalPages());
-        assertEquals(0, reports.getContent().size());
-    }
-
-    @Test
-    public void testFindByUserPaginated(){
-        Page<Report> reports = reportDao.findByUserPaginated(USER_1, PAGE_1_BIG);
-
-        assertNotNull(reports);
-        assertEquals(1, reports.getCurrentPage());
-        assertEquals(1, reports.getTotalPages());
-        assertEquals(USER_1_REPORTS_AUTHORED, reports.getContent().size());
-    }
-    @Test
-    public void testFindByUserPaginatedNoReports(){
-        Page<Report> reports = reportDao.findByUserPaginated(USER_2, PAGE_1_BIG);
-
-        assertNotNull(reports);
-        assertEquals(1, reports.getCurrentPage());
-        assertEquals(0, reports.getTotalPages());
-        assertEquals(0, reports.getContent().size());
-    }
-
-    @Test
     public void testFindAllByDescOrReason(){
         Page<Report> reports = reportDao.findAll(REPORT_EVENT_DESC, PAGE_1_BIG);
 
@@ -840,4 +813,21 @@ public class ReportHibernateDaoTest {
         assertEquals(USER_3_REPORTS, reports.getContent().size());
     }
 
+    @Test
+    public void testHardDeleteByJourneyId(){
+        jdbcTemplate.update(
+            "INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted) " +
+            "VALUES (100, 3, 1, 1, null, null, null, 'by journey', 'HARASSMENT', FALSE)");
+        jdbcTemplate.update(
+            "INSERT INTO reports(id, reported_user_id, reporting_user_id, journey_id, event_id, event_response_id, journey_response_id, description, reason, deleted) " +
+            "VALUES (101, 3, 1, null, null, null, 1, 'by response', 'HARASSMENT', FALSE)");
+
+        assertEquals(2, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "id IN (100, 101)"));
+
+        reportDao.hardDeleteByJourneyId(1);
+        em.flush();
+
+        assertEquals(0, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "id IN (100, 101)"));
+        assertEquals(1, JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, REPORT_TABLE, "id = 2"));
+    }
 }

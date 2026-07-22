@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 
 @Getter
@@ -38,7 +39,7 @@ public class EventResponse {
     @Setter
     private  String deletionMessage;
 
-    /* For hibernate */ EventResponse() {
+     EventResponse() {
     }
     public EventResponse(final User user, final Event event, final String message) {
         this.user = user;
@@ -65,5 +66,23 @@ public class EventResponse {
                 ", message: \"" +
                 message +
                 "\"}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EventResponse that)) return false;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                id,
+                message,
+                dateTime,
+                deleted,
+                deletionMessage
+        );
     }
 }

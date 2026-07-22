@@ -34,9 +34,6 @@ class HibernateDaoUtils {
         return (Math.max(1, pageParams.getPage()) - 1) * pageParams.getSize();
     }
 
-    public static int pageCount(int total, int size) {
-        return (int) Math.ceil((double) total / size);
-    }
     public static <T> Page<T> fetchPageByIds(
             EntityManager em,
             String countSql,
@@ -58,17 +55,15 @@ class HibernateDaoUtils {
             PageParams pageParams,
             Map<String, Object> fetchParameters
             ) {
-        // Count total
         Query countQuery = em.createNativeQuery(countSql);
         parameters.forEach(countQuery::setParameter);
         int totalItems = ((Number) countQuery.getSingleResult()).intValue();
 
 
-        // ID query with pagination
         Query idQuery = em.createNativeQuery(idSql);
         parameters.forEach(idQuery::setParameter);
         idQuery.setMaxResults(pageParams.getSize());
-        idQuery.setFirstResult(offset(pageParams)); // modularized offset
+        idQuery.setFirstResult(offset(pageParams));
 
         List<?> rawResults = idQuery.getResultList();
         List<Long> ids = new ArrayList<>();

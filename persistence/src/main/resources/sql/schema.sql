@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS users (
         username VARCHAR(50) NOT NULL UNIQUE,
         university BIGINT NOT NULL,
         career_id BIGINT NOT NULL,
-        profile_picture_id BIGINT NOT NULL,
+        profile_picture_id BIGINT,
         password VARCHAR(100) NOT NULL DEFAULT '$2b$10$KbQiA8xVuOPQkfiYJ0X0FubQbQjEJpTr6QOBD3qL6sYzFoq2nJ8fK',
         roles VARCHAR(50) DEFAULT 'user' CHECK (roles IN ('user', 'admin')),
         language VARCHAR(2) NOT NULL DEFAULT 'en',
@@ -291,7 +291,7 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS tokens (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    token VARCHAR(100) UNIQUE,
+    token VARCHAR(128) UNIQUE,
     token_expiration TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -370,3 +370,14 @@ COMMIT;
 
 -- ALTER TABLE events
 -- DROP COLUMN IF EXISTS attendees_count;
+
+
+-- BEGIN;
+--
+
+-- ALTER TABLE users ALTER COLUMN profile_picture_id DROP NOT NULL;
+-- ALTER TABLE events ALTER COLUMN flyer_image_id DROP NOT NULL;
+-- ALTER TABLE tokens ALTER COLUMN token TYPE varchar(128);
+-- DELETE FROM tokens WHERE length(token) <> 64;
+--
+-- COMMIT;

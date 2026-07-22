@@ -197,6 +197,22 @@ public class CareerHibernateDaoTest {
         assertNotNull(career);
         assertEquals(CAREER_INSERT1_NAME, career.getName());
         assertTrue(career.getId() > 0);
+
+        Career persisted = jdbcTemplate.queryForObject(
+            CAREER_SELECT_BY_ID, CAREER_ROW_MAPPER, career.getId()
+        );
+        assertEqualsCareer(career, persisted);
+        assertEquals(
+            TOTAL_CAREERS + 1,
+            jdbcTemplate.queryForObject(CAREER_COUNT_NOT_DELETED, Integer.class).intValue()
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, CAREER_TABLE,
+                "id = " + career.getId() + " AND name = '" + CAREER_INSERT1_NAME + "' AND deleted = FALSE"
+            )
+        );
     }
 
     @Test(expected = CareerAlreadyExistsException.class)

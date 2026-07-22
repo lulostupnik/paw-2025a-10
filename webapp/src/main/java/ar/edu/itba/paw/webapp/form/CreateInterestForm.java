@@ -13,6 +13,8 @@ public class CreateInterestForm {
     @InterestNotExists
     private String name;
 
+    public CreateInterestForm() {}
+
     public CreateInterestForm(String name) {
         this.name = name;
     }

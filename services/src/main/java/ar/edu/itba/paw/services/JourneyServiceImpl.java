@@ -2,6 +2,7 @@ package ar.edu.itba.paw.services;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+import ar.edu.itba.paw.interfaces.persistence.ReportDao;
 import ar.edu.itba.paw.interfaces.persistence.TipDao;
 import ar.edu.itba.paw.interfaces.services.*;
 import ar.edu.itba.paw.models.*;
@@ -13,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static ar.edu.itba.paw.services.AfterCommitExecutor.runAfterCommit;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +27,7 @@ public class JourneyServiceImpl implements JourneyService {
     private final JourneyResponseDao journeyResponseDao;
     private final TipDao tipDao;
     private final JourneyDao journeyDao;
+    private final ReportDao reportDao;
     private final UserService userService;
     private final EmailService emailService;
     private final UniversityService universityService;
@@ -32,7 +36,7 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Autowired
     public JourneyServiceImpl(final JourneyDao journeyDao, final UserService userService,
-                              final UniversityService universityService, final JourneyResponseDao journeyResponseDao, TipDao tipDao, final EmailService emailService, final InterestService interestService) {
+                              final UniversityService universityService, final JourneyResponseDao journeyResponseDao, TipDao tipDao, final EmailService emailService, final InterestService interestService, final ReportDao reportDao) {
         this.journeyDao = journeyDao;
         this.userService = userService;
         this.universityService = universityService;
@@ -40,40 +44,51 @@ public class JourneyServiceImpl implements JourneyService {
         this.tipDao = tipDao;
         this.emailService = emailService;
         this.interestService = interestService;
+        this.reportDao = reportDao;
     }
 
     private void checkDates(final LocalDate startDate, final LocalDate endDate) {
         if(startDate == null || endDate == null) {
-            throw new InvalidDateException("Start date and end date cannot be null");
+            LOGGER.warn("Journey dates are incomplete: start {}, end {}", startDate, endDate);
+            throw new InvalidDateException();
         }
         if(startDate.isAfter(endDate)) {
-            throw new InvalidDateException("Start date cannot be after end date");
+            LOGGER.warn("Journey start date {} is after end date {}", startDate, endDate);
+            throw new InvalidDateException();
         }
         if(startDate.isBefore(LocalDate.now())) {
-            throw new InvalidDateException("Start date cannot be before today");
+            LOGGER.warn("Journey start date {} is in the past", startDate);
+            throw new InvalidDateException();
         }
     }
 
     @Override
     @Transactional
-    public Journey createJourney(final User user, final String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
-        LOGGER.debug("Creating journey for {}", user);
-        checkDates(startDate, endDate);
-        University destination = universityService.findByName(destinationUniversity)
+    public Journey createJourney(final long userId, final long destinationUniversityId, final LocalDate startDate, final LocalDate endDate, final String description) {
+        LOGGER.debug("Creating journey for user {}", userId);
+
+        User user = userService.findUserById(userId)
                 .orElseThrow(() -> {
-                    LOGGER.warn("Destination university not found: {}", destinationUniversity);
-                    return new UniversityNotFoundException(destinationUniversity);
+                    LOGGER.warn("User with id {} not found", userId);
+                    return new UserNotFoundException();
+                });
+
+        checkDates(startDate, endDate);
+        University destination = universityService.findById(destinationUniversityId)
+                .orElseThrow(() -> {
+                    LOGGER.warn("Destination university not found: {}", destinationUniversityId);
+                    return new InvalidReferenceException();
                 }
         );
 
         Journey existingJourney = user.getJourney();
         if (existingJourney != null) {
             if (!existingJourney.isDeleted()) {
-                LOGGER.warn("User {} already has an active journey", user.getId());
-                throw new UserWithActiveJourneyException(user.getId());
+                LOGGER.warn("User {} already has an active journey", userId);
+                throw new UserWithActiveJourneyException();
             }
-            // Hard delete the soft-deleted journey and its responses
-            LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), user.getId());
+            LOGGER.info("Hard deleting previous journey {} and its responses for user {}", existingJourney.getId(), userId);
+            reportDao.hardDeleteByJourneyId(existingJourney.getId());
             tipDao.deleteByJourney(existingJourney.getId());
             journeyResponseDao.hardDeleteByJourneyId(existingJourney.getId());
             journeyDao.hardDelete(existingJourney);
@@ -88,18 +103,18 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public JourneyResponse createJourneyResponse(final String email, final long journeyId, final String message) {
-        LOGGER.debug("Replying to journey {}", journeyId);
+    public JourneyResponse createJourneyResponse(final long userId, final long journeyId, final String message) {
+        LOGGER.debug("Replying to journey {} by user {}", journeyId, userId);
         Journey journey = journeyDao.findById(journeyId)
                 .orElseThrow(() -> {
                     LOGGER.warn("Journey with id {} not found", journeyId);
-                    return new JourneyNotFoundException(journeyId);
+                    return new JourneyNotFoundException();
                 });
 
-        User responder = userService.findUserByEmail(email)
+        User responder = userService.findUserById(userId)
                 .orElseThrow(() -> {
-                    LOGGER.warn("User with email {} not found", email);
-                    return new UserNotFoundException(email);
+                    LOGGER.warn("User with id {} not found", userId);
+                    return new UserNotFoundException();
                 });
 
         JourneyResponse journeyResponse = journeyResponseDao.create(responder, journey, message);
@@ -119,55 +134,27 @@ public class JourneyServiceImpl implements JourneyService {
                     new PageParams(page, pageSize)
             );
 
-
             List<EmailUser> responders = respondersPage.getContent().stream()
                     .map(EmailUser::new)
                     .toList();
 
             if (!responders.isEmpty()) {
-                emailService.answerJourneyNotification(
-                        responders,
+                List<EmailUser> respondersSnapshot = List.copyOf(responders);
+                runAfterCommit(() -> emailService.answerJourneyNotification(
+                        respondersSnapshot,
                         message,
                         emailResponder,
                         emailJourney
-                );
+                ));
             }
 
             page++;
         } while (page <= respondersPage.getTotalPages());
         LOGGER.info("Journey response notifications sent to all responders for journey {}", journeyId);
 
-        emailService.answerJourneyOwnerNotification(message, emailResponder, emailJourney);
+        runAfterCommit(() -> emailService.answerJourneyOwnerNotification(message, emailResponder, emailJourney));
         LOGGER.info("Journey response notifications sent to owner for journey {}", journeyId);
         return journeyResponse;
-    }
-
-    private Page<Journey> searchByTerm(final String searchTerm, final PageParams pageParams){
-        return journeyDao.search(
-                searchTerm,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-
-                false,
-                false,
-                false,
-
-                pageParams
-        );
-    }
-
-    @Override
-    public Page<Journey> findJourneys(final String search, final PageParams pageParams) {
-        LOGGER.debug("Getting all journeys with search {}", search);
-        if (search == null || search.isEmpty()) {
-            return journeyDao.findAll(pageParams);
-        }
-        return searchByTerm(search, pageParams);
     }
 
     @Override
@@ -186,16 +173,29 @@ public class JourneyServiceImpl implements JourneyService {
         return startDate == null || startDate.isBefore(tomorrow) ? tomorrow : startDate;
     }
 
+    private void validateMutuallyExclusiveTimeFilters(boolean isPast, boolean isUpcoming, boolean isOngoing) {
+        int count = (isPast ? 1 : 0) + (isUpcoming ? 1 : 0) + (isOngoing ? 1 : 0);
+        if (count > 1) {
+            LOGGER.warn("Mutually exclusive time filters: past {}, upcoming {}, ongoing {}", isPast, isUpcoming, isOngoing);
+            throw new MutuallyExclusiveFiltersException();
+        }
+    }
+
 
     @Override
-    public Page<Journey> findJourneys(final String search, final User user, final SortFieldJourney sortBy, final SortDirection direction, final  String destination,
-                                      final LocalDate startDate, final LocalDate endDate, final String interest,
-                                      final boolean isPast, final boolean isUpcoming, final  boolean isMyDestination, final boolean isOngoing,
+    public Page<Journey> findJourneys(final String search, final Long recommendedForUser, final Long excludeUserId, final Long destinationCityId, final SortFieldJourney sortBy, final SortDirection direction, final String city,
+                                      final String university, final LocalDate startDate, final LocalDate endDate, final String interest,
+                                      final boolean isPast, final boolean isUpcoming, final boolean isOngoing,
                                       final PageParams pageParams) {
-        if(user != null && isMyDestination && ! existsByUser(user)){
-            LOGGER.warn("User has no journeys");
-            throw new UserHasNoJourneyException(user.getId());
+        if (recommendedForUser != null) {
+            validateRecommendedJourneysFilters(search, excludeUserId, destinationCityId, sortBy, direction, city, university, startDate, endDate, interest, isPast, isUpcoming, isOngoing);
+            return findRecommendedJourneys(recommendedForUser, pageParams);
         }
+
+        validateMutuallyExclusiveTimeFilters(isPast, isUpcoming, isOngoing);
+
+        final SortFieldJourney effectiveSortBy = sortBy == null ? SortFieldJourney.START_DATE : sortBy;
+        final SortDirection effectiveDirection = direction == null ? SortDirection.ASC : direction;
 
         LocalDate adjustedStartDate = startDate;
         LocalDate adjustedEndDate = endDate;
@@ -212,14 +212,15 @@ public class JourneyServiceImpl implements JourneyService {
 
         return journeyDao.search(
                 search,
-                user != null ? user.getId() : null,
-                sortBy,
-                direction,
-                destination,
+                excludeUserId,
+                destinationCityId,
+                effectiveSortBy,
+                effectiveDirection,
+                city,
+                university,
                 adjustedStartDate,
                 adjustedEndDate,
                 interest,
-                isMyDestination,
                 isUpcoming,
                 isPast,
                 pageParams
@@ -227,46 +228,69 @@ public class JourneyServiceImpl implements JourneyService {
 
     }
 
+    private void validateRecommendedJourneysFilters(final String search, final Long excludeUserId, final Long destinationCityId, final SortFieldJourney sortBy, final SortDirection direction,
+                                                    final String city, final String university, final LocalDate startDate, final LocalDate endDate, final String interest,
+                                                    final boolean isPast, final boolean isUpcoming, final boolean isOngoing) {
+        if (city != null || university != null || startDate != null || endDate != null || interest != null
+                || isPast || isUpcoming || isOngoing || destinationCityId != null || excludeUserId != null
+                || search != null || sortBy != null || direction != null) {
+            LOGGER.warn("Recommended journeys do not admit any other filter");
+            throw new MutuallyExclusiveFiltersException();
+        }
+    }
 
 
-    @Override
-    public boolean existsByUserEmail(final String email) {
-        LOGGER.debug("Checking if user has journey {}", email);
-        User user = userService.findUserByEmail(email).orElseThrow(() -> {
-            LOGGER.warn("User with email '{}' not found", email);
-            return new UserNotFoundException(email);
+
+    private Page<Journey> findRecommendedJourneys(final long userId, final PageParams pageParams) {
+        LOGGER.debug("Getting recommended journeys for user {}", userId);
+
+        final User user = userService.findUserById(userId).orElseThrow(() -> {
+            LOGGER.warn("User with id {} not found", userId);
+            return new UserNotFoundException();
         });
-        return user.getJourney() != null;
-    }
 
+        if (user.hasActiveJourney()) {
+            return journeyDao.findRecommended(userId, pageParams);
+        }
+
+        final Page<Journey> journeysFromOriginCity = journeyDao.findByOriginCity(
+                user.getUniversity().getCity().getId(),
+                pageParams
+        );
+        if (!journeysFromOriginCity.getContent().isEmpty()) {
+            return journeysFromOriginCity;
+        }
+
+        return journeyDao.findAll(pageParams);
+    }
     @Override
-    public boolean existsByUser(final User user) {
-        LOGGER.debug("Checking if user has journey {}", user);
-        return (user.getJourney() != null) && (!user.getJourney().isDeleted());
+    @Transactional
+    public Journey patchJourney(final long id, final Long destinationUniversityId, final LocalDate startDate,
+                                final LocalDate endDate, final String description,
+                                final Boolean deleted, final String deletionMessage) {
+        LOGGER.debug("Patching journey {}", id);
+        Journey journey = journeyDao.findById(id).orElseThrow(() -> new JourneyNotFoundException());
+
+        if (destinationUniversityId != null) {
+            University university = universityService.findById(destinationUniversityId).orElseThrow(() -> new InvalidReferenceException());
+            journey.setDestinationUniversity(university);
+        }
+        if (startDate != null) {
+            journey.setStartDate(startDate);
+        }
+        if (endDate != null) {
+            journey.setEndDate(endDate);
+        }
+        if (description != null) {
+            journey.setDescription(description);
+        }
+        if (Boolean.TRUE.equals(deleted)) {
+            deleteJourney(id, deletionMessage);
+        }
+
+        LOGGER.info("Journey patched: {}", id);
+        return journey;
     }
-
-
-    @Override
-    public List<Journey> findRecommendedJourneys(final String email, final int limit) {
-        LOGGER.debug("Getting recommended journeys for {}", email);
-        if(limit <= 0 ){
-            throw new InvalidPaginationParamsException("Limit must be grater than 0");
-        }
-        if(existsByUserEmail(email)){
-            return journeyDao.findRecommended(email, new PageParams(1, limit)).getContent();
-        }
-        Optional<User> maybeUser = userService.findUserByEmail(email);
-        if(maybeUser.isEmpty()){
-            return journeyDao.findAll(new PageParams(1, limit)).getContent();
-        }
-        List<Journey> journeys = journeyDao.findByOriginCity(maybeUser.get().getUniversity().getCity().getId(), new PageParams(1, limit)).getContent();
-        if(journeys.isEmpty()){
-            return journeyDao.findAll( new PageParams(1, limit)).getContent();
-        }
-        return journeys ;
-    }
-
-
 
     @Override
     @Transactional
@@ -284,7 +308,7 @@ public class JourneyServiceImpl implements JourneyService {
             journey.setDeletionMessage(message);
         }
 
-        emailService.sendJourneyDeletionNotification(new EmailJourney(journey),message);
+        runAfterCommit(() -> emailService.sendJourneyDeletionNotification(new EmailJourney(journey), message));
         LOGGER.info("Journey deletion notification sent to user {}", journey.getUser().getEmail());
 
         journey.setDeleted(true);
@@ -299,61 +323,29 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
-    public boolean isJourneyOwnedByUser(Journey journey, User user) {
-        if (journey == null || user == null) {
-            return false;
-        }
-
-        User journeyUser = journey.getUser();
-        if (journeyUser == null || journeyUser.getId() == null || user.getId() == null) {
-            return false;
-        }
-
-        return journeyUser.getId().equals(user.getId());
-    }
-
-    @Override
-    public Optional<Journey> findJourneyByUserId(long id) {
-            LOGGER.debug("Getting journey by id {}", id);
-            User user = userService.findUserById(id).orElseThrow(() -> {
-                LOGGER.warn("User with id {} not found", id);
-                return new UserNotFoundException(id);
-            });
-            return Optional.ofNullable(user.getJourney());
-        }
-
-    @Override
-    @Transactional
-    public Journey updateJourney(final long journeyId, final  String destinationUniversity, final LocalDate startDate, final LocalDate endDate, final String description) {
-        LOGGER.debug("Editing journey {}", journeyId);
-        Journey journey = journeyDao.findById(journeyId)
-                .orElseThrow(() -> {
-                    LOGGER.warn("Journey with id {} not found", journeyId);
-                    return new JourneyNotFoundException(journeyId);
-                });
-        University university = universityService.findByName(destinationUniversity)
-                .orElseThrow(() -> {
-                    LOGGER.warn("University not found: {}", destinationUniversity);
-                    return new UniversityNotFoundException(destinationUniversity);
-                });
-        journey.setDestinationUniversity(university);
-        journey.setStartDate(startDate);
-        journey.setEndDate(endDate);
-        journey.setDescription(description);
-        LOGGER.info("Journey updated: {}", journeyId);
-        return journey;
-    }
-
-
-    @Override
     public Optional<JourneyResponse> findJourneyResponseById(final long id) {
         LOGGER.debug("Finding journey response by id {}", id);
         return journeyResponseDao.findById(id);
     }
 
     @Override
-    @Transactional
-    public void deleteJourneyResponse(final long id, final String message) {
+    public boolean isJourneyResponseOwnedByUser(final long journeyId, final long responseId, final long userId) {
+        LOGGER.debug("Checking if response {} for journey {} is owned by user {}", responseId, journeyId, userId);
+        Optional<JourneyResponse> response = findJourneyResponseById(journeyId, responseId);
+        return response.isPresent() && response.get().getUser().getId() == userId;
+    }
+
+    @Override
+    public Optional<JourneyResponse> findJourneyResponseById(final long journeyId, final long responseId) {
+        Optional<JourneyResponse> maybeResponse = journeyResponseDao.findById(responseId);
+        if (maybeResponse.isPresent() && maybeResponse.get().getJourney().getId() != journeyId) {
+            LOGGER.warn("Journey response {} does not belong to journey {}", responseId, journeyId);
+            return Optional.empty();
+        }
+        return maybeResponse;
+    }
+
+    private void deleteJourneyResponse(final long id, final String message) {
         LOGGER.debug("Deleting journey response {}", id);
         Optional<JourneyResponse> maybeJourneyResponse = findJourneyResponseById(id);
         if (maybeJourneyResponse.isEmpty()) {
@@ -364,7 +356,7 @@ public class JourneyServiceImpl implements JourneyService {
 
         User commentAuthor = journeyResponse.getUser();
 
-        emailService.sendJourneyCommentDeletionNotification(journeyResponse, new EmailJourney(journeyResponse.getJourney()), new EmailUser(commentAuthor), message);
+        runAfterCommit(() -> emailService.sendJourneyCommentDeletionNotification(journeyResponse, new EmailJourney(journeyResponse.getJourney()), new EmailUser(commentAuthor), message));
         LOGGER.info("Journey response deletion notification sent to user {}", commentAuthor.getEmail());
 
         journeyResponse.setDeletionMessage(message);
@@ -374,17 +366,44 @@ public class JourneyServiceImpl implements JourneyService {
         LOGGER.info("Journey response deleted: {}", id);
     }
 
+    @Override
+    @Transactional
+    public void deleteJourneyResponse(final long journeyId, final long responseId, final String message) {
+        LOGGER.debug("Deleting journey response {} for journey {}", responseId, journeyId);
+        findJourneyResponseById(journeyId, responseId).orElseThrow(() -> new JourneyResponseNotFoundException());
+        deleteJourneyResponse(responseId, message);
+    }
+
+    @Override
+    @Transactional
+    public void patchJourneyResponse(final long journeyId, final long responseId, final Boolean deleted, final String deletionMessage) {
+        LOGGER.debug("Patching journey response {} for journey {}", responseId, journeyId);
+
+        if (Boolean.TRUE.equals(deleted)) {
+            deleteJourneyResponse(journeyId, responseId, deletionMessage);
+        }
+    }
+
+
 
     @Override
     public Page<JourneyResponse> findJourneyResponses(final long journeyId, final PageParams pageParams) {
         LOGGER.debug("Finding all journey responses for journey {}", journeyId);
+        journeyDao.findById(journeyId).orElseThrow(() -> {
+            LOGGER.warn("Journey with id {} not found", journeyId);
+            return new JourneyNotFoundException();
+        });
         return journeyResponseDao.findAllByJourneyId(journeyId, pageParams);
     }
 
     @Override
-    public Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams) {
-        LOGGER.debug("Finding tips for journey {}", journey);
-        return tipDao.findByJourney(journey, pageParams);
+    public Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams) {
+        LOGGER.debug("Finding tips for journey {}", journeyId);
+        journeyDao.findById(journeyId).orElseThrow(() -> {
+            LOGGER.warn("Journey with id {} not found", journeyId);
+            return new JourneyNotFoundException();
+        });
+        return tipDao.findByJourneyId(journeyId, pageParams);
     }
 
     @Override
@@ -392,7 +411,7 @@ public class JourneyServiceImpl implements JourneyService {
     public Tip createTip(long journeyId, String title, String content) {
         Journey journey = journeyDao.findById(journeyId).orElseThrow(() -> {
             LOGGER.error("Journey with id {} not found", journeyId);
-            return new JourneyNotFoundException(journeyId);
+            return new JourneyNotFoundException();
         });
          return tipDao.create(journey, title, content);
     }
@@ -400,35 +419,48 @@ public class JourneyServiceImpl implements JourneyService {
 
     @Override
     @Transactional
-    public Tip updateTip(long tipId, String title, String content) {
-        Tip tip = findTipById(tipId).orElseThrow(() -> {
-            LOGGER.error("Tip with id {} not found", tipId);
-            return new TipNotFoundException(tipId);
-        });
-        tip.setTitle(title);
-        tip.setContent(content);
-        LOGGER.info("Tip updated: {}", tipId);
+    public Tip patchTip(long journeyId, long tipId, String title, String content) {
+        LOGGER.debug("Patching tip {} for journey {}", tipId, journeyId);
+        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> new TipNotFoundException());
+
+        if (title != null) {
+            tip.setTitle(title);
+        }
+        if (content != null) {
+            tip.setContent(content);
+        }
+
+        LOGGER.info("Tip patched: {}", tipId);
         return tip;
     }
 
     @Override
     @Transactional
-    public void deleteTip(long tipId) {
+    public void deleteTip(long journeyId, long tipId) {
+        findTipById(journeyId, tipId).orElseThrow(() -> {
+            LOGGER.warn("Tip {} of journey {} not found", tipId, journeyId);
+            return new TipNotFoundException();
+        });
         tipDao.delete(tipId);
     }
 
     @Override
-    public Optional<Tip> findTipById(long tipId) {
-        LOGGER.debug("Finding tip by id {}", tipId);
-        return tipDao.findById(tipId);
+    public Optional<Tip> findTipById(long journeyId, long tipId) {
+        LOGGER.debug("Finding tip by id {} for journey {}", tipId, journeyId);
+        Optional<Tip> maybeTip = tipDao.findById(tipId);
+        if (maybeTip.isPresent() && maybeTip.get().getJourney().getId() != journeyId) {
+            LOGGER.warn("Tip {} does not belong to journey {}", tipId, journeyId);
+            return Optional.empty();
+        }
+        return maybeTip;
     }
 
 
     @Override
-    public boolean isTipOwnedByUser(long tipId, String email) {
-        Tip tip = findTipById(tipId).orElseThrow(() -> {
-            LOGGER.error("Tip with id {} not found", tipId);
-            return new TipNotFoundException(tipId);
+    public boolean isTipOwnedByUser(long journeyId, long tipId, String email) {
+        Tip tip = findTipById(journeyId, tipId).orElseThrow(() -> {
+            LOGGER.warn("Tip {} of journey {} not found", tipId, journeyId);
+            return new TipNotFoundException();
         });
         return tip.getJourney().getUser().getEmail().equals(email);
     }

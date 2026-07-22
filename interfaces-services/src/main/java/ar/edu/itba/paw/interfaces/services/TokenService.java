@@ -7,7 +7,7 @@ import java.util.Optional;
 public interface TokenService {
 
 
-    Token userTokenControl(User user);
+    String issueUserToken(User user);
 
     Optional<Token> getByToken(String token);
 
@@ -15,6 +15,6 @@ public interface TokenService {
 
     void deleteExpiredTokens();
 
-    void checkTokenValidity(String token);
+    boolean isTokenValid(Token token, long userId);
 
 }

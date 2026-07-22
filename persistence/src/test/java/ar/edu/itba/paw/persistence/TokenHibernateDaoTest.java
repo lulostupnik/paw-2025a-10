@@ -56,6 +56,18 @@ public class TokenHibernateDaoTest {
         assertEquals(TOKEN_NEW_VALUE, token.getToken());
         assertEqualsUser(USER_I3, token.getUser());
         assertTrue(token.getId() > 1);
+
+        assertEquals(
+            TOTAL_TOKENS + 1,
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, TOKEN_TABLE)
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, TOKEN_TABLE,
+                "id = " + token.getId() + " AND user_id = " + USER_I3_ID + " AND token = '" + TOKEN_NEW_VALUE + "'"
+            )
+        );
     }
     @Test(expected = PersistenceException.class)
     public void testCreateTokenWrongUser(){
@@ -67,8 +79,8 @@ public class TokenHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -111,7 +123,22 @@ public class TokenHibernateDaoTest {
     @Test
     public void testFindByTokenNotFound(){
         Optional<Token> maybeToken = tokenDao.findByToken("asdfasdfhasgb");
-        
+
+        assertFalse(maybeToken.isPresent());
+    }
+
+    @Test
+    public void testFindByTokenExpiredReturnsEmpty(){
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, TOKEN_TABLE,
+                "id = " + TOKEN_4_ID + " AND token = '" + TOKEN_4_VALUE + "'"
+            )
+        );
+
+        Optional<Token> maybeToken = tokenDao.findByToken(TOKEN_4_VALUE);
+
         assertFalse(maybeToken.isPresent());
     }
 

@@ -1,0 +1,97 @@
+import { Link, useNavigate } from "react-router-dom";
+import { useI18n } from "@/lib/i18n";
+import type { AdminUniversity } from "@/types/admin";
+import Pagination from "../listing/Pagination";
+import AdminTabHeader from "./AdminTabHeader";
+import ClickableRow from "./ClickableRow";
+import type { PageResult } from "@/types/pagination";
+import PageStatus from "@/components/ui/PageStatus";
+
+interface UniversitiesTabProps {
+    data: PageResult<AdminUniversity>;
+    searchValue: string;
+    onSearchChange: (value: string) => void;
+    onSearchSubmit: (value: string) => void;
+    onPageChange: (page: number | string) => void;
+    isLoading: boolean;
+    isError: boolean;
+    plusIconSrc: string;
+}
+
+export default function UniversitiesTab({
+    data,
+    searchValue,
+    onSearchChange,
+    onSearchSubmit,
+    onPageChange,
+    isLoading,
+    isError,
+    plusIconSrc,
+}: UniversitiesTabProps) {
+    const navigate = useNavigate();
+    const { t } = useI18n();
+    const isEmpty = !isLoading && !isError && data.content.length === 0;
+    const loadingLabel = t("admin.dashboard.loading", { defaultValue: "Cargando datos..." });
+    const errorLabel = t("admin.dashboard.error", { defaultValue: "No se pudieron cargar los datos." });
+
+    return (
+        <div className="tab-content active" id="universities-tab">
+            <AdminTabHeader
+                title={t("admin.manage.university")}
+                searchPlaceholder={t("admin.search.university")}
+                searchValue={searchValue}
+                searchButtonLabel={t("admin.search.button")}
+                onSearchChange={onSearchChange}
+                onSearchSubmit={onSearchSubmit}
+                actions={
+                    <Link to="/universities/create" className="btn btn-primary btn-with-icon">
+                        <img src={plusIconSrc} alt={t("university.create.button")} className="btn-icon" />
+                        {t("university.create.button")}
+                    </Link>
+                }
+            />
+            <div className="table-container">
+                <table className="data-table">
+                    <thead>
+                        <tr>
+                            <th>{t("admin.column.name")}</th>
+                            <th>{t("admin.column.abbreviation")}</th>
+                            <th>{t("admin.column.location")}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.content.map((university) => (
+                            <ClickableRow
+                                key={university.id}
+                                onClick={() => {
+                                    navigate(`/universities/${university.id}`);
+                                }}
+                            >
+                                <td>{university.name}</td>
+                                <td>{university.abbreviation}</td>
+                                <td>{university.city}</td>
+                            </ClickableRow>
+                        ))}
+                    </tbody>
+                </table>
+
+                {isLoading && <PageStatus compact message={loadingLabel} />}
+                {isError && <PageStatus compact variant="error" message={errorLabel} />}
+                {isEmpty && <div className="no-results">{t("admin.no.results")}</div>}
+
+                <Pagination
+                    totalPages={data.totalPages}
+                    currentPage={data.currentPage}
+                    pageSize={data.pageSize}
+                    onPageChange={onPageChange}
+                    previousLabel={t("pagination.prev")}
+                    nextLabel={t("pagination.next")}
+                    nextPage={data.next}
+                    lastPage={data.last}
+                    prevPage={data.prev}
+                    firstPage={data.first}
+                />
+            </div>
+        </div>
+    );
+}

@@ -18,10 +18,10 @@ public class InterestNotExistsValidator implements ConstraintValidator<InterestN
     }
 
     @Override
-    public boolean isValid(String email, ConstraintValidatorContext context) {
-        if (email == null || email.isEmpty()) {
+    public boolean isValid(String name, ConstraintValidatorContext context) {
+        if (name == null || name.isEmpty()) {
             return true;
         }
-        return interestService.findInterestByName(email).isEmpty();
+        return interestService.findInterestByName(name).isEmpty();
     }
 }

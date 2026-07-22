@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static ar.edu.itba.paw.services.AfterCommitExecutor.runAfterCommit;
 import java.util.*;
 
 @Service
@@ -41,68 +43,49 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User createUser(final String email,final  String username,final  String firstname, final  String lastname,final  String universityName, final String careerName,final  byte[] profilePicture, final List<String> interests,final  String password, final Locale locale) {
+    public User createUser(final String email,final  String username,final  String firstname, final  String lastname,final  long universityId, final long careerId, final List<Long> interestIds,final  String password, final Locale locale) {
         LOGGER.debug("Creating new user with email: {} and username: {}", email, username);
-        University university = universityService.findByName(universityName)
+        University university = universityService.findById(universityId)
                 .orElseThrow(() -> {
-                    LOGGER.error("University not found: '{}' during user creation for email: {}", universityName, email);
-                    return new UniversityNotFoundException(universityName);
+                    LOGGER.error("University not found: '{}' during user creation for email: {}", universityId, email);
+                    return new InvalidReferenceException();
                 });
 
-        Career career = careerService.findCareerByName(careerName)
+        Career career = careerService.findCareerById(careerId)
                 .orElseThrow(() -> {
-                    LOGGER.error("Career not found: '{}' during user creation for email: {}", careerName, email);
-                    return new CareerNotFoundException(careerName);
+                    LOGGER.error("Career not found: '{}' during user creation for email: {}", careerId, email);
+                    return new InvalidReferenceException();
                 });
 
-        long profilePictureId = imageService.createImage(profilePicture);
-        User user = userDao.create(email, username, firstname, lastname, university, career, profilePictureId, passwordEncoder.encode(password), Locale.of(locale.getLanguage()), false);
+        User user = userDao.create(email, username, firstname, lastname, university, career, null, passwordEncoder.encode(password), Locale.of(locale.getLanguage()), false);
         LOGGER.info("Successfully created user with ID: {} and email: {}", user.getId(), email);
-        interestService.createUserInterests(interests, user.getId());
+        final List<Long> uniqueInterestIds = interestIds == null
+                ? List.of()
+                : interestIds.stream().filter(Objects::nonNull).distinct().toList();
+        interestService.createUserInterests(uniqueInterestIds, user.getId());
         LOGGER.info("User interests saved successfully for user ID: {}", user.getId());
-        Token token = tokenService.userTokenControl(user);
-        emailService.sendValidationEmail(new EmailUser(user),token.getToken());
-        LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
-        return user;
-    }
-
-
-
-    @Transactional
-    @Override
-    public User verifyUser(String tokenStr) {
-        Token token = tokenService.getByToken(tokenStr)
-                .orElseThrow(() -> {
-                    LOGGER.error("Token is invalid, or expired for token: {}", tokenStr);
-                    return new InvalidTokenException(tokenStr);
-                });
-
-        final User user = token.getUser();
-
-        tokenService.delete(token);
-
-        if (user.isValidated()) {
-            LOGGER.error("User already validated {}", user.getId());
-            throw new UserValidatedException();
-        }
-
-        user.setValidated(true);
-        LOGGER.info("Activating user id {} after successful verification", user.getId());
-        return user;
-    }
-
-
-    @Override
-    @Transactional
-    public void updatePassword(final long id, final String newPassword) {
-        User user = userDao.findById(id).orElseThrow(() -> {
-            LOGGER.error("User does not exist for ID: {}", id);
-            return new UserNotFoundException(id);
+        String rawToken = tokenService.issueUserToken(user);
+        runAfterCommit(() -> {
+            emailService.sendValidationEmail(new EmailUser(user), rawToken);
+            LOGGER.info("Validation email sent successfully to user ID: {}", user.getId());
         });
-        LOGGER.debug("Password change for user with id: {}", id);
-        user.setPassword(passwordEncoder.encode(newPassword));
-        LOGGER.info("Password changed successfully for user ID: {}", id);
+        return user;
+    }
 
+
+
+    @Transactional
+    @Override
+    public void verifyUser(final long id) {
+        final User user = userDao.findById(id).orElseThrow(() -> {
+            LOGGER.error("User does not exist for ID: {}", id);
+            return new UserNotFoundException();
+        });
+
+        if (!user.isValidated()) {
+            user.setValidated(true);
+            LOGGER.info("Activating user id {} after successful verification", id);
+        }
     }
 
 
@@ -135,12 +118,14 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public Page<User> findUsers(final String search, final  PageParams pageParams) {
+    public Page<User> findUsers(final String search, final  PageParams pageParams,  Long attendingEventId,
+                                Long universityId,
+                                Long careerId,
+                                Long interestId,
+                                Boolean blocked) {
         LOGGER.debug("Getting all the users with search param: {} and pageParams: {}", search, pageParams);
-        if (search == null || search.isEmpty()) {
-            return userDao.findAll(pageParams);
-        }
-        return userDao.search(search, pageParams);
+
+        return userDao.findUsers(search, pageParams, attendingEventId, universityId, careerId, interestId, blocked);
     }
 
 
@@ -150,12 +135,11 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to block user with ID: {}", userId);
         User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new UserNotFoundException(userId);
+            return new UserNotFoundException();
         });
 
-        emailService.sendUserBlockedNotification(new EmailUser(user));
-
         user.setBlocked(true);
+        runAfterCommit(() -> emailService.sendUserBlockedNotification(new EmailUser(user)));
         LOGGER.info("User blocked successfully with ID: {}", userId);
     }
 
@@ -166,15 +150,22 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Attempting to unblock user with ID: {}", userId);
         User user = findUserById(userId).orElseThrow(() -> {
             LOGGER.error("User does not exist for ID: {}", userId);
-            return new UserNotFoundException(userId);
+            return new UserNotFoundException();
         });
-        emailService.sendUserUnblockedNotification(new EmailUser(user));
         user.setBlocked(false);
+        runAfterCommit(() -> emailService.sendUserUnblockedNotification(new EmailUser(user)));
         LOGGER.info("User unblocked successfully with ID: {}", userId);
     }
 
-
-
+    @Override
+    @Transactional
+    public void setBlockedStatus(final long userId, final boolean blocked) {
+        if (blocked) {
+            blockUser(userId);
+        } else {
+            unblockUser(userId);
+        }
+    }
 
     @Override
     public Optional<Double> findAverageRatingForCreatedEvents(long userId) {
@@ -186,23 +177,15 @@ public class UserServiceImpl implements UserService {
         return userDao.findAverageRatingForAttendedEvents(userId);
     }
 
-
     @Override
-    @Transactional
-    public void resetPassword(final String token, final String newPassword) {
-        final Optional<Token> maybeToken = tokenService.getByToken(token);
-        if (maybeToken.isEmpty()) {
-            LOGGER.error("Token is invalid, or expired for token: {}", token);
-            throw new InvalidTokenException(token);
-        }
-
-        final Token tkn = maybeToken.get();
-        final User user = tkn.getUser();
-
-        tokenService.delete(tkn);
-        LOGGER.debug("updating new password for token: {}", token);
-        user.setPassword(passwordEncoder.encode(newPassword));
-        LOGGER.info("Password updated successfully for token: {}", token);
+    public UserRating getUserRating(long userId) {
+        userDao.findById(userId).orElseThrow(() -> {
+            LOGGER.error("User does not exist for ID: {}", userId);
+            return new UserNotFoundException();
+        });
+        final Double createdEventsRating = findAverageRatingForCreatedEvents(userId).orElse(null);
+        final Double attendedEventsRating = findAverageRatingForAttendedEvents(userId).orElse(null);
+        return new UserRating(userId, createdEventsRating, attendedEventsRating);
     }
 
 
@@ -210,70 +193,117 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void initiatePasswordReset(final String email) {
         LOGGER.debug("Attempting to send forgot password email to: {}", email);
-        User user = userDao.findByEmail(email).orElseThrow(()-> {
-            LOGGER.error("User with email {} not found", email);
-            return new UserNotFoundException(email);
-        });
-        if(!user.isValidated()){
-            LOGGER.warn("User with email {} not validated", email);
-            throw new UserValidatedException(email);
+        Optional<User> maybeUser = userDao.findByEmail(email);
+        if (maybeUser.isEmpty()) {
+            LOGGER.info("Ignored password reset request for unknown email");
+            return;
         }
-        Token token = tokenService.userTokenControl(user);
-        emailService.sendForgotPassEmail(new EmailUser(user), token.getToken());
+        User user = maybeUser.get();
+        if (!user.isValidated()) {
+            LOGGER.info("Ignored password reset request for non-validated user");
+            return;
+        }
+
+        String rawToken = tokenService.issueUserToken(user);
+        runAfterCommit(() -> emailService.sendForgotPassEmail(new EmailUser(user), rawToken));
         LOGGER.info("Forgot password email sent successfully to: {}", email);
     }
 
     @Override
     @Transactional
-    public User updateUser(final long userId, final String username,
-                           final String firstname, final String lastname, final String universityName,
-                           final String careerName) {
-        LOGGER.debug("Updating user with ID: {}", userId);
+    public void resendVerificationEmail(final String email) {
+        LOGGER.debug("Attempting to resend verification email to: {}", email);
+        final User user = userDao.findByEmail(email).orElseThrow(() -> new UserNotFoundException());
+        if (user.isValidated()) {
+            LOGGER.warn("User with email {} is already validated; skipping verification resend", email);
+            throw new UserValidatedException();
+        }
+        String rawToken = tokenService.issueUserToken(user);
+        runAfterCommit(() -> emailService.sendValidationEmail(new EmailUser(user), rawToken));
+        LOGGER.info("Verification email resent successfully to: {}", email);
+    }
 
-        User user = userDao.findById(userId)
-                .orElseThrow(() -> {
-                    LOGGER.error("User with id {} not found", userId);
-                    return new UserNotFoundException(userId);
-                });
+    @Override
+    @Transactional
+    public User patchUser(final long userId, final String username,
+                          final String firstname, final String lastname,
+                          final Long universityId, final Long careerId,
+                          final String password, final Boolean blocked) {
+        LOGGER.debug("Patching user with ID: {}", userId);
 
-        University university = universityService.findByName(universityName)
-                .orElseThrow(() -> {
-                    LOGGER.error("University not found: '{}' during user update for user ID: {}", universityName, userId);
-                    return new UniversityNotFoundException(universityName);
-                });
+        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException());
 
-        Career career = careerService.findCareerByName(careerName)
-                .orElseThrow(() -> {
-                    LOGGER.error("Career not found: '{}' during user update for user ID: {}", careerName, userId);
-                    return new CareerNotFoundException(careerName);
-                });
+        if (username != null) {
+            user.setUsername(username);
+        }
 
-        user.setUsername(username);
-        user.setFirstname(firstname);
-        user.setLastname(lastname);
-        user.setUniversity(university);
-        user.setCareer(career);
+        if (firstname != null) {
+            user.setFirstname(firstname);
+        }
 
-        LOGGER.info("User updated successfully with ID: {}", userId);
+        if (lastname != null) {
+            user.setLastname(lastname);
+        }
+
+        if (universityId != null) {
+            University university = universityService.findById(universityId).orElseThrow(() -> new InvalidReferenceException());
+            user.setUniversity(university);
+        }
+
+        if (careerId != null) {
+            Career career = careerService.findCareerById(careerId).orElseThrow(() -> new InvalidReferenceException());
+            user.setCareer(career);
+        }
+
+        if (password != null) {
+            user.setPassword(passwordEncoder.encode(password));
+        }
+
+        if (blocked != null) {
+            setBlockedStatus(userId, blocked);
+        }
+
+        LOGGER.info("User patched successfully with ID: {}", userId);
         return user;
     }
 
     @Override
     @Transactional
-    public long updateProfilePicture(final long userId, final byte[] profilePicture) {
+    public Image updateProfilePicture(final long userId, final byte[] profilePicture) {
         LOGGER.debug("Updating profile picture for user ID: {}", userId);
 
         User user = userDao.findById(userId)
                 .orElseThrow(() -> {
                     LOGGER.error("User with id {} not found", userId);
-                    return new UserNotFoundException(userId);
+                    return new UserNotFoundException();
                 });
 
+        final Long oldProfilePictureId = user.getProfilePictureId();
         long newProfilePictureId = imageService.createImage(profilePicture);
-
         user.setProfilePictureId(newProfilePictureId);
+        if (oldProfilePictureId != null) {
+            imageService.deleteImage(oldProfilePictureId);
+            LOGGER.info("Old profile picture {} deleted for user {}", oldProfilePictureId, userId);
+        }
 
         LOGGER.info("Profile picture updated successfully for user ID: {}", userId);
-        return newProfilePictureId;
+        return new Image(newProfilePictureId, profilePicture);
+    }
+
+    @Override
+    public Optional<Image> getProfilePicture(final long userId) {
+        LOGGER.debug("Getting profile picture for user ID: {}", userId);
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> {
+                    LOGGER.error("User with id {} not found", userId);
+                    return new UserNotFoundException();
+                });
+
+        if (user.getProfilePictureId() == null) {
+            return Optional.empty();
+        }
+
+        return imageService.findImage(user.getProfilePictureId());
     }
 }

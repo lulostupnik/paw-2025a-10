@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.itba.paw.models.Event;
@@ -81,13 +82,21 @@ public class EventResponseHibernateDaoTest {
 
         assertEqualsEventReply(
             new EventResponse(
-                reply.getId(), 
-                USER_1, 
-                EVENT_1, 
-                RESPONSE_MESSAGE, 
+                reply.getId(),
+                USER_1,
+                EVENT_1,
+                RESPONSE_MESSAGE,
                 LocalDateTime.now()
-                ), 
+                ),
             reply
+        );
+
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, EVENT_REPLY_TABLE,
+                "id = " + reply.getId() + " AND user_id = " + USER_1_ID + " AND event_id = " + EVENT_1_ID + " AND message = '" + RESPONSE_MESSAGE + "' AND deleted = FALSE"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -105,8 +114,8 @@ public class EventResponseHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                null, 
-                0, 
+                null,
+                    0L,
                 null, 
                 false, 
                 false), 
@@ -124,7 +133,7 @@ public class EventResponseHibernateDaoTest {
                 null, 
                 null, 
                 null, 
-                0, 
+                0L,
                 null, 
                 null, 
                 null, 
@@ -133,27 +142,6 @@ public class EventResponseHibernateDaoTest {
             RESPONSE_MESSAGE
         );
         em.flush();
-    }
-
-    @Test
-    public void testCountByEventId(){
-        int replyCount = replyDao.countByEventId(EVENT_1_ID);
-
-        assertEquals(EVENT_1_REPLIES, replyCount);
-    }
-    @Test
-    public void testCountByEventIdNoReplies(){
-        deleteEventReplies(jdbcTemplate);
-
-        int replyCount = replyDao.countByEventId(EVENT_1_ID);
-
-        assertEquals(0, replyCount);
-    }
-    @Test
-    public void testCountByEventIdWrongEvent(){
-        int replyCount = replyDao.countByEventId(12341234);
-
-        assertEquals(0, replyCount);
     }
 
     @Test

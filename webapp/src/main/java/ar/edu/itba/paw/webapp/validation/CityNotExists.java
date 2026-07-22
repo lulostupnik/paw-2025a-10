@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {CityNotExistsValidator.class})
 public @interface CityNotExists {
-    String message() default "{validation.interest.not.exists.message}";
+    String message() default "{validation.city.alreadyExists}";
     Class<?>[] groups() default {};
     Class<? extends javax.validation.Payload>[] payload() default {};
 }

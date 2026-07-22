@@ -4,42 +4,33 @@ import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldJourney;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 public interface JourneyService {
-    Journey createJourney(User user, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
+    Journey createJourney(long userId, long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description);
 
-    Journey updateJourney(long journeyId, String destinationUniversity, LocalDate startDate, LocalDate endDate, String description);
     void deleteJourney(long id, String message);
+    Journey patchJourney(long id, Long destinationUniversityId, LocalDate startDate, LocalDate endDate, String description, Boolean deleted, String deletionMessage);
 
-    JourneyResponse createJourneyResponse(String email, long journeyId, String message);
-    void deleteJourneyResponse(long id, String message);
+    JourneyResponse createJourneyResponse(long userId, long journeyId, String message);
+    void deleteJourneyResponse(long journeyId, long responseId, String message);
+    void patchJourneyResponse(long journeyId, long responseId, Boolean deleted, String deletionMessage);
 
-    Page<Journey> findJourneys(String search, PageParams pageParams);
-    Page<Journey> findJourneys(String search, User user, SortFieldJourney sortBy, SortDirection direction, String destination, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isMyDestination, boolean isOngoing, PageParams pageParams);
+    Page<Journey> findJourneys(String search, Long recommendedForUser, Long excludeUserId, Long destinationCityId, SortFieldJourney sortBy, SortDirection direction, String city, String university, LocalDate startDate, LocalDate endDate, String interest, boolean isPast, boolean isUpcoming, boolean isOngoing, PageParams pageParams);
     Optional<Journey> findJourneyById(long id);
 
-    boolean existsByUserEmail(String email);
-    boolean existsByUser(User user);
-
-    List<Journey> findRecommendedJourneys(String email, int limit);
-
     boolean isJourneyOwnedByUser(String email, long journeyID);
-    boolean isJourneyOwnedByUser(Journey journey, User user);
-
-    Optional<Journey> findJourneyByUserId(long userId);
 
     Optional<JourneyResponse> findJourneyResponseById(long id);
-    Page<JourneyResponse> findJourneyResponses(long eventId, PageParams pageParams);
 
-    Page<Tip> findTipsByJourney(Journey journey, PageParams pageParams);
+    Optional<JourneyResponse> findJourneyResponseById(long journeyId, long responseId);
+    boolean isJourneyResponseOwnedByUser(long journeyId, long responseId, long userId);
+    Page<JourneyResponse> findJourneyResponses(long journeyId, PageParams pageParams);
+
+    Page<Tip> findTipsByJourneyId(long journeyId, PageParams pageParams);
     Tip createTip(long journeyId, String title, String content);
-    Tip updateTip(long tipId, String title, String content);
-    void deleteTip(long tipId);
-    Optional<Tip> findTipById(long tipId);
-    boolean isTipOwnedByUser(long tipId, String email);
+    Tip patchTip(long journeyId, long tipId, String title, String content);
+    void deleteTip(long journeyId, long tipId);
+    Optional<Tip> findTipById(long journeyId, long tipId);
+    boolean isTipOwnedByUser(long journeyId, long tipId, String email);
 }
-
-
-

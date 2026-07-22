@@ -1,0 +1,70 @@
+export const ContentTypes = {
+    USER: "application/vnd.gotogether.user.v1+json",
+    USER_PUBLIC: "application/vnd.gotogether.user-public.v1+json",
+    USER_PUBLIC_LIST: "application/vnd.gotogether.user-public-list.v1+json",
+    USER_LIST: "application/vnd.gotogether.user-list.v1+json",
+    USER_PASSWORD: "application/vnd.gotogether.user-password.v1+json",
+    USER_INTEREST: "application/vnd.gotogether.user-interest.v1+json",
+    USER_INTEREST_LIST: "application/vnd.gotogether.user-interest-list.v1+json",
+    USER_RATING: "application/vnd.gotogether.user-rating.v1+json",
+
+    EVENT: "application/vnd.gotogether.event.v1+json",
+    EVENT_LIST: "application/vnd.gotogether.event-list.v1+json",
+    EVENT_STATISTICS: "application/vnd.gotogether.event-statistics.v1+json",
+
+    EVENT_RESPONSE: "application/vnd.gotogether.event-response.v1+json",
+    EVENT_RESPONSE_LIST: "application/vnd.gotogether.event-response-list.v1+json",
+
+    EVENT_ATTENDANCE: "application/vnd.gotogether.event-attendance.v1+json",
+    EVENT_ATTENDANCE_LIST: "application/vnd.gotogether.event-attendance-list.v1+json",
+
+    EVENT_RATING: "application/vnd.gotogether.event-rating.v1+json",
+    EVENT_RATING_LIST: "application/vnd.gotogether.event-rating-list.v1+json",
+
+    JOURNEY: "application/vnd.gotogether.journey.v1+json",
+    JOURNEY_LIST: "application/vnd.gotogether.journey-list.v1+json",
+
+    JOURNEY_RESPONSE: "application/vnd.gotogether.journey-response.v1+json",
+    JOURNEY_RESPONSE_LIST: "application/vnd.gotogether.journey-response-list.v1+json",
+
+    TIP: "application/vnd.gotogether.tip.v1+json",
+    TIP_LIST: "application/vnd.gotogether.tip-list.v1+json",
+
+    CITY: "application/vnd.gotogether.city.v1+json",
+    CITY_LIST: "application/vnd.gotogether.city-list.v1+json",
+
+    COUNTRY: "application/vnd.gotogether.country.v1+json",
+    COUNTRY_LIST: "application/vnd.gotogether.country-list.v1+json",
+
+    UNIVERSITY: "application/vnd.gotogether.university.v1+json",
+    UNIVERSITY_LIST: "application/vnd.gotogether.university-list.v1+json",
+
+    CAREER: "application/vnd.gotogether.career.v1+json",
+    CAREER_LIST: "application/vnd.gotogether.career-list.v1+json",
+
+    INTEREST: "application/vnd.gotogether.interest.v1+json",
+    INTEREST_LIST: "application/vnd.gotogether.interest-list.v1+json",
+
+    REPORT: "application/vnd.gotogether.report.v1+json",
+    REPORT_LIST: "application/vnd.gotogether.report-list.v1+json",
+
+    JSON: "application/json",
+    MULTIPART: "multipart/form-data",
+} as const;
+
+export type ContentType = (typeof ContentTypes)[keyof typeof ContentTypes];
+
+export function buildHeaders(
+    contentType?: string | null,
+    acceptType?: string | null,
+): Record<string, string> {
+    const headers: Record<string, string> = {
+        Accept: acceptType || ContentTypes.JSON,
+    };
+
+    if (contentType && contentType !== ContentTypes.MULTIPART) {
+        headers["Content-Type"] = contentType;
+    }
+
+    return headers;
+}

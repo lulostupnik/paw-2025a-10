@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {ExistingCareerValidator.class})
 public @interface ExistingCareer {
-    String message() default "{EmailNotInUse.message}";
+    String message() default "{validation.career.notExists}";
 
     Class<?>[] groups() default {};
 

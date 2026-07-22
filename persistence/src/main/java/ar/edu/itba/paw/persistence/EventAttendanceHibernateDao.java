@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
 @Repository
@@ -21,10 +23,10 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
         final Event event = em.find(Event.class, eventId);
         final User user = em.find(User.class, userId);
         if (event == null) {
-            throw new EventNotFoundException( eventId );
+            throw new EventNotFoundException();
         }
         if (user == null) {
-            throw new UserNotFoundException(userId);
+            throw new UserNotFoundException();
         }
 
         return create(user, event);
@@ -44,6 +46,18 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
         final Event event = em.find(Event.class, eventId);
         final User user = em.find(User.class, userId);
         return exists(user, event);
+    }
+
+    @Override
+    public Optional<EventAttendance> findById(long userId, long eventId) {
+        List<EventAttendance> results = em.createQuery(
+                "FROM EventAttendance ea WHERE ea.user.id = :userId AND ea.event.id = :eventId",
+                EventAttendance.class
+        )
+                .setParameter("userId", userId)
+                .setParameter("eventId", eventId)
+                .getResultList();
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
     @Override
@@ -107,6 +121,39 @@ public class EventAttendanceHibernateDao implements EventAttendanceDao {
                 User.class,
                 pageParams,
                 Map.of()
+        );
+    }
+
+    @Override
+    public Page<EventAttendance> findByEventId(final long eventId, final PageParams pageParams) {
+        final String countSql = """
+            SELECT COUNT(*)
+            FROM event_attendances ea
+            WHERE ea.event_id = :eventId
+        """;
+
+        final String idSql = """
+            SELECT ea.user_id
+            FROM event_attendances ea
+            WHERE ea.event_id = :eventId
+            ORDER BY ea.user_id
+        """;
+
+        final String jpqlFetch = """
+            FROM EventAttendance ea
+            WHERE ea.user.id IN :ids AND ea.event.id = :eventId
+            ORDER BY ea.user.id
+        """;
+
+        return fetchPageByIds(
+                em,
+                countSql,
+                idSql,
+                Map.of("eventId", eventId),
+                jpqlFetch,
+                EventAttendance.class,
+                pageParams,
+                Map.of("eventId", eventId)
         );
     }
 

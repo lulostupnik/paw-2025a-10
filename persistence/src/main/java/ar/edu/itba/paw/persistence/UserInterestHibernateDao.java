@@ -6,13 +6,15 @@ import ar.edu.itba.paw.interfaces.persistence.UserInterestDao;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static ar.edu.itba.paw.persistence.HibernateDaoUtils.fetchPageByIds;
 
@@ -32,6 +34,34 @@ public class UserInterestHibernateDao implements UserInterestDao {
         final UserInterest userInterest = new UserInterest(user, interest);
         em.persist(userInterest);
         return userInterest;
+    }
+
+    @Override
+    public Optional<UserInterest> findById(long userId, long interestId) {
+        List<UserInterest> results = em.createQuery(
+                "FROM UserInterest ui WHERE ui.user.id = :userId AND ui.interest.id = :interestId",
+                UserInterest.class
+        )
+                .setParameter("userId", userId)
+                .setParameter("interestId", interestId)
+                .getResultList();
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    }
+
+    @Override
+    public UserInterest create(long userId, long interestId) {
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException());
+        Interest interest = interestDao.findById(interestId)
+                .orElseThrow(() -> new InterestsNotFoundException());
+        return create(user, interest);
+    }
+
+    @Override
+    public void delete(long userId, long interestId) {
+        UserInterest userInterest = findById(userId, interestId)
+                .orElseThrow(() -> new UserInterestNotFoundException());
+        em.remove(userInterest);
     }
 
     @Override
@@ -69,50 +99,22 @@ public class UserInterestHibernateDao implements UserInterestDao {
     }
 
     @Override
-    public void createUserInterests(List<String> interests, long userId) {
+    public void createUserInterests(List<Long> interestIds, long userId) {
         User user = userDao.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-        for (String interest : interests) {
-            Interest i = interestDao.findByName(interest)
-                    .orElseGet(() -> interestDao.create(interest));
+                .orElseThrow(() -> new UserNotFoundException());
+        if (interestIds == null) {
+            return;
+        }
+        for (Long interestId : new LinkedHashSet<>(interestIds)) {
+            if (interestId == null) {
+                continue;
+            }
+            Interest i = interestDao.findById(interestId)
+                    .orElseThrow(() -> new InterestsNotFoundException());
             create(user, i);
         }
     }
 
-    @Override
-    public void createUserInterests(long[] interests, long userId) {
-        User user = userDao.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-        for( long interestId : interests) {
-            Interest i = interestDao.findById(interestId)
-                    .orElseThrow(() -> new InterestsNotFoundException(interestId));
-            create(user, i);
-        }
-    }
-
-
-    /**
-     * Nota: Este método está en el DAO porque obtener todos los intereses del usuario
-     * desde el servicio podría ser ineficiente si tiene muchos intereses.
-     */
-    @Override
-    public void updateUserInterests(long[] interestIds, long userId) {
-        List<UserInterest> userInterests = findAllByUserId(userId);
-        List<Long> interestsToAdd = new java.util.ArrayList<>(Arrays.stream(interestIds).boxed().toList());
-        for (UserInterest userInterest : userInterests) {
-          if(!interestsToAdd.contains(userInterest.getInterest().getId())) {
-              em.remove(userInterest);
-          } else {
-              interestsToAdd.remove(userInterest.getInterest().getId());
-          }
-        }
-        for (Long interestId : interestsToAdd) {
-            Interest i = interestDao.findById(interestId)
-                    .orElseThrow(() -> new InterestsNotFoundException(interestId));
-            create(userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId)), i);
-        }
-
-    }
 
 
     /**

@@ -9,7 +9,7 @@ public interface UniversityService {
     Optional<University> findByName(String name);
     Optional<University> findById(long id);
     Page<University> findUniversities(String search, PageParams pageParams);
-    University createUniversity(String name, String abbreviation, String city);
-    University updateUniversity(long id, String name, String abbreviation, String city);
+    University createUniversity(String name, String abbreviation, long cityId);
+    University patchUniversity(long id, String name, String abbreviation, Long cityId);
     void deleteUniversity(long id);
 }

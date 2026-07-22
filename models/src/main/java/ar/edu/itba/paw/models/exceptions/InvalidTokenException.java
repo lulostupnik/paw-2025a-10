@@ -1,8 +1,8 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class InvalidTokenException extends RuntimeException {
+public class InvalidTokenException extends BusinessException {
 
-    public InvalidTokenException(String token) {
-        super(String.format("Invalid token: %s", token));
+    public InvalidTokenException() {
+        super("exception.InvalidTokenException", BusinessException.UNAUTHORIZED);
     }
 }

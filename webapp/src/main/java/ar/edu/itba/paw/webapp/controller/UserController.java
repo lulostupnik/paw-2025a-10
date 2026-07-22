@@ -1,59 +1,240 @@
 package ar.edu.itba.paw.webapp.controller;
 
+import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.Image;
+import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.UserInterest;
+import ar.edu.itba.paw.models.UserRating;
+import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
+import ar.edu.itba.paw.webapp.GoTogetherMediaType;
+import ar.edu.itba.paw.webapp.dto.UserDto;
+import ar.edu.itba.paw.webapp.dto.UserInterestDto;
+import ar.edu.itba.paw.webapp.dto.UserPrivateDto;
+import ar.edu.itba.paw.webapp.dto.UserRatingDto;
+import ar.edu.itba.paw.webapp.form.AddUserInterestForm;
+import ar.edu.itba.paw.webapp.form.CreateUserForm;
+import ar.edu.itba.paw.webapp.form.ForgotPasswordForm;
+import ar.edu.itba.paw.webapp.form.PatchUserForm;
+import ar.edu.itba.paw.webapp.form.UpdateProfilePictureForm;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
+import ar.edu.itba.paw.webapp.utils.ImageUtils;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
+import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
 
-@Controller
-@RequestMapping("/users")
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
+import java.util.List;
+
+@Path("users")
+@Component
 public class UserController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
-    private final UserService userService;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    private UserService us;
+
+    @Autowired
+    private InterestService interestService;
+
+    @Context
+    private UriInfo uriInfo;
+
+    @GET
+    @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC_LIST)
+    @PreAuthorize("@accessHelper.canListUsers(#search, #blocked)")
+    public Response listUsers(
+            @QueryParam("attendingEvent") Long attendingEventId,
+            @QueryParam("university") Long universityId,
+            @QueryParam("career") Long careerId,
+            @QueryParam("interest") Long interestId,
+            @QueryParam("search") String search,
+            @QueryParam("blocked") Boolean blocked,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("10") int size
+    ) {
+        final Page<User> allUsers = us.findUsers(search, new PageParams(page, size), attendingEventId, universityId, careerId, interestId, blocked);
+        final List<UserDto> userDtos = UserDto.fromUserCollection(uriInfo, allUsers.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(userDtos) {})
+                .header(HttpHeaders.VARY, HttpHeaders.ACCEPT);
+        return PagingUtils.insertPaginationLinks(response, uriInfo, allUsers).build();
     }
 
-    @GetMapping(value= "/{id}")
-    public ModelAndView getUser(@PathVariable(value = "id") final long id) {
-        User user = userService.findUserById(id).orElseThrow((
-
-        ) -> {
-            LOGGER.error("User not found for id: {}", id);
-            return new UserNotFoundException("User not found");
-        });
-        ModelAndView mav = new ModelAndView("users/detail");
-        mav.addObject("userToDisplay", user);
-        return mav;
+    @GET
+    @Produces(GoTogetherMediaType.APPLICATION_USER_LIST)
+    @PreAuthorize("hasRole('ADMIN')")
+    public Response listUsersAdmin(
+            @QueryParam("attendingEvent") Long attendingEventId,
+            @QueryParam("university") Long universityId,
+            @QueryParam("career") Long careerId,
+            @QueryParam("interest") Long interestId,
+            @QueryParam("search") String search,
+            @QueryParam("blocked") Boolean blocked,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("10") int size
+    ) {
+        final Page<User> allUsers = us.findUsers(search, new PageParams(page, size), attendingEventId, universityId, careerId, interestId, blocked);
+        final List<UserPrivateDto> userDtos = UserPrivateDto.fromUserCollection(uriInfo, allUsers.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(userDtos) {})
+                .header(HttpHeaders.VARY, HttpHeaders.ACCEPT);
+        return PagingUtils.insertPaginationLinks(response, uriInfo, allUsers).build();
     }
 
-    @PostMapping(value = "/{id}/block")
-    public ModelAndView blockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
-        userService.blockUser(id);
-        if(referer != null) {
-            return new ModelAndView("redirect:" + referer);
-        } else {
-            return new ModelAndView("redirect:dashboard/users");
-        }
+    @GET
+    @Path("/{id}")
+    @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC)
+    public Response getById(@Context Request req, @PathParam("id") final long id) {
+        final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException());
+        return CacheUtils.withEtag(req, user, GoTogetherMediaType.APPLICATION_USER_PUBLIC,
+                () -> UserDto.fromUser(uriInfo, user));
     }
 
-    @PostMapping(value = "/{id}/unblock")
-    public ModelAndView unblockUser(@PathVariable("id") long id, @RequestHeader(value = "Referer",required = false) String referer) {
-        userService.unblockUser(id);
-        if(referer != null) {
-            return new ModelAndView("redirect:" + referer);
-        } else {
-            return new ModelAndView("redirect:dashboard/users");
-        }
+    @GET
+    @Path("/{id}")
+    @Produces(GoTogetherMediaType.APPLICATION_USER)
+    @PreAuthorize("hasRole('ADMIN') or @accessHelper.isCurrentUser(#id)")
+    public Response getByIdAdmin(@Context Request req, @PathParam("id") final long id) {
+        final User user = us.findUserById(id).orElseThrow(() -> new UserNotFoundException());
+        return CacheUtils.privateWithEtag(req, user, GoTogetherMediaType.APPLICATION_USER,
+                () -> UserPrivateDto.fromUser(uriInfo, user));
+    }
+
+    @POST
+    @Consumes(GoTogetherMediaType.APPLICATION_USER)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC)
+    public Response createUser(@Valid @NotNull final CreateUserForm registerForm) {
+        final User user = us.createUser(
+                registerForm.getEmail(),
+                registerForm.getUsername(),
+                registerForm.getFirstName(),
+                registerForm.getLastName(),
+                registerForm.getUniversityId(),
+                registerForm.getCareerId(),
+                registerForm.getInterestIds(),
+                registerForm.getPassword(),
+                LocaleContextHolder.getLocale()
+        );
+        return Response.created(UriUtils.getUserUri(uriInfo, user.getId()))
+                .entity(UserDto.fromUser(uriInfo, user))
+                .build();
+    }
+
+    @POST
+    @Consumes(GoTogetherMediaType.APPLICATION_USER_PASSWORD)
+    public Response requestPasswordReset(@Valid @NotNull final ForgotPasswordForm form) {
+        us.initiatePasswordReset(form.getEmail());
+        return Response.noContent().build();
+    }
+
+    @PATCH
+    @Path("/{id}")
+    @Consumes(GoTogetherMediaType.APPLICATION_USER)
+    @PreAuthorize("@accessHelper.canPatchUser(#id, #form)")
+    @Produces(GoTogetherMediaType.APPLICATION_USER_PUBLIC)
+    public Response patchUser(@PathParam("id") final long id, @Valid @NotNull PatchUserForm form) {
+        final User user = us.patchUser(id, form.getUsername(), form.getFirstName(), form.getLastName(),
+                form.getUniversityId(), form.getCareerId(), form.getPassword(), form.getBlocked());
+        return Response.ok(UserDto.fromUser(uriInfo, user)).build();
+    }
+
+
+    @GET
+    @Path("/{userId}/interests")
+    @Produces(GoTogetherMediaType.APPLICATION_USER_INTEREST_LIST)
+    public Response listUserInterests(
+            @PathParam("userId") final long userId,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("20") int size
+    ) {
+        final Page<UserInterest> userInterests = interestService.findInterestsByUser(userId, new PageParams(page, size));
+        final List<UserInterestDto> interestDtos = UserInterestDto.fromUserInterestCollection(uriInfo, userInterests.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(interestDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, userInterests).build();
+    }
+
+    @POST
+    @Path("/{userId}/interests")
+    @Consumes(GoTogetherMediaType.APPLICATION_USER_INTEREST)
+    @Produces(GoTogetherMediaType.APPLICATION_USER_INTEREST)
+    public Response addUserInterest(
+            @PathParam("userId") final long userId,
+            @Valid @NotNull final AddUserInterestForm form
+    ) {
+        final UserInterest userInterest = interestService.addUserInterest(userId, form.getInterestId());
+        return Response.created(UriUtils.getUserInterestUri(uriInfo, userId, form.getInterestId()))
+                .entity(UserInterestDto.fromUserInterest(uriInfo, userInterest))
+                .build();
+    }
+
+    @GET
+    @Path("/{userId}/interests/{interestId}")
+    @Produces(GoTogetherMediaType.APPLICATION_USER_INTEREST)
+    public Response getUserInterest(
+            @Context Request req,
+            @PathParam("userId") final long userId,
+            @PathParam("interestId") final long interestId
+    ) {
+        final UserInterest userInterest = interestService.findUserInterest(userId, interestId)
+                .orElseThrow(() -> new UserInterestNotFoundException());
+        return CacheUtils.withEtag(req, userInterest, () -> UserInterestDto.fromUserInterest(uriInfo, userInterest));
+    }
+
+    @DELETE
+    @Path("/{userId}/interests/{interestId}")
+    public Response removeUserInterest(
+            @PathParam("userId") final long userId,
+            @PathParam("interestId") final long interestId
+    ) {
+        interestService.removeUserInterest(userId, interestId);
+        return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/{userId}/rating")
+    @Produces(GoTogetherMediaType.APPLICATION_USER_RATING)
+    public Response getUserRating(@Context Request req, @PathParam("userId") final long userId) {
+        final UserRating rating = us.getUserRating(userId);
+        return CacheUtils.withEtag(req, rating, () -> UserRatingDto.fromUserRating(uriInfo, rating));
     }
 
 
 
+
+    @GET
+    @Path("/{userId}/profilePicture")
+    @Produces({"image/jpeg", "image/png", "image/webp"})
+    public Response getUserProfilePicture(@Context Request req, @PathParam("userId") final long userId) {
+        final Image image = us.getProfilePicture(userId).orElseThrow(() -> new ImageNotFoundException());
+        final Response.ResponseBuilder responseBuilder = Response.ok(image.getData())
+                .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"profile_%d\"", userId));
+        return CacheUtils.withEtag(req, image, responseBuilder);
+    }
+
+    @PUT
+    @Path("/{userId}/profilePicture")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces({"image/jpeg", "image/png", "image/webp"})
+    public Response updateUserProfilePicture(
+            @PathParam("userId") final long userId,
+            @Valid @BeanParam final UpdateProfilePictureForm form
+    ) {
+        final Image image = us.updateProfilePicture(userId, form.getProfilePicture());
+        return Response.ok(image.getData())
+                .contentLocation(UriUtils.getUserProfilePictureUri(uriInfo, userId))
+                .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))
+                .build();
+    }
 }

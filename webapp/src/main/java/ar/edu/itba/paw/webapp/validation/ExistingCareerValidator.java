@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class ExistingCareerValidator implements ConstraintValidator<ExistingCareer, String> {
+public class ExistingCareerValidator implements ConstraintValidator<ExistingCareer, Long> {
 
     private final CareerService careerService;
     @Autowired
@@ -18,10 +18,10 @@ public class ExistingCareerValidator implements ConstraintValidator<ExistingCare
     }
 
     @Override
-    public boolean isValid(String careerName, ConstraintValidatorContext context) {
-        if (careerName == null || careerName.isEmpty()) {
+    public boolean isValid(Long careerId, ConstraintValidatorContext context) {
+        if (careerId == null) {
             return true;
         }
-        return careerService.findCareerByName(careerName).isPresent();
+        return careerService.findCareerById(careerId).isPresent();
     }
 }

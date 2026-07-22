@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "reports")
 public class Report {
@@ -53,21 +52,23 @@ public class Report {
     @Column(name = "reason", length = 255, nullable = false)
     private ReportReason reason;
 
+    @Setter
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ReportStatus status = ReportStatus.PENDING;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
 
-    /* hibernate */ Report() {
+     Report() {
     }
 
     public Report(Long id, User reported, User reporting, String desc, ReportReason reason, Journey journey, Event event, EventResponse eventResponse, JourneyResponse journeyResponse, boolean deleted, ReportStatus status){
@@ -82,8 +83,6 @@ public class Report {
         this.event = event;
         this.journeyResponse = journeyResponse;
         this.eventResponse = eventResponse;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     public Report(User reportedUser, User reportingUser, String description, ReportReason reason) {
@@ -93,57 +92,31 @@ public class Report {
         this.reason = reason;
         this.deleted = false;
         this.status = ReportStatus.PENDING;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-
     }
 
     public Report(User reportedUser, User reportingUser, Journey journey, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.journey = journey;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-
     }
 
     public Report(User reportedUser, User reportingUser, Event event, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.event = event;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-
     }
 
     public Report(User reportedUser, User reportingUser, EventResponse eventResponse, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.eventResponse = eventResponse;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-
     }
 
     public Report(User reportedUser, User reportingUser, JourneyResponse journeyResponse, String description, ReportReason reason) {
         this(reportedUser, reportingUser, description, reason);
         this.journeyResponse = journeyResponse;
-        this.createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-
-    }
-
-    public void markAsDeleted() {
-        this.deleted = true;
-    }
-
-    public void resolve() {
-        this.status = ReportStatus.RESOLVED;
-    }
-
-    public void dismiss() {
-        this.status = ReportStatus.DISMISSED;
-    }
-
-    public boolean isPending() {
-        return this.status == ReportStatus.PENDING;
     }
 
     @Override
@@ -164,7 +137,13 @@ public class Report {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(
+                id,
+                description,
+                reason,
+                deleted,
+                status,
+                updatedAt
+        );
     }
 }
-

@@ -20,7 +20,7 @@ public class EventHibernateDao implements EventDao {
     private EntityManager em;
 
     @Override
-    public Event create(User user, City city, LocalDate date, String description, long flyerImageId,
+    public Event create(User user, City city, LocalDate date, String description, Long flyerImageId,
                         String title, LocalTime time, String address, Integer attendeesLimit) {
         Event event = new Event(user, date, description, flyerImageId, city, title, time, address, attendeesLimit);
         em.persist(event);
@@ -32,6 +32,16 @@ public class EventHibernateDao implements EventDao {
 
         return  em.createQuery("FROM Event e WHERE e.id = :eventId AND e.deleted = FALSE", Event.class)
                 .setParameter("eventId", eventId)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public Optional<Event> findByIdForUpdate(long eventId) {
+        return em.createQuery("FROM Event e WHERE e.id = :eventId AND e.deleted = FALSE", Event.class)
+                .setParameter("eventId", eventId)
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                 .getResultList()
                 .stream()
                 .findFirst();
@@ -78,61 +88,18 @@ public class EventHibernateDao implements EventDao {
         );
     }
 
-    @Override
-    public Page<Event> search(final String searchTerm, final PageParams pageParams) {
-        final String pattern = likePattern(searchTerm);
-
-        final String countSql = """
-        SELECT COUNT(*)
-        FROM events e
-        JOIN cities c ON e.city_id = c.id
-        JOIN users us ON e.user_id = us.id
-        WHERE e.deleted = FALSE AND (
-            LOWER(e.title) LIKE LOWER( :pattern )
-            OR LOWER(c.name) LIKE LOWER( :pattern )
-            OR LOWER(us.username) LIKE LOWER( :pattern )
-        )
-    """;
-
-        final String idSql = """
-        SELECT e.id
-        FROM events e
-        JOIN cities c ON e.city_id = c.id
-        JOIN users us ON e.user_id = us.id
-        WHERE e.deleted = FALSE AND (
-            LOWER(e.title) LIKE LOWER( :pattern )
-            OR LOWER(c.name) LIKE LOWER( :pattern )
-            OR LOWER(us.username) LIKE LOWER( :pattern )
-        )
-        ORDER BY e.event_date DESC
-    """;
-
-        final String jpqlFetch = "FROM Event e WHERE e.id IN :ids ORDER BY e.date DESC";
-
-        return fetchPageByIds(
-                em,
-                countSql,
-                idSql,
-                Map.of("pattern", pattern),
-                jpqlFetch,
-                Event.class,
-                pageParams,
-                Map.of()
-        );
-    }
-
 
     @Override
     public Optional<CountryAttendeeCount> findTopAttendeeCountry(final long eventId) {
         Query query = em.createNativeQuery("""
-        SELECT co.name AS country_name, COUNT(*) AS attendee_count
+        SELECT co.id AS country_id, co.name AS country_name, COUNT(*) AS attendee_count
         FROM event_attendances ea
         JOIN users u ON ea.user_id = u.id
         JOIN universities uni ON u.university = uni.id
         JOIN cities ci ON uni.city_id = ci.id
         JOIN countries co ON ci.country_id = co.id
         WHERE ea.event_id = :eventId
-        GROUP BY co.name
+        GROUP BY co.id, co.name
         ORDER BY attendee_count DESC
         LIMIT 1
     """);
@@ -143,7 +110,7 @@ public class EventHibernateDao implements EventDao {
 
         return results.stream()
                 .findFirst()
-                .map(row -> new CountryAttendeeCount((String) row[0], ((Number) row[1]).intValue()));
+                .map(row -> new CountryAttendeeCount(((Number) row[0]).longValue(), (String) row[1], ((Number) row[2]).intValue()));
     }
 
 
@@ -293,39 +260,6 @@ public class EventHibernateDao implements EventDao {
 
 
     @Override
-    public Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams) {
-        final String countSql = """
-        SELECT COUNT(*)
-        FROM event_attendances ea
-        JOIN events e ON ea.event_id = e.id
-        WHERE ea.user_id = :userId AND e.user_id != :userId AND e.deleted = FALSE
-    """;
-
-        final String idSql = """
-        SELECT e.id
-        FROM event_attendances ea
-        JOIN events e ON ea.event_id = e.id
-        WHERE ea.user_id = :userId AND e.user_id != :userId AND e.deleted = FALSE
-        ORDER BY e.event_date DESC
-    """;
-
-        final String jpqlFetch = """
-        FROM Event e WHERE e.id IN :ids ORDER BY e.date DESC
-    """;
-        return fetchPageByIds(
-                em,
-                countSql,
-                idSql,
-                Map.of("userId", userId),
-                jpqlFetch,
-                Event.class,
-                pageParams,
-                Map.of()
-        );
-    }
-
-
-    @Override
     public int countEventsCreatedByUser(long userId) {
         final String sql = """
         SELECT COUNT(*)
@@ -377,49 +311,38 @@ public class EventHibernateDao implements EventDao {
         return switch (sortBy) {
             case ATTENDEES -> jql? "attendeesCount" : "(SELECT COUNT(*) FROM event_attendances ea where ea.event_id = e.id) ";
             case DATE      -> jql ? "date":"e.event_date";
-            case RATING    -> jql ? "rating":"COALESCE((SELECT AVG(r.rating) FROM ratings r WHERE r.event_id = e.id),0)";
+            case RATING    -> jql ? "COALESCE(rating, 0)":"COALESCE((SELECT AVG(r.rating) FROM ratings r WHERE r.event_id = e.id),0)";
             default        -> jql ? "id":"e.id";
         };
     }
 
     @Override
-    public Page<Event> findAllWithFilters(Long userId, String searchTerm, SortFieldEvent sortBy,
+    public Page<Event> findAllWithFilters(Long creatorId, String searchTerm, SortFieldEvent sortBy,
                                           SortDirection direction, String destination, LocalDate startDate,
                                           LocalDate endDate, LocalTime startTime, LocalTime endTime, String interest,
-                                          boolean attending, boolean isCreator, PageParams pageParams) {
+                                          Long attendedByUserId, String university,
+                                          Integer minRating, Boolean hasCapacity, PageParams pageParams) {
 
         final String search = likePattern(searchTerm);
 
         List<String> filters = new ArrayList<>();
         Map<String, Object> paramMap = new HashMap<>();
 
-        StringBuilder countSql = new StringBuilder("""
-        SELECT COUNT(DISTINCT e.id)
+        StringBuilder sqlBody = new StringBuilder("""
         FROM events e
         JOIN users us ON e.user_id = us.id
         JOIN universities un ON us.university = un.id
-        JOIN cities ci ON un.city_id = ci.id
-        """);
-
-        StringBuilder idSql = new StringBuilder("""
-        SELECT e.id
-        FROM events e
-        JOIN users us ON e.user_id = us.id
-        JOIN universities un ON us.university = un.id
-        JOIN cities ci ON un.city_id = ci.id
+        JOIN cities ec ON e.city_id = ec.id
         """);
 
         if (interest != null && !interest.isEmpty()) {
-            countSql.append(" JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
-            idSql.append(" JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
+            sqlBody.append(" JOIN user_interest ui ON us.id = ui.user_id JOIN category c ON ui.category_id = c.id ");
             filters.add("c.name = :interest");
             paramMap.put("interest", interest);
         }
 
         if (destination != null && !destination.isEmpty()) {
-            countSql.append(" JOIN cities cd ON e.city_id = cd.id ");
-            idSql.append(" JOIN cities cd ON e.city_id = cd.id ");
-            filters.add("cd.name = :destination");
+            filters.add("ec.name = :destination");
             paramMap.put("destination", destination);
         }
 
@@ -428,24 +351,20 @@ public class EventHibernateDao implements EventDao {
             (
                 LOWER(e.title) LIKE :search
                 OR LOWER(us.username) LIKE :search
-                OR LOWER(ci.name) LIKE :search
+                OR LOWER(ec.name) LIKE :search
             )
         """);
             paramMap.put("search", search);
         }
 
-        if (userId != null) {
-            if(isCreator){
-                filters.add("e.user_id = :userId");
-            } else {
-                filters.add("e.user_id != :userId");
-            }
-            paramMap.put("userId", userId);
+        if (creatorId != null) {
+            filters.add("e.user_id = :creatorId");
+            paramMap.put("creatorId", creatorId);
         }
 
         if (startDate != null) {
             filters.add("e.event_date >= :startDate");
-            paramMap.put("startDate", Date.valueOf(startDate)); //@TODO check, se puede sacar el valueOf?
+            paramMap.put("startDate", Date.valueOf(startDate));
         }
 
         if (endDate != null) {
@@ -471,30 +390,41 @@ public class EventHibernateDao implements EventDao {
             filters.add(timeCondition);
         }
 
-        if (attending && userId != null) {
-            countSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId AND e.user_id != :userId ");
-            idSql.append(" LEFT JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :userId AND e.user_id != :userId ");
-            filters.add("ea.user_id IS NOT NULL");
+        if (attendedByUserId != null) {
+            sqlBody.append(" JOIN event_attendances ea ON ea.event_id = e.id AND ea.user_id = :attendedByUserId ");
+            paramMap.put("attendedByUserId", attendedByUserId);
+        }
+
+        if (university != null && !university.isEmpty()) {
+            filters.add("un.name = :university");
+            paramMap.put("university", university);
+        }
+        if (minRating != null) {
+            filters.add("COALESCE((SELECT AVG(r.rating) FROM ratings r WHERE r.event_id = e.id),0) >= :minRating");
+            paramMap.put("minRating", minRating);
+        }
+        if (hasCapacity != null) {
+            if (hasCapacity) {
+                filters.add(" (e.attendees_limit IS NULL OR (SELECT COUNT(*) FROM event_attendances ea WHERE ea.event_id = e.id) < e.attendees_limit) ");
+            } else {
+                filters.add(" (e.attendees_limit IS NOT NULL AND (SELECT COUNT(*) FROM event_attendances ea WHERE ea.event_id = e.id) >= e.attendees_limit) ");
+            }
         }
 
 
-        // Build WHERE clause
-        countSql.append(" WHERE e.deleted = FALSE ");
-        idSql.append(" WHERE e.deleted = FALSE ");
+        sqlBody.append(" WHERE e.deleted = FALSE ");
         if (!filters.isEmpty()) {
             String clause =  String.join(" AND ", filters);
-
-            countSql.append(" AND ").append(clause);
-            idSql.append(" AND " ).append(clause);
+            sqlBody.append(" AND ").append(clause);
         }
 
+        final String countSql = "SELECT COUNT(DISTINCT e.id) " + sqlBody;
         String sortColumn = getSortColumn(sortBy, false);
         String dir = (direction == SortDirection.DESC) ? "DESC" : "ASC";
-
-        idSql.append(" ORDER BY ").append(sortColumn).append(" ").append(dir);
+        final String idSql = "SELECT e.id " + sqlBody + " ORDER BY " + sortColumn + " " + dir;
 
         final String jpqlFetch = "FROM Event e WHERE e.id IN :ids ORDER BY " + getSortColumn(sortBy, true) + " " + dir;
 
-        return fetchPageByIds(em, countSql.toString(), idSql.toString(), paramMap, jpqlFetch, Event.class, pageParams, Map.of());
+        return fetchPageByIds(em, countSql, idSql, paramMap, jpqlFetch, Event.class, pageParams, Map.of());
     }
 }

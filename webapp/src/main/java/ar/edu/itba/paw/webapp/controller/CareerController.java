@@ -2,105 +2,86 @@ package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.CareerService;
 import ar.edu.itba.paw.models.Career;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
-import ar.edu.itba.paw.webapp.form.*;
-import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
-import ar.edu.itba.paw.webapp.utils.JsonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.edu.itba.paw.webapp.GoTogetherMediaType;
+import ar.edu.itba.paw.webapp.dto.CareerDto;
+import ar.edu.itba.paw.webapp.form.CreateCareerForm;
+import ar.edu.itba.paw.webapp.form.PatchCareerForm;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
+import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.stereotype.Component;
+
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
+import java.util.List;
 
-@Controller
-@RequestMapping("/careers")
+@Path("careers")
+@Component
 public class CareerController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CareerController.class);
-    private final CareerService careerService;
-    private static final String CAREER_DASHBOARD = "/dashboard/careers";
-    private static final String CAREER_CREATE = "/careers/create";
-    private static final String CAREER_DETAIL = "/careers/detail";
-
 
     @Autowired
-    public CareerController(CareerService careerService) {
-        this.careerService = careerService;
+    private CareerService careerService;
+
+    @Context
+    private UriInfo uriInfo;
+
+    @GET
+    @Produces(GoTogetherMediaType.APPLICATION_CAREER_LIST)
+    public Response listCareers(
+            @Context Request req,
+            @QueryParam("search") String search,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("20") int size
+    ) {
+        final Page<Career> careers = careerService.searchCareers(search, new PageParams(page, size));
+        final List<CareerDto> careerDtos = CareerDto.fromCareerCollection(uriInfo, careers.getContent());
+        final ResponseBuilder response = PagingUtils.insertPaginationLinks(
+                Response.ok(new GenericEntity<>(careerDtos) {}), uriInfo, careers);
+        return CacheUtils.withEtag(req, careers.getContent(), response);
     }
 
-    @GetMapping( produces = "application/json; charset=UTF-8")
-    @ResponseBody
-    public String getCareersJSON(@RequestParam(value = "search", required = false) String search,
-                                 @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
-        return JsonUtils.toJson( careerService.searchCareers(search, pageParams).getContent());
+    @GET
+    @Path("/{id}")
+    @Produces(GoTogetherMediaType.APPLICATION_CAREER)
+    public Response getCareerById(@Context Request req, @PathParam("id") final long id) {
+        final Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException());
+        return CacheUtils.withEtag(req, career, () -> CareerDto.fromCareer(uriInfo, career));
     }
 
-
-    @GetMapping(value = "/create")
-    public ModelAndView createCareersForm(@ModelAttribute("createCareerForm") final CreateCareerForm form) {
-        return new ModelAndView(CAREER_CREATE);
+    @POST
+    @Consumes(GoTogetherMediaType.APPLICATION_CAREER)
+    @Produces(GoTogetherMediaType.APPLICATION_CAREER)
+    public Response createCareer(@Valid @NotNull final CreateCareerForm form) {
+        final Career career = careerService.createCareer(form.getName());
+        return Response.created(UriUtils.getCareerUri(uriInfo, career.getId()))
+                .entity(CareerDto.fromCareer(uriInfo, career))
+                .build();
     }
 
-    @PostMapping(path = "/create")
-    public ModelAndView createCareer(@Valid @ModelAttribute("createCareerForm") final CreateCareerForm careerForm,
-                                     final BindingResult errors) {
-        if (errors.hasErrors()) {
-            return createCareersForm(careerForm);
-        }
-        Career career = careerService.createCareer(careerForm.getName());
-
-        return new ModelAndView("redirect:/careers/{id}", "id", career.getId());
-    }
-    @GetMapping(value= "/{id}")
-    public ModelAndView getCareers(@PathVariable(value = "id") final long id) {
-        Career career = careerService.findCareerById(id).orElseThrow(() -> {
-            LOGGER.error("Career not found for id: {}", id);
-            return new CareerNotFoundException(id);}
-        );
-        ModelAndView mav = new ModelAndView(CAREER_DETAIL);
-        mav.addObject("career", career);
-        return mav;
+    @PATCH
+    @Path("/{id}")
+    @Consumes(GoTogetherMediaType.APPLICATION_CAREER)
+    @Produces(GoTogetherMediaType.APPLICATION_CAREER)
+    public Response patchCareer(
+            @PathParam("id") final long id,
+            @Valid @NotNull final PatchCareerForm form
+    ) {
+        final Career career = careerService.patchCareer(id, form.getName());
+        return Response.ok(CareerDto.fromCareer(uriInfo, career)).build();
     }
 
-    @GetMapping(value = "/{id}/edit")
-    public ModelAndView updateCareerForm(@PathVariable("id") Long id, @ModelAttribute("createCareerForm") final CreateCareerForm form,
-                                         final BindingResult errors) {
-
-
-        if(! errors.hasErrors()) {
-            Career career = careerService.findCareerById(id).orElseThrow(() -> new CareerNotFoundException(id));
-            form.setName(career.getName());
-        }
-        ModelAndView mav = new ModelAndView(CAREER_CREATE);
-        mav.addObject("isUpdate", true);
-        mav.addObject("careerId", id);
-        return mav;
-    }
-
-    @PostMapping(value = "/{id}/edit")
-    public ModelAndView updateCareer(@PathVariable("id") Long id,
-                                         @Valid @ModelAttribute("createCareerForm") final CreateCareerForm form,
-                                         final BindingResult errors,
-                                         @ModelAttribute("user") User user) {
-        if (errors.hasErrors()) {
-            return createCareersForm(form);
-        }
-
-        careerService.updateCareer(id,form.getName());
-
-        return new ModelAndView("redirect:/careers/{id}", "id", id);
-    }
-
-
-    @PostMapping(value = "/{id}/delete")
-    public ModelAndView deleteCareer(@PathVariable long id) {
+    @DELETE
+    @Path("/{id}")
+    public Response deleteCareer(@PathParam("id") final long id) {
         careerService.deleteCareer(id);
-        return new ModelAndView("redirect:" + CAREER_DASHBOARD);
+        return Response.noContent().build();
     }
-
 }

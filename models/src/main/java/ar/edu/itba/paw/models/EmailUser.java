@@ -12,7 +12,7 @@ public class EmailUser {
     private final String lastname;
     private final String universityName;
     private final String careerName;
-    private final long profilePictureId;
+    private final Long profilePictureId;
     private final Locale locale;
     private final boolean isBlocked;
     private final boolean validated;

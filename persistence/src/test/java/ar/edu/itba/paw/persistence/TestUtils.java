@@ -31,6 +31,7 @@ import ar.edu.itba.paw.models.Interest;
 import ar.edu.itba.paw.models.Journey;
 import ar.edu.itba.paw.models.JourneyResponse;
 import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.Rating;
 import ar.edu.itba.paw.models.Report;
 import ar.edu.itba.paw.models.Tip;
 import ar.edu.itba.paw.models.University;
@@ -44,7 +45,6 @@ class TestUtils {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
-    //CONSTANTS
     public static final String CAREER_TABLE = "careers";
     public static final String CITY_TABLE = "cities";
     public static final String COUNTRY_TABLE = "countries";
@@ -304,7 +304,12 @@ class TestUtils {
     public static final double EVENT_1_RATING = 4.5;
     public static final int EVENT_1_RATING_COUNT = 2;
     public static final double EVENT_1_USER_1_RATING = 5;
-
+    public static final double EVENT_1_USER_2_RATING = 4;
+    public static final int RATING_1_ID = 1;
+    public static final int RATING_2_ID = 2;
+    public static final Rating RATING_1 = new Rating(RATING_1_ID, USER_1, EVENT_1, EVENT_1_USER_1_RATING);
+    public static final Rating RATING_2 = new Rating(RATING_2_ID, USER_2, EVENT_1, EVENT_1_USER_2_RATING);
+    public static final int TOTAL_RATINGS = 5;
     public static final int TOTAL_EVENTS_NOT_DELETED = 4;
     public static final int TOTAL_EVENTS_UPCOMING = 3;
     public static final int TOTAL_EVENT_ATTENDANCES = 5;
@@ -357,6 +362,7 @@ class TestUtils {
 
     public static final Map<Long, Report> REPORT_PENDING_DATA = Map.of(REPORT_USER_ID, REPORT_USER, REPORT_JOURNEY_ID, REPORT_JOURNEY, REPORT_EVENT_ID, REPORT_EVENT);
 
+    public static final String TIP_TABLE = "tips";
     public static final long TIP_1_ID = 1;
     public static final String TIP_1_TITLE = "title";
     public static final String TIP_1_CONTENT = "content";
@@ -366,7 +372,6 @@ class TestUtils {
     public static final String TIP_NEW_CONTENT = "newContent";
     
 
-    //QUERIES
     public static final String USER_SELECT = """
     SELECT
         u.id AS user_id,
@@ -648,7 +653,6 @@ class TestUtils {
     public static final String TOKEN_SELECT_COUNT = "SELECT COUNT(*) FROM tokens";
 
 
-    //ROWMAPPERS
     public static final RowMapper<Interest> INTEREST_ROW_MAPPER = (rs, n) ->
     new Interest(
         rs.getLong("interest_id"),
@@ -748,7 +752,7 @@ class TestUtils {
         USER_ROW_MAPPER.mapRow(rs, n),
         rs.getDate("event_date").toLocalDate(),
         rs.getString("description"),
-        rs.getInt("flyer_image_id"),
+        rs.getLong("flyer_image_id"),
         CITY_DESTINATION_ROW_MAPPER.mapRow(rs, n),
         rs.getString("title"),
         rs.getTime("event_time") != null ? rs.getTime("event_time").toLocalTime() : null,
@@ -774,7 +778,6 @@ class TestUtils {
         rs.getTimestamp("tip_timestamp").toLocalDateTime()
     );
 
-    //DELETES
     public static final void deleteEventAttendances(JdbcTemplate template){
         JdbcTestUtils.deleteFromTables(template, EVENT_ATTENDANCE_TABLE);
     }
@@ -831,7 +834,6 @@ class TestUtils {
     }
 
 
-    //COMPARATORS
     public static void assertEqualsCareer(Career expected, Career actual){
         assertNotNull(expected);
         assertNotNull(actual);
@@ -1023,7 +1025,7 @@ class TestUtils {
         assertNotNull(actual.getId());
         if (expected.getId() != null)
             assertEquals(expected.getId(), actual.getId());
-        assertEquals(expected.getDescription(), expected.getDescription());
+        assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getReason(), actual.getReason());
         assertEquals(expected.isDeleted(), actual.isDeleted());
         assertEquals(expected.getStatus(), actual.getStatus());
@@ -1056,7 +1058,15 @@ class TestUtils {
         assertTrue(expected.getDateTime().plusMinutes(-1).isBefore(actual.getDateTime()));
     }
 
-    //INSERTERS
+    public static void assertEqualsRating(Rating expected, Rating actual){
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getRating(), actual.getRating(), 0.1);
+        assertEqualsEvent(expected.getEvent(), actual.getEvent());
+        assertEqualsUser(expected.getUser(), actual.getUser());
+    }
+
     public static Event insertEvent(DataSource ds, Map<String, Object> overrides){
         SimpleJdbcInsert insert = new SimpleJdbcInsert(ds).withTableName(EVENT_TABLE).usingGeneratedKeyColumns("id");
         SimpleJdbcInsert insertAttendance = new SimpleJdbcInsert(ds).withTableName(EVENT_ATTENDANCE_TABLE);

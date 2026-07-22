@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {EmailNotInUseValidator.class})
 public @interface EmailNotInUse {
 
-    String message() default "{EmailNotInUse.message}";
+    String message() default "{validation.email.inUse}";
 
     Class<?>[] groups() default {};
 

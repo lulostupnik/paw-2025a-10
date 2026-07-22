@@ -19,7 +19,7 @@ public class Interest {
     private String name;
 
 
-    /* For hibernate */ Interest() {
+     Interest() {
     }
     public Interest(final String name) {
         this.name = name;
@@ -40,7 +40,7 @@ public class Interest {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id, name);
     }
 
 }

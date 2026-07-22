@@ -1,14 +1,8 @@
 package ar.edu.itba.paw.models.exceptions;
 
-import ar.edu.itba.paw.models.User;
+public class ExpiredTokenException extends BusinessException {
 
-public class ExpiredTokenException extends RuntimeException {
-    private final String oldToken;
-    public ExpiredTokenException(String message, String oldToken) {
-        super(message);
-        this.oldToken = oldToken;
-    }
-    public String getOldToken() {
-        return oldToken;
+    public ExpiredTokenException() {
+        super("exception.ExpiredTokenException", BusinessException.UNAUTHORIZED);
     }
 }

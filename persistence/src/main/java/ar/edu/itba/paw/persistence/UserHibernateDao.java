@@ -17,7 +17,7 @@ public class UserHibernateDao implements UserDao {
     private EntityManager em;
 
         @Override
-        public User create(String email, String username, String firstname, String lastname, University university, Career career, long profilePictureId, String password, Locale locale, boolean validated) {
+        public User create(String email, String username, String firstname, String lastname, University university, Career career, Long profilePictureId, String password, Locale locale, boolean validated) {
 
             final User user = new User(email, username,  firstname, lastname, university,  career, profilePictureId, password, locale,validated);
 
@@ -42,65 +42,105 @@ public class UserHibernateDao implements UserDao {
 
     @Override
     public boolean existsByUsername(String username) {
-        final TypedQuery<User> query = em.createQuery("from User as u where u.username= :username", User.class);
-        query.setParameter("username", username);
-        final List<User> list = query.getResultList();
-        return ! list.isEmpty();
+        final Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.username = :username", Long.class)
+                .setParameter("username", username)
+                .getSingleResult();
+        return count > 0;
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        return findByEmail(email).isPresent();
+        final Long count = em.createQuery("SELECT COUNT(u) FROM User u WHERE u.email = :email", Long.class)
+                .setParameter("email", email)
+                .getSingleResult();
+        return count > 0;
     }
 
 
     @Override
-    public Page<User> findAll(final PageParams pageParams) {
-        final String countSql = "SELECT COUNT(*) FROM users";
+    public Page<User> findUsers(String search, final PageParams pageParams, Long attendingEventId,
+                              Long universityId,
+                              Long careerId,
+                              Long interestId,
+                             Boolean blocked) {
+            final List<String> joins = new ArrayList<>();
+            final List<String> predicates = new ArrayList<>();
+            final Map<String, Object> parameters = new HashMap<>();
 
-        final String idSql = """
-        SELECT u.id
-        FROM users u
-        ORDER BY u.id ASC
-    """;
+            if (search != null && !search.isBlank()) {
+                maybeAddJoin(joins, "JOIN universities un ON u.university = un.id");
 
-        final String jpqlFetch = """
+                final String pattern = likePattern(search);
+                predicates.add("""
+            (
+                LOWER(u.firstname) LIKE LOWER(:pattern)
+                OR LOWER(un.name) LIKE LOWER(:pattern)
+                OR LOWER(u.email) LIKE LOWER(:pattern)
+            )
+        """);
+                parameters.put("pattern", pattern);
+            }
+
+            if (attendingEventId != null) {
+                maybeAddJoin(joins, "JOIN event_attendances ea ON u.id = ea.user_id");
+                predicates.add("ea.event_id = :attendingEventId");
+                parameters.put("attendingEventId", attendingEventId);
+            }
+
+            if (universityId != null) {
+                predicates.add("u.university = :universityId");
+                parameters.put("universityId", universityId);
+            }
+
+            if (blocked != null) {
+                predicates.add("u.blocked = :blocked");
+                parameters.put("blocked", blocked);
+            }
+
+            if (careerId != null) {
+                predicates.add("u.career_id = :careerId");
+                parameters.put("careerId", careerId);
+            }
+
+            if (interestId != null) {
+                maybeAddJoin(joins, "JOIN user_interest ui ON ui.user_id = u.id");
+                predicates.add("ui.category_id = :interestId");
+                parameters.put("interestId", interestId);
+            }
+
+            final String baseFrom = "FROM users u\n";
+            final String joinSql = joins.isEmpty() ? "" : String.join("\n", joins) + "\n";
+            final String whereSql = predicates.isEmpty()
+                    ? ""
+                    : "WHERE " + String.join("\n  AND ", predicates) + "\n";
+
+            final String countSql = "SELECT COUNT(*)\n" + baseFrom + joinSql + whereSql;
+            final String idSql = "SELECT u.id\n" + baseFrom + joinSql + whereSql + "ORDER BY u.id ASC";
+
+            final String jpqlFetch = """
         FROM User u
         WHERE u.id IN :ids
         ORDER BY u.id ASC
     """;
 
-        return fetchPageByIds(em, countSql, idSql, Map.of(), jpqlFetch, User.class, pageParams,Map.of());
+            return fetchPageByIds(
+                    em,
+                    countSql,
+                    idSql,
+                    parameters,
+                    jpqlFetch,
+                    User.class,
+                    pageParams,
+                    Map.of()
+            );
+        }
+
+
+
+    private static void maybeAddJoin(List<String> joins, String join) {
+        if (!joins.contains(join)) joins.add(join);
     }
 
-
-    @Override
-    public Page<User> search(final String search, final PageParams pageParams) {
-        final String pattern = likePattern(search);
-
-        final String countSql = """
-        SELECT COUNT(*)
-        FROM users u
-        JOIN universities un ON u.university = un.id
-        WHERE LOWER(u.firstname) LIKE LOWER( :pattern )
-           OR LOWER(un.name) LIKE LOWER( :pattern )
-           OR LOWER(u.email) LIKE LOWER( :pattern )
-    """;
-
-        final String idSql = """
-        SELECT u.id
-        FROM users u
-        JOIN universities un ON u.university = un.id
-        WHERE LOWER(u.firstname) LIKE LOWER( :pattern )
-           OR LOWER(un.name) LIKE LOWER( :pattern )
-           OR LOWER(u.email) LIKE LOWER( :pattern )
-        ORDER BY u.id DESC
-    """;
-
-        final String jpqlFetch = "FROM User u WHERE u.id IN :ids ORDER BY u.id DESC";
-
-        return fetchPageByIds(em, countSql, idSql, Map.of("pattern", pattern), jpqlFetch, User.class, pageParams,Map.of());
-    }
 
 
     @Override

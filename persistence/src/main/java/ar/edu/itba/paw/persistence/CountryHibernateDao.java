@@ -20,11 +20,7 @@ public class CountryHibernateDao implements CountryDao {
     }
 
     @Override
-    public Optional<Country> findByName(String name) {
-        return em.createQuery("from Country as c where c.name= :name", Country.class)
-                .setParameter("name", name)
-                .getResultList()
-                .stream()
-                .findFirst();
+    public Optional<Country> findById(long id) {
+        return Optional.ofNullable(em.find(Country.class, id));
     }
 }

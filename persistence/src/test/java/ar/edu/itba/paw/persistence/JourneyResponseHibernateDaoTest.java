@@ -79,13 +79,25 @@ public class JourneyResponseHibernateDaoTest {
 
         assertEqualsJourneyReply(
             new JourneyResponse(
-                response.getId(), 
-                USER_1, 
-                JOURNEY_1, 
-                RESPONSE_MESSAGE, 
+                response.getId(),
+                USER_1,
+                JOURNEY_1,
+                RESPONSE_MESSAGE,
                 LocalDateTime.now()
             ),
             response
+        );
+
+        assertEquals(
+            TOTAL_JOURNEY_RESPONSES + 1,
+            jdbcTemplate.queryForObject(JOURNEY_REPLY_COUNT_NOT_DELETED, Integer.class).intValue()
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, JOURNEY_REPLY_TABLE,
+                "id = " + response.getId() + " AND user_id = " + USER_1_ID + " AND journey_id = " + JOURNEY_1_ID + " AND message = '" + RESPONSE_MESSAGE + "' AND deleted = FALSE"
+            )
         );
     }
     @Test(expected = PersistenceException.class)
@@ -180,13 +192,6 @@ public class JourneyResponseHibernateDaoTest {
         em.flush();
 
         assertEquals(beforeRows, JdbcTestUtils.countRowsInTable(jdbcTemplate, JOURNEY_REPLY_TABLE));
-    }
-
-    @Test
-    public void testGetCount(){
-        int count = responseDao.countByJourneyId(JOURNEY_1_ID);
-
-        assertEquals(TOTAL_JOURNEY_RESPONSES, count);
     }
 
     @Test

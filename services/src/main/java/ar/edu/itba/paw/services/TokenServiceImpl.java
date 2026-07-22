@@ -4,7 +4,6 @@ import ar.edu.itba.paw.interfaces.persistence.TokenDao;
 import ar.edu.itba.paw.interfaces.services.TokenService;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.HexFormat;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,27 +36,25 @@ public class TokenServiceImpl implements TokenService {
 
     @Transactional
     @Override
-    public Token userTokenControl(User user) {
+    public String issueUserToken(User user) {
+        final String rawToken = generateToken();
+        final String hashedToken = hashToken(rawToken);
         Token token = user.getToken();
         if (token != null) {
-            if (token.getExpirationDate() != null && !token.isExpired()) {
-                LOGGER.info("Token is fresh for user {}", user.getId());
-                return token;
-            }
-            token.setToken(generateToken());
+            token.setToken(hashedToken);
             token.setExpirationDate(generateTokenExpirationDate());
-            LOGGER.info("Token was refreshed for user {}",user.getId());
+            LOGGER.info("Token was refreshed for user {}", user.getId());
         } else {
-            token = new Token(user, generateToken(), generateTokenExpirationDate());
+            token = new Token(user, hashedToken, generateTokenExpirationDate());
             user.setToken(token);
             LOGGER.info("Token was created for user {}", user.getId());
         }
-        return token;
+        return rawToken;
     }
 
     @Override
     public Optional<Token> getByToken(String token) {
-        return tokenDao.findByToken(token);
+        return tokenDao.findByToken(hashToken(token));
     }
 
     @Transactional
@@ -62,14 +63,10 @@ public class TokenServiceImpl implements TokenService {
         tokenDao.deleteByToken(token);
         LOGGER.info("Token deleted for user {}", token.getUser().getId());
     }
-    @Override
-    public void checkTokenValidity(String token) {
-        final Optional<Token> maybeToken = getByToken(token);
-        if (maybeToken.isEmpty() || maybeToken.get().isExpired()) {
-            LOGGER.error("Token is invalid, or expired for token: {}", token);
-            throw new InvalidTokenException(token);
-        }
 
+    @Override
+    public boolean isTokenValid(final Token token, final long userId) {
+        return !token.isExpired() && token.getUser().getId().longValue() == userId;
     }
 
     @Transactional
@@ -85,6 +82,15 @@ public class TokenServiceImpl implements TokenService {
 
     private static String generateToken() {
         return UUID.randomUUID().toString().substring(0, 32);
+    }
+
+    private static String hashToken(final String rawToken) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return HexFormat.of().formatHex(digest.digest(rawToken.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 digest algorithm is not available", e);
+        }
     }
 
 }

@@ -29,9 +29,8 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public Optional<Country> findCountryByName(final String name) {
-        LOGGER.debug("Getting country {}", name);
-        return countryDao.findByName(name);
+    public Optional<Country> findCountryById(final long id) {
+        return countryDao.findById(id);
     }
 
 }

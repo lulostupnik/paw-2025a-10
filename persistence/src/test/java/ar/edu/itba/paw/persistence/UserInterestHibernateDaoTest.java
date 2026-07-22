@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserInterestNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.persistence.config.TestConfig;
 import org.junit.Before;
@@ -43,6 +44,82 @@ public class UserInterestHibernateDaoTest {
     @Before
     public void setUp(){
         jdbcTemplate = new JdbcTemplate(ds);
+    }
+
+    @Test
+    public void testFindById(){
+        Optional<UserInterest> maybeInterest = interestDao.findById(USER_1_ID, INTEREST_1_ID);
+
+        assertNotNull(maybeInterest);
+        assertTrue(maybeInterest.isPresent());
+        assertEqualsUser(maybeInterest.get().getUser());
+        assertEqualsInterest(INTEREST_1, maybeInterest.get().getInterest());
+        assertEquals(USER_1_INTEREST_1_SCORE, maybeInterest.get().getScore());
+    }
+    @Test
+    public void testFindByIdNoInterest(){
+        Optional<UserInterest> maybeInterest = interestDao.findById(USER_3_ID, INTEREST_1_ID);
+
+        assertNotNull(maybeInterest);
+        assertTrue(maybeInterest.isEmpty());
+    }
+
+    @Test
+    public void testCreateUserInterest(){
+        interestDao.create(
+            USER_2_ID,
+            INTEREST_1_ID
+        );
+        em.flush();
+
+        assertEquals(
+            TOTAL_USER_INTERESTS + 1, 
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, USER_INTEREST_TABLE)
+        );
+        List<Interest> interests = jdbcTemplate.query(INTEREST_SELECT_BY_USER_ID,
+            INTEREST_ROW_MAPPER, USER_2_ID
+        );
+        assertNotNull(interests);
+        assertEquals(1, interests.size());
+        interests.forEach((i) ->
+            assertEqualsInterest(INTEREST_DATA.get(i.getId()), i)
+        );
+    }
+    @Test(expected = UserNotFoundException.class)
+    public void testCreateUserInterestWrongUser(){
+        interestDao.create(
+            12341234l,
+            INTEREST_1_ID
+        );
+        em.flush();
+    }
+    @Test(expected = InterestsNotFoundException.class)
+    public void testCreateUserInteressWrongInterest(){
+        interestDao.create(USER_1_ID, 32412341);
+        em.flush();
+    }
+
+    @Test
+    public void testDeleteUserInterest(){
+        interestDao.delete(USER_1_ID, INTEREST_1_ID);
+        em.flush();
+
+        assertEquals(
+            TOTAL_USER_INTERESTS - 1,
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, USER_INTEREST_TABLE)
+        );
+        assertEquals(
+            0,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, USER_INTEREST_TABLE,
+                "user_id = " + USER_1_ID + " AND category_id = " + INTEREST_1_ID
+            )
+        );
+    }
+    @Test(expected = UserInterestNotFoundException.class)
+    public void testDeleteUserInterestNotFound(){
+        interestDao.delete(USER_3_ID, INTEREST_1_ID);
+        em.flush();
     }
 
     @Test
@@ -104,7 +181,6 @@ public class UserInterestHibernateDaoTest {
         interestDao.updateMatchingInterestScores(USER_I1_ID, USER_1_ID);
         em.flush();
 
-        //Only updates score of reply author, not event creator.
         assertEquals(
             USER_I1_INTEREST_1_SCORE + 1, 
             Optional.ofNullable(jdbcTemplate.queryForObject(
@@ -120,21 +196,19 @@ public class UserInterestHibernateDaoTest {
         interestDao.updateMatchingInterestScores(USER_3_ID, USER_1_ID);
         em.flush();
 
-        //Solo actualiza el puntaje de quien contesta, no del creador.
         assertEquals(
-            0, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_3_ID
-            ).size()
+            0,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, USER_INTEREST_TABLE,
+                "user_id = " + USER_3_ID
+            )
         );
     }
 
     @Test
     public void testCreateUserInterests(){
         interestDao.createUserInterests(
-            INTEREST_DATA.keySet().stream().mapToLong(l->l).toArray(), 
+            INTEREST_DATA.keySet().stream().toList(),
             USER_2_ID
         );
         em.flush();
@@ -152,27 +226,43 @@ public class UserInterestHibernateDaoTest {
             assertEqualsInterest(INTEREST_DATA.get(i.getId()), i)
         );
     }
+
+    @Test
+    public void testCreateUserInterestsDeduplicatesRepeatedIds(){
+        interestDao.createUserInterests(
+            List.of(INTEREST_1_ID, INTEREST_1_ID, INTEREST_2_ID),
+            USER_2_ID
+        );
+        em.flush();
+
+        assertEquals(
+            TOTAL_USER_INTERESTS + 2,
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, USER_INTEREST_TABLE)
+        );
+        List<Interest> interests = jdbcTemplate.query(INTEREST_SELECT_BY_USER_ID,
+            INTEREST_ROW_MAPPER, USER_2_ID
+        );
+        assertEquals(2, interests.size());
+    }
+
     @Test(expected = UserNotFoundException.class)
     public void testCreateUserInterestsWrongUser(){
         interestDao.createUserInterests(
-            INTEREST_DATA.keySet().stream().mapToLong(l->l).toArray(), 
+            INTEREST_DATA.keySet().stream().toList(),
             12341234l
         );
         em.flush();
     }
     @Test(expected = InterestsNotFoundException.class)
     public void testCreateUserInterestsWrongInterest(){
-        long[] array = new long[3];
-        array[0] = INTEREST_1_ID;
-        array[1] = INTEREST_2_ID;
-        array[2] = 12341234;
+        List<Long> array = List.of(INTEREST_1_ID, INTEREST_2_ID, 12341234L);
 
         interestDao.createUserInterests(array, USER_1_ID);
         em.flush();
     }
     @Test
     public void testCreateUserInterestsEmptyInterests(){
-        interestDao.createUserInterests(new long[0], USER_1_ID);
+        interestDao.createUserInterests(List.<Long>of(), USER_1_ID);
         em.flush();
 
         assertEquals(
@@ -185,136 +275,4 @@ public class UserInterestHibernateDaoTest {
         );
     }
 
-    @Test
-    public void testUpdateUserInterests(){
-        interestDao.updateUserInterests(new long[]{INTEREST_1_ID}, USER_1_ID);
-        em.flush();
-
-        assertEqualsInterest(
-            INTEREST_1, 
-            jdbcTemplate.queryForObject(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_1_ID)
-            );
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testUpdateUserInterestsMissingUser(){
-        interestDao.updateUserInterests(new long[]{INTEREST_1_ID}, 12341234l);
-        em.flush();
-
-        assertEqualsInterest(
-            INTEREST_1, 
-            jdbcTemplate.queryForObject(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_1_ID)
-            );
-    }
-    @Test(expected = InterestsNotFoundException.class)
-    public void testUpdateUserInterestsMissingInterest(){
-        interestDao.updateUserInterests(new long[]{12341234l}, USER_1_ID);
-        em.flush();
-
-        assertEqualsInterest(
-            INTEREST_1, 
-            jdbcTemplate.queryForObject(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_1_ID
-            )
-        );
-    }
-    @Test
-    public void testUpdateUserInterestsSameInterests(){
-        interestDao.updateUserInterests(
-            new long[]{INTEREST_1_ID, INTEREST_2_ID, INTEREST_3_ID}, 
-            USER_1_ID
-        );
-        em.flush();
-
-        assertEquals(
-            3, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_1_ID
-            ).size()
-        );
-    }
-    @Test
-    public void testUpdateUserInterestsNoInterests(){
-        interestDao.updateUserInterests(new long[]{}, USER_1_ID);
-        em.flush();
-
-        assertEquals(
-            0, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_1_ID
-            ).size()
-        );
-    }
-    @Test
-    public void testUpdateUserInterestsInsertNew(){
-        interestDao.updateUserInterests(new long[]{INTEREST_3_ID}, USER_2_ID);
-        em.flush();
-
-        assertEquals(
-            1, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_2_ID
-            ).size()
-        );
-    }
-
-    @Test
-    public void testCreateUserInterestsNames(){
-        interestDao.createUserInterests(
-            List.of(INTEREST_1_NAME, INTEREST_2_NAME), 
-            USER_2_ID
-        );
-        em.flush();
-
-        assertEquals(
-            2, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID,
-                INTEREST_ROW_MAPPER, 
-                USER_2_ID
-            ).size()
-        );
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testCreateUserInterestsNamesMissingUser(){
-        interestDao.createUserInterests(
-            List.of(INTEREST_1_NAME, INTEREST_2_NAME), 
-            12341234l
-        );
-        em.flush();
-    }
-
-    @Test
-    public void testCreateUserInterestsNamesMissingInterest(){
-        interestDao.createUserInterests(
-            List.of(
-                INTEREST_1_NAME, 
-                INTEREST_2_NAME, 
-                "COMPLETELY UNIQUE AND REVOLUTIONARY INTEREST"
-            ), USER_2_ID
-        );
-        em.flush();
-
-        assertEquals(
-            3, 
-            jdbcTemplate.query(
-                INTEREST_SELECT_BY_USER_ID, 
-                INTEREST_ROW_MAPPER, 
-                USER_2_ID
-            ).size()
-        );
-    }
 }

@@ -39,20 +39,6 @@ public class JourneyResponseHibernateDao implements JourneyResponseDao {
     }
 
     @Override
-    public int countByJourneyId(long journeyId) {
-        final String sql = """
-        SELECT COUNT(*)
-        FROM journey_responses
-        WHERE journey_id = :journeyId AND deleted = FALSE
-    """;
-
-        return ((BigInteger)em.createNativeQuery(sql)
-                .setParameter("journeyId", journeyId)
-                .getSingleResult()).intValue();
-    }
-
-
-    @Override
     public Page<JourneyResponse> findAllByJourneyId(final long journeyId, final PageParams pageParams) {
         final String countSql = """
         SELECT COUNT(*)

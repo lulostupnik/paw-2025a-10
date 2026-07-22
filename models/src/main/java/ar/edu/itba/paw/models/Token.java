@@ -19,8 +19,8 @@ public class Token {
     private Long id;
 
     @Setter
-    @Column(length = 100, nullable = false, unique = true)
-    private String token; 
+    @Column(length = 128, nullable = false, unique = true)
+    private String token;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -30,7 +30,7 @@ public class Token {
     @Column(name = "token_expiration",nullable = false)
     private LocalDateTime expirationDate;
 
-    /* para hibernate*/ Token() {
+     Token() {
 
     }
 

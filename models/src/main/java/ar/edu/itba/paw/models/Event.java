@@ -7,6 +7,7 @@
     import java.time.LocalDate;
     import java.time.LocalDateTime;
     import java.time.LocalTime;
+    import java.util.Objects;
 
     @Getter
     @Entity
@@ -31,7 +32,7 @@
 
         @Column(name = "flyer_image_id")
         @Setter
-        private  long flyerImageId;
+        private Long flyerImageId;
 
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
         @JoinColumn(name = "city_id")
@@ -71,10 +72,10 @@
 
 
 
-        /* For hibernate */ Event() {
+         Event() {
         }
         public Event(final User user, final LocalDate date, final String description,
-                     final long flyerImageId, final City city, final String title,
+                     final Long flyerImageId, final City city, final String title,
                      final LocalTime time, final String address, final Integer attendeesLimit) {
             this.user = user;
             this.date = date;
@@ -89,7 +90,7 @@
 
         }
         public Event(final Long id, final User user, final LocalDate date, final String description,
-                     final long flyerImageId, final City city, final String title,
+                     final Long flyerImageId, final City city, final String title,
                      final LocalTime time, final String address, final Integer attendeesLimit) {
             this.id = id;
             this.user = user;
@@ -151,7 +152,22 @@
 
         @Override
         public int hashCode() {
-            return id != null ? id.hashCode() : 0;
+            return Objects.hash(
+                    id,
+                    user != null ? user.getId() : null,
+                    date,
+                    description,
+                    flyerImageId,
+                    city != null ? city.getId() : null,
+                    title,
+                    time,
+                    address,
+                    attendeesLimit,
+                    attendeesCount,
+                    rating,
+                    deleted,
+                    deletionMessage
+            );
         }
 
     }

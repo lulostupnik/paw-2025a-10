@@ -30,10 +30,17 @@ public class Rating {
     @Column(name = "rating", nullable = false)
     private double rating;
 
-    /* For hibernate */ Rating() {
+     Rating() {
     }
 
     public Rating(User user, Event event, double rating) {
+        this.user = user;
+        this.event = event;
+        this.rating = rating;
+    }
+    
+    public Rating(long id, User user, Event event, double rating) {
+        this.id = id;
         this.user = user;
         this.event = event;
         this.rating = rating;
@@ -47,7 +54,12 @@ public class Rating {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(
+                id,
+                user != null ? user.getId() : null,
+                event != null ? event.getId() : null,
+                rating
+        );
     }
 
 

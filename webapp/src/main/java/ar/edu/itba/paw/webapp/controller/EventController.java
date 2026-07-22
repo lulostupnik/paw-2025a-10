@@ -1,308 +1,356 @@
 package ar.edu.itba.paw.webapp.controller;
 
-import ar.edu.itba.paw.interfaces.services.*;
+import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.SortDirection;
 import ar.edu.itba.paw.models.enums.SortFieldEvent;
+import ar.edu.itba.paw.models.exceptions.EventAttendanceNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
 import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
+import ar.edu.itba.paw.models.exceptions.RatingNotFoundException;
+import ar.edu.itba.paw.webapp.auth.AuthUtils;
+import ar.edu.itba.paw.webapp.GoTogetherMediaType;
+import ar.edu.itba.paw.webapp.dto.EventAttendanceDto;
+import ar.edu.itba.paw.webapp.dto.EventDto;
+import ar.edu.itba.paw.webapp.dto.EventResponseDto;
+import ar.edu.itba.paw.webapp.dto.EventStatisticsDto;
+import ar.edu.itba.paw.webapp.dto.RatingDto;
+import ar.edu.itba.paw.webapp.dto.UserDto;
+import ar.edu.itba.paw.models.Image;
+import ar.edu.itba.paw.models.exceptions.ImageNotFoundException;
 import ar.edu.itba.paw.webapp.form.*;
-import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
+import ar.edu.itba.paw.webapp.utils.DateUtils;
 import ar.edu.itba.paw.webapp.utils.ImageUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
+import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
+
+
 import javax.validation.Valid;
-import java.util.Optional;
-import static ar.edu.itba.paw.webapp.utils.ImageUtils.getBytes;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import java.time.LocalDate;
+import java.util.List;
 
-
-@Controller
-@RequestMapping("/events")
+@Path("events")
+@Component
 public class EventController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventController.class);
-
-
-    private final EventService eventService;
-
-    private static final String REDIRECT = "redirect:/events/";
 
     @Autowired
-    public EventController(final EventService eventService) {
-        this.eventService = eventService;
-    }
+    private EventService eventService;
 
-    @RequestMapping
-    public ModelAndView getEvents(@ModelAttribute("user") User user,
-                                  @PageParamCustomizer(defaultSize = 8) PageParams  pageParams,
-                                  @RequestParam(value = "search", required = false) String search,
-                                  @Valid @ModelAttribute("filterEventForm") FilterEventForm filterForm,
-                                  BindingResult errors,
-                                  @RequestParam(value = "sort", required = false) String sortBy,
-                                  @RequestParam(value = "direction", required = false) String direction) {
+    @Context
+    private UriInfo uriInfo;
 
-        ModelAndView mav = new ModelAndView("events/list");
-        LOGGER.debug("Getting events list with search: {}, filter: {}, pageParams: {}, sortBy: {}, direction: {}",
-                search, filterForm, pageParams, sortBy, direction);
+    @GET
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_LIST)
+    @PreAuthorize("@accessHelper.canListRecommendedFor(#recommendedForUser)")
+    public Response listEvents(
+            @QueryParam("recommendedForUser") Long recommendedForUser,
+            @QueryParam("destination") String destination,
+            @QueryParam("interest") String interest,
+            @QueryParam("afterDate") String afterDateStr,
+            @QueryParam("beforeDate") String beforeDateStr,
+            @QueryParam("search") String search,
+            @QueryParam("sort") String sort,
+            @QueryParam("direction") String direction,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("8") int size,
+            @QueryParam("attendedBy") Long attendedByUserId,
+            @QueryParam("university") String university,
+            @QueryParam("minRating") Integer minRating,
+            @QueryParam("hasCapacity") Boolean hasCapacity,
+            @QueryParam("top") Boolean top,
+            @QueryParam("creatorId") Long creatorId
+    ) {
+        final LocalDate startDate = DateUtils.parseDate(afterDateStr);
+        final LocalDate endDate = DateUtils.parseDate(beforeDateStr);
+        final SortFieldEvent sortField = sort == null || sort.isBlank() ? null : SortFieldEvent.from(sort);
+        final SortDirection sortDirection = direction == null || direction.isBlank() ? null : SortDirection.from(direction);
 
-        if(! errors.hasErrors()) {
-            Page<Event> userEventsPage = eventService.searchEventsWithFilters(search, user, SortFieldEvent.from(sortBy), SortDirection.from(direction),
-                    filterForm.getDestination(), filterForm.getStartDate(), filterForm.getEndDate(), filterForm.getInterests(),
-                    filterForm.getIsPast(), filterForm.getIsUpcoming(), filterForm.getAttending(), pageParams);
-            mav.addObject("eventsPage", userEventsPage);
-        }
 
-        mav.addObject("currentPage", pageParams.getPage());
-        mav.addObject("pageSize", pageParams.getSize());
-        return mav;
-    }
-
-
-    @GetMapping(value = "/create")
-    public ModelAndView createEventForm(@ModelAttribute("createEventForm") final CreateEventForm form) {
-        return new ModelAndView("events/create");
-    }
-
-    @PostMapping(path = "/create",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ModelAndView createEvent(@Valid @ModelAttribute("createEventForm") final CreateEventForm eventForm,
-                                    final BindingResult errors, @ModelAttribute("user") User user) {
-
-        if (errors.hasErrors()) {
-            LOGGER.debug("Found {} errors in form data", errors.getErrorCount());
-            return createEventForm(eventForm);
-        }
-        byte[] flyerBytes = getBytes(eventForm.getFlyer());
-        Event event = eventService.createEvent(
-            user.getEmail(),
-            eventForm.getCity(), 
-            eventForm.getDate(), 
-            flyerBytes, 
-            eventForm.getDescription(), 
-            eventForm.getTitle(), 
-            eventForm.getTime(), 
-            eventForm.getAddress(), 
-            eventForm.getAttendeesLimit()
+        final Page<Event> eventsPage = eventService.searchEventsWithFilters(
+                search,
+                recommendedForUser,
+                creatorId,
+                sortField,
+                sortDirection,
+                destination,
+                startDate,
+                endDate,
+                interest,
+                attendedByUserId,
+                university,
+                minRating,
+                hasCapacity,
+                top,
+                new PageParams(page, size)
         );
-        return new ModelAndView(REDIRECT + event.getId());
+
+        final List<EventDto> eventDtos = EventDto.fromEventCollection(uriInfo, eventsPage.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(eventDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, eventsPage).build();
     }
 
-    private ModelAndView populateEventDetails( EventWithStatistics eventWithStatistics, long id,
-                                              PageParams pageParams, PageParams attendeesPageParams, User user) {
-        ModelAndView mav = new ModelAndView("events/detail/detail");
-        Event event = eventWithStatistics.getEvent();
-        mav.addObject("event", event);
-        mav.addObject("createdEventsCount", eventWithStatistics.getCreatedEventsCount());
-        mav.addObject("attendedEventsCount", eventWithStatistics.getAttendedEventsCount());
-        mav.addObject("topAttendeeCountry", eventWithStatistics.getTopAttendeeCountry());
-        mav.addObject("topAttendeeCountryCount", eventWithStatistics.getTopAttendeeCountryCount());
-        mav.addObject("attendeesPage", eventService.findEventAttendees(event.getId(), attendeesPageParams));
-        mav.addObject("attendeesCount", event.getAttendeesCount());
-        Page<EventResponse> eventResponsesPage = eventService.findEventResponses(event.getId(), pageParams);
-        mav.addObject("eventResponsesPage", eventResponsesPage);
-        mav.addObject("commentsCount", eventResponsesPage.getTotalElements());
-        mav.addObject("attend", eventWithStatistics.isAttending());
-        mav.addObject("isEventOwner", eventWithStatistics.isCreator());
-        mav.addObject("isFull", event.getFull());
-
-
-        mav.addObject("averageRating", event.getRating());
-
-        if (user != null) {
-            Optional<Rating> maybeUserRating = eventService.findRatingByUserAndEvent(user.getId(), event.getId());
-            maybeUserRating.ifPresent(rating -> mav.addObject("userRating", rating.getRating()));
-        }
-        mav.addObject("ratingCount", eventService.countRatingsByEvent(event.getId()));
-
-
-        return mav;
+    @GET
+    @Path("/{id}")
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT)
+    public Response getEventById(@Context Request req, @PathParam("id") final long id) {
+        final Event event = eventService.findEventById(id).orElseThrow(() -> new EventNotFoundException());
+        return CacheUtils.withEtag(req, event, () -> EventDto.fromEvent(uriInfo, event));
     }
 
 
-    @GetMapping("/{id}")
-    public ModelAndView getEvent(@PathVariable long id, @ModelAttribute("replyEventForm") final ReplyForm form,
-        @ModelAttribute("eventRatingForm") final RatingForm ratingForm,
-        @ModelAttribute("user") User user,
-        @PageParamCustomizer(defaultSize = 4) PageParams  repliesPage,
-        @PageParamCustomizer(defaultSize = 6, pageParamName = "attendeesPage", sizeParamName = "attendeesSize") PageParams attendeesPage)
-    {
-        EventWithStatistics eventWithStatistics = eventService.findEventWithStatistics(user,id).orElseThrow(() -> {
-            LOGGER.error("eventWithStatistics not found for id: {}", id);
-            return new EventNotFoundException(id);});
-        return populateEventDetails(eventWithStatistics,
-                id, repliesPage, attendeesPage, user );
-    }
+    @POST
+    @Consumes(GoTogetherMediaType.APPLICATION_EVENT)
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT)
+    public Response createEvent(@Valid @NotNull final CreateEventForm form) {
+        final Long userId = AuthUtils.getCurrentUserId();
 
-    @PostMapping("/{id}/rating")
-    public ModelAndView rateEvent(@PathVariable long id, @Valid @ModelAttribute("eventRatingForm") final RatingForm form,
-                                  final BindingResult errors, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
-        if (errors.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.eventRatingForm", errors);
-            redirectAttributes.addFlashAttribute("eventRatingForm", form);
-            LOGGER.debug("Found {} errors in rating form data", errors.getErrorCount());
-            return new ModelAndView(REDIRECT + id);
-        }
-        LOGGER.debug("Rating event {} with rating {}", id, form.getRating());
-        eventService.rateEvent(user, id, form.getRating());
-        return new ModelAndView(REDIRECT + id);
-    }
-    @PostMapping("/{id}/rating/update")
-    public ModelAndView updateEventRating(@PathVariable long id, @Valid @ModelAttribute("eventRatingForm") final RatingForm form,
-                                          final BindingResult errors, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
-        if (errors.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.eventRatingForm", errors);
-            redirectAttributes.addFlashAttribute("eventRatingForm", form);
-            LOGGER.debug("Found {} errors in rating form data", errors.getErrorCount());
-            return new ModelAndView(REDIRECT + id);
-        }
-        LOGGER.debug("Updating rating for event {} with rating {}", id, form.getRating());
-        eventService.updateEventRating(user, id, form.getRating());
-        return new ModelAndView(REDIRECT + id);
-    }
-
-    @PostMapping("/{id}/delete")
-    public ModelAndView deleteEvent(@PathVariable long id,
-            @ModelAttribute("user") User user,
-            @Valid @ModelAttribute("deleteForm") final DeleteEventForm form,
-                                    final BindingResult errors) {
-        if (errors.hasErrors()) {
-            return deleteEventForm(id, user, form);
-        }
-        eventService.deleteEvent(id, form.getMessage());
-        return new ModelAndView(REDIRECT);
-    }
-    @GetMapping(value = "/{id}/delete")
-    public ModelAndView deleteEventForm(@PathVariable long id, @ModelAttribute("user") User user,
-                                        @ModelAttribute("deleteForm") final DeleteEventForm form) {
-        LOGGER.debug("Showing delete form for event {}", id);
-
-        Event event = eventService.findEventById(id).orElseThrow(() -> {
-            LOGGER.error("event not found for id: {}", id);
-            return new EventNotFoundException(id);});
-
-        ModelAndView mav = new ModelAndView("events/delete");
-        mav.addObject("event", event);
-        mav.addObject("isEventOwner", eventService.isEventOwnedByUser(user.getEmail(), event.getId()));
-        return mav;
-    }
-
-
-
-    @PostMapping(value = "/{id}")
-    public ModelAndView reply(@PathVariable int id, @Valid @ModelAttribute("replyEventForm") final ReplyForm form,
-                              final BindingResult errors, @ModelAttribute("user") User user) {
-        if (errors.hasErrors()) {
-            return getEvent(id, form, new RatingForm(), user, new PageParams(1, 4), new PageParams(1, 6));
-        }
-        eventService.createEventResponse(user.getEmail(), id, form.getMessage());
-        return new ModelAndView(REDIRECT + id);
-    }
-
-    @PostMapping(value="/{id}/attend",produces = "application/json")
-    public ModelAndView attendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
-                                    @ModelAttribute("user") User user) {
-        eventService.createEventAttendance(user.getId(), id);
-        if (referer != null && !referer.isEmpty()) {
-            return new ModelAndView("redirect:" + referer);
-        } else {
-            return new ModelAndView(REDIRECT + id);
-        }
-    }
-
-    @PostMapping(value="/{id}/dont-attend",produces = "application/json")
-    public ModelAndView dontAttendEvent(@PathVariable int id, @RequestHeader(value = "Referer",required = false) String referer,
-                                        @ModelAttribute("user") User user) {
-        eventService.deleteEventAttendance(user.getId(), id);
-        if (referer != null && !referer.isEmpty()) {
-            return new ModelAndView("redirect:" + referer);
-        } else {
-            return new ModelAndView(REDIRECT + id);
-        }
-    }
-    @GetMapping(value = "/{id}/update")
-    public ModelAndView showUpdateEventForm(@PathVariable("id") int eventId,
-                                            @ModelAttribute("user") User user,
-                                            @ModelAttribute("editEventForm") EditEventForm form,
-                                            BindingResult errors) {
-
-        Event event = eventService.findEventById(eventId).orElseThrow(() -> {
-            LOGGER.error("event not found for id: {}", eventId);
-            return new EventNotFoundException(eventId);});
-
-        if(!errors.hasErrors()) {
-            form.setCity(event.getCity().getName());
-            form.setDate(event.getDate());
-            form.setDescription(event.getDescription());
-            form.setTitle(event.getTitle());
-            form.setTime(event.getTime());
-            form.setAddress(event.getAddress());
-            form.setAttendeesLimit(event.getAttendeesLimit());
-        }
-
-        ModelAndView mav = new ModelAndView("events/edit");
-        mav.addObject("eventId", eventId);
-        return mav;
-    }
-
-    @PostMapping(value = "/{id}/update")
-    public ModelAndView updateEvent(@PathVariable("id") int eventId,
-                                    @ModelAttribute("user") User user,
-                                    @Valid @ModelAttribute("editEventForm") EditEventForm form,
-                                    BindingResult errors) {
-
-        if(errors.hasErrors()) {
-            return showUpdateEventForm(eventId, user, form, errors);
-        }
-        byte[] flyerContent = ImageUtils.getBytes(form.getFlyer());
-        eventService.updateEvent(
-                eventId,
-                form.getCity(),
+        final Event event = eventService.createEvent(
+                userId,
+                form.getCityId(),
                 form.getDate(),
-                flyerContent,
                 form.getDescription(),
                 form.getTitle(),
                 form.getTime(),
                 form.getAddress(),
                 form.getAttendeesLimit()
         );
-        return new ModelAndView(REDIRECT + eventId);
+
+        return Response.created(UriUtils.getEventUri(uriInfo, event.getId()))
+                .entity(EventDto.fromEvent(uriInfo, event))
+                .build();
     }
 
-    @GetMapping(value = "/reply/{id}/delete")
-    public ModelAndView deleteEventReplyForm(
-            @PathVariable("id") long id,
-            @ModelAttribute("deleteReplyForm") ReplyForm form) {
-        EventResponse er = eventService.findEventResponseById(id).orElseThrow(() -> {
-            LOGGER.error("Event response with id {} not found", id);
-            return new EventResponseNotFoundException("eventResponse not found");});
-        ModelAndView mav = new ModelAndView("events/delete-reply");
-        mav.addObject("event", er.getEvent());
-        mav.addObject("eventResponse", er);
-        return mav;
-    }
+    @PATCH
+    @Path("/{id}")
+    @Consumes(GoTogetherMediaType.APPLICATION_EVENT)
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT)
+    @PreAuthorize("@accessHelper.canPatchEvent(#id, #form)")
+    public Response patchEvent(@PathParam("id") final long id, @Valid @NotNull final PatchEventForm form) {
+        final Event event = eventService.patchEvent(
+                id,
+                form.getCityId(),
+                form.getDate(),
+                form.getDescription(),
+                form.getTitle(),
+                form.getTime(),
+                form.getAddress(),
+                form.getAttendeesLimit(),
+                form.getDeleted(),
+                form.getDeletionMessage()
+        );
 
-    @PostMapping("/reply/{id}/delete")
-    public ModelAndView deleteEventReply(
-            @PathVariable("id") long id, @Valid @ModelAttribute("deleteReplyForm") ReplyForm form,
-                                         BindingResult errors) {
-        EventResponse er = eventService.findEventResponseById(id).orElseThrow(() ->{
-            LOGGER.error("Event response not found {}", id);
-            return new EventResponseNotFoundException("Event response doesn't exist");});
-
-        if (errors.hasErrors()) {
-            return deleteEventReplyForm(er.getEvent().getId(), form);
-        }
-
-        eventService.deleteEventResponse(er, form.getMessage());
-        return new ModelAndView( "redirect:/events/" + er.getEvent().getId());
+        return Response.ok(EventDto.fromEvent(uriInfo, event)).build();
     }
 
 
+    @GET
+    @Path("/{eventId}/statistics")
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_STATISTICS)
+    public Response getEventStatistics(@Context Request req, @PathParam("eventId") final long eventId) {
+        final EventWithStatistics statistics = eventService.findEventWithStatistics(eventId)
+                .orElseThrow(() -> new EventNotFoundException());
+        return CacheUtils.withEtag(req, statistics, () -> EventStatisticsDto.fromEventWithStatistics(uriInfo, statistics));
+    }
 
 
+    @GET
+    @Path("/{id}/flyer")
+    @Produces({"image/jpeg", "image/png", "image/webp"})
+    public Response getEventFlyer(@Context Request req, @PathParam("id") final long id) {
+        final Image image = eventService.getEventFlyer(id).orElseThrow(() -> new ImageNotFoundException());
+        final Response.ResponseBuilder responseBuilder = Response.ok(image.getData())
+                .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=\"event_%d_flyer\"", id));
+        return CacheUtils.withEtag(req, image, responseBuilder);
+    }
+
+    @PUT
+    @Path("/{id}/flyer")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces({"image/jpeg", "image/png", "image/webp"})
+    public Response updateEventFlyer(
+            @PathParam("id") final long id,
+            @Valid @BeanParam final UpdateFlyerForm form
+    ) {
+        final Image image = eventService.updateEventFlyer(id, form.getFlyer());
+        return Response.ok(image.getData())
+                .contentLocation(UriUtils.getEventFlyerUri(uriInfo, id))
+                .header(HttpHeaders.CONTENT_TYPE, ImageUtils.detectContentType(image.getData()))
+                .build();
+    }
+
+    @GET
+    @Path("/{eventId}/responses")
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_RESPONSE_LIST)
+    public Response listEventResponses(
+            @PathParam("eventId") final long eventId,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("4") int size
+    ) {
+        final Page<EventResponse> responses = eventService.findEventResponses(eventId, new PageParams(page, size));
+        final List<EventResponseDto> responseDtos = EventResponseDto.fromEventResponseCollection(uriInfo, responses.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(responseDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, responses).build();
+    }
+
+    @GET
+    @Path("/{eventId}/responses/{responseId}")
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_RESPONSE)
+    public Response getEventResponseById(
+            @Context Request req,
+            @PathParam("eventId") final long eventId,
+            @PathParam("responseId") final long responseId
+    ) {
+        final EventResponse response = eventService.findEventResponseById(eventId, responseId).orElseThrow(() -> new EventResponseNotFoundException());
+        return CacheUtils.withEtag(req, response, () -> EventResponseDto.fromEventResponse(uriInfo, response));
+    }
+
+    @POST
+    @Path("/{eventId}/responses")
+    @Consumes(GoTogetherMediaType.APPLICATION_EVENT_RESPONSE)
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_RESPONSE)
+    public Response createEventResponse(
+            @PathParam("eventId") final long eventId,
+            @Valid @NotNull final CreateEventResponseForm form
+    ) {
+        final Long userId = AuthUtils.getCurrentUserId();
+        final EventResponse response = eventService.createEventResponse(userId, eventId, form.getMessage());
+        return Response.created(UriUtils.getEventResponseUri(uriInfo, eventId, response.getId()))
+                .entity(EventResponseDto.fromEventResponse(uriInfo, response))
+                .build();
+    }
+
+    @PATCH
+    @Path("/{eventId}/responses/{responseId}")
+    @Consumes(GoTogetherMediaType.APPLICATION_EVENT_RESPONSE)
+    @PreAuthorize("@accessHelper.canPatchEventResponse(#eventId, #responseId, #form)")
+    public Response patchEventResponse(
+            @PathParam("eventId") final long eventId,
+            @PathParam("responseId") final long responseId,
+            @Valid @NotNull final PatchDeletionForm form
+    ) {
+        eventService.patchEventResponse(eventId, responseId, form.getDeleted(), form.getDeletionMessage());
+        return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/{eventId}/attendances")
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_ATTENDANCE_LIST)
+    public Response listEventAttendances(
+            @PathParam("eventId") final long eventId,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("10") int size
+    ) {
+        final Page<EventAttendance> attendances = eventService.findEventAttendances(eventId, new PageParams(page, size));
+        final List<EventAttendanceDto> attendanceDtos = EventAttendanceDto.fromEventAttendanceCollection(uriInfo, attendances.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(attendanceDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, attendances).build();
+    }
+
+    @POST
+    @Path("/{eventId}/attendances")
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_ATTENDANCE)
+    public Response attendEvent(@PathParam("eventId") final long eventId) {
+        final Long userId = AuthUtils.getCurrentUserId();
+        final EventAttendance attendance = eventService.createEventAttendance(userId, eventId);
+        return Response.created(UriUtils.getEventAttendanceUri(uriInfo, eventId, userId))
+                .entity(EventAttendanceDto.fromEventAttendance(uriInfo, attendance))
+                .build();
+    }
+
+    @GET
+    @Path("/{eventId}/attendances/{userId}")
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_ATTENDANCE)
+    public Response getEventAttendance(
+            @Context Request req,
+            @PathParam("eventId") final long eventId,
+            @PathParam("userId") final long userId
+    ) {
+        final EventAttendance attendance = eventService.findEventAttendance(userId, eventId)
+                .orElseThrow(() -> new EventAttendanceNotFoundException());
+        return CacheUtils.withEtag(req, attendance, () -> EventAttendanceDto.fromEventAttendance(uriInfo, attendance));
+    }
+
+
+    @DELETE
+    @Path("/{eventId}/attendances/{userId}")
+    public Response unattendEventByUser(
+            @PathParam("eventId") final long eventId,
+            @PathParam("userId") final long userId
+    ) {
+        eventService.deleteEventAttendance(userId, eventId);
+        return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/{eventId}/ratings")
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_RATING_LIST)
+    public Response listEventRatings(
+            @PathParam("eventId") final long eventId,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("10") int size
+    ) {
+        final Page<Rating> ratings = eventService.findRatingsByEventId(eventId, new PageParams(page, size));
+        final List<RatingDto> ratingDtos = RatingDto.fromRatingCollection(uriInfo, ratings.getContent());
+        final ResponseBuilder response = Response.ok(new GenericEntity<>(ratingDtos) {});
+        return PagingUtils.insertPaginationLinks(response, uriInfo, ratings).build();
+    }
+
+    @GET
+    @Path("/{eventId}/ratings/{ratingId}")
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_RATING)
+    public Response getEventRatingById(
+            @Context Request req,
+            @PathParam("eventId") final long eventId,
+            @PathParam("ratingId") final long ratingId
+    ) {
+        final Rating rating = eventService.findRatingById(eventId, ratingId).orElseThrow(() -> new RatingNotFoundException());
+        return CacheUtils.withEtag(req, rating, () -> RatingDto.fromRating(uriInfo, rating));
+    }
+
+    @POST
+    @Path("/{eventId}/ratings")
+    @Consumes(GoTogetherMediaType.APPLICATION_EVENT_RATING)
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_RATING)
+    public Response createEventRating(
+            @PathParam("eventId") final long eventId,
+            @Valid @NotNull final CreateRatingForm form
+    ) {
+        final Long userId = AuthUtils.getCurrentUserId();
+        final Rating rating = eventService.rateEvent(userId, eventId, form.getRating());
+        return Response.created(UriUtils.getEventRatingUri(uriInfo, eventId, rating.getId()))
+                .entity(RatingDto.fromRating(uriInfo, rating))
+                .build();
+    }
+
+    @PUT
+    @Path("/{eventId}/ratings/{ratingId}")
+    @Consumes(GoTogetherMediaType.APPLICATION_EVENT_RATING)
+    @Produces(GoTogetherMediaType.APPLICATION_EVENT_RATING)
+    public Response updateEventRating(
+            @PathParam("eventId") final long eventId,
+            @PathParam("ratingId") final long ratingId,
+            @Valid @NotNull final CreateRatingForm form
+    ) {
+        final Rating rating = eventService.updateEventRating(eventId, ratingId, form.getRating());
+        return Response.ok(RatingDto.fromRating(uriInfo, rating)).build();
+    }
+
+    @DELETE
+    @Path("/{eventId}/ratings/{ratingId}")
+    public Response deleteEventRating(
+            @PathParam("eventId") final long eventId,
+            @PathParam("ratingId") final long ratingId
+    ) {
+        eventService.deleteRating(eventId, ratingId);
+        return Response.noContent().build();
+    }
 }

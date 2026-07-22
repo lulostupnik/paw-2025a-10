@@ -1,0 +1,92 @@
+import { useLocation, useNavigate } from "react-router-dom";
+import { useI18n } from "@/lib/i18n";
+import type { AdminJourney } from "@/types/admin";
+import Pagination from "../listing/Pagination";
+import AdminTabHeader from "./AdminTabHeader";
+import ClickableRow from "./ClickableRow";
+import type { PageResult } from "@/types/pagination";
+import PageStatus from "@/components/ui/PageStatus";
+
+interface JourneysTabProps {
+    data: PageResult<AdminJourney>;
+    searchValue: string;
+    onSearchChange: (value: string) => void;
+    onSearchSubmit: (value: string) => void;
+    onPageChange: (page: number | string) => void;
+    isLoading: boolean;
+    isError: boolean;
+}
+
+export default function JourneysTab({
+    data,
+    searchValue,
+    onSearchChange,
+    onSearchSubmit,
+    onPageChange,
+    isLoading,
+    isError,
+}: JourneysTabProps) {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { t } = useI18n();
+    const isEmpty = !isLoading && !isError && data.content.length === 0;
+    const loadingLabel = t("admin.dashboard.loading", { defaultValue: "Cargando datos..." });
+    const errorLabel = t("admin.dashboard.error", { defaultValue: "No se pudieron cargar los datos." });
+
+    return (
+        <div className="tab-content active" id="journeys-tab">
+            <AdminTabHeader
+                title={t("admin.manage.journeys")}
+                searchPlaceholder={t("admin.search.journeys")}
+                searchValue={searchValue}
+                searchButtonLabel={t("admin.search.button")}
+                onSearchChange={onSearchChange}
+                onSearchSubmit={onSearchSubmit}
+            />
+            <div className="table-container">
+                <table className="data-table">
+                    <thead>
+                        <tr>
+                            <th>{t("admin.column.user")}</th>
+                            <th>{t("admin.column.destination")}</th>
+                            <th>{t("admin.column.university")}</th>
+                            <th>{t("admin.column.start.date")}</th>
+                            <th>{t("admin.column.end.date")}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.content.map((journey) => (
+                            <ClickableRow
+                                key={journey.id}
+                                onClick={() => navigate(`/journeys/${journey.id}`, { state: { from: `${location.pathname}${location.search}` } })}
+                            >
+                                <td>{journey.user.username}</td>
+                                <td>{journey.destinationUniversity.city}</td>
+                                <td>{journey.destinationUniversity.name}</td>
+                                <td>{journey.startDate}</td>
+                                <td>{journey.endDate}</td>
+                            </ClickableRow>
+                        ))}
+                    </tbody>
+                </table>
+
+                {isLoading && <PageStatus compact message={loadingLabel} />}
+                {isError && <PageStatus compact variant="error" message={errorLabel} />}
+                {isEmpty && <div className="no-results">{t("admin.no.results")}</div>}
+
+                <Pagination
+                    totalPages={data.totalPages}
+                    currentPage={data.currentPage}
+                    pageSize={data.pageSize}
+                    onPageChange={onPageChange}
+                    previousLabel={t("pagination.prev")}
+                    nextLabel={t("pagination.next")}
+                    firstPage={data.first}
+                    lastPage={data.last}
+                    nextPage={data.next}
+                    prevPage={data.prev}
+                />
+            </div>
+        </div>
+    );
+}

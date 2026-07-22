@@ -1,7 +1,6 @@
 package ar.edu.itba.paw.persistence;
 
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -63,8 +62,24 @@ public class UserHibernateDaoTest {
         );
         em.flush();
 
-        assertEqualsUser(user, Map.of("id", user.getId()));
         assertEquals(1, JdbcTestUtils.countRowsInTable(jdbcTemplate, USER_TABLE));
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, USER_TABLE,
+                "id = " + user.getId()
+                    + " AND email = '" + USER_1_MAIL + "'"
+                    + " AND username = '" + USER_1_NAME + "'"
+                    + " AND firstname = '" + USER_FIRSTNAME + "'"
+                    + " AND lastname = '" + USER_LASTNAME + "'"
+                    + " AND university = " + UNIVERSITY_1_ID
+                    + " AND career_id = " + CAREER_1_ID
+                    + " AND profile_picture_id = " + IMAGE_1_ID
+                    + " AND language = '" + USER_LOCALE + "'"
+                    + " AND blocked = FALSE"
+                    + " AND validated = TRUE"
+            )
+        );
     }
     @Test(expected = PersistenceException.class)
     public void testCreateUserNoMail(){
@@ -259,7 +274,15 @@ public class UserHibernateDaoTest {
 
     @Test
     public void testFindAllPage1(){
-        Page<User> page1 = userDao.findAll(PAGE_1_DEFAULT);
+        Page<User> page1 = userDao.findUsers(
+            null,
+            PAGE_1_DEFAULT,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -272,7 +295,15 @@ public class UserHibernateDaoTest {
     }
     @Test
     public void testFindAllPage2(){
-        Page<User> page2 = userDao.findAll(PAGE_2_DEFAULT);
+        Page<User> page2 = userDao.findUsers(
+            null,
+            PAGE_2_DEFAULT,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
 
         assertNotNull(page2);
         assertEquals(2, page2.getCurrentPage());
@@ -285,7 +316,15 @@ public class UserHibernateDaoTest {
     }
     @Test
     public void testFindAllWrongPage(){
-        Page<User> page2 = userDao.findAll(PAGE_2_BIG);
+        Page<User> page2 = userDao.findUsers(
+            "",
+            PAGE_2_BIG,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
 
         assertNotNull(page2);
         assertEquals(2, page2.getCurrentPage());
@@ -293,10 +332,17 @@ public class UserHibernateDaoTest {
         assertNotNull(page2.getContent());
         assertEquals(0, page2.getContent().size());
     }
-
     @Test
     public void testSearchPage1(){
-        Page<User> page1 = userDao.search(USER_FIRSTNAME, PAGE_1_DEFAULT);
+        Page<User> page1 = userDao.findUsers(
+            USER_FIRSTNAME, 
+            PAGE_1_DEFAULT,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
 
         assertNotNull(page1);
         assertEquals(1, page1.getCurrentPage());
@@ -309,7 +355,15 @@ public class UserHibernateDaoTest {
     }
     @Test
     public void testSearchPage2(){
-        Page<User> page2 = userDao.search(USER_FIRSTNAME, PAGE_2_DEFAULT);
+        Page<User> page2 = userDao.findUsers(
+            USER_FIRSTNAME, 
+            PAGE_2_DEFAULT,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
 
         assertNotNull(page2);
         assertEquals(2, page2.getCurrentPage());
@@ -322,12 +376,39 @@ public class UserHibernateDaoTest {
     }
     @Test
     public void testSearchPageWrongPage(){
-        Page<User> page2 = userDao.search(USER_1_NAME, PAGE_2_DEFAULT);
+        Page<User> page2 = userDao.findUsers(
+            USER_1_NAME, 
+            PAGE_2_DEFAULT,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
 
         assertEquals(2, page2.getCurrentPage());
         assertEquals(1, page2.getTotalPages());
         assertNotNull(page2.getContent());
         assertEquals(0, page2.getContent().size());
+    }
+    @Test
+    public void testFindUsersWithFilters(){
+        Page<User> page1 = userDao.findUsers(
+            USER_FIRSTNAME, 
+            PAGE_1_DEFAULT,
+            EVENT_1_ID,
+            UNIVERSITY_1_ID,
+            CAREER_1_ID,
+            INTEREST_1_ID,
+            false
+        );
+
+        assertNotNull(page1);
+        assertEquals(1, page1.getCurrentPage());
+        assertEquals(1, page1.getTotalPages());
+        assertNotNull(page1.getContent());
+        assertEquals(1, page1.getContent().size());
+        assertEqualsUser(page1.getContent().getFirst());
     }
 
     @Test
@@ -357,7 +438,6 @@ public class UserHibernateDaoTest {
     public void testFindAverageRatingForAttendedEvents(){
         Optional<Double> rating = userDao.findAverageRatingForAttendedEvents(USER_1_ID);
 
-        //average rating of event 1 and 2 (all of them, not just my ratings)
         assertNotNull(rating);
         assertTrue(rating.isPresent());
         assertEquals(USER_1_ATTENDED_EVENTS_RATING, rating.get(), 0.1);

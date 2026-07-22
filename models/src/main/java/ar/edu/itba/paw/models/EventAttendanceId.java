@@ -16,7 +16,6 @@ public class EventAttendanceId implements Serializable {
     }
 
     public EventAttendanceId() {}
-    // equals() y hashCode() son necesarios para claves compuestas
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

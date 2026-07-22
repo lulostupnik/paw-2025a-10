@@ -1,129 +1,87 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.InterestService;
-import ar.edu.itba.paw.models.*;
+import ar.edu.itba.paw.models.Interest;
+import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.exceptions.InterestsNotFoundException;
+import ar.edu.itba.paw.webapp.GoTogetherMediaType;
+import ar.edu.itba.paw.webapp.dto.InterestDto;
 import ar.edu.itba.paw.webapp.form.CreateInterestForm;
-import ar.edu.itba.paw.webapp.form.EditInterestForm;
-import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
-import ar.edu.itba.paw.webapp.utils.JsonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.edu.itba.paw.webapp.form.PatchInterestForm;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
+import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.stereotype.Component;
+
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
-@Controller
-@RequestMapping("/interests")
+import java.util.List;
+
+@Path("interests")
+@Component
 public class InterestController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(InterestController.class);
-
-    private final InterestService interestService;
 
     @Autowired
-    public InterestController(InterestService interestService) {
-        this.interestService = interestService;
+    private InterestService interestService;
+
+    @Context
+    private UriInfo uriInfo;
+
+    @GET
+    @Produces(GoTogetherMediaType.APPLICATION_INTEREST_LIST)
+    public Response listInterests(
+            @Context Request req,
+            @QueryParam("search") String search,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("20") int size
+    ) {
+        final Page<Interest> interests = interestService.findInterests(search, new PageParams(page, size));
+        final List<InterestDto> interestDtos = InterestDto.fromInterestCollection(uriInfo, interests.getContent());
+        final ResponseBuilder response = PagingUtils.insertPaginationLinks(
+                Response.ok(new GenericEntity<>(interestDtos) {}), uriInfo, interests);
+        return CacheUtils.withEtag(req, interests.getContent(), response);
     }
 
-    @GetMapping(value = "", produces = "application/json; charset=UTF-8")
-    @ResponseBody
-    public String getInterestsJSON(@RequestParam(value = "search", required = false) String search,
-                                   @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
-        return JsonUtils.toJson( interestService.findInterests(search, pageParams).getContent());
+    @GET
+    @Path("/{id}")
+    @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
+    public Response getInterestById(@Context Request req, @PathParam("id") final long id) {
+        final Interest interest = interestService.findInterestById(id).orElseThrow(() -> new InterestsNotFoundException());
+        return CacheUtils.withEtag(req, interest, () -> InterestDto.fromInterest(uriInfo, interest));
     }
 
-
-    @GetMapping(value = "/create")
-    public ModelAndView createInterestsForm(@ModelAttribute("createInterestForm") final CreateInterestForm form) {
-        return new ModelAndView("interests/create");
+    @POST
+    @Consumes(GoTogetherMediaType.APPLICATION_INTEREST)
+    @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
+    public Response createInterest(@Valid @NotNull final CreateInterestForm form) {
+        final Interest interest = interestService.createInterest(form.getName());
+        return Response.created(UriUtils.getInterestUri(uriInfo, interest.getId()))
+                .entity(InterestDto.fromInterest(uriInfo, interest))
+                .build();
     }
 
-    @PostMapping(path = "/create")
-    public ModelAndView createInterests(@Valid @ModelAttribute("createInterestForm") final CreateInterestForm intForm,
-                                    final BindingResult errors,@ModelAttribute("user") User user) {
-
-        if (errors.hasErrors()) {
-            return createInterestsForm(intForm);
-        }
-        Interest interest = interestService.createInterest(intForm.getName());
-        return new ModelAndView("redirect:/interests/{id}", "id", interest.getId());
-    }
-    @GetMapping(value= "/{id}")
-    public ModelAndView getInterests(@PathVariable(value = "id") final long id) {
-        Interest interest = interestService.findInterestById(id).orElseThrow(() -> {
-            LOGGER.error("Interest not found for id: {}", id);
-            return new InterestsNotFoundException("Interest not found");});
-        ModelAndView mav = new ModelAndView("interests/detail");
-        mav.addObject("interest", interest);
-        return mav;
+    @PATCH
+    @Path("/{id}")
+    @Consumes(GoTogetherMediaType.APPLICATION_INTEREST)
+    @Produces(GoTogetherMediaType.APPLICATION_INTEREST)
+    public Response patchInterest(
+            @PathParam("id") final long id,
+            @Valid @NotNull final PatchInterestForm form
+    ) {
+        final Interest interest = interestService.patchInterest(id, form.getName());
+        return Response.ok(InterestDto.fromInterest(uriInfo, interest)).build();
     }
 
-
-    @GetMapping(value = "/{id}/edit")
-    public ModelAndView updateInterestForm(@PathVariable("id") Long id,
-                                            @ModelAttribute("createInterestForm") final CreateInterestForm form,
-                                           BindingResult errors ) {
-        Interest interest = interestService.findInterestById(id).orElseThrow(() -> {
-            LOGGER.error("Interest not found for id: {}", id);
-            return new InterestsNotFoundException("Interest not found");});
-        if(!errors.hasErrors()){
-            form.setName(interest.getName());
-        }
-
-        ModelAndView mav = new ModelAndView("interests/create");
-        mav.addObject("isUpdate", true);
-        mav.addObject("interestId", id);
-        return mav;
-    }
-
-
-    @PostMapping(value = "/{id}/edit")
-    public ModelAndView updateInterest(@PathVariable("id") Long id,
-                                         @Valid @ModelAttribute("createInterestForm") final CreateInterestForm form,
-                                         final BindingResult errors,
-                                         @ModelAttribute("user") User user) {
-
-        if (errors.hasErrors()) {
-          return updateInterestForm(id, form, errors);
-        }
-
-        interestService.updateInterest(
-                id,
-                form.getName()
-        );
-
-        return new ModelAndView("redirect:/interests/{id}", "id", id);
-    }
-
-    @PostMapping(value = "/{id}/delete")
-    public ModelAndView deleteInterest(@PathVariable long id) {
+    @DELETE
+    @Path("/{id}")
+    public Response deleteInterest(@PathParam("id") final long id) {
         interestService.deleteInterest(id);
-        return new ModelAndView("redirect:/dashboard/interests");
+        return Response.noContent().build();
     }
-
-    @GetMapping(value = "/edit")
-    public ModelAndView updateInterestForm( @ModelAttribute("user") User user,
-                                            @ModelAttribute("editInterestsForm") final EditInterestForm form) {
-        Page<UserInterest> pagedInterests = interestService.findInterestsByUser(user, new PageParams(1, 20));
-        ModelAndView mav = new ModelAndView("interests/interests-edit");
-        mav.addObject("editInterestsForm",form);
-        mav.addObject("userInterests", pagedInterests.getContent());
-        return mav;
-    }
-
-
-    @PostMapping(value = "/edit")
-    public ModelAndView updateInterest(@ModelAttribute("user") User user,
-                                       @Valid @ModelAttribute("editInterestsForm") final EditInterestForm form,
-                                       final BindingResult errors) {
-        if (errors.hasErrors()) {
-            return updateInterestForm(user, form);
-        }
-        interestService.updateUserInterests(form.getInterests(), user.getId());
-        return new ModelAndView("redirect:/profile/" + user.getId() + "/interests");
-    }
-
 }

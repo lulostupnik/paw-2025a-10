@@ -84,8 +84,24 @@ public class InterestHibernateDaoTest {
 
         assertNotNull(interest);
         assertEqualsInterest(
-            new Interest(interest.getId(), INTEREST_NEW1_NAME), 
+            new Interest(interest.getId(), INTEREST_NEW1_NAME),
             interest
+        );
+
+        Interest persisted = jdbcTemplate.queryForObject(
+            INTEREST_SELECT_BY_ID, INTEREST_ROW_MAPPER, interest.getId()
+        );
+        assertEqualsInterest(new Interest(interest.getId(), INTEREST_NEW1_NAME), persisted);
+        assertEquals(
+            TOTAL_INTERESTS + 1,
+            JdbcTestUtils.countRowsInTable(jdbcTemplate, INTEREST_TABLE)
+        );
+        assertEquals(
+            1,
+            JdbcTestUtils.countRowsInTableWhere(
+                jdbcTemplate, INTEREST_TABLE,
+                "id = " + interest.getId() + " AND name = '" + INTEREST_NEW1_NAME + "'"
+            )
         );
     }
     @Test(expected = PersistenceException.class)

@@ -15,7 +15,7 @@ public class EmailEvent {
 
     private final  String description;
 
-    private final  long flyerImageId;
+    private final  Long flyerImageId;
 
     private final  String cityName;
 

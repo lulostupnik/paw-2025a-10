@@ -1,15 +1,17 @@
 package ar.edu.itba.paw.webapp.form;
 
 import ar.edu.itba.paw.models.enums.ReportReason;
+import ar.edu.itba.paw.models.enums.ReportType;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class CreateReportForm {
     @NotNull
-    private String reportType;
+    private ReportType reportType;
 
     @NotNull
-    private long targetId;
+    private Long targetId;
 
 
     @Size(min = 2, max = 2047)
@@ -36,18 +38,18 @@ public class CreateReportForm {
     }
 
 
-    public String getReportType() {
+    public ReportType getReportType() {
         return reportType;
     }
 
-    public long getTargetId() {
+    public Long getTargetId() {
         return targetId;
     }
 
-    public void setReportType(String reportType) {
+    public void setReportType(ReportType reportType) {
         this.reportType = reportType;
     }
-    public void setTargetId(long targetId) {
+    public void setTargetId(Long targetId) {
         this.targetId = targetId;
     }
 

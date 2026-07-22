@@ -32,6 +32,7 @@ dist/
 
 # JetBrains IDE
 .idea/
+*.iml
 #VSCode IDE
 .vscode
 
@@ -64,3 +65,10 @@ Thumbs.db
 *.pg_dump
 /services/src/main/resources/email.properties
 webapp/src/main/resources/logback.xml
+
+# Build artifacts
+out/
+out/**
+*.md
+front/*.md
+front/.env.development

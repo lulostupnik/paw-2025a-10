@@ -1,18 +1,25 @@
 package ar.edu.itba.paw.services;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.InOrder;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-
-import ar.edu.itba.paw.models.*;
-import ar.edu.itba.paw.models.enums.SortDirection;
-import ar.edu.itba.paw.models.enums.SortFieldJourney;
-import ar.edu.itba.paw.models.exceptions.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,12 +29,34 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import ar.edu.itba.paw.interfaces.persistence.JourneyDao;
 import ar.edu.itba.paw.interfaces.persistence.JourneyResponseDao;
+import ar.edu.itba.paw.interfaces.persistence.ReportDao;
 import ar.edu.itba.paw.interfaces.persistence.TipDao;
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.EmailService;
 import ar.edu.itba.paw.interfaces.services.InterestService;
 import ar.edu.itba.paw.interfaces.services.UniversityService;
 import ar.edu.itba.paw.interfaces.services.UserService;
+import ar.edu.itba.paw.models.Career;
+import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.Country;
+import ar.edu.itba.paw.models.Journey;
+import ar.edu.itba.paw.models.JourneyResponse;
+import ar.edu.itba.paw.models.Page;
+import ar.edu.itba.paw.models.PageParams;
+import ar.edu.itba.paw.models.Tip;
+import ar.edu.itba.paw.models.University;
+import ar.edu.itba.paw.models.User;
+import ar.edu.itba.paw.models.enums.SortDirection;
+import ar.edu.itba.paw.models.enums.SortFieldJourney;
+import ar.edu.itba.paw.models.exceptions.InvalidDateException;
+import ar.edu.itba.paw.models.exceptions.InvalidPaginationParamsException;
+import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
+import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
+import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
+import ar.edu.itba.paw.models.exceptions.MutuallyExclusiveFiltersException;
+import ar.edu.itba.paw.models.exceptions.TipNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserWithActiveJourneyException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JourneyServiceImplTest {
@@ -74,6 +103,7 @@ public class JourneyServiceImplTest {
     private static final List<JourneyResponse> REPLIES = List.of(JOURNEY_REPLY);
     private static final Page<JourneyResponse> REPLY_PAGE = new Page<>(REPLIES, 1, 1, 1);
 
+    private static final Long USER_ID_WITH_JOURNEY = USER_ID_2;
     private static final User USER_WITH_JOURNEY = new User(USER_ID_2, EMAIL_2, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, JOURNEY, IMAGE_ID, LOCALE, false, true);
     private static final User USER_WITH_JOURNEY_DELETED = new User(USER_ID_2, EMAIL_2, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, JOURNEY_DELETED, IMAGE_ID, LOCALE, false, true);
 
@@ -94,6 +124,8 @@ public class JourneyServiceImplTest {
     JourneyResponseDao replyDao;
     @Mock
     TipDao tipDao;
+    @Mock
+    ReportDao reportDao;
 
     @Mock
     UserService userService;
@@ -110,7 +142,10 @@ public class JourneyServiceImplTest {
     @Test
     public void testCreateJourney(){
         when(
-            uniService.findByName(eq(UNI_NAME))
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNI));
         when(
             journeyDao.create(
@@ -123,8 +158,8 @@ public class JourneyServiceImplTest {
         ).thenReturn(JOURNEY);
 
         Journey journey = journeyService.createJourney(
-            USER, 
-            UNI_NAME, 
+            USER_ID,
+            UNI_ID,
             START_DATE, 
             END_DATE, 
             DESCRIPTION
@@ -133,15 +168,70 @@ public class JourneyServiceImplTest {
         assertNotNull(journey);
         assertEquals(JOURNEY, journey);
     }
-    @Test(expected = UniversityNotFoundException.class)
+    @Test()
+    public void testCreateJourneyWithDeletedJourney(){
+        User u = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNI, CAREER, JOURNEY_DELETED, IMAGE_ID, LOCALE, false, true);
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            uniService.findById(eq(UNI_ID))
+        ).thenReturn(Optional.of(UNI));
+        when(
+            journeyDao.create(
+                eq(USER), 
+                eq(UNI), 
+                eq(START_DATE), 
+                eq(END_DATE), 
+                eq(DESCRIPTION)
+            )
+        ).thenReturn(JOURNEY);
+
+        Journey journey = journeyService.createJourney(
+            USER_ID,
+            UNI_ID,
+            START_DATE, 
+            END_DATE, 
+            DESCRIPTION
+        );
+
+        assertNotNull(journey);
+        assertEquals(JOURNEY, journey);
+
+        InOrder order = inOrder(reportDao, replyDao, journeyDao);
+        order.verify(reportDao).hardDeleteByJourneyId(JOURNEY_ID);
+        order.verify(replyDao).hardDeleteByJourneyId(JOURNEY_ID);
+        order.verify(journeyDao).hardDelete(JOURNEY_DELETED);
+    }
+    @Test(expected = UserWithActiveJourneyException.class)
+    public void testCreateJourneyWithActiveJourney(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER_WITH_JOURNEY));
+        when(
+            uniService.findById(eq(UNI_ID))
+        ).thenReturn(Optional.of(UNI));
+
+        journeyService.createJourney(
+            USER_ID,
+            UNI_ID,
+            START_DATE, 
+            END_DATE, 
+            DESCRIPTION
+        );
+    }
+    @Test(expected = InvalidReferenceException.class)
     public void testCreateJourneyNoUni(){
         when(
-            uniService.findByName(eq(UNI_NAME))
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.empty());
 
         journeyService.createJourney(
-            USER, 
-            UNI_NAME, 
+            USER_ID,
+            UNI_ID,
             START_DATE, 
             END_DATE, 
             DESCRIPTION
@@ -149,9 +239,13 @@ public class JourneyServiceImplTest {
     }
     @Test(expected = InvalidDateException.class)
     public void testCreateJourneyMissingStartDate(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+
         journeyService.createJourney(
-            USER, 
-            UNI_NAME, 
+            USER_ID,
+            UNI_ID,
             null, 
             END_DATE, 
             DESCRIPTION
@@ -159,9 +253,13 @@ public class JourneyServiceImplTest {
     }
     @Test(expected = InvalidDateException.class)
     public void testCreateJourneyMissingEndDate(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+
         journeyService.createJourney(
-            USER,
-            UNI_NAME, 
+            USER_ID,
+            UNI_ID,
             START_DATE, 
             null, 
             DESCRIPTION
@@ -169,9 +267,13 @@ public class JourneyServiceImplTest {
     }
     @Test(expected = InvalidDateException.class)
     public void testCreateJourneyFlippedDates(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+
         journeyService.createJourney(
-            USER, 
-            UNI_NAME, 
+            USER_ID,
+            UNI_ID,
             END_DATE, 
             START_DATE, 
             DESCRIPTION
@@ -179,9 +281,27 @@ public class JourneyServiceImplTest {
     }
     @Test(expected = InvalidDateException.class)
     public void testCreateJourneyStartsBeforeNow(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+
         journeyService.createJourney(
-            USER, 
-            UNI_NAME, 
+            USER_ID,
+            UNI_ID,
+            START_DATE.plusDays(-1), 
+            START_DATE, 
+            DESCRIPTION
+        );
+    }
+    @Test(expected = UserNotFoundException.class)
+    public void testCreateJourneyMissingUser(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        journeyService.createJourney(
+            USER_ID,
+            UNI_ID,
             START_DATE.plusDays(-1), 
             START_DATE, 
             DESCRIPTION
@@ -189,122 +309,102 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testCreateJourneyResponse(){
+    public void testCreateJourneyResponseUserId(){
         when(
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
             replyDao.findRespondersByJourneyId(
                 eq(JOURNEY_ID), 
                 any(PageParams.class)
             )
-        ).thenReturn(new Page<>(USERS, 1, 1, 1));
+        ).thenReturn(new Page<>(List.of(USER), 1, 1, 2))
+        .thenReturn(new Page<>(List.of(), 2, 1, 2));
         when(
             replyDao.create(eq(USER), eq(JOURNEY), eq(DESCRIPTION))
         ).thenReturn(REPLY);
 
-        JourneyResponse reply = journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
+        JourneyResponse reply = journeyService.createJourneyResponse(USER_ID, JOURNEY_ID, DESCRIPTION);
 
         assertNotNull(reply);
         assertEquals(USER, reply.getUser());
         assertEquals(JOURNEY, reply.getJourney());
         assertEquals(DESCRIPTION, reply.getMessage());
+        verify(interestService).updateMatchingInterestScores(eq(USER_ID), eq(USER_ID));
+        verify(emailService).answerJourneyNotification(any(), eq(DESCRIPTION), any(), any());
+        verify(emailService).answerJourneyOwnerNotification(eq(DESCRIPTION), any(), any());
     }
 
     @Test
-    public void testCreateJourneyResponseNoMails(){
+    public void testCreateJourneyResponseSendsEmailsAfterCommit(){
         when(
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
-            replyDao.findRespondersByJourneyId(
-                eq(JOURNEY_ID), 
-                any(PageParams.class)
-            )
-        ).thenReturn(new Page<>(List.of(), 1, 10, 0));
+            replyDao.findRespondersByJourneyId(eq(JOURNEY_ID), any(PageParams.class))
+        ).thenReturn(new Page<>(List.of(USER), 1, 1, 1));
         when(
             replyDao.create(eq(USER), eq(JOURNEY), eq(DESCRIPTION))
         ).thenReturn(REPLY);
 
-        JourneyResponse reply = journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            journeyService.createJourneyResponse(USER_ID, JOURNEY_ID, DESCRIPTION);
 
-        assertNotNull(reply);
-        assertEquals(USER, reply.getUser());
-        assertEquals(JOURNEY, reply.getJourney());
-        assertEquals(DESCRIPTION, reply.getMessage());
+            verify(emailService, never()).answerJourneyNotification(any(), eq(DESCRIPTION), any(), any());
+            verify(emailService, never()).answerJourneyOwnerNotification(eq(DESCRIPTION), any(), any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).answerJourneyNotification(any(), eq(DESCRIPTION), any(), any());
+            verify(emailService).answerJourneyOwnerNotification(eq(DESCRIPTION), any(), any());
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
+    @Test
+    public void testDeleteJourneySendsEmailAfterCommit(){
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(newJourney));
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            journeyService.deleteJourney(JOURNEY_ID, DESCRIPTION);
+
+            verify(emailService, never()).sendJourneyDeletionNotification(any(), eq(DESCRIPTION));
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendJourneyDeletionNotification(any(), eq(DESCRIPTION));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
     @Test(expected = UserNotFoundException.class)
-    public void testCreateJourneyResponseUserNotFound(){
+    public void testCreateJourneyResponseUserIdUserNotFound(){
         when(
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
+        journeyService.createJourneyResponse(USER_ID, JOURNEY_ID, DESCRIPTION);
     }
     @Test(expected = JourneyNotFoundException.class)
-    public void testCreateJourneyResponseNotFound(){
+    public void testCreateJourneyResponseUserIdJourneyNotFound(){
         when(
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.createJourneyResponse(EMAIL, JOURNEY_ID, DESCRIPTION);
+        journeyService.createJourneyResponse(USER_ID, JOURNEY_ID, DESCRIPTION);
     }
 
-    @Test
-    public void testFindJourneysQuery(){
-        when(
-            journeyDao.search(
-                eq(EMAIL), 
-                eq(null),
-                eq(null),
-                eq(null),
-                eq(null), 
-                eq(null),
-                eq(null),
-                eq(null),
-                eq(false),
-                eq(false),
-                eq(false),
-                any(PageParams.class)
-            )
-        ).thenReturn(JOURNEY_PAGE);
-
-        Page<Journey> journeys = journeyService.findJourneys(EMAIL, PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEY_PAGE, journeys);
-    }
-    @Test
-    public void testFindJourneysEmptyQuery(){
-        when(
-            journeyDao.findAll(any(PageParams.class))
-        ).thenReturn(JOURNEY_PAGE);
-
-        Page<Journey> journeys = journeyService.findJourneys("", PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEY_PAGE, journeys);
-    }
-    @Test
-    public void testFindJourneysMissingQuery(){
-        when(
-            journeyDao.findAll(any(PageParams.class))
-        ).thenReturn(JOURNEY_PAGE);
-
-        Page<Journey> journeys = journeyService.findJourneys(null, PAGE_1_DEFAULT);
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEY_PAGE, journeys);
-    }
 
     @Test
     public void testFindJourneyById(){
@@ -324,13 +424,14 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
                 eq(START_DATE),
-                any(LocalDate.class),
+                eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(true),
                 eq(false),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -339,9 +440,12 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             START_DATE,
             END_DATE,
@@ -349,26 +453,27 @@ public class JourneyServiceImplTest {
             false,
             false,
             true,
-            true,
             PAGE_1_DEFAULT
         );
 
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
     }
+
     @Test
-    public void testFindJourneysCurrentDateChange(){
+    public void testFindJourneysUsesDefaultSortWhenNotProvided(){
         when(
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
-                eq(SortFieldJourney.END_DATE),
-                eq(SortDirection.DESC),
+                any(),
+                eq(SortFieldJourney.START_DATE),
+                eq(SortDirection.ASC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
-                any(LocalDate.class),
-                any(LocalDate.class),
+                eq(START_DATE),
+                eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(true),
                 eq(false),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -377,16 +482,80 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
+            null,
+            null,
+            CITY_NAME,
+            UNI_NAME,
+            START_DATE,
+            END_DATE,
+            INTEREST_NAME,
+            false,
+            false,
+            false,
+            PAGE_1_DEFAULT
+        );
+
+        assertNotNull(page);
+        assertEquals(JOURNEY_PAGE, page);
+    }
+
+    @Test(expected = MutuallyExclusiveFiltersException.class)
+    public void testFindJourneysMultiTimeFilter(){
+        journeyService.findJourneys(
+            DESCRIPTION,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
+            UNI_NAME,
+            START_DATE,
+            END_DATE,
+            INTEREST_NAME,
+            true,
+            true,
+            true,
+            PAGE_1_DEFAULT
+        );
+    }
+    @Test
+    public void testFindJourneysCurrentDateChange(){        
+        when(
+            journeyDao.search(
+                eq(DESCRIPTION),
+                eq(USER_ID_2),
+                any(),
+                eq(SortFieldJourney.END_DATE),
+                eq(SortDirection.DESC),
+                eq(CITY_NAME),
+                eq(UNI_NAME),
+                eq(LocalDate.now()),
+                eq(LocalDate.now()),
+                eq(INTEREST_NAME),
+                eq(false),
+                eq(false),
+                eq(PAGE_1_DEFAULT)
+            )
+        ).thenReturn(JOURNEY_PAGE);
+
+        Page<Journey> page = journeyService.findJourneys(
+            DESCRIPTION,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
+            SortFieldJourney.from("end_date"),
+            SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             LocalDate.now().plusDays(10),
             LocalDate.now().minusDays(10),
             INTEREST_NAME,
             false,
             false,
-            true,
             true,
             PAGE_1_DEFAULT
         );
@@ -400,13 +569,14 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
-                any(LocalDate.class),
-                any(LocalDate.class),
+                eq(LocalDate.now()),
+                eq(LocalDate.now()),
                 eq(INTEREST_NAME),
-                eq(true),
                 eq(false),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -415,16 +585,18 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             null,
             null,
             INTEREST_NAME,
             false,
             false,
-            true,
             true,
             PAGE_1_DEFAULT
         );
@@ -438,13 +610,14 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
                 eq(START_DATE),
-                any(LocalDate.class),
+                eq(LocalDate.now().minusDays(1)),
                 eq(INTEREST_NAME),
-                eq(true),
                 eq(false),
                 eq(true),
                 eq(PAGE_1_DEFAULT)
@@ -453,16 +626,18 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             START_DATE,
             END_DATE,
             INTEREST_NAME,
             true,
             false,
-            true,
             false,
             PAGE_1_DEFAULT
         );
@@ -476,13 +651,14 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
                 eq(START_DATE),
-                any(LocalDate.class),
+                eq(LocalDate.now().minusDays(10)),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(false),
                 eq(true),
                 eq(PAGE_1_DEFAULT)
@@ -491,15 +667,17 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             START_DATE,
             LocalDate.now().minusDays(10),
             INTEREST_NAME,
             true,
-            false,
             false,
             false,
             PAGE_1_DEFAULT
@@ -514,13 +692,14 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
                 eq(START_DATE),
-                any(LocalDate.class),
+                eq(LocalDate.now().minusDays(1)),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(false),
                 eq(true),
                 eq(PAGE_1_DEFAULT)
@@ -529,15 +708,17 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             START_DATE,
             null,
             INTEREST_NAME,
             true,
-            false,
             false,
             false,
             PAGE_1_DEFAULT
@@ -552,13 +733,14 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
-                any(LocalDate.class),
+                eq(LocalDate.now().plusDays(1)),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -567,16 +749,18 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             START_DATE,
             END_DATE,
             INTEREST_NAME,
             false,
             true,
-            false,
             false,
             PAGE_1_DEFAULT
         );
@@ -590,13 +774,14 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
-                any(LocalDate.class),
+                eq(LocalDate.now().plusDays(10)),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -605,16 +790,18 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             LocalDate.now().plusDays(10),
             END_DATE,
             INTEREST_NAME,
             false,
             true,
-            false,
             false,
             PAGE_1_DEFAULT
         );
@@ -628,13 +815,14 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
-                any(LocalDate.class),
+                eq(LocalDate.now().plusDays(1)),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -643,16 +831,18 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             null,
             END_DATE,
             INTEREST_NAME,
             false,
             true,
-            false,
             false,
             PAGE_1_DEFAULT
         );
@@ -666,13 +856,14 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
                 eq(START_DATE),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(false),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -681,14 +872,16 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             START_DATE,
             END_DATE,
             INTEREST_NAME,
-            false,
             false,
             false,
             false,
@@ -704,13 +897,14 @@ public class JourneyServiceImplTest {
             journeyDao.search(
                 eq(DESCRIPTION),
                 eq(USER_ID_2),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
-                any(LocalDate.class),
+                eq(LocalDate.now().plusDays(1)),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(false),
                 eq(true),
                 eq(false),
                 eq(PAGE_1_DEFAULT)
@@ -719,16 +913,18 @@ public class JourneyServiceImplTest {
 
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
-            USER_WITH_JOURNEY,
+            null,
+            USER_ID_WITH_JOURNEY,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             START_DATE,
             END_DATE,
             INTEREST_NAME,
             false,
             true,
-            false,
             false,
             PAGE_1_DEFAULT
         );
@@ -736,40 +932,20 @@ public class JourneyServiceImplTest {
         assertNotNull(page);
         assertEquals(JOURNEY_PAGE, page);
     }
-    @Test(expected = UserHasNoJourneyException.class)
-    public void testFindJourneysUserHasNoJourneys(){    
-        Page<Journey> page = journeyService.findJourneys(
-            DESCRIPTION,
-            USER,
-            SortFieldJourney.from("end_date"),
-            SortDirection.from("desc"),
-            UNI_NAME,
-            START_DATE,
-            END_DATE,
-            INTEREST_NAME,
-            false,
-            true,
-            true,
-            false,
-            PAGE_1_DEFAULT
-        );
-    
-        assertNotNull(page);
-        assertEquals(JOURNEY_PAGE, page);
-    }
     @Test
-    public void testFindJourneysMissingUser(){ 
+    public void testFindJourneysMissingUser(){
         when(
             journeyDao.search(
-                eq(DESCRIPTION), 
+                eq(DESCRIPTION),
                 eq(null),
+                any(),
                 eq(SortFieldJourney.END_DATE),
                 eq(SortDirection.DESC),
+                eq(CITY_NAME),
                 eq(UNI_NAME),
-                any(LocalDate.class),
+                eq(LocalDate.now().plusDays(1)),
                 eq(END_DATE),
                 eq(INTEREST_NAME),
-                eq(true),
                 eq(true),
                 eq(false),
                 any(PageParams.class)
@@ -779,14 +955,16 @@ public class JourneyServiceImplTest {
         Page<Journey> page = journeyService.findJourneys(
             DESCRIPTION,
             null,
+            null,
+            null,
             SortFieldJourney.from("end_date"),
             SortDirection.from("desc"),
+            CITY_NAME,
             UNI_NAME,
             START_DATE,
             END_DATE,
             INTEREST_NAME,
             false,
-            true,
             true,
             false,
             PAGE_1_DEFAULT
@@ -796,72 +974,58 @@ public class JourneyServiceImplTest {
         assertEquals(JOURNEY_PAGE, page);
     }
 
+    private Page<Journey> findRecommendedJourneys(final long userId, final PageParams pageParams) {
+        return journeyService.findJourneys(
+                null,
+                userId,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                false,
+                false,
+                false,
+                pageParams
+        );
+    }
+
     @Test
-    public void testExistsByUserEmail(){
+    public void testFindRecommendedJourneysWithActiveJourney(){
         when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER_WITH_JOURNEY));
-
-        boolean hasJourney = journeyService.existsByUserEmail(EMAIL);
-
-        assertTrue(hasJourney);
-    }
-    @Test(expected = UserNotFoundException.class)
-    public void testExistsByUserEmailWrongUser(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.empty());
-
-        boolean hasJourney = journeyService.existsByUserEmail(EMAIL);
-
-        assertFalse(hasJourney);
-    }
-
-    @Test
-    public void testExistsByUser(){
-        boolean hasJourney = journeyService.existsByUser(USER);
-
-        assertFalse(hasJourney);
-    }
-    @Test
-    public void testExistsByUserDeleted(){
-        boolean hasJourney = journeyService.existsByUser(USER_WITH_JOURNEY_DELETED);
-
-        assertFalse(hasJourney);
-    }
-
-    @Test
-    public void testFindRecommendedJourneysWithEmail(){
-        when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID_WITH_JOURNEY))
         ).thenReturn(Optional.of(USER_WITH_JOURNEY));
         when(
-            journeyDao.findRecommended(eq(EMAIL), eq(PAGE_1_DEFAULT))
+            journeyDao.findRecommended(eq(USER_ID_WITH_JOURNEY), eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
+        Page<Journey> journeys = findRecommendedJourneys(USER_ID_WITH_JOURNEY, PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
+        assertEquals(JOURNEYS, journeys.getContent());
     }
     @Test
     public void testFindRecommendedJourneysWithUserNoJourneysButJourneyInCity(){
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
             journeyDao.findByOriginCity(eq(CITY_ID), eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
+        Page<Journey> journeys = findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
+        assertEquals(JOURNEYS, journeys.getContent());
     }
     @Test
     public void testFindRecommendedJourneysWithUserNoJourneysNoJourneyInCity(){
         when(
-            userService.findUserByEmail(eq(EMAIL))
+            userService.findUserById(eq(USER_ID))
         ).thenReturn(Optional.of(USER));
         when(
             journeyDao.findByOriginCity(eq(CITY_ID), eq(PAGE_1_DEFAULT))
@@ -870,28 +1034,43 @@ public class JourneyServiceImplTest {
             journeyDao.findAll(eq(PAGE_1_DEFAULT))
         ).thenReturn(JOURNEY_PAGE);
 
-        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
+        Page<Journey> journeys = findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
 
         assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
+        assertEquals(JOURNEYS, journeys.getContent());
     }
-    @Test
+    @Test(expected = UserNotFoundException.class)
     public void testFindRecommendedJourneysWrongUser(){
         when(
-            userService.findUserByEmail(eq(EMAIL))
-        ).thenReturn(Optional.of(USER)).thenReturn(Optional.empty());
-        when(
-            journeyDao.findAll(any(PageParams.class))
-        ).thenReturn(JOURNEY_PAGE);
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
 
-        List<Journey> journeys = journeyService.findRecommendedJourneys(EMAIL, 2);
-
-        assertNotNull(journeys);
-        assertEquals(JOURNEYS, journeys);
+        findRecommendedJourneys(USER_ID, PAGE_1_DEFAULT);
     }
     @Test(expected = InvalidPaginationParamsException.class)
     public void testFindRecommendedJourneysWrongLimit(){
-        journeyService.findRecommendedJourneys(EMAIL, 0);
+        findRecommendedJourneys(USER_ID, new PageParams(1, 0));
+    }
+
+    @Test(expected = MutuallyExclusiveFiltersException.class)
+    public void testFindRecommendedJourneysWithExclusiveFilter(){
+        journeyService.findJourneys(
+                DESCRIPTION,
+                USER_ID,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                false,
+                false,
+                false,
+                PAGE_1_DEFAULT
+        );
     }
 
     @Test
@@ -905,6 +1084,75 @@ public class JourneyServiceImplTest {
 
         assertTrue(newJourney.isDeleted());
         assertEquals(DESCRIPTION, newJourney.getDeletionMessage());
+    }
+    @Test
+    public void testPatchJourneyDeletedTrue(){
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(newJourney));
+
+        journeyService.patchJourney(JOURNEY_ID, null, null, null, null, true, DESCRIPTION);
+
+        assertTrue(newJourney.isDeleted());
+        assertEquals(DESCRIPTION, newJourney.getDeletionMessage());
+    }
+    @Test
+    public void testPatchJourneyDeletedFalseIsNoOp(){
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(newJourney));
+
+        journeyService.patchJourney(JOURNEY_ID, null, null, null, null, false, DESCRIPTION);
+
+        assertFalse(newJourney.isDeleted());
+    }
+    @Test
+    public void testPatchJourneyDeletedNullIsNoOp(){
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(newJourney));
+
+        journeyService.patchJourney(JOURNEY_ID, null, null, null, null, null, null);
+
+        assertFalse(newJourney.isDeleted());
+    }
+    @Test
+    public void testDeleteJourneyEmptyMessage(){
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(newJourney));
+
+        journeyService.deleteJourney(JOURNEY_ID, "");
+
+        assertTrue(newJourney.isDeleted());
+        assertNull(newJourney.getDeletionMessage());
+    }
+    @Test
+    public void testDeleteJourneyMissingMessage(){
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(newJourney));
+
+        journeyService.deleteJourney(JOURNEY_ID, null);
+
+        assertTrue(newJourney.isDeleted());
+        assertNull(newJourney.getDeletionMessage());
+    }
+    @Test
+    public void testDeleteJourneyMissingJourney(){
+        Journey newJourney = new Journey(USER, START_DATE, END_DATE, UNI, DESCRIPTION);
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.empty());
+
+        journeyService.deleteJourney(JOURNEY_ID, DESCRIPTION);
+
+        assertFalse(newJourney.isDeleted());
     }
 
     @Test
@@ -933,82 +1181,6 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testIsJourneyOwnedByUserObject(){
-        boolean owned = journeyService.isJourneyOwnedByUser(JOURNEY, USER);
-
-        assertTrue(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectNotOwned(){
-        boolean owned = journeyService.isJourneyOwnedByUser(JOURNEY, USER_WITH_JOURNEY);
-
-        assertFalse(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectMissingUser(){
-        boolean owned = journeyService.isJourneyOwnedByUser(JOURNEY, null);
-
-        assertFalse(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectMissingJourney(){
-        boolean owned = journeyService.isJourneyOwnedByUser(null, USER);
-
-        assertFalse(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectNoJourneyUser(){
-        boolean owned = journeyService.isJourneyOwnedByUser(
-            new Journey(null, START_DATE, END_DATE, UNI, DESCRIPTION), 
-            USER
-        );
-
-        assertFalse(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectNoJourneyUserId(){
-        boolean owned = journeyService.isJourneyOwnedByUser(
-            new Journey(
-                new User(
-                    EMAIL, 
-                    USERNAME, 
-                    FIRSTNAME, 
-                    LASTNAME, 
-                    UNI, 
-                    CAREER, 
-                    CAREER_ID, 
-                    LOCALE, 
-                    false), 
-                START_DATE, 
-                END_DATE, 
-                UNI, 
-                DESCRIPTION),
-            USER
-        );
-
-        assertFalse(owned);
-    }
-    @Test
-    public void testIsJourneyOwnedByUserObjectNoUserId(){
-        boolean owned = journeyService.isJourneyOwnedByUser(
-            JOURNEY, 
-            new User(
-                EMAIL, 
-                USERNAME, 
-                FIRSTNAME, 
-                LASTNAME, 
-                UNI, 
-                CAREER, 
-                CAREER_ID, 
-                LOCALE, 
-                false
-            )
-        );
-
-        assertFalse(owned);
-    }
-
-    @Test
     public void testUpdateJourney(){
         Journey newJourney = new Journey(
             JOURNEY_ID, 
@@ -1022,15 +1194,17 @@ public class JourneyServiceImplTest {
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(newJourney));
         when(
-            uniService.findByName(eq(UNI_NAME))
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNI));
 
-        journeyService.updateJourney(
-            JOURNEY_ID, 
-            UNI_NAME, 
-            START_DATE, 
-            END_DATE, 
-            DESCRIPTION
+        journeyService.patchJourney(
+            JOURNEY_ID,
+            UNI_ID,
+            START_DATE,
+            END_DATE,
+            DESCRIPTION,
+            null,
+            null
         );
 
         assertEquals(DESCRIPTION, newJourney.getDescription());
@@ -1038,21 +1212,23 @@ public class JourneyServiceImplTest {
         assertEquals(END_DATE, newJourney.getEndDate());
         assertEquals(UNI, newJourney.getDestinationUniversity());
     }
-    @Test(expected = UniversityNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testUpdateJourneyMissingUni(){
         when(
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
         when(
-            uniService.findByName(eq(UNI_NAME))
+            uniService.findById(eq(UNI_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.updateJourney(
-            JOURNEY_ID, 
-            UNI_NAME, 
-            START_DATE, 
-            END_DATE, 
-            DESCRIPTION
+        journeyService.patchJourney(
+            JOURNEY_ID,
+            UNI_ID,
+            START_DATE,
+            END_DATE,
+            DESCRIPTION,
+            null,
+            null
         );
     }
     @Test(expected = JourneyNotFoundException.class)
@@ -1061,12 +1237,14 @@ public class JourneyServiceImplTest {
             journeyDao.findById(eq(JOURNEY_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.updateJourney(
-            JOURNEY_ID, 
-            UNI_NAME, 
-            START_DATE, 
-            END_DATE, 
-            DESCRIPTION
+        journeyService.patchJourney(
+            JOURNEY_ID,
+            UNI_ID,
+            START_DATE,
+            END_DATE,
+            DESCRIPTION,
+            null,
+            null
         );
     }
 
@@ -1081,22 +1259,105 @@ public class JourneyServiceImplTest {
         assertNotNull(maybeResponse);
         assertEquals(REPLY, maybeResponse.get());
     }
-
     @Test
-    public void testDeleteJourneyJourneyResponse(){
+    public void testFindJourneyResponseByIdJourneyID(){
+        when(
+            replyDao.findById(eq(REPLY_ID))
+        ).thenReturn(Optional.of(REPLY));
+
+        Optional<JourneyResponse> maybeResponse = journeyService.findJourneyResponseById(JOURNEY_ID, REPLY_ID);
+
+        assertNotNull(maybeResponse);
+        assertEquals(REPLY, maybeResponse.get());
+    }
+    @Test
+    public void testIsJourneyResponseOwnedByUser(){
+        when(
+            replyDao.findById(eq(REPLY_ID))
+        ).thenReturn(Optional.of(REPLY));
+
+        assertTrue(journeyService.isJourneyResponseOwnedByUser(JOURNEY_ID, REPLY_ID, USER_ID));
+    }
+    @Test
+    public void testIsJourneyResponseOwnedByUserOtherUser(){
+        when(
+            replyDao.findById(eq(REPLY_ID))
+        ).thenReturn(Optional.of(REPLY));
+
+        assertFalse(journeyService.isJourneyResponseOwnedByUser(JOURNEY_ID, REPLY_ID, USER_ID + 1));
+    }
+    @Test
+    public void testFindJourneyResponseByIdJourneyIDNotRelated(){
+        when(
+            replyDao.findById(eq(REPLY_ID))
+        ).thenReturn(Optional.of(REPLY));
+
+        Optional<JourneyResponse> maybeResponse = journeyService.findJourneyResponseById(123123, REPLY_ID);
+
+        assertNotNull(maybeResponse);
+        assertTrue(maybeResponse.isEmpty());
+    }
+    @Test
+    public void testFindJourneyResponseByIdJourneyIDMissingResponse(){
+        when(
+            replyDao.findById(eq(REPLY_ID))
+        ).thenReturn(Optional.empty());
+
+        Optional<JourneyResponse> maybeResponse = journeyService.findJourneyResponseById(JOURNEY_ID, REPLY_ID);
+
+        assertNotNull(maybeResponse);
+        assertTrue(maybeResponse.isEmpty());
+    }
+    @Test
+    public void testDeleteJourneyJourneyResponseWithJourneyID(){
         JourneyResponse newReply = new JourneyResponse(USER, JOURNEY, CAREER_NAME);
         when(
             replyDao.findById(eq(REPLY_ID))
         ).thenReturn(Optional.of(newReply));
 
-        journeyService.deleteJourneyResponse(REPLY_ID, DESCRIPTION);
+        journeyService.deleteJourneyResponse(JOURNEY_ID, REPLY_ID, DESCRIPTION);
 
         assertTrue(newReply.isDeleted());
         assertEquals(DESCRIPTION, newReply.getDeletionMessage());
     }
+    @Test(expected = JourneyResponseNotFoundException.class)
+    public void testDeleteJourneyJourneyResponseWithJourneyIDMissingJourney(){
+        when(
+            replyDao.findById(eq(REPLY_ID))
+        ).thenReturn(Optional.empty());
+
+        journeyService.deleteJourneyResponse(JOURNEY_ID, REPLY_ID, DESCRIPTION);
+    }
+    @Test
+    public void testPatchJourneyResponseDeletedTrue(){
+        JourneyResponse newReply = new JourneyResponse(USER, JOURNEY, CAREER_NAME);
+        when(
+            replyDao.findById(eq(REPLY_ID))
+        ).thenReturn(Optional.of(newReply));
+
+        journeyService.patchJourneyResponse(JOURNEY_ID, REPLY_ID, true, DESCRIPTION);
+
+        assertTrue(newReply.isDeleted());
+        assertEquals(DESCRIPTION, newReply.getDeletionMessage());
+    }
+    @Test
+    public void testPatchJourneyResponseDeletedFalseIsNoOp(){
+        journeyService.patchJourneyResponse(JOURNEY_ID, REPLY_ID, false, DESCRIPTION);
+
+        verify(replyDao, never()).findById(REPLY_ID);
+    }
+    @Test
+    public void testPatchJourneyResponseDeletedNullIsNoOp(){
+        journeyService.patchJourneyResponse(JOURNEY_ID, REPLY_ID, null, null);
+
+        verify(replyDao, never()).findById(REPLY_ID);
+    }
 
     @Test
     public void testFindJourneyResponses(){
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(JOURNEY));
         when(
             replyDao.findAllByJourneyId(
                 eq(JOURNEY_ID), 
@@ -1112,18 +1373,39 @@ public class JourneyServiceImplTest {
         assertNotNull(replies);
         assertEquals(REPLY_PAGE, replies);
     }
+    @Test(expected = JourneyNotFoundException.class)
+    public void testFindJourneyResponsesMissingJourney(){
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.empty());
 
+        journeyService.findJourneyResponses(
+            JOURNEY_ID,
+            PAGE_1_DEFAULT
+        );
+    }
 
     @Test
-    public void testFindTipsByJourney(){
+    public void testFindTipsByJourneyId(){
         when(
-            tipDao.findByJourney(eq(JOURNEY), any(PageParams.class))
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.of(JOURNEY));
+        when(
+            tipDao.findByJourneyId(eq(JOURNEY_ID), any(PageParams.class))
         ).thenReturn(TIP_PAGE);
 
-        Page<Tip> tips = journeyService.findTipsByJourney(JOURNEY, PAGE_1_DEFAULT);
+        Page<Tip> tips = journeyService.findTipsByJourneyId(JOURNEY_ID, PAGE_1_DEFAULT);
 
         assertNotNull(tips);
         assertEquals(TIP_PAGE, tips);
+    }
+    @Test(expected=JourneyNotFoundException.class)
+    public void testFindTipsByJourneyIdMissingJourney(){
+        when(
+            journeyDao.findById(eq(JOURNEY_ID))
+        ).thenReturn(Optional.empty());
+
+        journeyService.findTipsByJourneyId(JOURNEY_ID, PAGE_1_DEFAULT);
     }
 
     @Test
@@ -1152,27 +1434,46 @@ public class JourneyServiceImplTest {
     }
 
     @Test
-    public void testUpdateTip(){
-        Tip newTip = new Tip(TIP_ID, CITY_NAME, CAREER_NAME, JOURNEY, REPLY_TIMESTAMP);
+    public void testPatchTip(){
+        Tip newTip = new Tip(TIP_ID, null, null, JOURNEY, REPLY_TIMESTAMP);
         when(
             tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(newTip));
 
-        Tip updated = journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
+        Tip patched = journeyService.patchTip(JOURNEY_ID, TIP_ID, CITY_NAME, UNI_NAME);
 
-        assertNotNull(updated);
-        assertEquals(DESCRIPTION, updated.getContent());
-        assertEquals(DESCRIPTION, updated.getTitle());
+        assertEquals(UNI_NAME, patched.getContent());
+        assertEquals(CITY_NAME, patched.getTitle());
+    }
+    @Test
+    public void testPatchTipNoPatches(){
+        Tip newTip = new Tip(TIP_ID, CITY_NAME, UNI_NAME, JOURNEY, REPLY_TIMESTAMP);
+        when(
+            tipDao.findById(eq(TIP_ID))
+        ).thenReturn(Optional.of(newTip));
+
+        Tip patched = journeyService.patchTip(JOURNEY_ID, TIP_ID, null, null);
+
+        assertEquals(UNI_NAME, patched.getContent());
+        assertEquals(CITY_NAME, patched.getTitle());
     }
     @Test(expected = TipNotFoundException.class)
-    public void testUpdateTipMissing(){
+    public void testPatchTipMissingTipo(){
         when(
             tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.updateTip(TIP_ID, DESCRIPTION, DESCRIPTION);
+        journeyService.patchTip(JOURNEY_ID, TIP_ID, null, null);
     }
 
+    @Test(expected = TipNotFoundException.class)
+    public void testDeleteTipMissing(){
+        when(
+            tipDao.findById(eq(TIP_ID))
+        ).thenReturn(Optional.empty());
+
+        journeyService.deleteTip(JOURNEY_ID, TIP_ID);
+    }
 
     @Test
     public void testFindTipById(){
@@ -1180,11 +1481,45 @@ public class JourneyServiceImplTest {
             tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(TIP));
 
-        Optional<Tip> maybeTip = journeyService.findTipById(TIP_ID);
+        Optional<Tip> maybeTip = journeyService.findTipById(JOURNEY_ID, TIP_ID);
 
         assertNotNull(maybeTip);
         assertTrue(maybeTip.isPresent());
         assertEquals(TIP, maybeTip.get());
+    }
+
+    @Test
+    public void testFindTipByIDWithJourneyID(){
+        when(
+            tipDao.findById(eq(TIP_ID))
+        ).thenReturn(Optional.of(TIP));
+
+        Optional<Tip> maybeTip = journeyService.findTipById(JOURNEY_ID, TIP_ID);
+
+        assertNotNull(maybeTip);
+        assertTrue(maybeTip.isPresent());
+    }
+    @Test
+    public void testFindTipByIDWithJourneyIDDifferent(){
+        when(
+            tipDao.findById(eq(TIP_ID))
+        ).thenReturn(Optional.of(TIP));
+
+        Optional<Tip> maybeTip = journeyService.findTipById(12341234, TIP_ID);
+
+        assertNotNull(maybeTip);
+        assertTrue(maybeTip.isEmpty());
+    }
+    @Test
+    public void testFindTipByIDWithJourneyIDMissing(){
+        when(
+            tipDao.findById(eq(TIP_ID))
+        ).thenReturn(Optional.empty());
+
+        Optional<Tip> maybeTip = journeyService.findTipById(JOURNEY_ID, TIP_ID);
+
+        assertNotNull(maybeTip);
+        assertTrue(maybeTip.isEmpty());
     }
 
     @Test
@@ -1193,7 +1528,7 @@ public class JourneyServiceImplTest {
             tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(TIP));
 
-        boolean isOwned = journeyService.isTipOwnedByUser(TIP_ID, EMAIL);
+        boolean isOwned = journeyService.isTipOwnedByUser(JOURNEY_ID, TIP_ID, EMAIL);
 
         assertTrue(isOwned);
     }
@@ -1203,7 +1538,7 @@ public class JourneyServiceImplTest {
             tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.of(TIP));
 
-        boolean isOwned = journeyService.isTipOwnedByUser(TIP_ID, "EMAIL");
+        boolean isOwned = journeyService.isTipOwnedByUser(JOURNEY_ID, TIP_ID, "EMAIL");
 
         assertFalse(isOwned);
     }
@@ -1213,8 +1548,6 @@ public class JourneyServiceImplTest {
             tipDao.findById(eq(TIP_ID))
         ).thenReturn(Optional.empty());
 
-        journeyService.isTipOwnedByUser(TIP_ID, "EMAIL");
+        journeyService.isTipOwnedByUser(JOURNEY_ID, TIP_ID, "EMAIL");
     }
-
-
 }

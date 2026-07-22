@@ -5,11 +5,11 @@ import javax.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy =  {ValidInterestIdValidator.class, ValidInterestValidator.class})
+@Constraint(validatedBy = ValidInterestValidator.class)
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidInterest {
-    String message() default "Not a valid interest selection";
+    String message() default "{validation.interest.invalidSelection}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

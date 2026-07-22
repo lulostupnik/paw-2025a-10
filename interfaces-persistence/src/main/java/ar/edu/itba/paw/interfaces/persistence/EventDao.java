@@ -8,22 +8,21 @@ import java.time.LocalTime;
 import java.util.Optional;
 
 public interface EventDao {
-    Event create(User user, City city, LocalDate date, String description, long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
+    Event create(User user, City city, LocalDate date, String description, Long flyerImageId, String title, LocalTime time, String address, Integer attendeesLimit);
 
     Optional<Event> findById(long id);
+    Optional<Event> findByIdForUpdate(long id);
     Page<Event> findRecommended(long userId, PageParams pageParams);
     Page<Event> findTop(PageParams pageParams);
     Page<Event> findTopByUser(long userId, PageParams pageParams);
     Page<Event> findByUserId(long userId, PageParams pageParams);
     Page<Event> findAll(PageParams pageParams);
-    Page<Event> findAllWithFilters(Long userId, String search,
+    Page<Event> findAllWithFilters(Long creatorId, String search,
                                    SortFieldEvent sortBy, SortDirection direction, String destination,
                                    LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
-                                   String interest, boolean isAttending, boolean isCreator, PageParams pageParams);
-    Page<Event> search(String search, PageParams pageParams);
+                                   String interest, Long attendedByUserId,
+                                   String university, Integer minRating, Boolean hasCapacity, PageParams pageParams);
     Optional<CountryAttendeeCount> findTopAttendeeCountry(long eventId);
-
-    Page<Event> findAllEventsByAttendee(long userId, PageParams pageParams);
 
     int countEventsCreatedByUser(long userId);
 

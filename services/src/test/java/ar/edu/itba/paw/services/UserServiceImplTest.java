@@ -1,9 +1,19 @@
 package ar.edu.itba.paw.services;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -14,6 +24,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import ar.edu.itba.paw.interfaces.persistence.UserDao;
 import ar.edu.itba.paw.interfaces.services.CareerService;
@@ -30,9 +42,8 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Token;
 import ar.edu.itba.paw.models.University;
 import ar.edu.itba.paw.models.User;
-import ar.edu.itba.paw.models.exceptions.CareerNotFoundException;
-import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
-import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
+import ar.edu.itba.paw.models.UserRating;
+import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
 import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 import ar.edu.itba.paw.models.exceptions.UserValidatedException;
 
@@ -62,9 +73,10 @@ public class UserServiceImplTest {
     private static final Interest INTEREST = new Interest(INTEREST_ID, "name");
     private static final User USER = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, true);
     private static final User USER_NOT_VALIDATED = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, false);
+    private static final User USER_NO_PICTURE = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, null, LOCALE, false, false);
     private static final PageParams PAGE_1_DEFAULT = new PageParams(1, 2);
     private static final String TOKEN_VALUE = "null";
-    private static final LocalDateTime TOKEN_EXPIRATION = LocalDateTime.now();
+    private static final LocalDateTime TOKEN_EXPIRATION = LocalDateTime.now().plusDays(1);
     private static final Token TOKEN = new Token(USER_NOT_VALIDATED, TOKEN_VALUE, TOKEN_EXPIRATION);
     private static final List<User> USERS = List.of(USER);
     private static final Page<User> USER_PAGE = new Page<>(USERS, 1, 1, 1);
@@ -93,14 +105,11 @@ public class UserServiceImplTest {
     @Test
     public void testCreateUser(){
         when(
-            universityService.findByName(eq(UNIVERSITY.getName()))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNIVERSITY));
         when(
-            careerService.findCareerByName(eq(CAREER.getName()))
+            careerService.findCareerById(eq(CAREER_ID))
         ).thenReturn(Optional.of(CAREER));
-        when(
-            imageService.createImage(eq(IMAGE.getData()))
-        ).thenReturn(IMAGE.getId());
         when(
             passwordEncoder.encode(eq(PASSWORD))
         ).thenReturn(PASSWORD);
@@ -112,148 +121,195 @@ public class UserServiceImplTest {
                 eq(LASTNAME), 
                 eq(UNIVERSITY), 
                 eq(CAREER), 
-                eq(IMAGE.getId()), 
+                eq(null), 
                 eq(PASSWORD), 
                 eq(LOCALE), 
                 any(Boolean.class)
             )
         ).thenReturn(USER);
         when(
-            tokenService.userTokenControl(USER)
-        ).thenReturn(TOKEN);
+            tokenService.issueUserToken(USER)
+        ).thenReturn(TOKEN_VALUE);
 
         User user = userService.createUser(
-            EMAIL, 
-            USERNAME, 
-            FIRSTNAME, 
-            LASTNAME, 
-            UNIVERSITY.getName(), 
-            CAREER.getName(), 
-            IMAGE.getData(), 
-            List.of(INTEREST.getName()), 
-            PASSWORD, 
+            EMAIL,
+            USERNAME,
+            FIRSTNAME,
+            LASTNAME,
+            UNI_ID,
+            CAREER_ID,
+            List.of(INTEREST_ID),
+            PASSWORD,
             LOCALE
         );
 
         assertNotNull(user);
         assertEquals(USER, user);
     }
-    @Test(expected = CareerNotFoundException.class)
-    public void testCreateUserMissingCareer(){
+
+    @Test
+    public void testCreateUserDeduplicatesInterestIds(){
         when(
-            universityService.findByName(eq(UNIVERSITY.getName()))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNIVERSITY));
         when(
-            careerService.findCareerByName(eq(CAREER.getName()))
+            careerService.findCareerById(eq(CAREER_ID))
+        ).thenReturn(Optional.of(CAREER));
+        when(
+            passwordEncoder.encode(eq(PASSWORD))
+        ).thenReturn(PASSWORD);
+        when(
+            userDao.create(
+                eq(EMAIL),
+                eq(USERNAME),
+                eq(FIRSTNAME),
+                eq(LASTNAME),
+                eq(UNIVERSITY),
+                eq(CAREER),
+                eq(null),
+                eq(PASSWORD),
+                eq(LOCALE),
+                any(Boolean.class)
+            )
+        ).thenReturn(USER);
+        when(
+            tokenService.issueUserToken(USER)
+        ).thenReturn(TOKEN_VALUE);
+
+        userService.createUser(
+            EMAIL,
+            USERNAME,
+            FIRSTNAME,
+            LASTNAME,
+            UNI_ID,
+            CAREER_ID,
+            Arrays.asList(INTEREST_ID, INTEREST_ID, null, NEW_IMAGE_ID, NEW_IMAGE_ID),
+            PASSWORD,
+            LOCALE
+        );
+
+        verify(interestService).createUserInterests(eq(List.of(INTEREST_ID, NEW_IMAGE_ID)), eq(USER_ID));
+    }
+
+    @Test
+    public void testCreateUserSendsValidationEmailAfterCommit(){
+        when(
+            universityService.findById(eq(UNI_ID))
+        ).thenReturn(Optional.of(UNIVERSITY));
+        when(
+            careerService.findCareerById(eq(CAREER_ID))
+        ).thenReturn(Optional.of(CAREER));
+        when(
+            passwordEncoder.encode(eq(PASSWORD))
+        ).thenReturn(PASSWORD);
+        when(
+            userDao.create(
+                eq(EMAIL),
+                eq(USERNAME),
+                eq(FIRSTNAME),
+                eq(LASTNAME),
+                eq(UNIVERSITY),
+                eq(CAREER),
+                eq(null),
+                eq(PASSWORD),
+                eq(LOCALE),
+                any(Boolean.class)
+            )
+        ).thenReturn(USER);
+        when(
+            tokenService.issueUserToken(USER)
+        ).thenReturn(TOKEN_VALUE);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userService.createUser(
+                EMAIL,
+                USERNAME,
+                FIRSTNAME,
+                LASTNAME,
+                UNI_ID,
+                CAREER_ID,
+                List.of(INTEREST_ID),
+                PASSWORD,
+                LOCALE
+            );
+
+            verify(emailService, never()).sendValidationEmail(any(), any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendValidationEmail(any(), eq(TOKEN_VALUE));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
+    @Test(expected = InvalidReferenceException.class)
+    public void testCreateUserMissingCareer(){
+        when(
+            universityService.findById(eq(UNI_ID))
+        ).thenReturn(Optional.of(UNIVERSITY));
+        when(
+            careerService.findCareerById(eq(CAREER_ID))
         ).thenReturn(Optional.empty());
 
         userService.createUser(
-            EMAIL, 
-            USERNAME, 
-            FIRSTNAME, 
-            LASTNAME, 
-            UNIVERSITY.getName(), 
-            CAREER.getName(), 
-            IMAGE.getData(), 
-            List.of(INTEREST.getName()), 
-            PASSWORD, 
+            EMAIL,
+            USERNAME,
+            FIRSTNAME,
+            LASTNAME,
+            UNI_ID,
+            CAREER_ID,
+            List.of(INTEREST_ID),
+            PASSWORD,
             LOCALE
         );
     }
-    @Test(expected = UniversityNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testCreateUserMissingUniversity(){
         when(
-            universityService.findByName(eq(UNIVERSITY.getName()))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.empty());
 
         userService.createUser(
-            EMAIL, 
-            USERNAME, 
-            FIRSTNAME, 
+            EMAIL,
+            USERNAME,
+            FIRSTNAME,
             LASTNAME,
-            UNIVERSITY.getName(), 
-            CAREER.getName(), 
-            IMAGE.getData(), 
-            List.of(INTEREST.getName()),
-            PASSWORD, 
+            UNI_ID,
+            CAREER_ID,
+            List.of(INTEREST_ID),
+            PASSWORD,
             LOCALE
         );
     }
 
     @Test
     public void testVerifyUser(){
+        final User unverified = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE.getId(), LOCALE, false, false);
         when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(
-            new Token(
-                new User(
-                    EMAIL, 
-                    USERNAME, 
-                    FIRSTNAME, 
-                    LASTNAME, 
-                    UNIVERSITY, 
-                    CAREER, 
-                    USER_ID, 
-                    LOCALE, 
-                    false), 
-                TOKEN_VALUE, 
-                TOKEN_EXPIRATION
-            )
-        ));
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(unverified));
 
-        User user = userService.verifyUser(TOKEN_VALUE);
+        userService.verifyUser(USER_ID);
 
-        assertTrue(user.isValidated());
+        assertTrue(unverified.isValidated());
     }
-    @Test(expected = UserValidatedException.class)
+    @Test()
     public void testVerifyUserAlreadyValidated(){
         when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(new Token(USER, TOKEN_VALUE, TOKEN_EXPIRATION)));
-
-        userService.verifyUser(TOKEN_VALUE);
-    }
-    @Test(expected = InvalidTokenException.class)
-    public void testVerifyUserTokenNotFound(){
-        when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.empty());
-
-        userService.verifyUser(TOKEN_VALUE);
-    }
-
-    @Test
-    public void testUpdatePassword(){
-        User newUser = new User(
-            EMAIL, 
-            USERNAME, 
-            FIRSTNAME, 
-            LASTNAME, 
-            UNIVERSITY, 
-            CAREER, 
-            IMAGE.getId(), 
-            "PASSWORD", 
-            LOCALE, 
-            true
-        );
-        when(
             userDao.findById(eq(USER_ID))
-        ).thenReturn(Optional.of(newUser));
-        when(
-            passwordEncoder.encode(eq(PASSWORD))
-        ).thenReturn(PASSWORD);
+        ).thenReturn(Optional.of(USER));
 
-        userService.updatePassword(USER_ID, PASSWORD);
+        userService.verifyUser(USER_ID);
 
-        assertEquals(PASSWORD, newUser.getPassword());
+        assertTrue(USER.isValidated());
     }
     @Test(expected = UserNotFoundException.class)
-    public void testUpdatePasswordMissingUser(){
+    public void testVerifyUserNotFound(){
         when(
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        userService.updatePassword(USER_ID, PASSWORD);
+        userService.verifyUser(USER_ID);
     }
 
     @Test
@@ -305,32 +361,18 @@ public class UserServiceImplTest {
     @Test
     public void testFindUsersQuery(){
         when(
-            userDao.search(eq(USERNAME), any(PageParams.class))
+            userDao.findUsers(
+                eq(USERNAME),
+                any(PageParams.class),
+                eq(null),
+                eq(UNI_ID),
+                eq(CAREER_ID),
+                eq(INTEREST_ID),
+                eq(false)
+            )
         ).thenReturn(USER_PAGE);
 
-        Page<User> users = userService.findUsers(USERNAME, PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(USER_PAGE, users);
-    }
-    @Test
-    public void testFindUsersEmptyQuery(){
-        when(
-            userDao.findAll(any(PageParams.class))
-        ).thenReturn(USER_PAGE);
-
-        Page<User> users = userService.findUsers("", PAGE_1_DEFAULT);
-
-        assertNotNull(users);
-        assertEquals(USER_PAGE, users);
-    }
-    @Test
-    public void testFindUsersMissingQuery(){
-        when(
-            userDao.findAll(any(PageParams.class))
-        ).thenReturn(USER_PAGE);
-
-        Page<User> users = userService.findUsers(null, PAGE_1_DEFAULT);
+        Page<User> users = userService.findUsers(USERNAME, PAGE_1_DEFAULT, null, UNI_ID, CAREER_ID, INTEREST_ID, false);
 
         assertNotNull(users);
         assertEquals(USER_PAGE, users);
@@ -343,17 +385,35 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(newUser));
 
-        userService.blockUser(USER_ID);
+        userService.setBlockedStatus(USER_ID, true);
 
         assertTrue(newUser.isBlocked());
     }
+
+    @Test
+    public void testBlockUserSendsEmailAfterCommit(){
+        User newUser = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, CAREER_ID, LOCALE, false);
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(newUser));
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userService.blockUser(USER_ID);
+
+            verify(emailService, never()).sendUserBlockedNotification(any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendUserBlockedNotification(any());
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
     @Test(expected = UserNotFoundException.class)
     public void testBlockUserNotFound(){
         when(
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        userService.blockUser(USER_ID);
+        userService.setBlockedStatus(USER_ID, true);
     }
 
     @Test
@@ -364,17 +424,36 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(newUser));
 
-        userService.unblockUser(USER_ID);
+        userService.setBlockedStatus(USER_ID, false);
 
         assertFalse(newUser.isBlocked());
     }
+
+    @Test
+    public void testUnblockUserSendsEmailAfterCommit(){
+        User newUser = new User(EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, CAREER_ID, LOCALE, false);
+        newUser.setBlocked(true);
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(newUser));
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userService.unblockUser(USER_ID);
+
+            verify(emailService, never()).sendUserUnblockedNotification(any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendUserUnblockedNotification(any());
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
     @Test(expected = UserNotFoundException.class)
     public void testUnblockUserNotFound(){
         when(
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        userService.unblockUser(USER_ID);
+        userService.setBlockedStatus(USER_ID, false);
     }
 
     @Test
@@ -401,74 +480,128 @@ public class UserServiceImplTest {
         assertEquals(RATING, maybeRating.get(), 0.1);
     }
 
-
     @Test
-    public void testResetPassword(){
-        User newUser = new User(
-            null, 
-            null, 
-            null, 
-            null, 
-            null, 
-            null, 
-            0, 
-            "PASSWORD", 
-            LOCALE, 
-            true
-        );
+    public void testGetUserRating(){
         when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(new Token(newUser, TOKEN_VALUE, TOKEN_EXPIRATION)));
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
         when(
-            passwordEncoder.encode(PASSWORD)
-        ).thenReturn(PASSWORD);
-
-        userService.resetPassword(TOKEN_VALUE, PASSWORD);
-
-        assertEquals(PASSWORD, newUser.getPassword());
-    }
-    @Test(expected = InvalidTokenException.class)
-    public void testResetPasswordMissingToken(){
-        User newUser = new User(
-            null, 
-            null, 
-            null, 
-            null, 
-            null, 
-            null, 
-            0, 
-            "PASSWORD", 
-            LOCALE, 
-            true
-        );
+            userDao.findAverageRatingForCreatedEvents(eq(USER_ID))
+        ).thenReturn(Optional.of(RATING));
         when(
-            tokenService.getByToken(eq(TOKEN_VALUE))
+            userDao.findAverageRatingForAttendedEvents(eq(USER_ID))
         ).thenReturn(Optional.empty());
 
-        userService.resetPassword(TOKEN_VALUE, PASSWORD);
+        UserRating rating = userService.getUserRating(USER_ID);
 
-        assertEquals(PASSWORD, newUser.getPassword());
+        assertNotNull(rating);
+        assertEquals(USER_ID, rating.getUserId());
+        assertEquals(RATING, rating.getCreatedEventsRating(), 0.1);
+        assertNull(rating.getAttendedEventsRating());
+    }
+    @Test(expected = UserNotFoundException.class)
+    public void testGetUserRatingUserNotFound(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        userService.getUserRating(USER_ID);
     }
 
-    @Test(expected = UserValidatedException.class)
+
+    @Test
     public void testInitiatePasswordResetUserNotValidated(){
         when(
             userDao.findByEmail(eq(EMAIL))
         ).thenReturn(Optional.of(USER_NOT_VALIDATED));
 
         userService.initiatePasswordReset(EMAIL);
+
+        verify(emailService, never()).sendForgotPassEmail(any(), any());
     }
-    @Test(expected = UserNotFoundException.class)
-    public void testInitiatePasswordResetUserNotFound(){
+    @Test
+    public void testInitiatePasswordResetUnknownEmail(){
         when(
             userDao.findByEmail(eq(EMAIL))
         ).thenReturn(Optional.empty());
 
         userService.initiatePasswordReset(EMAIL);
+
+        verify(emailService, never()).sendForgotPassEmail(any(), any());
     }
 
     @Test
-    public void testUpdateUser(){
+    public void testInitiatePasswordResetSendsEmailAfterCommit(){
+        when(userDao.findByEmail(eq(EMAIL))).thenReturn(Optional.of(USER));
+        when(tokenService.issueUserToken(USER)).thenReturn(TOKEN_VALUE);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userService.initiatePasswordReset(EMAIL);
+
+            verify(emailService, never()).sendForgotPassEmail(any(), any());
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendForgotPassEmail(any(), eq(TOKEN_VALUE));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
+    @Test
+    public void testResendVerificationEmail(){
+        when(
+            userDao.findByEmail(eq(EMAIL))
+        ).thenReturn(Optional.of(USER_NOT_VALIDATED));
+        when(
+            tokenService.issueUserToken(USER_NOT_VALIDATED)
+        ).thenReturn(TOKEN_VALUE);
+
+        userService.resendVerificationEmail(EMAIL);
+
+        verify(emailService).sendValidationEmail(any(), eq(TOKEN_VALUE));
+    }
+
+    @Test
+    public void testResendVerificationEmailSendsEmailAfterCommit(){
+        when(
+            userDao.findByEmail(eq(EMAIL))
+        ).thenReturn(Optional.of(USER_NOT_VALIDATED));
+        when(
+            tokenService.issueUserToken(USER_NOT_VALIDATED)
+        ).thenReturn(TOKEN_VALUE);
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            userService.resendVerificationEmail(EMAIL);
+
+            verify(emailService, never()).sendValidationEmail(any(), eq(TOKEN_VALUE));
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+            verify(emailService).sendValidationEmail(any(), eq(TOKEN_VALUE));
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
+
+    @Test(expected = UserValidatedException.class)
+    public void testResendVerificationEmailAlreadyValidated(){
+        when(
+            userDao.findByEmail(eq(EMAIL))
+        ).thenReturn(Optional.of(USER));
+
+        userService.resendVerificationEmail(EMAIL);
+    }
+
+    @Test(expected = UserNotFoundException.class)
+    public void testResendVerificationEmailUserNotFound(){
+        when(
+            userDao.findByEmail(eq(EMAIL))
+        ).thenReturn(Optional.empty());
+
+        userService.resendVerificationEmail(EMAIL);
+    }
+
+    @Test
+    public void testPatchUser(){
         User u = new User(
             USER_ID, 
             EMAIL, 
@@ -486,19 +619,21 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(u));
         when(
-            universityService.findByName(eq(UNI_NAME))
+            universityService.findById(eq(UNI_ID))
         ).thenReturn(Optional.of(UNIVERSITY));
         when(
-            careerService.findCareerByName(eq(CAREER_NAME))
+            careerService.findCareerById(eq(CAREER_ID))
         ).thenReturn(Optional.of(CAREER));
 
-        userService.updateUser(
-            USER_ID, 
-            USERNAME, 
-            FIRSTNAME, 
-            LASTNAME, 
-            UNI_NAME, 
-            CAREER_NAME
+        userService.patchUser(
+            USER_ID,
+            USERNAME,
+            FIRSTNAME,
+            LASTNAME,
+            UNI_ID,
+            CAREER_ID,
+            null,
+            null
         );
 
         assertEquals(USERNAME, u.getUsername());
@@ -507,8 +642,8 @@ public class UserServiceImplTest {
         assertEquals(UNI_NAME, u.getUniversity().getName());
         assertEquals(CAREER_NAME, u.getCareer().getName());
     }
-    @Test(expected = CareerNotFoundException.class)
-    public void testUpdateUserMissingCareer(){
+    @Test(expected = InvalidReferenceException.class)
+    public void testPatchUserMissingCareer(){
         User u = new User(
             USER_ID, 
             EMAIL, 
@@ -526,31 +661,63 @@ public class UserServiceImplTest {
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(u));
         when(
-            universityService.findByName(eq(UNI_NAME))
-        ).thenReturn(Optional.of(UNIVERSITY));
-        when(
-            careerService.findCareerByName(eq(CAREER_NAME))
+            careerService.findCareerById(eq(CAREER_ID))
         ).thenReturn(Optional.empty());
 
-        userService.updateUser(
+        userService.patchUser(
+            USER_ID,
+            null,
+            null,
+            null,
+            null,
+            CAREER_ID,
+            null,
+            null
+        );
+    }
+    @Test(expected = InvalidReferenceException.class)
+    public void testPatchUserMissingUni(){
+        User u = new User(
             USER_ID, 
+            EMAIL, 
+            GARBAGE, 
+            GARBAGE, 
+            GARBAGE, 
+            null, 
+            null, 
+            IMAGE_ID, 
+            LOCALE, 
+            false, 
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            universityService.findById(eq(UNI_ID))
+        ).thenReturn(Optional.empty());
+
+        userService.patchUser(
+            USER_ID,
+            null,
+            null,
+            null,
+            UNI_ID,
+            null,
+            null,
+            null
+        );
+    }
+    @Test
+    public void testPatchUserNoUpdates(){
+        User u = new User(
+            USER_ID, 
+            EMAIL, 
             USERNAME, 
             FIRSTNAME, 
             LASTNAME, 
-            UNI_NAME, 
-            CAREER_NAME
-        );
-    }
-    @Test(expected = UniversityNotFoundException.class)
-    public void testUpdateUserMissingUni(){
-        User u = new User(
-            USER_ID, 
-            EMAIL, 
-            GARBAGE, 
-            GARBAGE, 
-            GARBAGE, 
-            null, 
-            null, 
+            UNIVERSITY, 
+            CAREER, 
             IMAGE_ID, 
             LOCALE, 
             false, 
@@ -559,33 +726,51 @@ public class UserServiceImplTest {
         when(
             userDao.findById(eq(USER_ID))
         ).thenReturn(Optional.of(u));
-        when(
-            universityService.findByName(eq(UNI_NAME))
-        ).thenReturn(Optional.empty());
 
-        userService.updateUser(
-            USER_ID, 
-            USERNAME,
-            FIRSTNAME, 
-            LASTNAME, 
-            UNI_NAME, 
-            CAREER_NAME
+        userService.patchUser(
+            USER_ID,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
         );
+
+        assertEquals(USERNAME, u.getUsername());
+        assertEquals(FIRSTNAME, u.getFirstname());
+        assertEquals(LASTNAME, u.getLastname());
+        assertEquals(UNI_NAME, u.getUniversity().getName());
+        assertEquals(CAREER_NAME, u.getCareer().getName());
     }
     @Test(expected = UserNotFoundException.class)
-    public void testUpdateUserMissingUser(){
-        when(
-            userDao.findById(eq(USER_ID))
-        ).thenReturn(Optional.empty());
+    public void testPatchUserMissingUser(){
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.empty());
 
-        userService.updateUser(
-            USER_ID, 
-            USERNAME, 
-            FIRSTNAME, 
-            LASTNAME, 
-            UNI_NAME, 
-            CAREER_NAME
-        );
+        userService.patchUser(USER_ID, USERNAME, FIRSTNAME, LASTNAME, UNI_ID, CAREER_ID, null, null);
+    }
+
+    @Test
+    public void testPatchUserSetsPassword(){
+        User u = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE_ID, LOCALE, false, true);
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(u));
+        when(passwordEncoder.encode(eq(PASSWORD))).thenReturn("ENCODED");
+
+        userService.patchUser(USER_ID, null, null, null, null, null, PASSWORD, null);
+
+        assertEquals("ENCODED", u.getPassword());
+    }
+
+    @Test
+    public void testPatchUserSetsBlocked(){
+        User u = new User(USER_ID, EMAIL, USERNAME, FIRSTNAME, LASTNAME, UNIVERSITY, CAREER, IMAGE_ID, LOCALE, false, true);
+        when(userDao.findById(eq(USER_ID))).thenReturn(Optional.of(u));
+
+        userService.patchUser(USER_ID, null, null, null, null, null, null, true);
+
+        assertTrue(u.isBlocked());
+        verify(emailService).sendUserBlockedNotification(any());
     }
 
     @Test
@@ -612,7 +797,35 @@ public class UserServiceImplTest {
 
         userService.updateProfilePicture(USER_ID, new byte[0]);
 
-        assertEquals(NEW_IMAGE_ID, u.getProfilePictureId());
+        assertEquals(NEW_IMAGE_ID, u.getProfilePictureId().longValue());
+        verify(imageService).deleteImage(IMAGE_ID);
+    }
+    @Test
+    public void testUpdateProfilePictureNoPreviousPicture(){
+        User u = new User(
+            USER_ID,
+            EMAIL,
+            GARBAGE,
+            GARBAGE,
+            GARBAGE,
+            null,
+            null,
+            null,
+            LOCALE,
+            false,
+            false
+        );
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(u));
+        when(
+            imageService.createImage(any())
+        ).thenReturn(NEW_IMAGE_ID);
+
+        userService.updateProfilePicture(USER_ID, new byte[0]);
+
+        assertEquals(NEW_IMAGE_ID, u.getProfilePictureId().longValue());
+        verify(imageService, never()).deleteImage(anyLong());
     }
     @Test(expected = UserNotFoundException.class)
     public void testUpdateProfilePictureUserNotFound(){
@@ -622,4 +835,53 @@ public class UserServiceImplTest {
 
         userService.updateProfilePicture(USER_ID, new byte[0]);
     }   
+
+    @Test
+    public void testGetProfilePicture(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            imageService.findImage(eq(IMAGE_ID))
+        ).thenReturn(Optional.of(IMAGE));
+        
+        Optional<Image> maybeImage = userService.getProfilePicture(USER_ID);
+
+        assertNotNull(maybeImage);
+        assertTrue(maybeImage.isPresent());
+        assertEquals(IMAGE_ID, maybeImage.get().getId().longValue());
+    }
+    @Test
+    public void testGetProfilePictureMissingPicture(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
+        when(
+            imageService.findImage(eq(IMAGE_ID))
+        ).thenReturn(Optional.empty());
+        
+        Optional<Image> maybeImage = userService.getProfilePicture(USER_ID);
+
+        assertNotNull(maybeImage);
+        assertTrue(maybeImage.isEmpty());
+    }
+    @Test
+    public void testGetProfilePictureNoPicture(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER_NO_PICTURE));
+        
+        Optional<Image> maybeImage = userService.getProfilePicture(USER_ID);
+
+        assertNotNull(maybeImage);
+        assertTrue(maybeImage.isEmpty());
+    }
+    @Test(expected=UserNotFoundException.class)
+    public void testGetProfilePictureMissingUser(){
+        when(
+            userDao.findById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        userService.getProfilePicture(USER_ID);
+    }
 }

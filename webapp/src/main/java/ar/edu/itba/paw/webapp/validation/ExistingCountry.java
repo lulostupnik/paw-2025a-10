@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {ExistingCountryValidator.class})
 public @interface ExistingCountry {
-    String message() default "{EmailNotInUse.message}";
+    String message() default "{validation.country.notExists}";
 
     Class<?>[] groups() default {};
 

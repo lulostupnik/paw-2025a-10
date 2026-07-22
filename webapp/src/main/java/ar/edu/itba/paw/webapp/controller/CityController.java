@@ -1,120 +1,87 @@
 package ar.edu.itba.paw.webapp.controller;
 
 import ar.edu.itba.paw.interfaces.services.CityService;
-import ar.edu.itba.paw.interfaces.services.CountryService;
 import ar.edu.itba.paw.models.City;
+import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
-import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
+import ar.edu.itba.paw.webapp.GoTogetherMediaType;
+import ar.edu.itba.paw.webapp.dto.CityDto;
 import ar.edu.itba.paw.webapp.form.CreateCityForm;
-import ar.edu.itba.paw.webapp.paging.PageParamCustomizer;
-import ar.edu.itba.paw.webapp.utils.JsonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.edu.itba.paw.webapp.form.PatchCityForm;
+import ar.edu.itba.paw.webapp.utils.CacheUtils;
+import ar.edu.itba.paw.webapp.utils.PagingUtils;
+import ar.edu.itba.paw.webapp.utils.UriUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import javax.validation.Valid;
+import org.springframework.stereotype.Component;
 
-@Controller
-@RequestMapping("/cities")
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
+import java.util.List;
+
+@Path("cities")
+@Component
 public class CityController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CityController.class);
-    private final CityService cityService;
-    private final CountryService countryService;
-    private static final String CREATE_CITY = "cities/create";
-    private static final String CITY_DETAIL = "cities/detail";
-    private static final String CITY_CREATE_FORM = "createCityForm";
 
     @Autowired
-    public CityController(CityService cityService, CountryService countryService) {
-        this.cityService = cityService;
-        this.countryService = countryService;
+    private CityService cityService;
+
+    @Context
+    private UriInfo uriInfo;
+
+    @GET
+    @Produces(GoTogetherMediaType.APPLICATION_CITY_LIST)
+    public Response listCities(
+            @Context Request req,
+            @QueryParam("search") String search,
+            @QueryParam("page") @DefaultValue("1") int page,
+            @QueryParam("size") @DefaultValue("20") int size
+    ) {
+        final Page<City> cities = cityService.searchCities(search, new PageParams(page, size));
+        final List<CityDto> cityDtos = CityDto.fromCityCollection(uriInfo, cities.getContent());
+        final ResponseBuilder response = PagingUtils.insertPaginationLinks(
+                Response.ok(new GenericEntity<>(cityDtos) {}), uriInfo, cities);
+        return CacheUtils.withEtag(req, cities.getContent(), response);
     }
 
-    @GetMapping(value = "", produces = "application/json; charset=UTF-8")
-    @ResponseBody
-    public String getCitiesJson(@RequestParam(value = "search", required = false) String search,
-                                @PageParamCustomizer(defaultSize = 30) PageParams pageParams) {
-        return JsonUtils.toJson( cityService.searchCities(search, pageParams).getContent());
+    @GET
+    @Path("/{id}")
+    @Produces(GoTogetherMediaType.APPLICATION_CITY)
+    public Response getCityById(@Context Request req, @PathParam("id") final long id) {
+        final City city = cityService.findCityById(id).orElseThrow(() -> new CityNotFoundException());
+        return CacheUtils.withEtag(req, city, () -> CityDto.fromCity(uriInfo, city));
     }
 
-    @GetMapping(value = "/create")
-    public ModelAndView createCitiesForm(@ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form) {
-        return new ModelAndView(CREATE_CITY).addObject("countries",countryService.findCountries());
+    @POST
+    @Consumes(GoTogetherMediaType.APPLICATION_CITY)
+    @Produces(GoTogetherMediaType.APPLICATION_CITY)
+    public Response createCity(@Valid @NotNull final CreateCityForm form) {
+        final City city = cityService.createCity(form.getName(), form.getCountryId());
+        return Response.created(UriUtils.getCityUri(uriInfo, city.getId()))
+                .entity(CityDto.fromCity(uriInfo, city))
+                .build();
     }
 
-    @PostMapping(path = "/create")
-    public ModelAndView createCities(@Valid @ModelAttribute(CITY_CREATE_FORM) final CreateCityForm cityForm,
-                                        final BindingResult errors, @ModelAttribute("user") User user) {
-
-        if (errors.hasErrors()) {
-            return createCitiesForm(cityForm);
-        }
-        City city = cityService.createCity(
-                cityForm.getName(),
-                cityForm.getCountry()
-        );
-
-        return new ModelAndView("redirect:/cities/{id}", "id", city.getId());
-    }
-    @GetMapping(value= "/{id}")
-    public ModelAndView getCity(@PathVariable(value = "id") final long id) {
-        City city = cityService.findCityById(id).orElseThrow(() -> {
-            LOGGER.error("City not found for id: {}", id);
-            return new CityNotFoundException("City not found");
-        });
-        ModelAndView mav = new ModelAndView(CITY_DETAIL);
-        mav.addObject("city", city);
-        return mav;
+    @PATCH
+    @Path("/{id}")
+    @Consumes(GoTogetherMediaType.APPLICATION_CITY)
+    @Produces(GoTogetherMediaType.APPLICATION_CITY)
+    public Response patchCity(
+            @PathParam("id") final long id,
+            @Valid @NotNull final PatchCityForm form
+    ) {
+        final City city = cityService.patchCity(id, form.getName(), form.getCountryId());
+        return Response.ok(CityDto.fromCity(uriInfo, city)).build();
     }
 
-    @GetMapping(value = "/{id}/edit")
-    public ModelAndView updateCityForm(@PathVariable("id") Long id,
-                                       @ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form, BindingResult errors) {
-        City city = cityService.findCityById(id).orElseThrow(() -> {
-            LOGGER.error("City not found for id: {}", id);
-            return new CityNotFoundException("City not found");
-        });
-        if(!errors.hasErrors()){
-            form.setName(city.getName());
-            form.setCountry(city.getCountry().getName());
-        }
-
-        ModelAndView mav = new ModelAndView(CREATE_CITY);
-        mav.addObject("isUpdate", true);
-        mav.addObject("cityId", id);
-        mav.addObject("countries", countryService.findCountries());
-        return mav;
-    }
-
-
-    @PostMapping(value = "/{id}/edit")
-    public ModelAndView updateCity(@PathVariable("id") Long id,
-                                     @Valid @ModelAttribute(CITY_CREATE_FORM) final CreateCityForm form,
-                                     final BindingResult errors) {
-
-        if (errors.hasErrors()) {
-            return updateCityForm(id, form, errors);
-        }
-
-        cityService.updateCity(id,
-                form.getName(),
-                form.getCountry()
-        );
-
-        return new ModelAndView("redirect:/cities/{id}", "id", id);
-    }
-
-
-    @PostMapping(value = "/{id}/delete")
-    public ModelAndView deleteCity(@PathVariable long id) {
+    @DELETE
+    @Path("/{id}")
+    public Response deleteCity(@PathParam("id") final long id) {
         cityService.deleteCity(id);
-        return new ModelAndView("redirect:/dashboard/cities");
+        return Response.noContent().build();
     }
-
-
-
 }

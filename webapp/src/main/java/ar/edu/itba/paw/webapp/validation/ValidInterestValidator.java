@@ -6,7 +6,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 
-public class ValidInterestValidator implements ConstraintValidator<ValidInterest, List<String>> {
+public class ValidInterestValidator implements ConstraintValidator<ValidInterest, List<Long>> {
 
     private final InterestService interestService;
     @Autowired
@@ -19,19 +19,15 @@ public class ValidInterestValidator implements ConstraintValidator<ValidInterest
     }
 
     @Override
-    public boolean isValid(List<String> interests, ConstraintValidatorContext context) {
-        if (interests == null || interests.isEmpty()) {
+    public boolean isValid(List<Long> interestIds, ConstraintValidatorContext context) {
+        if (interestIds == null || interestIds.isEmpty()) {
             return true;
         }
-        try {
-            for(String interest : interests) {
-                if (interestService.findInterestByName(interest).isEmpty()) {
-                    return false;
-                }
+        for (Long interestId : interestIds) {
+            if (interestId == null || interestService.findInterestById(interestId).isEmpty()) {
+                return false;
             }
-            return true;
-        } catch (Exception e) {
-            return true;
         }
+        return true;
     }
 }

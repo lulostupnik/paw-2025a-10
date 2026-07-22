@@ -7,7 +7,7 @@ import ar.edu.itba.paw.models.City;
 import ar.edu.itba.paw.models.Page;
 import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.University;
-import ar.edu.itba.paw.models.exceptions.CityNotFoundException;
+import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
 import ar.edu.itba.paw.models.exceptions.UniversityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,34 +54,35 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     @Transactional
-    public University createUniversity(final String name, final String abbreviation, final String cityName) {
-        LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityName);
-        City city = cityService.findCityByName(cityName).orElseThrow(() -> {
-            LOGGER.error("City not found with name: {}", cityName);
-            return new CityNotFoundException(cityName);
+    public University createUniversity(final String name, final String abbreviation, final long cityId) {
+        LOGGER.debug("Creating university with name {}, abbreviation {}, city {}", name, abbreviation, cityId);
+        City city = cityService.findCityById(cityId).orElseThrow(() -> {
+            LOGGER.error("City not found with id: {}", cityId);
+            return new InvalidReferenceException();
         });
         University university = universityDao.create(name, abbreviation, city);
-        LOGGER.info("University created successfully with name: {}, abbreviation: {}, in city: {}", name, abbreviation, cityName);
+        LOGGER.info("University created successfully with name: {}, abbreviation: {}, in city: {}", name, abbreviation, cityId);
         return university;
     }
 
     @Override
     @Transactional
-    public University updateUniversity(final long id, final String name, final String abbreviation, final String cityName) {
-        LOGGER.debug("Updating university with id {}, name {}, abbreviation {}, city {}", id, name, abbreviation, cityName);
-        City city = cityService.findCityByName(cityName).orElseThrow(() -> {
-            LOGGER.error("City not found with name: {}", cityName);
-            return new CityNotFoundException(cityName);
-        });
-        University university = universityDao.findById(id).orElseThrow(() -> {
-            LOGGER.error("University with id {} not found", id);
-            return new UniversityNotFoundException(id);
-        });
-        university.setName(name);
-        university.setAbbreviation(abbreviation);
-        university.setCity(city);
+    public University patchUniversity(final long id, final String name, final String abbreviation, final Long cityId) {
+        LOGGER.debug("Patching university with id {}", id);
+        University university = universityDao.findById(id).orElseThrow(() -> new UniversityNotFoundException());
 
-        LOGGER.info("University updated successfully with id: {}, name: {}, abbreviation: {}, city: {}", id, name, abbreviation, cityName);
+        if (name != null) {
+            university.setName(name);
+        }
+        if (abbreviation != null) {
+            university.setAbbreviation(abbreviation);
+        }
+        if (cityId != null) {
+            City city = cityService.findCityById(cityId).orElseThrow(() -> new InvalidReferenceException());
+            university.setCity(city);
+        }
+
+        LOGGER.info("University patched successfully with id: {}", id);
         return university;
     }
 

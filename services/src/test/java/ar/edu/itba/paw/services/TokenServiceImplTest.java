@@ -5,7 +5,6 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import ar.edu.itba.paw.models.exceptions.InvalidTokenException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,9 +23,11 @@ public class TokenServiceImplTest {
     private static final long TOKEN_ID = 1;
     private static final String TOKEN_VALUE = "token";
     private static final LocalDateTime TOKEN_EXPIRATION = LocalDateTime.now().plusDays(1);
-    private static final User USER = new User(TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, null, null, TOKEN_ID, TOKEN_VALUE, null, false);
-    private static final Token TOKEN = new Token(TOKEN_ID, USER, TOKEN_VALUE, TOKEN_EXPIRATION);
-    
+
+    private static final long OWNER_ID = 7;
+    private static final User TOKEN_OWNER = new User(OWNER_ID, TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, null, null, null, null, false, true);
+    private static final Token TOKEN = new Token(TOKEN_ID, TOKEN_OWNER, TOKEN_VALUE, TOKEN_EXPIRATION);
+
     @InjectMocks
     private TokenServiceImpl tokenService;
 
@@ -34,84 +35,63 @@ public class TokenServiceImplTest {
     private TokenDao tokenDao;
 
     @Test
-    public void testUserControlToken(){
-        Token token = tokenService.userTokenControl(USER);
+    public void testUserTokenControlCreatesToken(){
+        User user = new User(TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, null, null, TOKEN_ID, null, false);
 
-        assertNotNull(token);
-        assertNotNull(token.getToken());
-        assertTrue(token.getToken().length() > 10);
-        assertNotNull(token.getExpirationDate());
-        assertEquals(USER, token.getUser());
-    }    
-    @Test
-    public void testUserControlTokenUserHasTokenNotExpired(){
-        User newUser = new User(
-            TOKEN_VALUE, 
-            TOKEN_VALUE, 
-            TOKEN_VALUE, 
-            TOKEN_VALUE, 
-            null, 
-            null, 
-            TOKEN_ID, 
-            null, 
-            false
-        );
-        Token newToken = new Token(newUser, TOKEN_VALUE, TOKEN_EXPIRATION);
-        newUser.setToken(newToken);
+        String rawToken = tokenService.issueUserToken(user);
 
-        Token token = tokenService.userTokenControl(newUser);
-
-        assertNotNull(token);
-        assertEquals(newToken, token);
-    }  
-    @Test
-    public void testUserControlTokenUserHasTokenExpired(){
-        User newUser = new User(
-            TOKEN_VALUE, 
-            TOKEN_VALUE, 
-            TOKEN_VALUE, 
-            TOKEN_VALUE, 
-            null, 
-            null, 
-            TOKEN_ID, 
-            null, 
-            false
-        );
-        Token newToken = new Token(
-            newUser, 
-            TOKEN_VALUE, 
-            TOKEN_EXPIRATION.plusDays(-10)
-        );
-        newUser.setToken(newToken);
-
-        Token token = tokenService.userTokenControl(newUser);
-
-        assertNotNull(token);
-        assertNotNull(token.getToken());
-        assertNotEquals(TOKEN_VALUE, token.getToken());
-        assertTrue(token.getToken().length() > 10);
-        assertNotNull(token.getExpirationDate());
-        assertNotEquals(TOKEN_EXPIRATION, token.getExpirationDate());
-    }  
+        assertNotNull(rawToken);
+        assertTrue(rawToken.length() > 10);
+        assertNotNull(user.getToken());
+        assertEquals(user, user.getToken().getUser());
+        assertNotNull(user.getToken().getExpirationDate());
+        assertNotEquals(rawToken, user.getToken().getToken());
+        assertTrue(user.getToken().getToken().length() <= 100);
+    }
 
     @Test
-    public void testGetByToken(){
-        when(
-            tokenDao.findByToken(eq(TOKEN_VALUE))
-        ).thenReturn(Optional.of(TOKEN));
+    public void testUserTokenControlRefreshesExistingToken(){
+        User user = new User(TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, TOKEN_VALUE, null, null, TOKEN_ID, null, false);
+        Token existingToken = new Token(user, TOKEN_VALUE, TOKEN_EXPIRATION);
+        user.setToken(existingToken);
+
+        String rawToken = tokenService.issueUserToken(user);
+
+        assertSame(existingToken, user.getToken());
+        assertNotEquals(TOKEN_VALUE, existingToken.getToken());
+        assertNotEquals(rawToken, existingToken.getToken());
+    }
+
+    @Test
+    public void testGetByTokenHashesBeforeLookup(){
+        when(tokenDao.findByToken(anyString())).thenReturn(Optional.of(TOKEN));
 
         Optional<Token> maybeToken = tokenService.getByToken(TOKEN_VALUE);
 
-        assertNotNull(maybeToken);
+        assertTrue(maybeToken.isPresent());
         assertEquals(TOKEN, maybeToken.get());
+        verify(tokenDao).findByToken(argThat(queried -> !TOKEN_VALUE.equals(queried)));
     }
 
-    @Test(expected = InvalidTokenException.class)
-    public void testCheckTokenValidityInvalid() {
-        when(tokenDao.findByToken(eq(TOKEN_VALUE)))
-                .thenReturn(Optional.empty());
+    @Test
+    public void testIsTokenValidValid() {
+        final Token token = new Token(TOKEN_ID, TOKEN_OWNER, TOKEN_VALUE, LocalDateTime.now().plusDays(1));
 
-        tokenService.checkTokenValidity(TOKEN_VALUE);
+        assertTrue(tokenService.isTokenValid(token, OWNER_ID));
+    }
+
+    @Test
+    public void testIsTokenValidExpired() {
+        final Token token = new Token(TOKEN_ID, TOKEN_OWNER, TOKEN_VALUE, LocalDateTime.now().minusDays(1));
+
+        assertFalse(tokenService.isTokenValid(token, OWNER_ID));
+    }
+
+    @Test
+    public void testIsTokenValidWrongUser() {
+        final Token token = new Token(TOKEN_ID, TOKEN_OWNER, TOKEN_VALUE, LocalDateTime.now().plusDays(1));
+
+        assertFalse(tokenService.isTokenValid(token, OWNER_ID + 999));
     }
 
 }

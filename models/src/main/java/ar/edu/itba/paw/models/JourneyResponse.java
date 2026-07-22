@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -41,7 +42,7 @@ public class JourneyResponse {
     @Setter
     private  String deletionMessage;
 
-    /* For hibernate */ JourneyResponse() {
+     JourneyResponse() {
     }
 
     public JourneyResponse(final User user, final Journey journey, final String message) {
@@ -70,6 +71,24 @@ public class JourneyResponse {
                 ", message: \"" +
                 message +
                 "\"}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof JourneyResponse that)) return false;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                id,
+                message,
+                dateTime,
+                deleted,
+                deletionMessage
+        );
     }
 }
 

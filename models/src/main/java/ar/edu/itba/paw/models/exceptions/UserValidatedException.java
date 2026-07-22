@@ -1,9 +1,8 @@
 package ar.edu.itba.paw.models.exceptions;
 
-public class UserValidatedException extends RuntimeException {
+public class UserValidatedException extends BusinessException {
 
-    public UserValidatedException() {}
-    public UserValidatedException(String email) {
-        super(String.format("User with email %s already validated", email));
+    public UserValidatedException() {
+        super("exception.UserValidatedException", BusinessException.BAD_REQUEST);
     }
 }

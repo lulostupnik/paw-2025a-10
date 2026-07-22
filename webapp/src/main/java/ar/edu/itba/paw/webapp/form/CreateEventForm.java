@@ -6,15 +6,12 @@ import javax.validation.constraints.*;
 import ar.edu.itba.paw.webapp.validation.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;
-import org.springframework.web.multipart.MultipartFile;
 
 
 public class CreateEventForm {
-    @Size(max = 100)
     @NotNull
     @ExistingCity
-    @NotEmpty
-    private String city;
+    private Long cityId;
 
     @Size(max = 50)
     @NotNull
@@ -26,12 +23,6 @@ public class CreateEventForm {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @FutureDate
     private LocalDate date;
-
-    @NotNull
-    @ImageSize()
-    @ContentType({"image/jpeg", "image/jpg", "image/png"})
-    @ImageNotEmpty
-    private MultipartFile flyer;
 
     @Size(min = 2, max = 2047)
     @NotNull
@@ -48,12 +39,12 @@ public class CreateEventForm {
     @Min(1)
     private Integer attendeesLimit;
 
-    public String getCity() {
-        return city;
+    public Long getCityId() {
+        return cityId;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setCityId(Long cityId) {
+        this.cityId = cityId;
     }
 
     public LocalDate getDate() {
@@ -62,14 +53,6 @@ public class CreateEventForm {
 
     public void setDate(LocalDate date) {
         this.date = date;
-    }
-
-    public MultipartFile getFlyer() {
-        return flyer;
-    }
-
-    public void setFlyer(MultipartFile flyer) {
-        this.flyer = flyer;
     }
 
     public String getDescription() {
@@ -102,20 +85,18 @@ public class CreateEventForm {
     }
     public void setAttendeesLimit(Integer attendeesLimit) {
         this.attendeesLimit = attendeesLimit;
-    }  
+    }
     @Override
     public String toString(){
-        return "{city: \"" +
-                city +
+        return "{cityId: \"" +
+                cityId +
                 "\", date: \"" +
                 date +
                 "\", time: \"" +
                 (time == null ? "All-day" : time) +
                 "\", description: \"" +
                 description +
-                "\", profilePictureSize: " +
-                (flyer == null || flyer.isEmpty() ? 0 : flyer.getSize()) +
-                ", title: \"" +
+                "\", title: \"" +
                 title +
                 "\", address: \"" +
                 address +

@@ -16,6 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import ar.edu.itba.paw.interfaces.persistence.ReportDao;
 import ar.edu.itba.paw.interfaces.services.EventService;
 import ar.edu.itba.paw.interfaces.services.JourneyService;
+import ar.edu.itba.paw.interfaces.services.UserService;
 import ar.edu.itba.paw.models.Event;
 import ar.edu.itba.paw.models.EventResponse;
 import ar.edu.itba.paw.models.Journey;
@@ -25,11 +26,10 @@ import ar.edu.itba.paw.models.PageParams;
 import ar.edu.itba.paw.models.Report;
 import ar.edu.itba.paw.models.User;
 import ar.edu.itba.paw.models.enums.ReportStatus;
-import ar.edu.itba.paw.models.exceptions.EventNotFoundException;
-import ar.edu.itba.paw.models.exceptions.EventResponseNotFoundException;
-import ar.edu.itba.paw.models.exceptions.JourneyNotFoundException;
-import ar.edu.itba.paw.models.exceptions.JourneyResponseNotFoundException;
+import ar.edu.itba.paw.models.enums.ReportType;
+import ar.edu.itba.paw.models.exceptions.InvalidReferenceException;
 import ar.edu.itba.paw.models.exceptions.ReportNotFoundException;
+import ar.edu.itba.paw.models.exceptions.UserNotFoundException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReportServiceImplTest {
@@ -60,9 +60,23 @@ public class ReportServiceImplTest {
     JourneyService journeyService;
     @Mock
     EventService eventService;
+    @Mock
+    UserService userService;
+
+    @Test(expected = UserNotFoundException.class)
+    public void testCreateReportMissingUser(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.empty());
+
+        reportService.createReport(null, USER_ID, USER_ID, null, null);
+    }
 
     @Test
     public void testCreateReportForJourney(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
         when(
             journeyService.findJourneyById(eq(JOURNEY_ID))
         ).thenReturn(Optional.of(JOURNEY));
@@ -76,32 +90,40 @@ public class ReportServiceImplTest {
             )
         ).thenReturn(REPORT);
 
-        Report report = reportService.createReportForJourney(
-            USER, 
+        Report report = reportService.createReport(
+            ReportType.JOURNEY,
+            USER_ID, 
             JOURNEY_ID, 
             DESC,
-                MISINFORMATION
+            MISINFORMATION
         );
 
         assertNotNull(report);
         assertEquals(REPORT, report);
     }
-    @Test(expected = JourneyNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testCreateReportForJourneyNotFound(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
         when(
             journeyService.findJourneyById(eq(JOURNEY_ID))
         ).thenReturn(Optional.empty());
 
-        reportService.createReportForJourney(
-            USER, 
+        reportService.createReport(
+            ReportType.JOURNEY,
+            USER_ID, 
             JOURNEY_ID, 
             DESC,
-                MISINFORMATION
+            MISINFORMATION
         );
     }
     
     @Test
     public void testCreateReportForEvent(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
         when(
             eventService.findEventById(eq(EVENT_ID))
         ).thenReturn(Optional.of(EVENT));
@@ -115,8 +137,9 @@ public class ReportServiceImplTest {
             )
         ).thenReturn(REPORT);
 
-        Report report = reportService.createReportForEvent(
-            USER, 
+        Report report = reportService.createReport(
+            ReportType.EVENT,
+            USER_ID, 
             EVENT_ID, 
             DESC,
                 MISINFORMATION
@@ -125,14 +148,18 @@ public class ReportServiceImplTest {
         assertNotNull(report);
         assertEquals(REPORT, report);
     }
-    @Test(expected = EventNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testCreateReportForEventNotFound(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
         when(
             eventService.findEventById(eq(EVENT_ID))
         ).thenReturn(Optional.empty());
 
-        reportService.createReportForEvent(
-            USER, 
+        reportService.createReport(
+            ReportType.EVENT,
+            USER_ID, 
             EVENT_ID, 
             DESC,
                 MISINFORMATION
@@ -141,6 +168,9 @@ public class ReportServiceImplTest {
 
     @Test
     public void testCreateReportForEventResponse(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
         when(
             eventService.findEventResponseById(eq(EVENT_RESPONSE_ID))
         ).thenReturn(Optional.of(EVENT_RESPONSE));
@@ -154,8 +184,9 @@ public class ReportServiceImplTest {
             )
         ).thenReturn(REPORT);
 
-        Report report = reportService.createReportForEventResponse(
-            USER, 
+        Report report = reportService.createReport(
+            ReportType.EVENT_RESPONSE,
+            USER_ID, 
             EVENT_RESPONSE_ID, 
             DESC,
             MISINFORMATION
@@ -164,22 +195,29 @@ public class ReportServiceImplTest {
         assertNotNull(report);
         assertEquals(REPORT, report);
     }
-    @Test(expected = EventResponseNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testCreateReportForEventResponseNotFound(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
         when(
             eventService.findEventResponseById(eq(EVENT_RESPONSE_ID))
         ).thenReturn(Optional.empty());
 
-        reportService.createReportForEventResponse(
-            USER, 
+        reportService.createReport(
+            ReportType.EVENT_RESPONSE,
+            USER_ID, 
             EVENT_RESPONSE_ID, 
             DESC,
-                MISINFORMATION
+            MISINFORMATION
         );
     }
 
     @Test
     public void testCreateReportForJourneyResponse(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
         when(
             journeyService.findJourneyResponseById(eq(JOURNEY_RESPONSE_ID))
         ).thenReturn(Optional.of(JOURNEY_RESPONSE));
@@ -193,8 +231,9 @@ public class ReportServiceImplTest {
             )
         ).thenReturn(REPORT);
 
-        Report report = reportService.createReportForJourneyResponse(
-            USER, 
+        Report report = reportService.createReport(
+            ReportType.JOURNEY_RESPONSE,
+            USER_ID, 
             JOURNEY_RESPONSE_ID, 
             DESC,
             MISINFORMATION
@@ -203,17 +242,21 @@ public class ReportServiceImplTest {
         assertNotNull(report);
         assertEquals(REPORT, report);
     }
-    @Test(expected = JourneyResponseNotFoundException.class)
+    @Test(expected = InvalidReferenceException.class)
     public void testCreateReportForJourneyResponseNotFound(){
+        when(
+            userService.findUserById(eq(USER_ID))
+        ).thenReturn(Optional.of(USER));
         when(
             journeyService.findJourneyResponseById(eq(JOURNEY_RESPONSE_ID))
         ).thenReturn(Optional.empty());
 
-        reportService.createReportForJourneyResponse(
-            USER, 
+        reportService.createReport(
+            ReportType.JOURNEY_RESPONSE,
+            USER_ID, 
             JOURNEY_RESPONSE_ID, 
             DESC,
-                MISINFORMATION
+            MISINFORMATION
         );
     }
 
@@ -227,65 +270,6 @@ public class ReportServiceImplTest {
 
         assertNotNull(maybeReport);
         assertEquals(REPORT, maybeReport.get());
-    }
-
-    @Test
-    public void testFindByUserPaginated(){
-        when(
-            reportDao.findByUserPaginated(eq(USER), any(PageParams.class))
-        ).thenReturn(REPORT_PAGE);
-
-        Page<Report> reports = reportService.findByUserPaginated(USER, PAGE_PARAMS);
-
-        assertNotNull(reports);
-        assertEquals(REPORT_PAGE, reports);
-    }
-
-    @Test
-    public void testCountReportsAgainstUser(){
-        when(
-            reportDao.countReportsAgainstUser(eq(USER))
-        ).thenReturn((long)REPORTS.size());
-
-        long reports = reportService.countReportsAgainstUser(USER);
-
-        assertEquals(REPORTS.size(), reports);
-    }
-
-    @Test
-    public void testFindAllPaginated(){
-        when(
-            reportDao.findAllPaginated(any(PageParams.class))
-        ).thenReturn(REPORT_PAGE);
-
-        Page<Report> reports = reportService.findAllPaginated(PAGE_PARAMS);
-
-        assertNotNull(reports);
-        assertEquals(REPORT_PAGE, reports);
-    }
-
-    @Test
-    public void testFindByStatusPaginated(){
-        when(
-            reportDao.findByStatusPaginated(
-                eq(ReportStatus.PENDING), 
-                any(PageParams.class)
-            )
-        ).thenReturn(REPORT_PAGE);
-
-        Page<Report> reports = reportService.findByStatusPaginated(ReportStatus.PENDING, PAGE_PARAMS);
-
-        assertNotNull(reports);
-        assertEquals(REPORT_PAGE, reports);
-    }
-
-    @Test
-    public void testDelete(){
-        Report newReport = new Report(USER, USER, DESC, MISINFORMATION);
-        
-        reportService.delete(newReport);
-
-        assertTrue(newReport.isDeleted());
     }
 
     @Test

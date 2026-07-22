@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FutureDate {
-    String message() default "Date must be in the future";
+    String message() default "{validation.date.future}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

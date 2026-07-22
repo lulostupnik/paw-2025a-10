@@ -57,7 +57,12 @@ public class Tip {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(
+                id,
+                title,
+                content,
+                dateTime
+        );
     }
 
 

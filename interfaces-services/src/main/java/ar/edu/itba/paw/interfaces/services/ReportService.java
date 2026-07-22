@@ -3,9 +3,13 @@ package ar.edu.itba.paw.interfaces.services;
 import ar.edu.itba.paw.models.*;
 import ar.edu.itba.paw.models.enums.ReportReason;
 import ar.edu.itba.paw.models.enums.ReportStatus;
+import ar.edu.itba.paw.models.enums.ReportType;
+
 import java.util.Optional;
 
 public interface ReportService {
+    Report createReport(ReportType reportType, long reportingUser, long id, String description, ReportReason reason);
+
     Report createReportForJourney(User reportingUser,long journeyId, String description, ReportReason reason);
 
     Report createReportForEvent(User reportingUser,long eventId, String description, ReportReason reason);
@@ -14,19 +18,9 @@ public interface ReportService {
 
     Report createReportForJourneyResponse(User reportingUser,long responseId, String description, ReportReason reason);
 
-    Optional<Report> findById(Long id);
+    Optional<Report> findById(long id);
 
-    Page<Report> findByUserPaginated(User user, PageParams params);
-
-    long countReportsAgainstUser(User reportedUser);
-
-    Page<Report> findAllPaginated(PageParams params);
-
-    Page<Report> findByStatusPaginated(ReportStatus status, PageParams params);
-
-    void delete(Report report);
-
-    void deleteById(Long id);
+    void deleteById(long id);
 
     Page<Report> findAll(String search, PageParams params);
 
