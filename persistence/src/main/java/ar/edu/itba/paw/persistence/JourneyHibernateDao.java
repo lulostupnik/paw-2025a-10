@@ -135,6 +135,7 @@ public class JourneyHibernateDao implements JourneyDao {
 
         boolean joinedUsers = false;
         boolean joinedUnis = false;
+        boolean joinedCities = false;
 
         if (interest != null && !interest.isEmpty()) {
             sqlBody.append(" JOIN users u ON j.user_id = u.id")
@@ -151,6 +152,7 @@ public class JourneyHibernateDao implements JourneyDao {
             filters.add("ci2.name = :city");
             paramMap.put("city", city);
             joinedUnis = true;
+            joinedCities = true;
         }
 
         if (university != null && !university.isEmpty()) {
@@ -185,9 +187,12 @@ public class JourneyHibernateDao implements JourneyDao {
 
         if (searchTerm != null && !searchTerm.isEmpty()) {
             if (!joinedUnis) {
-                sqlBody.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
-                        .append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
+                sqlBody.append(" JOIN universities un2 ON j.destination_university_id = un2.id");
                 joinedUnis = true;
+            }
+            if (!joinedCities) {
+                sqlBody.append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
+                joinedCities = true;
             }
             if (!joinedUsers) {
                 sqlBody.append(" JOIN users u ON j.user_id = u.id ");
@@ -205,10 +210,13 @@ public class JourneyHibernateDao implements JourneyDao {
 
 
         if (destinationCityId != null) {
-            if (!joinedUnis){
-                sqlBody.append(" JOIN universities un2 ON j.destination_university_id = un2.id")
-                        .append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
+            if (!joinedUnis) {
+                sqlBody.append(" JOIN universities un2 ON j.destination_university_id = un2.id");
                 joinedUnis = true;
+            }
+            if (!joinedCities) {
+                sqlBody.append(" JOIN cities ci2 ON un2.city_id = ci2.id ");
+                joinedCities = true;
             }
             filters.add("ci2.id = :destinationCityId");
             paramMap.put("destinationCityId", destinationCityId);

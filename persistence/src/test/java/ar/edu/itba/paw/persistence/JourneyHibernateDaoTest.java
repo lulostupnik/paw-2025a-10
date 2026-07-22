@@ -721,4 +721,53 @@ public class JourneyHibernateDaoTest {
         assertEquals(0, page.getTotalPages());
         assertEquals(0, page.getContent().size());
     }
+    @Test
+    public void testFindAllWithFiltersUniversityAndDestinationCityNoCity(){
+        Page<Journey> page = journeyDao.search(
+            null,
+            USER_1_ID,
+            CITY_2_ID,
+            SortFieldJourney.START_DATE,
+            SortDirection.ASC,
+            null,
+            UNIVERSITY_2_NAME,
+            null,
+            null,
+            null,
+            false,
+            false,
+            PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(1, page.getContent().size());
+        assertEqualsJourney(JOURNEY_2, page.getContent().get(0));
+    }
+    @Test
+    public void testFindAllWithFiltersUniversityAndDestinationCityMultiple(){
+        Page<Journey> page = journeyDao.search(
+            null,
+            null,
+            CITY_2_ID,
+            SortFieldJourney.START_DATE,
+            SortDirection.ASC,
+            null,
+            UNIVERSITY_2_NAME,
+            null,
+            null,
+            null,
+            false,
+            false,
+            PAGE_1_BIG
+        );
+
+        assertNotNull(page);
+        assertNotNull(page.getContent());
+        assertEquals(1, page.getCurrentPage());
+        assertEquals(1, page.getTotalPages());
+        assertEquals(2, page.getContent().size());
+    }
 }
