@@ -50,7 +50,7 @@ public class UserInterest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, score);
+        return Objects.hash(id, score, interest != null ? interest.getName() : null);
     }
 
 }

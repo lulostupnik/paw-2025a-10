@@ -110,6 +110,7 @@ public class Journey{
                 startDate,
                 endDate,
                 destinationUniversity != null ? destinationUniversity.getId() : null,
+                destinationUniversity != null ? destinationUniversity.getName() : null,
                 description,
                 deleted,
                 deletionMessage

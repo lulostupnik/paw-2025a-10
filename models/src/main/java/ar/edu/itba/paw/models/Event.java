@@ -159,6 +159,7 @@
                     description,
                     flyerImageId,
                     city != null ? city.getId() : null,
+                    city != null ? city.getName() : null,
                     title,
                     time,
                     address,

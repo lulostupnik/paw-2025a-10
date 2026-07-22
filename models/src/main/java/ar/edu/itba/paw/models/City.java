@@ -59,6 +59,7 @@ public class City {
                 id,
                 name,
                 country != null ? country.getId() : null,
+                country != null ? country.getName() : null,
                 deleted
         );
     }
