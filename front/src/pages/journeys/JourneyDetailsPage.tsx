@@ -739,7 +739,7 @@ export default function JourneyDetailPage() {
                                             <line x1="3" y1="10" x2="21" y2="10"></line>
                                         </svg>
                                         {t("journey.detail.events")}
-                                        <span className="count">({activeEventsPage.totalPages})</span>
+                                        <span className="count">({activeEventsPage.totalElements})</span>
                                     </h2>
                                     <button
                                         type="button"

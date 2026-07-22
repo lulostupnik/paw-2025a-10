@@ -2736,6 +2736,7 @@ textarea.input-control {
 
 .filters-field__control--date .input-control {
   padding-left: 3rem;
+  padding-right: 0.85rem;
 }
 
 .filters-field__icon {
