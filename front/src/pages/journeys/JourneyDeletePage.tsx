@@ -8,7 +8,7 @@ import PageStatus from "@/components/ui/PageStatus";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useToast } from "@/components/ui/ToastProvider";
 import { deleteJourney } from "@/lib/api/journeys";
-import { invalidateJourneyDetailQueries, invalidateJourneyListQueries } from "@/lib/api/queryInvalidation";
+import { invalidateJourneyDetailQueries, invalidateJourneyListQueries, invalidateProfileJourneyLinkQueries } from "@/lib/api/queryInvalidation";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import { useBackNavigation } from "@/lib/navigation";
 import { parseApiDate } from "@/lib/utils/date";
@@ -59,6 +59,7 @@ export default function JourneyDeletePage() {
             await Promise.all([
                 invalidateJourneyDetailQueries(queryClient, id),
                 invalidateJourneyListQueries(queryClient),
+                invalidateProfileJourneyLinkQueries(queryClient),
             ]);
             showToast(t("journey.toast.deleted"), { variant: "success" });
             navigate("/journeys");

@@ -6,10 +6,12 @@ import Checkbox from "@/components/ui/Checkbox";
 import { classNames } from "@/lib/utils/classNames";
 import { searchCities, type CatalogOption } from "@/lib/api/catalog";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useBackNavigation } from "@/lib/navigation";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { useI18n } from "@/lib/i18n";
 import { createEvent, updateEventFlyer } from "@/lib/api/events";
+import { invalidateEventListQueries } from "@/lib/api/queryInvalidation";
 import { mapApiFieldErrors } from "@/lib/api/formErrors";
 import { useToast } from "@/components/ui/ToastProvider";
 import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
@@ -63,6 +65,7 @@ const INITIAL_FORM: FormState = {
 
 export default function EventCreatePage() {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { goBack } = useBackNavigation();
     const { t } = useI18n();
     const { showToast } = useToast();
@@ -357,6 +360,7 @@ export default function EventCreatePage() {
             setCityQuery("");
             setTouched({});
             setErrors({});
+            await invalidateEventListQueries(queryClient);
             showToast(flyerFailed ? t("event.toast.createdWithoutFlyer") : t("event.toast.created"), {
                 variant: flyerFailed ? "info" : "success",
             });

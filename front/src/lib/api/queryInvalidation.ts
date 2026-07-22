@@ -26,6 +26,10 @@ export const invalidateJourneyListQueries = async (queryClient: QueryClient) => 
     ]);
 };
 
+export const invalidateProfileJourneyLinkQueries = async (queryClient: QueryClient) => {
+    await queryClient.invalidateQueries({ queryKey: ["profileDetail"] });
+};
+
 export const invalidateEventListQueries = async (queryClient: QueryClient) => {
     await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["events"] }),

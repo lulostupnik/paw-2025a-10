@@ -1,11 +1,13 @@
 import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/ui/Button";
 import { classNames } from "@/lib/utils/classNames";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { searchUniversities, type CatalogOption } from "@/lib/api/catalog";
 import { createJourney } from "@/lib/api/journeys";
+import { invalidateJourneyListQueries, invalidateProfileJourneyLinkQueries } from "@/lib/api/queryInvalidation";
 import { useBackNavigation } from "@/lib/navigation";
 import { useI18n } from "@/lib/i18n";
 import { getTodayIsoDate } from "@/lib/utils/date";
@@ -60,6 +62,7 @@ const parseIdFromUrl = (url?: string | null) => {
 
 export default function JourneyCreatePage() {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { goBack } = useBackNavigation();
     const { t } = useI18n();
     const { showToast } = useToast();
@@ -151,6 +154,10 @@ export default function JourneyCreatePage() {
             setDestinationQuery("");
             setTouched({});
             setErrors({});
+            await Promise.all([
+                invalidateJourneyListQueries(queryClient),
+                invalidateProfileJourneyLinkQueries(queryClient),
+            ]);
             showToast(t("journey.toast.created"), { variant: "success" });
             navigate(`/journeys/${journey.id}`, { replace: true });
         } catch (err) {

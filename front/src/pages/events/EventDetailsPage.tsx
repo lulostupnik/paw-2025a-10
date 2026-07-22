@@ -12,6 +12,7 @@ import PageStatus from "@/components/ui/PageStatus";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { useBackNavigation, originState } from "@/lib/navigation";
 import { attendEvent, createEventRating, createEventResponse, deleteEventRating, getEventAttendance, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
+import { invalidateEventListQueries } from "@/lib/api/queryInvalidation";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import { getUserByUrl } from "@/lib/api/journeys";
@@ -319,6 +320,7 @@ export default function EventDetailPage() {
         queryClient.invalidateQueries({ queryKey: ["eventAttendees", id] });
         queryClient.invalidateQueries({ queryKey: ["eventStatistics", id] });
         queryClient.invalidateQueries({ queryKey: ["eventAttendance", id, userId] });
+        invalidateEventListQueries(queryClient);
     };
 
     const resolveAttendanceError = (error: unknown, action: "attend" | "unattend") => {
