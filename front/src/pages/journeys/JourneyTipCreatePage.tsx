@@ -7,7 +7,7 @@ import { useJourneyDetailData } from "@/hooks/useJourneyDetailData";
 import PageStatus from "@/components/ui/PageStatus";
 import { useToast } from "@/components/ui/ToastProvider";
 import { createJourneyTip, listJourneyTips } from "@/lib/api/journeys";
-import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { useBackNavigation } from "@/lib/navigation";
 
 const TIPS_PAGE_SIZE = 4;
 const TIP_TITLE_MAX_LENGTH = 255;
@@ -19,6 +19,7 @@ export default function JourneyTipCreatePage() {
     const queryClient = useQueryClient();
     const { showToast } = useToast();
     const { journeyId } = useParams();
+    const { goBack } = useBackNavigation();
     const [searchParams] = useSearchParams();
     const tipsPage = searchParams.get("tipsPage");
     const { data, isLoading, isError } = useJourneyDetailData({ journeyId });
@@ -40,16 +41,12 @@ export default function JourneyTipCreatePage() {
     };
 
     const handleBack = () => {
-        const previous = popFromNavigationStack();
-        if (previous) {
-            navigate(previous);
-            return;
-        }
-        if (journeyId) {
-            navigate(tipsPage ? `/journeys/${journeyId}?tipsPage=${tipsPage}` : `/journeys/${journeyId}`);
-            return;
-        }
-        navigate("/journeys");
+        const fallback = journeyId
+            ? tipsPage
+                ? `/journeys/${journeyId}?tipsPage=${tipsPage}`
+                : `/journeys/${journeyId}`
+            : "/journeys";
+        goBack(fallback);
     };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

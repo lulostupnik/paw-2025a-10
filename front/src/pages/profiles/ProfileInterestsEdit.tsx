@@ -1,13 +1,13 @@
 import { apiErrorMessage } from "@/lib/api/client";
 import { useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import { useProfileInterests } from "@/hooks/profiles/useProfileInterests";
 import { searchInterests, type CatalogOption } from "@/lib/api/catalog";
 import { useToast } from "@/components/ui/ToastProvider";
-import { sanitizeInternalPath } from "@/lib/utils/internalPath";
+import { useBackNavigation } from "@/lib/navigation";
 import PageStatus from "@/components/ui/PageStatus";
 import InterestMultiSelectField from "@/components/form/InterestMultiSelectField";
 
@@ -43,13 +43,11 @@ interface InterestsFormProps {
 
 function InterestsForm({ initialSelected, hasLoadError }: InterestsFormProps) {
     const { t } = useI18n();
-    const navigate = useNavigate();
-    const location = useLocation();
+    const { from, goBack } = useBackNavigation();
     const { showToast } = useToast();
     const { updateInterests, isLoading: isSaving } = useProfileUpsert();
     const [selected, setSelected] = useState<CatalogOption[]>(initialSelected);
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -57,7 +55,7 @@ function InterestsForm({ initialSelected, hasLoadError }: InterestsFormProps) {
             setSubmitError(null);
             await updateInterests(selected.map((interest) => interest.id));
             showToast(t("profile.toast.interestsUpdated"), { variant: "success" });
-            navigate(returnPath ?? "/profiles/me/interests", { replace: true });
+            goBack("/profiles/me/interests", { replace: true });
         } catch (error) {
             console.error("Failed to update interests", error);
             setSubmitError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));
@@ -99,7 +97,7 @@ function InterestsForm({ initialSelected, hasLoadError }: InterestsFormProps) {
                     )}
 
                     <div className="auth-footer">
-                        <Link className="auth-link" to={returnPath ?? "/profiles/me/interests"}>
+                        <Link className="auth-link" to={from ?? "/profiles/me/interests"}>
                             {t("interests.back", { defaultValue: "Back to Interests" })}
                         </Link>
                     </div>

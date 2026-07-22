@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { JourneySummary } from "@/types/journey";
 import { useI18n } from "@/lib/i18n";
-import { pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
 import { prefetchJourneyDetail } from "@/lib/utils/prefetchDetail";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
@@ -37,7 +36,6 @@ export default function JourneyCard({ journey }: JourneyCardProps) {
                 className="event-card-link"
                 onMouseEnter={handlePrefetch}
                 onFocus={handlePrefetch}
-                onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
             >
                 <div className="featured-event-card">
                     <div className="event-image-container">

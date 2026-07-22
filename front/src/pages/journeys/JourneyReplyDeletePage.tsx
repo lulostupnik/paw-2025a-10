@@ -8,7 +8,7 @@ import PageStatus from "@/components/ui/PageStatus";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useToast } from "@/components/ui/ToastProvider";
 import { deleteJourneyResponse, getJourneyResponse, getJourneyResponses, getUserByUrl } from "@/lib/api/journeys";
-import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { useBackNavigation } from "@/lib/navigation";
 import { parseApiDate } from "@/lib/utils/date";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import NotFoundPage from "@/pages/errors/NotFoundPage";
@@ -47,6 +47,7 @@ export default function JourneyReplyDeletePage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { showToast } = useToast();
+    const { goBack } = useBackNavigation();
     const { responseId } = useParams();
     const [searchParams] = useSearchParams();
     const journeyId = searchParams.get("journeyId");
@@ -122,16 +123,12 @@ export default function JourneyReplyDeletePage() {
     };
 
     const handleBack = () => {
-        const previous = popFromNavigationStack();
-        if (previous) {
-            navigate(previous);
-            return;
-        }
-        if (journeyId) {
-            navigate(commentsPage > 1 ? `/journeys/${journeyId}?commentsPage=${commentsPage}` : `/journeys/${journeyId}`);
-            return;
-        }
-        navigate("/journeys");
+        const fallback = journeyId
+            ? commentsPage > 1
+                ? `/journeys/${journeyId}?commentsPage=${commentsPage}`
+                : `/journeys/${journeyId}`
+            : "/journeys";
+        goBack(fallback);
     };
 
     const handleSubmit = async () => {

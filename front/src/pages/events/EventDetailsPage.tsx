@@ -1,6 +1,6 @@
 import { apiErrorMessage } from "@/lib/api/client";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { getUserId, getUsername, isAdmin } from "@/lib/auth/auth";
@@ -10,7 +10,7 @@ import LoginRequiredModal from "@/components/LoginRequiredModal";
 import NotFoundPage from "@/pages/errors/NotFoundPage";
 import PageStatus from "@/components/ui/PageStatus";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
-import { consumeNavigationEntry, popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
+import { useBackNavigation, originState } from "@/lib/navigation";
 import { attendEvent, createEventRating, createEventResponse, deleteEventRating, getEventAttendance, getEventStatistics, listEventAttendees, listEventResponses, unattendEvent, updateEventRating } from "@/lib/api/events";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
@@ -19,7 +19,6 @@ import type { EventAttendee, EventComment } from "@/types/event";
 import { parseApiDate } from "@/lib/utils/date";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 import type { QueryClient } from "@tanstack/react-query";
-import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 const TAB_PARAM = "tab";
 const ATTENDEES_PAGE_PARAM = "attendeesPage";
@@ -149,8 +148,8 @@ const mapEventResponsesPage = async (page: PageResult<EventResponseApi>, signal?
 
 export default function EventDetailPage() {
     const { t, locale } = useI18n();
-    const navigate = useNavigate();
     const location = useLocation();
+    const { goBack } = useBackNavigation();
     const [searchParams, setSearchParams] = useSearchParams();
     const { id } = useParams();
     const numericId = Number(id);
@@ -191,7 +190,6 @@ export default function EventDetailPage() {
     const username = getUsername();
     const isOwner = data?.user?.id === userId;
     const admin = isAdmin();
-    const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
     const currentLocation = `${location.pathname}${location.search}`;
     const canViewAttendees = isOwner;
     const attendanceQuery = useQuery({
@@ -443,21 +441,7 @@ export default function EventDetailPage() {
     }
 
     const handleBack = () => {
-        if (fromState && fromState !== currentLocation) {
-            consumeNavigationEntry(fromState);
-            navigate(fromState, { replace: true });
-            return;
-        }
-        const previous = popFromNavigationStack();
-        if (previous && previous !== currentLocation) {
-            navigate(previous);
-            return;
-        }
-        if (window.history.length > 1) {
-            navigate(-1);
-            return;
-        }
-        navigate("/events");
+        goBack("/events");
     };
 
     const handleAttend = async () => {
@@ -748,11 +732,9 @@ return (
                                                     {!isOwner && (
                                                         <Link
                                                             to={`/reports/events/${id}/create`}
+                                                            state={originState(location)}
                                                             className="action-menu__item is-danger"
-                                                            onClick={() => {
-                                                                setActionMenuOpen(false);
-                                                                pushToNavigationStack(currentLocation);
-                                                            }}
+                                                            onClick={() => setActionMenuOpen(false)}
                                                             style={{
                                                                 gap: "12px",
                                                             }}
@@ -768,6 +750,7 @@ return (
                                                     {(isOwner || admin) && (
                                                         <Link
                                                             to={`/events/${id}/delete`}
+                                                            state={originState(location)}
                                                             className="action-menu__item is-danger"
                                                             onClick={() => setActionMenuOpen(false)}
                                                             style={{
@@ -1131,7 +1114,6 @@ return (
                                                                                         to={`/reports/event-responses/${response.id}/create`}
                                                                                         className="action-menu__item is-danger"
                                                                                         state={{ from: currentLocation }}
-                                                                                        onClick={() => pushToNavigationStack(currentLocation)}
                                                                                         style={{
                                                                                             gap: "10px",
                                                                                         }}
@@ -1146,6 +1128,7 @@ return (
                                                                                     {(admin || response.user.username === username) && (
                                                                                         <Link
                                                                                             to={`/events/reply/${response.id}/delete?eventId=${id}`}
+                                                                                            state={{ from: currentLocation }}
                                                                                             className="action-menu__item is-danger"
                                                                                             style={{
                                                                                                 gap: "10px",

@@ -6,6 +6,7 @@ import Checkbox from "@/components/ui/Checkbox";
 import { classNames } from "@/lib/utils/classNames";
 import { searchCities, type CatalogOption } from "@/lib/api/catalog";
 import { useNavigate } from "react-router-dom";
+import { useBackNavigation } from "@/lib/navigation";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { useI18n } from "@/lib/i18n";
 import { createEvent, updateEventFlyer } from "@/lib/api/events";
@@ -62,6 +63,7 @@ const INITIAL_FORM: FormState = {
 
 export default function EventCreatePage() {
     const navigate = useNavigate();
+    const { goBack } = useBackNavigation();
     const { t } = useI18n();
     const { showToast } = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -374,7 +376,7 @@ export default function EventCreatePage() {
     };
 
     const handleCancel = () => {
-        navigate(-1);
+        goBack("/events");
     };
 
     const timeFieldDisabled = form.allDay;

@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
@@ -7,18 +7,16 @@ import PageStatus from "@/components/ui/PageStatus";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 import { useToast } from "@/components/ui/ToastProvider";
 import { apiErrorMessage } from "@/lib/api/client";
-import { sanitizeInternalPath } from "@/lib/utils/internalPath";
+import { useBackNavigation } from "@/lib/navigation";
 
 export default function ProfilePictureForm() {
     const { t } = useI18n();
-    const navigate = useNavigate();
-    const location = useLocation();
+    const { from, goBack } = useBackNavigation();
     const { showToast } = useToast();
     const { data: profile, isLoading, isError } = useProfileDetail("me");
     const { updatePicture, isLoading: isSaving } = useProfileUpsert();
     const [picture, setPicture] = useState<{ file: File; previewUrl: string } | null>(null);
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
     useEffect(() => {
         if (!picture) {
@@ -42,7 +40,7 @@ export default function ProfilePictureForm() {
         try {
             await updatePicture({ picture: picture.file });
             showToast(t("profile.toast.updated"), { variant: "success" });
-            navigate(returnPath ?? "/profiles/me/info", { replace: true });
+            goBack("/profiles/me/info", { replace: true });
         } catch (error) {
             setSubmitError(
                 apiErrorMessage(
@@ -157,7 +155,7 @@ export default function ProfilePictureForm() {
                     </form>
 
                     <div className="auth-footer">
-                        <Link to={returnPath ?? "/profiles/me/info"} className="auth-link">
+                        <Link to={from ?? "/profiles/me/info"} className="auth-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M19 12H5"></path>
                                 <path d="M12 19l-7-7 7-7"></path>

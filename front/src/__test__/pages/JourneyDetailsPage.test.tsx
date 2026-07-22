@@ -36,11 +36,6 @@ vi.mock("@/lib/auth/auth", () => ({
     isLoggedIn: () => false,
 }));
 
-vi.mock("@/lib/utils/navigationStack", () => ({
-    pushToNavigationStack: vi.fn(),
-    popFromNavigationStack: vi.fn().mockReturnValue(null),
-}));
-
 vi.mock("@/lib/api/journeys", () => ({
     createJourneyResponse: vi.fn(),
     getCityByUrl: vi.fn(),

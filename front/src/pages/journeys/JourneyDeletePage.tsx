@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/ToastProvider";
 import { deleteJourney } from "@/lib/api/journeys";
 import { invalidateJourneyDetailQueries, invalidateJourneyListQueries } from "@/lib/api/queryInvalidation";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
-import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { useBackNavigation } from "@/lib/navigation";
 import { parseApiDate } from "@/lib/utils/date";
 import NotFoundPage from "@pages/errors/NotFoundPage";
 const DELETE_MESSAGE_MAX_LENGTH = 1000;
@@ -29,6 +29,7 @@ export default function JourneyDeletePage() {
     const { showToast } = useToast();
     const queryClient = useQueryClient();
     const { id } = useParams();
+    const { goBack } = useBackNavigation();
     const { data, isLoading, isError, isNotFound } = useJourneyDetailData({ journeyId: id });
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -38,16 +39,7 @@ export default function JourneyDeletePage() {
     const admin = isAdmin();
 
     const handleBack = () => {
-        const previous = popFromNavigationStack();
-        if (previous) {
-            navigate(previous);
-            return;
-        }
-        if (id) {
-            navigate(`/journeys/${id}`);
-            return;
-        }
-        navigate("/journeys");
+        goBack(id ? `/journeys/${id}` : "/journeys");
     };
 
     const handleSubmit = async () => {

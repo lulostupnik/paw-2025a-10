@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "@/components/ui/Button";
 import { createReport, type ReportReason, type ReportType } from "@/lib/api/reports";
 import { useI18n } from "@/lib/i18n";
-import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { useBackNavigation } from "@/lib/navigation";
 import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 const REASONS: ReportReason[] = [
@@ -26,6 +26,7 @@ interface ReportCreatePageProps {
 export default function ReportCreatePage({ reportType }: ReportCreatePageProps) {
     const { t } = useI18n();
     const navigate = useNavigate();
+    const { goBack } = useBackNavigation();
     const { id } = useParams();
     const targetId = Number(id);
     const [reason, setReason] = useState<ReportReason>(REASONS[0]);
@@ -56,21 +57,18 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
         return "";
     }, [reason, t]);
 
-    const handleBack = () => {
-        const previous = popFromNavigationStack();
-        if (previous) {
-            navigate(previous);
-            return;
-        }
+    const fallback = useMemo(() => {
         if (reportType === "JOURNEY" && Number.isFinite(targetId)) {
-            navigate(`/journeys/${targetId}`);
-            return;
+            return `/journeys/${targetId}`;
         }
         if (reportType === "EVENT" && Number.isFinite(targetId)) {
-            navigate(`/events/${targetId}`);
-            return;
+            return `/events/${targetId}`;
         }
-        navigate("/explore");
+        return "/explore";
+    }, [reportType, targetId]);
+
+    const handleBack = () => {
+        goBack(fallback);
     };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -91,7 +89,7 @@ export default function ReportCreatePage({ reportType }: ReportCreatePageProps) 
                 reason,
                 description: description.trim(),
             });
-            handleBack();
+            goBack(fallback, { replace: true });
         } catch (error) {
             console.error("Failed to submit report", error);
             setServerError(apiErrorMessage(error, t("admin.dashboard.error", { defaultValue: "Error cargando datos." })));

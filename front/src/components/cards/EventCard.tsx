@@ -6,7 +6,6 @@ import CardMetaRow from "./CardMetaRow";
 import type { EventSummary } from "@/lib/api/events";
 import type { ProfileEvent } from "@/types/event";
 import { useI18n } from "@/lib/i18n";
-import { pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { prefetchEventDetail } from "@/lib/utils/prefetchDetail";
 
 interface EventCardProps {
@@ -91,7 +90,6 @@ export default function EventCard({ event }: EventCardProps) {
             className="listing-card-link"
             onMouseEnter={handlePrefetch}
             onFocus={handlePrefetch}
-            onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
         >
             <BaseCard imageUrl={imageUrl} badge={event.isFull ? t("events.card.status.full") : undefined}>
                 <h3 className="listing-card__title">{event.title}</h3>

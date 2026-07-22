@@ -12,7 +12,7 @@ import { createJourneyResponse, getCityByUrl, getJourneyResponses, getUserByUrl,
 import { fetchEvents, type EventDto } from "@/lib/api/events";
 import { emptyPage, mapPageList, type PageResult } from "@/types/pagination";
 import { getUserInterests } from "@/lib/api/users";
-import { consumeNavigationEntry, popFromNavigationStack, pushToNavigationStack } from "@/lib/utils/navigationStack";
+import { useBackNavigation, originState } from "@/lib/navigation";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import LoginRequiredModal from "@/components/LoginRequiredModal";
 import NotFoundPage from "@/pages/errors/NotFoundPage";
@@ -21,7 +21,6 @@ import type { ProfileInterest } from "@/types/profile";
 import { parseApiDate } from "@/lib/utils/date";
 import AvatarFallbackIcon from "@/components/ui/AvatarFallbackIcon";
 import type { QueryClient } from "@tanstack/react-query";
-import { sanitizeInternalPath } from "@/lib/utils/internalPath";
 
 const TIPS_PAGE_PARAM = "tipsPage";
 const COMMENTS_PAGE_PARAM = "commentsPage";
@@ -119,6 +118,7 @@ export default function JourneyDetailPage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
     const location = useLocation();
+    const { goBack } = useBackNavigation();
     const [searchParams, setSearchParams] = useSearchParams();
     const { id } = useParams();
     const numericId = Number(id);
@@ -157,7 +157,6 @@ export default function JourneyDetailPage() {
     const isOwner = data?.user?.id === getUserId();
     const admin = isAdmin();
     const currentUsername = getUsername();
-    const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
     const interestsPageSize = 8;
     const tipsPageSize = TIPS_PAGE_SIZE;
@@ -408,52 +407,37 @@ export default function JourneyDetailPage() {
     const currentJourneyLocation = `${location.pathname}${location.search}`;
 
     const handleBack = () => {
-        if (fromState && fromState !== currentJourneyLocation) {
-            consumeNavigationEntry(fromState);
-            navigate(fromState, { replace: true });
-            return;
-        }
-        const previous = popFromNavigationStack();
-        if (previous && previous !== currentJourneyLocation) {
-            navigate(previous);
-            return;
-        }
-        if (window.history.length > 1) {
-            navigate(-1);
-            return;
-        }
-        navigate("/journeys");
+        goBack("/journeys");
     };
 
     const handleCreateTip = () => {
         if (!id) {
             return;
         }
-        pushToNavigationStack(currentJourneyLocation);
         const nextParams = new URLSearchParams();
         if (tipsPage > 1) {
             nextParams.set(TIPS_PAGE_PARAM, String(tipsPage));
         }
-        navigate(`/journeys/${id}/tips/create${nextParams.toString() ? `?${nextParams.toString()}` : ""}`);
+        navigate(`/journeys/${id}/tips/create${nextParams.toString() ? `?${nextParams.toString()}` : ""}`, {
+            state: originState(location),
+        });
     };
 
     const handleReportComment = (responseId: number) => {
-        pushToNavigationStack(currentJourneyLocation);
         setOpenCommentMenuId(null);
-        navigate(`/reports/journey-responses/${responseId}/create`);
+        navigate(`/reports/journey-responses/${responseId}/create`, { state: originState(location) });
     };
 
     const handleDeleteComment = (responseId: number) => {
         if (!id) {
             return;
         }
-        pushToNavigationStack(currentJourneyLocation);
         setOpenCommentMenuId(null);
         const nextParams = new URLSearchParams({ journeyId: id });
         if (commentsPage > 1) {
             nextParams.set(COMMENTS_PAGE_PARAM, String(commentsPage));
         }
-        navigate(`/journeys/reply/${responseId}/delete?${nextParams.toString()}`);
+        navigate(`/journeys/reply/${responseId}/delete?${nextParams.toString()}`, { state: originState(location) });
     };
 
     const handleReplySubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -591,6 +575,7 @@ export default function JourneyDetailPage() {
                                             {(isOwner || admin) && (
                                                 <Link
                                                     to={`/journeys/${id}/delete`}
+                                                    state={originState(location)}
                                                     className="action-menu__item is-danger"
                                                     style={{
                                                         gap: "12px",
@@ -608,8 +593,8 @@ export default function JourneyDetailPage() {
                                             {!isOwner && (
                                                 <Link
                                                     to={`/reports/journeys/${id}/create`}
+                                                    state={originState(location)}
                                                     className="action-menu__item is-danger"
-                                                    onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
                                                     style={{
                                                         gap: "12px",
                                                     }}
@@ -805,7 +790,6 @@ export default function JourneyDetailPage() {
                                                             to={`/events/${event.id}`}
                                                             state={{ from: currentJourneyLocation }}
                                                             className="journey-event-card-link"
-                                                            onClick={() => pushToNavigationStack(currentJourneyLocation)}
                                                         >
                                                             <div className="journey-event-card">
                                                                 <div className="journey-event-left">
@@ -953,6 +937,7 @@ export default function JourneyDetailPage() {
                                                                         >
                                                                             <Link
                                                                                 to={`/journeys/tips/${tip.id}/update?journeyId=${id}&tipsPage=${tipsPage}`}
+                                                                                state={originState(location)}
                                                                                 style={{
                                                                                     color: "#333",
                                                                                     padding: "10px 14px",
@@ -971,6 +956,7 @@ export default function JourneyDetailPage() {
                                                                             </Link>
                                                                             <Link
                                                                                 to={`/journeys/tips/${tip.id}/delete?journeyId=${id}&tipsPage=${tipsPage}`}
+                                                                                state={originState(location)}
                                                                                 className="action-menu__item is-danger"
                                                                                 style={{
                                                                                     gap: "10px",

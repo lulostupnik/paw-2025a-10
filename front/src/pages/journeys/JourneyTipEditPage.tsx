@@ -9,7 +9,7 @@ import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useToast } from "@/components/ui/ToastProvider";
 import { getUserId } from "@/lib/auth/auth";
 import { getJourneyTip, updateJourneyTip } from "@/lib/api/journeys";
-import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { useBackNavigation } from "@/lib/navigation";
 import type { JourneyDetail, JourneyTip } from "@/types/journey";
 
 const TIP_TITLE_MAX_LENGTH = 255;
@@ -17,8 +17,8 @@ const TIP_CONTENT_MAX_LENGTH = 2047;
 
 export default function JourneyTipEditPage() {
     const { t } = useI18n();
-    const navigate = useNavigate();
     const { tipId } = useParams();
+    const { goBack } = useBackNavigation();
     const [searchParams] = useSearchParams();
     const journeyId = searchParams.get("journeyId");
     const tipsPage = searchParams.get("tipsPage");
@@ -54,16 +54,12 @@ export default function JourneyTipEditPage() {
     const tip = tipQuery.data ?? null;
 
     const handleBack = () => {
-        const previous = popFromNavigationStack();
-        if (previous) {
-            navigate(previous);
-            return;
-        }
-        if (journeyId) {
-            navigate(tipsPage ? `/journeys/${journeyId}?tipsPage=${tipsPage}` : `/journeys/${journeyId}`);
-            return;
-        }
-        navigate("/journeys");
+        const fallback = journeyId
+            ? tipsPage
+                ? `/journeys/${journeyId}?tipsPage=${tipsPage}`
+                : `/journeys/${journeyId}`
+            : "/journeys";
+        goBack(fallback);
     };
 
     if (isLoading || tipQuery.isLoading) {

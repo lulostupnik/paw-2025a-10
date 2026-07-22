@@ -34,10 +34,6 @@ vi.mock("@/components/ui/ToastProvider", () => ({
     useToast: () => ({ showToast: vi.fn() }),
 }));
 
-vi.mock("@/lib/utils/navigationStack", () => ({
-    popFromNavigationStack: vi.fn().mockReturnValue(null),
-}));
-
 const ownedEvent = {
     id: 1,
     title: "Test Event",

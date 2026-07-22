@@ -8,7 +8,7 @@ import PageStatus from "@/components/ui/PageStatus";
 import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useToast } from "@/components/ui/ToastProvider";
 import { deleteJourneyTip, getJourneyTip, listJourneyTips } from "@/lib/api/journeys";
-import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { useBackNavigation } from "@/lib/navigation";
 import { parseApiDate } from "@/lib/utils/date";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 
@@ -28,6 +28,7 @@ export default function JourneyTipDeletePage() {
     const queryClient = useQueryClient();
     const { showToast } = useToast();
     const { tipId } = useParams();
+    const { goBack } = useBackNavigation();
     const [searchParams] = useSearchParams();
     const journeyId = searchParams.get("journeyId");
     const tipsPage = searchParams.get("tipsPage");
@@ -89,16 +90,12 @@ export default function JourneyTipDeletePage() {
     const tip = tipQuery.data ?? fallbackTip;
 
     const handleBack = () => {
-        const previous = popFromNavigationStack();
-        if (previous) {
-            navigate(previous);
-            return;
-        }
-        if (journeyId) {
-            navigate(tipsPage ? `/journeys/${journeyId}?tipsPage=${tipsPage}` : `/journeys/${journeyId}`);
-            return;
-        }
-        navigate("/journeys");
+        const fallback = journeyId
+            ? tipsPage
+                ? `/journeys/${journeyId}?tipsPage=${tipsPage}`
+                : `/journeys/${journeyId}`
+            : "/journeys";
+        goBack(fallback);
     };
 
     const handleDelete = async () => {

@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from "react";
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useCallback } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
 import { useProfileEvents } from "@/hooks/profiles/useProfileEvents";
@@ -10,13 +10,12 @@ import ProfileInterestsTab from "@/components/profiles/ProfileInterestsTab";
 import ProfileEventsTab from "@/components/profiles/ProfileEventsTab";
 import { useProfileInterests } from "@/hooks/profiles/useProfileInterests";
 import { emptyPage } from "@/types/pagination";
-import { sanitizeInternalPath } from "@/lib/utils/internalPath";
+import { useBackNavigation } from "@/lib/navigation";
 import PageStatus from "@/components/ui/PageStatus";
 
 export default function ProfileDetail() {
     const { t } = useI18n();
-    const navigate = useNavigate();
-    const location = useLocation();
+    const { goBack } = useBackNavigation();
     const { profileId = "me", tab } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
     const { data: profile, isLoading, isError, infoLoading } = useProfileDetail({ profileId });
@@ -54,22 +53,8 @@ export default function ProfileDetail() {
         setSearchParams(next);
     }, [searchParams, setSearchParams]);
 
-    const returnPathKey = `profile:return:${profileId}`;
-    const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
-    const returnPath = fromState ?? sanitizeInternalPath(sessionStorage.getItem(returnPathKey));
-
-    useEffect(() => {
-        if (fromState) {
-            sessionStorage.setItem(returnPathKey, fromState);
-        }
-    }, [fromState, returnPathKey]);
-
     const handleBack = () => {
-        if (returnPath) {
-            navigate(returnPath, { replace: true });
-        } else {
-            navigate("/events", { replace: true });
-        }
+        goBack("/events", { replace: true });
     };
 
     const handlePageChange = useCallback(

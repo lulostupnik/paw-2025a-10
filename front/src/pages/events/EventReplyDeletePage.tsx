@@ -8,7 +8,7 @@ import ForbiddenPage from "@/pages/errors/ForbiddenPage";
 import { useToast } from "@/components/ui/ToastProvider";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { deleteEventResponse, getEventResponse } from "@/lib/api/events";
-import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { useBackNavigation } from "@/lib/navigation";
 import { parseApiDate } from "@/lib/utils/date";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import NotFoundPage from "@/pages/errors/NotFoundPage";
@@ -39,6 +39,7 @@ export default function EventReplyDeletePage() {
     const { t, locale } = useI18n();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const { goBack } = useBackNavigation();
     const { responseId } = useParams();
     const [searchParams] = useSearchParams();
     const eventId = searchParams.get("eventId");
@@ -64,16 +65,7 @@ export default function EventReplyDeletePage() {
     });
 
     const handleBack = () => {
-        const previous = popFromNavigationStack();
-        if (previous) {
-            navigate(previous);
-            return;
-        }
-        if (eventId) {
-            navigate(`/events/${eventId}`);
-            return;
-        }
-        navigate("/events");
+        goBack(eventId ? `/events/${eventId}` : "/events");
     };
 
     const handleSubmit = async () => {

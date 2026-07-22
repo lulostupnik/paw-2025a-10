@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/ToastProvider";
 import { useEventDetailData } from "@/hooks/useEventDetailData";
 import { deleteEvent } from "@/lib/api/events";
 import { invalidateEventDetailQueries, invalidateEventListQueries } from "@/lib/api/queryInvalidation";
-import { popFromNavigationStack } from "@/lib/utils/navigationStack";
+import { useBackNavigation } from "@/lib/navigation";
 import { getUserId, isAdmin } from "@/lib/auth/auth";
 import { parseApiDate } from "@/lib/utils/date";
 import NotFoundPage from "@/pages/errors/NotFoundPage";
@@ -29,6 +29,7 @@ export default function EventDeletePage() {
     const { showToast } = useToast();
     const queryClient = useQueryClient();
     const { id } = useParams();
+    const { goBack } = useBackNavigation();
     const { data, isLoading, isError, isNotFound } = useEventDetailData({ eventId: id });
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -37,16 +38,7 @@ export default function EventDeletePage() {
     const admin = isAdmin();
 
     const handleBack = () => {
-        const previous = popFromNavigationStack();
-        if (previous) {
-            navigate(previous);
-            return;
-        }
-        if (id) {
-            navigate(`/events/${id}`);
-            return;
-        }
-        navigate("/events");
+        goBack(id ? `/events/${id}` : "/events");
     };
 
     const handleSubmit = async () => {

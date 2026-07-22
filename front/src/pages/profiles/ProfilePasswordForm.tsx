@@ -1,11 +1,11 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useProfileUpsert } from "@/hooks/profiles/useProfileUpsert";
 import { classNames } from "@/lib/utils/classNames";
 import { useToast } from "@/components/ui/ToastProvider";
 import { apiErrorMessage } from "@/lib/api/client";
-import { sanitizeInternalPath } from "@/lib/utils/internalPath";
+import { useBackNavigation } from "@/lib/navigation";
 import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
 
 type PasswordStrengthStatus = "empty" | "very-weak" | "weak" | "medium" | "strong";
@@ -41,8 +41,7 @@ const evaluatePassword = (value: string): PasswordStrength => {
 
 export default function ProfilePasswordForm() {
     const { t } = useI18n();
-    const navigate = useNavigate();
-    const location = useLocation();
+    const { from, goBack } = useBackNavigation();
     const { showToast } = useToast();
     const { updatePassword, isLoading } = useProfileUpsert();
     const [password, setPassword] = useState("");
@@ -51,7 +50,6 @@ export default function ProfilePasswordForm() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [touched, setTouched] = useState({ password: false, confirmPassword: false });
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const returnPath = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
 
     const passwordStrength = useMemo(() => evaluatePassword(password), [password]);
     const passwordsMatch = password && confirmPassword ? password === confirmPassword : true;
@@ -67,7 +65,7 @@ export default function ProfilePasswordForm() {
         try {
             await updatePassword({ password, confirmPassword });
             showToast(t("profile.toast.passwordUpdated"), { variant: "success" });
-            navigate(returnPath ?? "/profiles/me/info", { replace: true });
+            goBack("/profiles/me/info", { replace: true });
         } catch (error) {
             setSubmitError(
                 apiErrorMessage(
@@ -200,7 +198,7 @@ export default function ProfilePasswordForm() {
                     </form>
 
                     <div className="auth-footer">
-                        <Link to={returnPath ?? "/profiles/me/info"} className="auth-link">
+                        <Link to={from ?? "/profiles/me/info"} className="auth-link">
                             {t("profile.back.to.profile")}
                         </Link>
                     </div>

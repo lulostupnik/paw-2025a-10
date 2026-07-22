@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import { useMemo } from "react";
 import type { ProfileEvent } from "@/types/event";
 import { useI18n } from "@/lib/i18n";
-import { pushToNavigationStack } from "@/lib/utils/navigationStack";
 import { parseApiDate } from "@/lib/utils/date";
 
 interface ProfileEventCardProps {
@@ -30,7 +29,6 @@ export default function ProfileEventCard({ event, isOwner = false }: ProfileEven
                 to={`/events/${event.id}`}
                 state={{ from: `${location.pathname}${location.search}` }}
                 className="event-card-link"
-                onClick={() => pushToNavigationStack(`${location.pathname}${location.search}`)}
             >
                 <div className="featured-event-card">
                     <div className="event-image-container">

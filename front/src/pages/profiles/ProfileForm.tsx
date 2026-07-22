@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useMemo, useRef, useState, type FormEvent } from "react";
+import { useParams } from "react-router-dom";
 import type { ProfileDetail } from "@/types/profile";
 import { useI18n } from "@/lib/i18n";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
@@ -10,7 +10,7 @@ import { listCareers } from "@/lib/api/careers";
 import { listUniversities } from "@/lib/api/universities";
 import { emptyPage } from "@/types/pagination";
 import { useToast } from "@/components/ui/ToastProvider";
-import { sanitizeInternalPath } from "@/lib/utils/internalPath";
+import { useBackNavigation } from "@/lib/navigation";
 import { apiErrorMessage } from "@/lib/api/client";
 import PageStatus from "@/components/ui/PageStatus";
 import { focusFirstInvalidField } from "@/lib/forms/focusFirstInvalidField";
@@ -27,7 +27,6 @@ interface Option {
 }
 
 interface ProfileEditFormProps {
-    profileId: string;
     profile: ProfileDetail;
     universities: Option[];
     careers: Option[];
@@ -78,7 +77,6 @@ export default function ProfileForm() {
     return (
         <ProfileEditForm
             key={profile.id}
-            profileId={profileId}
             profile={profile}
             universities={universities}
             careers={careers}
@@ -87,10 +85,9 @@ export default function ProfileForm() {
     );
 }
 
-function ProfileEditForm({ profileId, profile, universities, careers, hasOptionsError }: ProfileEditFormProps) {
+function ProfileEditForm({ profile, universities, careers, hasOptionsError }: ProfileEditFormProps) {
     const { t } = useI18n();
-    const navigate = useNavigate();
-    const location = useLocation();
+    const { goBack } = useBackNavigation();
     const { showToast } = useToast();
     const { updateProfile, isLoading: isSaving } = useProfileUpsert();
     const [form, setForm] = useState<ProfileFormState>({
@@ -107,15 +104,6 @@ function ProfileEditForm({ profileId, profile, universities, careers, hasOptions
         () => careers.find((item) => item.name === profile.career?.name) ?? null
     );
     const formRef = useRef<HTMLFormElement>(null);
-    const returnPathKey = `profile:return:${profileId}`;
-    const fromState = sanitizeInternalPath((location.state as { from?: string } | null)?.from);
-    const returnPath = fromState ?? sanitizeInternalPath(sessionStorage.getItem(returnPathKey));
-
-    useEffect(() => {
-        if (fromState) {
-            sessionStorage.setItem(returnPathKey, fromState);
-        }
-    }, [fromState, returnPathKey]);
 
     const errors = useMemo(
         () => ({
@@ -155,7 +143,7 @@ function ProfileEditForm({ profileId, profile, universities, careers, hasOptions
                 careerId: selectedCareer?.id,
             });
             showToast(t("profile.toast.updated"), { variant: "success" });
-            navigate(returnPath ?? `/profiles/${profile.id}/info`, { replace: true });
+            goBack(`/profiles/${profile.id}/info`, { replace: true });
         } catch (err) {
             setSubmitError(
                 apiErrorMessage(
@@ -169,7 +157,7 @@ function ProfileEditForm({ profileId, profile, universities, careers, hasOptions
     };
 
     const handleBack = () => {
-        navigate(returnPath ?? `/profiles/${profile.id}/info`, { replace: true });
+        goBack(`/profiles/${profile.id}/info`, { replace: true });
     };
 
     return (

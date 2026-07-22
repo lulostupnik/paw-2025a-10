@@ -30,10 +30,6 @@ vi.mock("@/lib/i18n", () => ({
     }),
 }));
 
-vi.mock("@/lib/utils/navigationStack", () => ({
-    pushToNavigationStack: vi.fn(),
-}));
-
 vi.mock("@/lib/utils/prefetchDetail", () => ({
     prefetchJourneyDetail: (...args: unknown[]) => mockPrefetchJourneyDetail(...args),
     prefetchEventDetail: (...args: unknown[]) => mockPrefetchEventDetail(...args),

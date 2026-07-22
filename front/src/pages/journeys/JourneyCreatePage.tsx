@@ -6,6 +6,7 @@ import { classNames } from "@/lib/utils/classNames";
 import CatalogAutocompleteField from "@/components/form/CatalogAutocompleteField";
 import { searchUniversities, type CatalogOption } from "@/lib/api/catalog";
 import { createJourney } from "@/lib/api/journeys";
+import { useBackNavigation } from "@/lib/navigation";
 import { useI18n } from "@/lib/i18n";
 import { getTodayIsoDate } from "@/lib/utils/date";
 import { useProfileDetail } from "@/hooks/profiles/useProfileDetail";
@@ -59,6 +60,7 @@ const parseIdFromUrl = (url?: string | null) => {
 
 export default function JourneyCreatePage() {
     const navigate = useNavigate();
+    const { goBack } = useBackNavigation();
     const { t } = useI18n();
     const { showToast } = useToast();
     const { data: profile, isLoading: profileLoading } = useProfileDetail("me");
@@ -171,7 +173,7 @@ export default function JourneyCreatePage() {
     };
 
     const handleCancel = () => {
-        navigate(-1);
+        goBack("/journeys");
     };
 
     const descriptionHelper = t("journey.create.description.helper");

@@ -13,6 +13,7 @@ import { deleteReport, getReportDetail, updateReportStatus, type ReportDetail, t
 import { invalidateUserViewQueries, updateUserBlocked } from "@/lib/api/users";
 import ActionMenu, { type ActionMenuItem } from "@/components/ui/ActionMenu";
 import PageStatus from "@/components/ui/PageStatus";
+import { useBackNavigation } from "@/lib/navigation";
 import { parseApiDate } from "@/lib/utils/date";
 
 type ReportReason =
@@ -121,11 +122,12 @@ export default function ReportDetailPage() {
     const navigate = useNavigate();
     const { id } = useParams();
     const location = useLocation();
+    const { from } = useBackNavigation();
     const queryClient = useQueryClient();
     const reportId = id ? Number(id) : null;
     const navigationState = location.state as { report?: ReportDetail | ReportListItem; from?: string } | null;
     const stateReport = navigationState?.report ?? null;
-    const listReturnPath = navigationState?.from ?? REPORTS_LIST_PATH;
+    const listReturnPath = from ?? REPORTS_LIST_PATH;
     const matchingStateReport = stateReport && reportId === stateReport.id ? stateReport : null;
     const initialReport = hasResolvedReportContent(matchingStateReport) ? matchingStateReport : null;
     const [report, setReport] = useState<ReportDetail | null>(initialReport);
