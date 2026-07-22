@@ -194,7 +194,7 @@ public class User{
                 role,
                 university != null ? university.getId() : null,
                 career != null ? career.getId() : null,
-                journey != null ? journey.getId() : null
+                hasActiveJourney() ? journey.getId() : null
         );
     }
 
