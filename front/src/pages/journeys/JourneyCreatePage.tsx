@@ -1,5 +1,5 @@
 import { apiErrorMessage } from "@/lib/api/client";
-import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/ui/Button";
@@ -74,9 +74,10 @@ export default function JourneyCreatePage() {
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [destinationQuery, setDestinationQuery] = useState(form.destination?.name ?? "");
     const journeyId = parseIdFromUrl(profile?.links?.journeyUrl);
+    const justCreatedRef = useRef(false);
 
     useEffect(() => {
-        if (journeyId) {
+        if (journeyId && !justCreatedRef.current) {
             navigate(`/journeys/${journeyId}/update`, { replace: true });
         }
     }, [journeyId, navigate]);
@@ -150,6 +151,7 @@ export default function JourneyCreatePage() {
                 endDate: form.endDate,
                 description: form.description.trim(),
             });
+            justCreatedRef.current = true;
             setForm({ ...INITIAL_FORM });
             setDestinationQuery("");
             setTouched({});
