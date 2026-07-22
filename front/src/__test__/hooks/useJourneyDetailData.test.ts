@@ -11,7 +11,7 @@ describe("useJourneyDetailData", () => {
     it("should fetch and build journey detail", async () => {
         const { result } = renderHook(() => useJourneyDetailData({ journeyId: "1" }));
 
-        await waitFor(() => expect(result.current.isLoading).toBe(false));
+        await waitFor(() => expect(result.current.data).not.toBeNull());
 
         expect(result.current.data).not.toBeNull();
         expect(result.current.data!.id).toBe(1);
@@ -22,7 +22,7 @@ describe("useJourneyDetailData", () => {
     it("should resolve user info", async () => {
         const { result } = renderHook(() => useJourneyDetailData({ journeyId: "1" }));
 
-        await waitFor(() => expect(result.current.isLoading).toBe(false));
+        await waitFor(() => expect(result.current.data).not.toBeNull());
 
         expect(result.current.data!.user).toBeDefined();
         expect(result.current.data!.user!.username).toBe("testuser");
@@ -31,7 +31,7 @@ describe("useJourneyDetailData", () => {
     it("should resolve destination university", async () => {
         const { result } = renderHook(() => useJourneyDetailData({ journeyId: "1" }));
 
-        await waitFor(() => expect(result.current.isLoading).toBe(false));
+        await waitFor(() => expect(result.current.data).not.toBeNull());
 
         expect(result.current.data!.destinationUniversity).toBeDefined();
         expect(result.current.data!.destinationUniversity!.name).toBe("MIT");
@@ -40,7 +40,7 @@ describe("useJourneyDetailData", () => {
     it("should not bundle comments/tips/interests (loaded separately by the page)", async () => {
         const { result } = renderHook(() => useJourneyDetailData({ journeyId: "1" }));
 
-        await waitFor(() => expect(result.current.isLoading).toBe(false));
+        await waitFor(() => expect(result.current.data).not.toBeNull());
 
         expect(result.current.data!.comments).toEqual([]);
         expect(result.current.data!.tips).toEqual([]);

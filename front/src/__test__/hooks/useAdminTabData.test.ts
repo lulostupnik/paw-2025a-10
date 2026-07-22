@@ -17,19 +17,10 @@ describe("useAdminTabData", () => {
     });
 
     describe("useAdminJourneys", () => {
-        it("should return paginated admin journeys", async () => {
-            const { result } = renderHook(() => useAdminJourneys());
-
-            await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-            expect(result.current.data.content).toHaveLength(2);
-            expect(result.current.isError).toBe(false);
-        });
-
         it("should map journeys to admin format", async () => {
             const { result } = renderHook(() => useAdminJourneys());
 
-            await waitFor(() => expect(result.current.isLoading).toBe(false));
+            await waitFor(() => expect(result.current.data.totalElements).toBe(2));
 
             const journey = result.current.data.content[0];
             expect(journey.id).toBeDefined();

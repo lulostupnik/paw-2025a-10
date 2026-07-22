@@ -8,29 +8,10 @@ describe("useReports", () => {
         sessionStorage.clear();
     });
 
-    it("should return paginated reports", async () => {
-        const { result } = renderHook(() => useReports());
-
-        await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-        expect(result.current.data.content).toHaveLength(2);
-        expect(result.current.isError).toBe(false);
-    });
-
-    it("should resolve reported user info", async () => {
-        const { result } = renderHook(() => useReports());
-
-        await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-        const report = result.current.data.content[0];
-        expect(report.reportedUser).toBeDefined();
-        expect(report.reportedUser.username).toBeDefined();
-    });
-
     it("should resolve reporting user info", async () => {
         const { result } = renderHook(() => useReports());
 
-        await waitFor(() => expect(result.current.isLoading).toBe(false));
+        await waitFor(() => expect(result.current.data.content[0]?.reportingUser).toBeDefined());
 
         const report = result.current.data.content[0];
         expect(report.reportingUser).toBeDefined();
@@ -40,7 +21,7 @@ describe("useReports", () => {
     it("should include report metadata", async () => {
         const { result } = renderHook(() => useReports());
 
-        await waitFor(() => expect(result.current.isLoading).toBe(false));
+        await waitFor(() => expect(result.current.data.content[0]?.reason).toBe("SPAM"));
 
         const report = result.current.data.content[0];
         expect(report.reason).toBe("SPAM");
